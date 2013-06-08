@@ -1,0 +1,33 @@
+<div id="item_list">
+<h1>Listing items</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Partno</th>
+    <th>Package</th>
+    <th>Imageurl</th>
+    <th>Price</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @items.each do |item| %>
+  <tr class="<% cycle('list_line_odd', 'list_line_even')%>">
+    <td><%= item.name %></td>
+    <td><%= item.partNo %></td>
+    <td><%= item.package %></td>
+    <td><%= item.imageURL %></td>
+    <td><%= item.price %></td>
+    <td class="list_actions"><%= link_to 'Show', item %></td>
+    <td class="list_actions"><%= link_to 'Edit', edit_item_path(item) %></td>
+    <td class="list_actions"><%= link_to 'Destroy', item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+</div>
+<br />
+
+<%= link_to 'New Item', new_item_path %>
