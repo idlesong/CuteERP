@@ -1,5 +1,15 @@
 RorWebERP::Application.routes.draw do
+  get "inventory/index"
+
+  resources :line_items
+
+
+  resources :carts
+
+
   resources :items
+
+  root :to => 'inventory#index', :as => 'inventory'
 
 
   # The priority is based upon order of creation:

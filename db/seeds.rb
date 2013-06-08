@@ -8,11 +8,13 @@
 Item.delete_all
 #...
 Item.create(:name => 'Analog WalkieTalkie BB',
+	:imageURL => '/app/assets/images/rails.png',
 	:partNo => 'SRT3212',
 	:package => 'QFP64',
 	:price => 9.5
 	)
 Item.create(:name => 'Analog WalkieTalkie BB',
+	:imageURL => '/app/assets/images/rails.png',
 	:partNo => 'SRT3210',
 	:package => 'LQFP100',
 	:price => 10.0
