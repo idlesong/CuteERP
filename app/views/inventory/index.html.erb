@@ -8,9 +8,10 @@
 	<%= image_tag(item.imageURL) %>
 	<h3><%= item.name %></h3>
 	<div class="price_line">
-		<span class="price"><%= item.price %></span>
+		<span class="price"><%= number_to_currency(item.price)%></span>
 	</div>
 </div>
 <% end %>
-
+<!--
 <p>Find me in app/views/inventory/index.html.erb</p>
+>

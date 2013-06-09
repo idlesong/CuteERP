@@ -1,14 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RorWebERP</title>
+  <title>WebERP System Online</title>
+  <%= stylesheet_link_tag    "scaffold" %>
+  <%= stylesheet_link_tag    "inventory" %>
   <%= stylesheet_link_tag    "application", "rorweberp",:all, :media => "all" %>
   <%= javascript_include_tag "application" %>
+  <%= javascript_include_tag :defaults %>
   <%= csrf_meta_tags %>
 </head>
-<body>
+<body id="inventory">
+	<div id = "banner">
+		<%= image_tag("images/rails.png")%>
+		<%= @page_title || "Online Web ERP System" %>
+	</div>
 
-<%= yield %>
+	<div id = "columns">
+		<div id = "side">
+			<a href="http://www....">Home</a><br />
+			<a href="http://www....">Itmes</a><br />
+			<a href="http://www....">Customers</a><br />
+			<a href="http://www....">Inventory</a><br />
+		</div>
+		<div id="main">
+			<%= yield %>
+		</div>
+	</div>
+
+
 
 </body>
 </html>
