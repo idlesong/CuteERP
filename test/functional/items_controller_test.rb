@@ -3,6 +3,12 @@ require 'test_helper'
 class ItemsControllerTest < ActionController::TestCase
   setup do
     @item = items(:one)
+    @update = {
+      :name => 'Digital WalkieTalkie BB',
+      :partNo => 'SCT3928',
+      :package => 'BGA144',
+      :price => 118
+    }
   end
 
   test "should get index" do
@@ -18,7 +24,8 @@ class ItemsControllerTest < ActionController::TestCase
 
   test "should create item" do
     assert_difference('Item.count') do
-      post :create, item: { imageURL: @item.imageURL, name: @item.name, package: @item.package, partNo: @item.partNo, price: @item.price }
+      #post :create, item: { imageURL: @item.imageURL, name: @item.name, package: @item.package, partNo: @item.partNo, price: @item.price }
+      post :create, :itme => @update
     end
 
     assert_redirected_to item_path(assigns(:item))
@@ -35,7 +42,8 @@ class ItemsControllerTest < ActionController::TestCase
   end
 
   test "should update item" do
-    put :update, id: @item, item: { imageURL: @item.imageURL, name: @item.name, package: @item.package, partNo: @item.partNo, price: @item.price }
+    #put :update, id: @item, item: { imageURL: @item.imageURL, name: @item.name, package: @item.package, partNo: @item.partNo, price: @item.price }
+    put :update,:id => @item.to_param, :itme => @update
     assert_redirected_to item_path(assigns(:item))
   end
 

@@ -2,13 +2,14 @@
 <p id="notice"><%= notice %></p>
 <% end %>
 
-<h1>Inventory#index</h1>
+<h1>Inventory Catalog</h1>
 <% @items.each do |item| %>
 <div class="entry">
 	<%= image_tag(item.imageURL) %>
 	<h3><%= item.name %></h3>
 	<div class="price_line">
 		<span class="price"><%= number_to_currency(item.price)%></span>
+		<%= button_to 'Add to Cart', line_items_path(:item_id => item) %>
 	</div>
 </div>
 <% end %>
