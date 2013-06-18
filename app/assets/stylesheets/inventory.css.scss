@@ -44,3 +44,58 @@
 #inventory .entry form, #inventory .entry form div{
 	display: inline
 }
+
+/* An entry in the inventory catalog */
+
+#inventory  .entry {
+  overflow: auto;
+  margin-top: 1em;
+  border-bottom: 1px dotted #77d;
+}
+
+#inventory  .title {
+  font-size: 120%;
+  font-family: sans-serif;
+}
+
+#inventory .entry img {
+  width: 80px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  float: left;
+}
+
+
+#inventory .entry h3 {
+ margin-top: 0;
+ margin-bottom: 2px;
+ color: #227;
+}
+
+#inventory .entry p {
+ margin-top: 0.5em; 
+ margin-bottom: 0.8em; 
+}
+
+#inventory .entry .price_line {
+ clear: both;
+ margin-bottom: 0.5em;
+}
+
+#inventory .entry .add_to_cart {
+  position: relative;
+}
+
+#inventory .entry  .price {
+  color: #44a;
+  font-weight: bold;
+  margin-right: 2em;
+}
+
+#inventory .list_line_even {
+  background:   #e0f8f8;
+}
+
+#inventory .list_line_odd {
+  background:   #f8b0f8;
+}

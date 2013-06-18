@@ -14,7 +14,7 @@
   </tr>
 
 <% @items.each do |item| %>
-  <tr class="<% cycle('list_line_odd', 'list_line_even')%>">
+  <tr class="<%= cycle('list_line_odd', 'list_line_even')%>">
     <td><%= item.name %></td>
     <td><%= item.partNo %></td>
     <td><%= item.package %></td>

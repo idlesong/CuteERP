@@ -1,15 +1,22 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  name: MyString
-  partNo: MyString
-  package: MyString
-  imageURL: MyString
-  price: 9.99
+  name: "Analog RF"
+  partNo: "SRT3500"
+  package: "QFN28"
+  imageURL: "rails.png"
+  price: 4
 
 two:
-  name: MyString
-  partNo: MyString
-  package: MyString
-  imageURL: MyString
-  price: 9.99
+  name: "ModuleDemodule"
+  partNo: "SRT3300"
+  package: "QFN16"
+  imageURL: "rails.png"
+  price: 1
+
+ruby:
+  name: "FM radio"
+  partNo: "SRT8305"
+  package: "QFN24"
+  imageURL: "rails.png"
+  price: 2  

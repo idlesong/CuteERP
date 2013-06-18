@@ -1,6 +1,6 @@
 class Item < ActiveRecord::Base
   attr_accessible :imageURL, :name, :package, :partNo, :price
-  #default_scope :order => 'name'
+  default_scope :order => 'name'
 
   has_many :line_items
 
@@ -12,7 +12,7 @@ class Item < ActiveRecord::Base
               :message => "must be a URL for Gif, JPG or PNG image." 
               }
 
-  #before_destory :ensure_not_referenced_by_any_line_item
+  before_destroy :ensure_not_referenced_by_any_line_item
   
  private
   #ensure that there are no line items referencing this item
