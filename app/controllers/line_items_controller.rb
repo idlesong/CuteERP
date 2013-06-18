@@ -43,7 +43,7 @@ class LineItemsController < ApplicationController
     #@line_item = LineItem.new(params[:line_item])
     @cart = current_cart
     item = Item.find(params[:item_id])
-    @line_item = @cart.line_items.build(:item => item)
+    @line_item = @cart.add_item(item.id)
 
     respond_to do |format|
       if @line_item.save

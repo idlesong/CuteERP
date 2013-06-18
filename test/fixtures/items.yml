@@ -15,8 +15,8 @@ two:
   price: 1
 
 ruby:
-  name: "FM radio"
-  partNo: "SRT8305"
-  package: "QFN24"
-  imageURL: "rails.png"
-  price: 2  
+  name: 'FMradio'
+  partNo: 'SRT8305'
+  package: 'QFN24'
+  imageURL: 'rails.png'
+  price: 2.3  
