@@ -104,3 +104,14 @@
 #inventory .list_line_odd {
   background:   #f8b0f8;
 }
+
+#cart, #cart table{
+	font-size: smaller;
+	color: white;
+}
+
+#cart table{
+	border-top: 1px dotted #595;
+	border-bottom: 1px dotted #595;
+	margin-bottom: 10px;
+}

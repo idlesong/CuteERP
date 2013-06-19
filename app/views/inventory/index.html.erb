@@ -9,7 +9,7 @@
 	<h3><%= item.name %></h3>
 	<div class="price_line">
 		<span class="price"><%= number_to_currency(item.price)%></span>
-		<%= button_to 'Add to Cart', line_items_path(:item_id => item) %>
+		<%= button_to 'Add to Cart', line_items_path(:item_id => item), :remote => true %>
 	</div>
 </div>
 <% end %>
