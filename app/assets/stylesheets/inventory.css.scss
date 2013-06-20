@@ -115,3 +115,35 @@
 	border-bottom: 1px dotted #595;
 	margin-bottom: 10px;
 }
+
+.inventory_form fieldset{
+	background: #efe
+}
+
+.inventroy_form legeng{
+	color: #dfd;
+	background: #141;
+	font-family: sans-serif;
+	padding: 0.2em 1em;
+}
+
+.inventory_form label{
+	width: 5em;
+	float: left;
+	text-align: right;
+	padding-top: 0.2em;
+	margin-right: 0.1em;
+	display: block;
+}
+
+.inventory_form select, .inventory_form textarea, .inventory_form input{
+	margin-left: 0.5em;
+}
+
+.inventory_form .submit{
+	margin-left: 4em;
+}
+
+.inventory_form div{
+	margin: 0.5em 0;
+}

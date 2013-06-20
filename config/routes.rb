@@ -1,13 +1,18 @@
 RorWebERP::Application.routes.draw do
+  resources :orders
+
+
   get "inventory/index"
 
   resources :line_items
 
 
   resources :carts
+  get "inventory/index"
 
-
-  resources :items
+  resources :items do
+    get :who_bought, :on => :member
+  end
 
   root :to => 'inventory#index', :as => 'inventory'
 
