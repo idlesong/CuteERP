@@ -7,6 +7,7 @@ class ItemsControllerTest < ActionController::TestCase
       :name => 'Digital WalkieTalkie BB',
       :partNo => 'SCT3928',
       :package => 'BGA144',
+      :imageURL => 'rails.png',
       :price => 118
     }
   end
@@ -24,8 +25,7 @@ class ItemsControllerTest < ActionController::TestCase
 
   test "should create item" do
     assert_difference('Item.count') do
-      #post :create, item: { imageURL: @item.imageURL, name: @item.name, package: @item.package, partNo: @item.partNo, price: @item.price }
-      post :create, :itme => @update
+      post :create, :item => @update
     end
 
     assert_redirected_to item_path(assigns(:item))
