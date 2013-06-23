@@ -1,18 +1,33 @@
 RorWebERP::Application.routes.draw do
+  get 'admin' => 'admin/index'
+  get 'admin/index'
+
+  controller :sessions do
+    get 'login' => :new
+    post 'login' => :create
+    delete 'logout' => :destroy
+  end
+  resources :admin, :only => [:index]
+
+  resources :users
+  get "users/show"
+
+
   resources :orders
 
-
-  get "inventory/index"
 
   resources :line_items
 
 
   resources :carts
-  get "inventory/index"
+
 
   resources :items do
     get :who_bought, :on => :member
   end
+
+
+  get "inventory/index"
 
   root :to => 'inventory#index', :as => 'inventory'
 
