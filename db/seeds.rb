@@ -25,4 +25,38 @@ Item.create(:name => 'Digital WalkieTalkie BB',
 	:package => 'LQFP100',
 	:price => 82.0
 	)
+Item.create(:name => 'Digital WalkieTalkie BB',
+	:imageURL => 'rails.png',
+	:partNo => 'SCT3918',
+	:package => 'LQFP100',
+	:price => 82.0
+	)
+Item.create(:name => 'Digital WalkieTalkie BB',
+	:imageURL => 'rails.png',
+	:partNo => 'SCT3928',
+	:package => 'BGA100',
+	:price => 114.0
+	)
 #...
+Customer.delete_all
+Customer.create(:name => 'Asichip',
+	:balance => 100000,
+	:contact => 'Cuijiyong',
+	:telephone => '0755-68888888'
+	)
+Customer.create(:name => 'HYT',
+	:balance => 100000,
+	:contact => 'Cuijiyong',
+	:telephone => '0755-68888888'
+	)
+Customer.create(:name => 'Army',
+	:balance => 100000,
+	:contact => 'Cuijiyong',
+	:telephone => '0755-68888888'
+	)
+Customer.create(:name => 'Abell',
+	:balance => 100000,
+	:contact => 'Cuijiyong',
+	:telephone => '0755-68888888'
+	)
+

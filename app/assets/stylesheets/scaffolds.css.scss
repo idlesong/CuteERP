@@ -67,3 +67,172 @@ div {
     list-style: square;
   }
 }
+
+// add navgation bar globly
+#nav {
+  display: inline-block;
+  margin-left: 10px;
+  margin-top:10px;
+  margin-bottom: 0px;
+  //width: 1000px;
+  padding: 7px 6px 0;
+  line-height: 100%;
+  border-radius: 2em;
+
+  -webkit-border-radius: 2em;
+  -moz-border-radius: 2em;
+
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .4);
+
+  background: #8b8b8b;
+  //filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#a9a9a9', endColorstr='#7a7a7a');
+  background: -webkit-gradient(linear, left top, left bottom, from(#a9a9a9), to(#7a7a7a));
+  background: -moz-linear-gradient(top, #a9a9a9, #7a7a7a);
+
+  border: solid 1px #6d6d6d;
+}
+
+#nav li {
+  margin: 0 5px;
+  padding: 0 0 8px;
+  float: left;
+  position: relative;
+  list-style: none;
+}
+
+#nav ul{
+  display: none;
+}
+
+// ==== main level link ====
+#nav a{
+  font-weight: bold;
+  color: #e7e5e5;
+  text-decoration: none;
+  display: block;
+  padding: 8px  20px;
+  margin: 0;
+  -webkit-border-radius: 1.6em;
+  -moz-border-radius: 1.6em;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .3);
+}
+
+// main level link hover 
+#nav .current a, #nav li:hover > a {
+  background: #d1d1d1; /* for non-css3 browsers */
+  background: -webkit-gradient(linear, left top, left bottom, from(#ebebeb), to(#a1a1a1));
+  background: -moz-linear-gradient(top, #ebebeb, #a1a1a1);
+
+  color: #444;
+  border-top: solid 1px #f8f8f8;
+  -webkit-box-shadow: 0 1px 1px raba(0, 0, 0, .2);
+  -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+// ==== sub level link hover ====
+#nav ul{
+  background: #ddd;
+
+  display: none;
+  margin: 0;
+  padding: 0;
+  width: 185px;
+  position: absolute;
+
+  top: 40px;
+}
+
+#nav ul li:hover a, #nav li:hover li a{
+  background: none;
+  border: none;
+  color: #666;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+}
+
+#nav ul a:hover{
+  background: #0399d4 !important;
+
+  color: #fff !important;
+
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
+
+// ==== drop down ====
+#nav li:hover > ul{
+  display: block;
+}
+
+#nav ul li{
+  float: none;
+  margin: 0;
+  padding: 4px  4px;
+}
+
+
+
+// ==== side bar menu use the style like nav ====
+#side {
+  //margin-left: 25px;
+  //margin-top: 0px;
+  position: absolute;
+  //background: #8b8b8b;//#ebebeb;
+  float: left;
+}
+
+//#side ul see #nav ul
+#side li{
+  list-style: none;
+  border-bottom: 1px solid #e5eff8;
+  background: #8b8b8b;
+}
+
+#side a{
+  //font-weight: bold;
+  color: #fff;//#e7e5e5;
+  text-decoration: none;
+  display: block;
+  padding: 4px  40px;
+  margin: 0;
+}
+
+//==== common table style ====
+  table {
+    background: #fff;
+    width:98%;
+    border-top:1px solid #e5eff8;
+    border-right:1px solid #e5eff8;
+    margin:1em auto;
+    border-collapse:collapse;
+  }
+
+  th{
+    background:#f4f9fe;
+    text-align:center;
+    font:bold 1.2em/2em;
+    color:#66a3d3;
+    border-bottom: 1px solid #e5eff8;
+    border-left: 1px solid #e5eff8;
+    padding:.7em 1em;
+  }
+
+  tr.list_line_even td{
+    background:#f7fbff;
+  }
+
+  td{
+    color:#678197;
+    border-bottom:1px solid #e5eff8;
+    border-left:1px solid #e5eff8;
+    padding: .3em 1em;
+    text-align: center;
+  }
+
+  a{
+    color: #04bff4;
+    text-decoration: none;
+    top: 4px;
+  }
