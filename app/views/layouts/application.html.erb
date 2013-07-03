@@ -11,27 +11,16 @@
   <%= csrf_meta_tags %>
 </head>
 <body id="inventory">
-	<ul id="nav">
-		<li class="current"><a href="">Cute Web ERP</a></li>
-		<li> Hi,idlesong </li>
-		<li> <a href="">Setup </a>
-			<ul>
-				<li><a href="">N.Design Studio </a></li>
-				<li><a href="">Web Designer</a></li>
-				<li><a href="">IconDock</a></li>
-				<li><a href="">Best Web Gallery</a></li>
-			</ul>
-		</li>
-		<li><a href="">Supplier</a>
-			<ul>
-				<li><a href="">Team</a></li>
-				<li><a href="">Another Link</a></li>
-				<li><a href="">Department</a></li>
-			</ul>
-		</li>
-		<li><a href="customers">Customers</a></li>
-		<li><a href="items">Products</a></li>
-	</ul>
+	<div id = "menu">
+		<ul>
+			<li class="nav_left"><a href="#">Home    </a></li>
+			<li class="nav_left"><a href="#">Group#Sales</a></li>		
+			<li class="nav_right"><a href=<%= admin_path %>>@Qinkunsong</a></li>
+			<li class="nav_right"><a href=<%= items_path %>>Products </a></li>		
+			<li class="nav_right"><a href=<%= customers_path %>>Customers</a></li>
+			<li class="nav_right"><a href="#">Suppliers</a></li>
+		</ul>
+	</div>
 
 	<div id = "columns">
 		<div id = "side">			

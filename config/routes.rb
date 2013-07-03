@@ -1,9 +1,8 @@
 RorWebERP::Application.routes.draw do
   resources :customers
 
-
-  get 'admin' => 'admin/index'
   get 'admin/index'
+  get 'admin' => 'admin/index'
 
   controller :sessions do
     get 'login' => :new

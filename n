@@ -1,0 +1,77 @@
+[33mcommit 40625855b56e9ea68ea69a42cfe72e3f41794f16[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sun Jun 30 17:50:39 2013 +0800
+
+    Fixed Ajax cart bug
+
+[33mcommit 340b4237515d959c65fb4dd62f02f3e5ebed6aa5[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Wed Jun 26 15:04:31 2013 +0800
+
+    add customer model
+
+[33mcommit d63add0a69ee8c11bd11fa9c22787cbff4fc01e4[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sun Jun 23 22:42:10 2013 +0800
+
+    fixed a test failure
+
+[33mcommit efd6d20ffcae1e28aa8dcd06f5a88428e538952c[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sun Jun 23 22:24:51 2013 +0800
+
+    Added login test
+
+[33mcommit a298266075b177a4d0d3d86c81878bf40a80f680[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Thu Jun 20 18:35:13 2013 +0800
+
+    Add check out,but ajax not work
+
+[33mcommit 5b6256b45ec92471cf58b360d17d4ce26b2a4ece[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Wed Jun 19 18:33:06 2013 +0800
+
+    ajax cart effect
+
+[33mcommit ff3740e0cc146dc1ba7751efc20f23c182a05bea[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Tue Jun 18 16:27:52 2013 +0800
+
+    add smart cart
+
+[33mcommit c5510f861f0e36092f5a95e74a773b1f1c9398db[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Tue Jun 18 08:53:28 2013 +0800
+
+    Bugfix and layout modify
+
+[33mcommit 565a7f014e97a4c248cd31b93cc792b8c77fabc7[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Mon Jun 17 18:00:18 2013 +0800
+
+    add some test
+
+[33mcommit 68b0dc9203864e701b53f78870de2014e2bfb9b9[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sun Jun 9 18:08:17 2013 +0800
+
+    Validate and Layout
+
+[33mcommit fd2e5c1ab8d1853c108f10ffc8dfe526cdbac76d[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sun Jun 9 13:46:56 2013 +0800
+
+    Inventory display
+
+[33mcommit 31c4ea94f89223cc4ea0526880b21c59a3304f54[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sat Jun 8 18:30:43 2013 +0800
+
+    Add Cart and Investory
+
+[33mcommit ff9362d20338fed067a0461177aec1d9c1c9def2[m
+Author: idlesong <idlesong@gmail.com>
+Date:   Sat Jun 8 15:53:57 2013 +0800
+
+    rorWebERP Scaffold

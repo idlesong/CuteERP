@@ -1,5 +1,6 @@
 class Order < ActiveRecord::Base
   has_many :line_items, :dependent => :destroy	
+  # belongs_to :customer
   attr_accessible :address, :email, :name, :pay_type
   PAYMENT_TYPES = ["Check", "Credit card", "Purchase Order"]
 
@@ -12,4 +13,8 @@ class Order < ActiveRecord::Base
   		line_items << item
   	end
   end
+
+  #def select_customer_for_order(customer)
+
+  #end
 end
