@@ -26,10 +26,13 @@ class OrdersController < ApplicationController
   # GET /orders/new
   # GET /orders/new.json
   def new
+    @items = Item.all 
+    @customers = Customer.all
+
     @cart = current_cart
     if @cart.line_items.empty?
-      redirect_to inventory_url, :notice => "Your cart is empty"
-      return
+      #redirect_to inventory_url, :notice => "Your cart is empty"
+      #return
     end
 
     @order = Order.new

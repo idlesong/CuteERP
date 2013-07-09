@@ -1,4 +1,95 @@
 <div class = "inventory_form">
+
+	<div id="popupProducts" class="modalDialog">
+		<div>
+			<a href="#close" title="Close" class="close"> X </a>
+			<h3>Select Your Customer Order</h3>
+			<p> This is sample modal dialog, I want use it as database search</p>
+			<hr class="gray">
+			<table>
+				<tr>
+					<th>PartNo</th>
+					<th>Name</th>
+					<th>Package</th>
+					<th>Price</th>
+					<th>Action</th>
+				</tr>
+
+				<% @items.each do |item| %>
+				  <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+					<td><%= item.partNo %></td>
+					<td><%= item.name %></td>
+					<td><%= item.package %></td>
+					<td><%= number_to_currency(item.price)%></td>
+					<td><%= button_to 'Add to Cart', line_items_path(:item_id => item), :remote => true %></td>
+				  </tr>
+				<% end %>
+
+			</table>
+		</div>
+	</div>
+
+	<div id="popupCustomers" class="modalDialog">
+		<div>
+			<a href="#close" title="Close" class="close"> X </a>
+			<h3>Select Your Customer Order</h3>
+			<p> This is sample modal dialog, I want use it as database search</p>
+			<hr class="gray">
+
+			<table>
+			  <tr>
+			    <th>Name</th>
+			    <th>Address</th>
+			    <th>Since</th>
+			    <th>Balance</th>
+			    <th>Contact</th>
+			    <th>Telephone</th>
+			    <th>Select</th>
+			  </tr>
+
+			<% @customers.each do |customer| %>
+			  <tr>
+			    <td><%= customer.name %></td>
+			    <td><%= customer.address %></td>
+			    <td><%= customer.since %></td>
+			    <td><%= customer.balance %></td>
+			    <td><%= customer.contact %></td>
+			    <td><%= customer.telephone %></td>
+				<td><%= button_to 'Select', carts_path(:cart_id => @cart), :remote => true %></td>
+			  </tr>
+
+			<% end %>
+			</table>
+
+		</div>
+	</div>
+
+	<fieldset>	
+		<h1> Customer Order </h1>
+	</fieldset>
+
+	<fieldset>	
+		<legend>Order Summary </legend>
+		<a href="#popupCustomers">Select Customer</a>
+		<table>
+			<tr>
+				<td>Customer</td> <td> Supplier</td>
+			</tr>
+			<tr>
+				<td>Name:HYT</td><td>WuxiSicomm tech.Ltd</td>
+			</tr>
+			<tr>
+				<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
+			</tr>
+		</table>
+	</fieldset>
+
+	<fieldset>	
+		<legend>Order Details </legend>
+		<a href="#popupProducts">Add Product</a>
+		<%= render @cart %>
+	</fieldset>
+
 	<fieldset>
       	<legend>Please Enter Your Detial</legend>
    		<%= render 'form' %>

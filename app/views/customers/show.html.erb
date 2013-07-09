@@ -1,3 +1,4 @@
+<!--
 <p id="notice"><%= notice %></p>
 
 <p>
@@ -29,7 +30,9 @@
   <b>Telephone:</b>
   <%= @customer.telephone %>
 </p>
+-->
 
+<%= render (@customer) %>
 
 <%= link_to 'Edit', edit_customer_path(@customer) %> |
 <%= link_to 'Back', customers_path %>
