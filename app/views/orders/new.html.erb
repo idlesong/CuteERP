@@ -2,7 +2,7 @@
 
 	<div id="popupProducts" class="modalDialog">
 		<div>
-			<a href="#close" title="Close" class="close"> X </a>
+			<a href="#close" name="Close" class="close"> X </a>
 			<h3>Select Your Customer Order</h3>
 			<p> This is sample modal dialog, I want use it as database search</p>
 			<hr class="gray">
@@ -21,7 +21,7 @@
 					<td><%= item.name %></td>
 					<td><%= item.package %></td>
 					<td><%= number_to_currency(item.price)%></td>
-					<td><%= button_to 'Add to Cart', line_items_path(:item_id => item), :remote => true %></td>
+					<td><%= button_to 'Add to Cart', line_items_path(:item_id => item) , :remote => true %></td>
 				  </tr>
 				<% end %>
 
@@ -31,7 +31,7 @@
 
 	<div id="popupCustomers" class="modalDialog">
 		<div>
-			<a href="#close" title="Close" class="close"> X </a>
+			<a href="#close" name="Close" class="close"> X </a>
 			<h3>Select Your Customer Order</h3>
 			<p> This is sample modal dialog, I want use it as database search</p>
 			<hr class="gray">
@@ -55,7 +55,7 @@
 			    <td><%= customer.balance %></td>
 			    <td><%= customer.contact %></td>
 			    <td><%= customer.telephone %></td>
-				<td><%= button_to 'Select', carts_path(:cart_id => @cart), :remote => true %></td>
+				<td><%= button_to 'Select', customers_path(:customer_id => customer), :remote => true %></td>
 			  </tr>
 
 			<% end %>
@@ -76,7 +76,7 @@
 				<td>Customer</td> <td> Supplier</td>
 			</tr>
 			<tr>
-				<td>Name:HYT</td><td>WuxiSicomm tech.Ltd</td>
+				<td>Name:<%= session[:customer_id] %></td><td>WuxiSicomm tech.Ltd</td>
 			</tr>
 			<tr>
 				<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>

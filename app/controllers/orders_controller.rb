@@ -54,8 +54,6 @@ class OrdersController < ApplicationController
     @order = Order.new(params[:order])
     @order.add_line_items_from_cart(current_cart)
 
-    #customer = Customer.find(params[:item_id])
-
     respond_to do |format|
       if @order.save
         Cart.destroy(session[:cart_id])

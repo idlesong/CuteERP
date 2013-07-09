@@ -2,6 +2,7 @@
 
 <table>
   <tr>
+    <th>CustomerID</th>
     <th>Name</th>
     <th>Address</th>
     <th>Email</th>
@@ -13,6 +14,7 @@
 
 <% @orders.each do |order| %>
   <tr>
+    <td><%= order.customer_id %></td>
     <td><%= order.name %></td>
     <td><%= order.address %></td>
     <td><%= order.email %></td>
