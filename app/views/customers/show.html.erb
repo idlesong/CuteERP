@@ -1,38 +1,52 @@
-<!--
-<p id="notice"><%= notice %></p>
+<!-- Start Overlay -->
+<div id="overlay"></div>
+<!-- End Overlay -->
+<!-- Start Special Centered Box -->
+<div id="specialBox">
+  <p>Special box content ...</p> 
+  <button onmousedown="toggleOverlay()">Close Overlay</button>
+</div>
+<!-- Start Special Centered Box -->
+<!-- Start Normal Page Content -->
+<div id="wrapper">
+  <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Name:</b>
-  <%= @customer.name %>
-</p>
+  <p>
+    <b>Name:</b>
+    <%= @customer.name %>
+  </p>
 
-<p>
-  <b>Address:</b>
-  <%= @customer.address %>
-</p>
+  <p>
+    <b>Address:</b>
+    <%= @customer.address %>
+  </p>
 
-<p>
-  <b>Since:</b>
-  <%= @customer.since %>
-</p>
+  <p>
+    <b>Since:</b>
+    <%= @customer.since %>
+  </p>
 
-<p>
-  <b>Balance:</b>
-  <%= @customer.balance %>
-</p>
+  <p>
+    <b>Balance:</b>
+    <%= @customer.balance %>
+  </p>
 
-<p>
-  <b>Contact:</b>
-  <%= @customer.contact %>
-</p>
+  <p>
+    <b>Contact:</b>
+    <%= @customer.contact %>
+  </p>
 
-<p>
-  <b>Telephone:</b>
-  <%= @customer.telephone %>
-</p>
--->
+  <p>
+    <b>Telephone:</b>
+    <%= @customer.telephone %>
+  </p>
 
-<%= render (@customer) %>
+  <!--
+  <%= render (@customer) %>
+  -->
+  <%= link_to 'New Customer', new_customer_path, :remote => true %> |
+  <%= link_to 'Edit', edit_customer_path(@customer), :remote => true %> |
+  <%= link_to 'Back', customers_path %> | 
+  <%= link_to 'Destroy', customers_path, method: :delete, data: { confirm: 'Are you sure?' } %>
 
-<%= link_to 'Edit', edit_customer_path(@customer) %> |
-<%= link_to 'Back', customers_path %>
+</div>

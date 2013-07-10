@@ -18,7 +18,7 @@ class CustomersController < ApplicationController
     session[:customer_id] = @customer.id
 
     respond_to do |format|
-      format.html { redirect_to "orders/new"}# show.html.erb
+      format.html # show.html.erb
       format.js
     end
   end
@@ -30,7 +30,7 @@ class CustomersController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      format.json { render json: @customer }
+      format.js
     end
   end
 

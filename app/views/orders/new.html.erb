@@ -31,7 +31,7 @@
 
 	<div id="popupCustomers" class="modalDialog">
 		<div>
-			<a href="#close" name="Close" class="close"> X </a>
+			<a href="#close" class="close"> X </a>
 			<h3>Select Your Customer Order</h3>
 			<p> This is sample modal dialog, I want use it as database search</p>
 			<hr class="gray">
@@ -70,18 +70,20 @@
 
 	<fieldset>	
 		<legend>Order Summary </legend>
-		<a href="#popupCustomers">Select Customer</a>
-		<table>
-			<tr>
-				<td>Customer</td> <td> Supplier</td>
-			</tr>
-			<tr>
-				<td>Name:<%= session[:customer_id] %></td><td>WuxiSicomm tech.Ltd</td>
-			</tr>
-			<tr>
-				<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
-			</tr>
-		</table>
+		<div id="cart">
+			<a href="#popupCustomers">Select Customer</a>
+			<table>
+				<tr>
+					<td>Customer</td> <td> Supplier</td>
+				</tr>
+				<tr>
+					<td>Name:<%= session[:customer_id] %></td><td>WuxiSicomm tech.Ltd</td>
+				</tr>
+				<tr>
+					<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
+				</tr>
+			</table>
+		</div>
 	</fieldset>
 
 	<fieldset>	

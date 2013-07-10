@@ -9,8 +9,7 @@
     <th>Contact</th>
     <th>Telephone</th>
     <th></th>
-    <th></th>
-    <th></th>
+    <th></th>    
   </tr>
 
 <% @customers.each do |customer| %>
@@ -22,8 +21,7 @@
     <td><%= customer.contact %></td>
     <td><%= customer.telephone %></td>
     <td><%= link_to 'Show', customer %></td>
-    <td><%= link_to 'Edit', edit_customer_path(customer) %></td>
-    <td><%= link_to 'Destroy', customer, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    <td><%= link_to 'Edit', edit_customer_path(customer), :remote => true %></td>    
   </tr>
 
 <% end %>
@@ -31,4 +29,4 @@
 
 <br />
 
-<%= link_to 'New Customer', new_customer_path %>
+<%= link_to 'New Customer', new_customer_path, :remote => true %>
