@@ -1,0 +1,28 @@
+<h3>Select Your Customer Order</h3>
+<p>Select customer to add new orders</p>
+<hr class="gray">
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Address</th>
+    <th>Since</th>
+    <th>Balance</th>
+    <th>Contact</th>
+    <th>Telephone</th>
+    <th>Select</th>
+  </tr>
+
+<% @customers.each do |customer| %>
+  <tr>
+    <td><%= customer.name %></td>
+    <td><%= customer.address %></td>
+    <td><%= customer.since %></td>
+    <td><%= customer.balance %></td>
+    <td><%= customer.contact %></td>
+    <td><%= customer.telephone %></td>
+	<td><%= button_to 'Select', customers_path(:customer_id => customer), :remote => true %></td>
+  </tr>
+
+<% end %>
+</table>

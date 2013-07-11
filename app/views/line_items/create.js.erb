@@ -6,10 +6,11 @@ page.replace_html('cart', render(@cart))
 page[:cart].visual_effect :blind_down if @cart.total_items == 1
 page[:current_item].visual_effect :highlight, :startcolor => "#88ff88", :endcolor => #114411
 */
-alert ('No Problem Here');
+//alert ('Lineitem Create Here');
 // window.location.replace("new"); //it's ok to update the page
-$('#popupProducts').html.assign("#close");
+toggleOverlay();
+//$('#popupProducts').html.assign("#close");
 //$location.href = ("#close")
 //$(document).writeln("location.href");
-//$('#cart').html('<%= escape_javascript(render(@cart)) %>');
-/*$('#cart').html '<%= escape_javascript(render(@cart)) %>);*/
+$('#cart').html('<%= escape_javascript(render(@cart)) %>');
+//$('#cart').html '<%= escape_javascript(render(@cart)) %>);
