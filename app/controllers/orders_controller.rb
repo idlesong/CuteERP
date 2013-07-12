@@ -29,6 +29,11 @@ class OrdersController < ApplicationController
     @items = Item.all 
     @customers = Customer.all
 
+    if params[:customer_id]
+      session[:customer_id] = params[:customer_id]
+      @customer  = Customer.find(params[:customer_id])
+    end
+
     @cart = current_cart
     if @cart.line_items.empty?
       #redirect_to inventory_url, :notice => "Your cart is empty"
@@ -39,7 +44,7 @@ class OrdersController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      format.json { render json: @order }
+      format.js
     end
   end
 
@@ -53,6 +58,8 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(params[:order])
     @order.add_line_items_from_cart(current_cart)
+    #add customer.id to order.
+    @order.customer_id = session[:customer_id]
 
     respond_to do |format|
       if @order.save

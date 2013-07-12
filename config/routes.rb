@@ -1,8 +1,8 @@
 RorWebERP::Application.routes.draw do
   resources :customers
 
-  get 'admin/index'
-  get 'admin' => 'admin/index'
+  get 'admin/index', :as => 'admin'
+  #get 'admin' => 'admin/index'
 
   controller :sessions do
     get 'login' => :new
@@ -28,10 +28,11 @@ RorWebERP::Application.routes.draw do
     get :who_bought, :on => :member
   end
 
-
   get "inventory/index"
 
-  root :to => 'inventory#index', :as => 'inventory'
+  get "orders/index"
+
+  root :to => 'orders#index', :as => 'orders'
 
 
   # The priority is based upon order of creation:

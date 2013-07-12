@@ -1,0 +1,18 @@
+<table>
+	<tr>
+		<td>Customer</td>  <td> Supplier</td>
+	</tr>
+	<tr>
+		<% if @customer.nil? then %>  
+			<td>Name:None</td>
+		<% else %>
+			<td>Name:<%= @customer.name %> </td>		
+		<% end %>
+
+		<td>WuxiSicomm tech.Ltd</td>
+	</tr>
+	<tr>
+		<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
+	</tr>
+
+</table>

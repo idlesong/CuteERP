@@ -14,9 +14,10 @@
 //= require jquery_ujs
 //= require_tree .
 
-function toggleOverlay(){
+function toggleOverlay( popDialogName ){
   var overlay = document.getElementById('overlay');
-  var specialBox = document.getElementById('specialBox');
+  //var specialBox = document.getElementById('specialBox');
+  var specialBox = document.getElementById(popDialogName);
   overlay.style.opacity = .8;
   if(overlay.style.display == "block"){
     overlay.style.display = "none";
@@ -25,4 +26,11 @@ function toggleOverlay(){
     overlay.style.display = "block";
     specialBox.style.display = "block";
   }
+}
+
+function selectCustomer(elemid){
+  var trid;
+  trid = elemid.id;
+  alert(trid);
+  toggleOverlay('customerListBox');
 }

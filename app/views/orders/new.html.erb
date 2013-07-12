@@ -3,50 +3,41 @@
 	<!-- Start Overlay -->
 	<div id="overlay"></div>
 
-	<!-- Start Special Centered Box -->
-	<!--
-	<div id="specialBox1">
+	<!-- Start Special Centered Box; and only one in current page -->
+	<div id="customerListBox">
 	  	<div id="close">
-	  		<button onmousedown="toggleOverlay()">X</button>	
+	  		<button onmousedown="toggleOverlay('customerListBox')">X</button>	
 	  	</div>	
 	  <%= render("customerList") %>
 	</div>	
-	-->
-	<div id="specialBox">
+	
+	<div id="productListBox"> 
 	  	<div id="close">
-	  		<button onmousedown="toggleOverlay()">X</button>	
+	  		<button onmousedown="toggleOverlay('productListBox')">X</button>	
 	  	</div>	
 	  <%= render("productList") %>
-	</div>	
-	
-	<fieldset>	
-		<legend>Order Summary </legend>
-		<h1> Customer Order </h1>		
+	</div>		
 
-	    <button onmousedown="toggleOverlay()">SelectCustomer</button>
-		<table>
-			<tr>
-				<td>Customer</td> <td> Supplier</td>
-			</tr>
-			<tr>
-				<td>Name:<%= session[:customer_id] %></td><td>WuxiSicomm tech.Ltd</td>
-			</tr>
-			<tr>
-				<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
-			</tr>
-		</table>
+	<h1> Customer Order </h1>		
+	<fieldset>	
+		<legend>Order Header</legend>
+	    <button onmousedown="toggleOverlay('customerListBox')">SelectCustomer</button>
+	    
+	    <div id="orderHeaderDiv">
+    		<%= render ("orderHeader") %>
+	    </div>
 	</fieldset>
 
 	<fieldset>	
 		<legend>Order Details </legend>
-		<button onmousedown="toggleOverlay()">SelectProduct</button>
+		<button onmousedown="toggleOverlay('productListBox')">SelectProduct</button>
 		<div id="cart">
 			<%= render @cart %>
 		</div>
 	</fieldset>
 
 	<fieldset>
-      	<legend>Please Enter Your Detial</legend>
+      	<legend>Please Confirm dispatch info and place order</legend>
    		<%= render 'form' %>
 	</fieldset>
 </div>
