@@ -9,19 +9,17 @@
     <th>Contact</th>
     <th>Telephone</th>
     <th></th>
-    <th></th>    
   </tr>
 
 <% @customers.each do |customer| %>
   <tr>
-    <td><%= customer.name %></td>
+    <td><%= link_to customer.name, customer %></td>
     <td><%= customer.address %></td>
     <td><%= customer.since %></td>
     <td><%= customer.balance %></td>
     <td><%= customer.contact %></td>
     <td><%= customer.telephone %></td>
     <td><%= link_to 'Show', customer %></td>
-    <td><%= link_to 'Edit', edit_customer_path(customer), :remote => true %></td>    
   </tr>
 
 <% end %>

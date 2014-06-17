@@ -1,4 +1,7 @@
 RorWebERP::Application.routes.draw do
+  resources :contacts
+
+
   resources :customers
 
   get 'admin/index', :as => 'admin'

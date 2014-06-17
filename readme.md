@@ -20,5 +20,10 @@
 ##### 3.可编辑文档系统： 整合Markdown文件，替代Wiki。
  - 全公司都可以使用的文档系统，用于协调。
 
+ tips:
+ - Customer 中包含多个联系人
+ - Opertunite： Product ID;
+ - task
+
 ##### 4.添加部分CRM功能：oppotunite，task，自动生成客户项目等界面。
  - 在Sales overview汇总所有客户。
