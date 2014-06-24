@@ -1,18 +1,20 @@
 <h1>Listing customers</h1>
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Address</th>
-    <th>Since</th>
-    <th>Balance</th>
-    <th>Contact</th>
-    <th>Telephone</th>
-    <th></th>
-  </tr>
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Address</th>
+      <th>Since</th>
+      <th>Balance</th>
+      <th>Contact</th>
+      <th>Telephone</th>
+      <th></th>
+    </tr>
+  </thead>
 
 <% @customers.each do |customer| %>
-  <tr>
+  <tr class="<%= cycle('pure-table-odd', 'pure-table-even') %>">
     <td><%= link_to customer.name, customer %></td>
     <td><%= customer.address %></td>
     <td><%= customer.since %></td>

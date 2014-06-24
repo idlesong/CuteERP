@@ -11,41 +11,41 @@
   <%= csrf_meta_tags %>
 </head>
 <body id="inventory">
-	<div id = "menu">
-		<ul>
-			<li class="nav_left"><a href="#">Home    </a></li>
-			<li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>		
-			<li class="nav_right"><a href=<%= admin_path %>>@Qinkunsong</a></li>
-			<li class="nav_right"><a href=<%= items_path %>>Products </a></li>		
-			<li class="nav_right"><a href=<%= customers_path %>>Customers</a></li>
-			<li class="nav_right"><a href="#">Suppliers</a></li>
-		</ul>
-	</div>
 
-	<div id = "columns">
-		<div id = "side">			
-			<ul>
-				<li> <a href="">Messages </a></li>
-				<li> <a href="">CustomerPO </a></li>
-				<li> <a href="">Invoice </a></li>
-				<li> <a href=""> Received </a></li>
-			</ul>
+  <div id = "layout-container">
+    <div id = "menu">
+      <ul>
+        <li class="nav_left"><a href="#">Home    </a></li>
+        <li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>
+        <li class="nav_right"><a href=<%= admin_path %>>@Qinkunsong</a></li>
+        <li class="nav_right"><a href=<%= items_path %>>Products </a></li>
+        <li class="nav_right"><a href=<%= customers_path %>>Customers</a></li>
+        <li class="nav_right"><a href="#">Suppliers</a></li>
+      </ul>
+    </div>
+    <div id = "layout-content-container">
+      <div id = "layout-aside">
+        <div class="pure-menu pure-menu-open">
+            <a class="pure-menu-heading">HOME</a>
 
-			<% if session[:user_id] %>
-			  <ul>
-			  <li><%= link_to 'Orders', orders_path %> </li>
-			  <li><%= link_to 'Items', items_path %> </li>
-			  <li><%= link_to 'Users', users_path %> </li>			  
-			  <li><%= button_to 'Logout', logout_path, :methold => :delete %></li>
-			  </ul>
-			<% end %>
+            <ul>
+                <li><a href="#">Customer Order</a></li>
+                <li><a href="#">Sales Order</a></li>
+                <li><a href="#">Invoice</a></li>
+                <li><a href="#">Finance</a></li>
+                <li class="pure-menu-heading">Tools</li>
+                <li><a href="#">Prices</a></li>
+                <li><a href="#">Report</a></li>
+                <li><a href="#">OMG!</a></li>
+            </ul>
+        </div>
+      </div>
 
-		</div>
-		<div id="main">
-			<%= yield %>
-		</div>
-	</div>
-
+      <div id = "layout-content">
+  			     <%= yield %>
+  		</div>
+  	</div>
+  </div>
 
 
 </body>

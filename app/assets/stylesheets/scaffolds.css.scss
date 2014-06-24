@@ -80,20 +80,20 @@ div {
 }
 
 #menu ul{
-  margin: 0; 
+  margin: 0;
   padding: 0;
   width :100%;
 }
 
 #menu .nav_left{
-  margin: 0; 
+  margin: 0;
   padding: 6px;
   float: left;
   list-style: none;
 }
 
 #menu .nav_right{
-  margin: 0; 
+  margin: 0;
   padding: 6px;
   float: right;
   list-style: none;
@@ -101,9 +101,9 @@ div {
 
 
 #menu ul li a{
-  margin: 0;//0px 4px;//margin: 4px 2px; 
+  margin: 0;//0px 4px;//margin: 4px 2px;
   padding: 10px 8px 10px 8px;
-  //float: left; 
+  //float: left;
   color: white;
   text-decoration: none;
   background-color: #0b75b2;//red;//#0b75b2;//#333;
@@ -138,42 +138,4 @@ div {
   display: block;
   padding: 4px  40px;
   margin: 0;
-}
-
-//==== common table style ====
-table {
-  background: #fff;
-  width:98%;
-  border-top:1px solid #e5eff8;
-  border-right:1px solid #e5eff8;
-  margin:1em auto;
-  border-collapse:collapse;
-}
-
-th{
-  background:#f4f9fe;
-  text-align:center;
-  font:bold 1.2em/2em;
-  color:#66a3d3;
-  border-bottom: 1px solid #e5eff8;
-  border-left: 1px solid #e5eff8;
-  padding:.7em 1em;
-}
-
-tr.list_line_even td{
-  background:#f7fbff;
-}
-
-td{
-  color:#678197;
-  border-bottom:1px solid #e5eff8;
-  border-left:1px solid #e5eff8;
-  padding: .3em 1em;
-  text-align: center;
-}
-
-a{
-  color: #04bff4;
-  text-decoration: none;
-  top: 4px;
 }

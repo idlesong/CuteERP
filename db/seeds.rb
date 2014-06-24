@@ -90,3 +90,5 @@ Contact.create(:name => 'Su',
 	:email => 'pur02@onreal.com',
 	:note => 'Main'
 	)
+
+	

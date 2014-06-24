@@ -27,3 +27,10 @@
 
 ##### 4.添加部分CRM功能：oppotunite，task，自动生成客户项目等界面。
  - 在Sales overview汇总所有客户。
+
+
+#### database table
+- Customer:
+- Opportunity: belongs_to: customer, :priority, :project_type, :design, :description
+- Status: belongs_to: opportunity, :status, :issue, :label
+- Task: :destription, :assign, :status(Doing,Done,Fail,Forgive) 

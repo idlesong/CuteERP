@@ -1,20 +1,22 @@
 <div id="item_list">
 <h1>Listing items</h1>
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Partno</th>
-    <th>Package</th>
-    <th>Imageurl</th>
-    <th>Price</th>
-    <th>Action</th>
-    <th>Action</th>
-    <th>Action</th>
-  </tr>
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Partno</th>
+      <th>Package</th>
+      <th>Imageurl</th>
+      <th>Price</th>
+      <th>Action</th>
+      <th>Action</th>
+      <th>Action</th>
+    </tr>
+  </thead>
 
 <% @items.each do |item| %>
-  <tr class="<%= cycle('list_line_odd', 'list_line_even')%>">
+  <tr class="<%= cycle('pure-table-odd', 'pure-table-even') %>">
     <td><%= item.name %></td>
     <td><%= item.partNo %></td>
     <td><%= item.package %></td>
