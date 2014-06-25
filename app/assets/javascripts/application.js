@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= requier best_in_place
 //= require_tree .
 
 function toggleOverlay( popDialogName ){
@@ -34,3 +35,8 @@ function selectCustomer(elemid){
   alert(trid);
   toggleOverlay('customerListBox');
 }
+
+$(document).ready(function() {
+  /* Activating Best In Place */
+  jQuery(".best_in_place").best_in_place();
+});

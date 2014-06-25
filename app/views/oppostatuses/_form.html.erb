@@ -1,0 +1,25 @@
+<%= form_for(@oppostatus) do |f| %>
+  <% if @oppostatus.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@oppostatus.errors.count, "error") %> prohibited this oppostatus from being saved:</h2>
+
+      <ul>
+      <% @oppostatus.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :status %><br />
+    <%= f.text_field :status %>
+  </div>
+  <div class="field">
+    <%= f.label :issue %><br />
+    <%= f.text_field :issue %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

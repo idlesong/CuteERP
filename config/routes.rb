@@ -1,4 +1,13 @@
 RorWebERP::Application.routes.draw do
+  resources :tasks
+
+
+  resources :oppostatuses
+
+
+  resources :opportunities
+
+
   resources :contacts
 
 
@@ -31,11 +40,11 @@ RorWebERP::Application.routes.draw do
     get :who_bought, :on => :member
   end
 
-  get "inventory/index"
+  #get "inventory/index"
 
-  get "orders/index"
+  #get "orders/index"
 
-  root :to => 'orders#index', :as => 'orders'
+  #root :to => 'orders#index', :as => 'orders'
 
 
   # The priority is based upon order of creation:

@@ -25,6 +25,9 @@
   <%= @item.price %>
 </p>
 
+<%= best_in_place @item, :name, :type => :input %>
+
+<%= best_in_place @item, :package, :type => :input, :nil => "Click me to add content!" %>
 
 <%= link_to 'Edit', edit_item_path(@item) %> |
 <%= link_to 'Back', items_path %>

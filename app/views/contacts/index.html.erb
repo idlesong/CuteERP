@@ -1,18 +1,20 @@
 <h1>Listing contacts</h1>
 
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Title</th>
-    <th>Mobile</th>
-    <th>Telephone</th>
-    <th>Email</th>
-    <th>Note</th>
-    <th>Company</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Title</th>
+      <th>Mobile</th>
+      <th>Telephone</th>
+      <th>Email</th>
+      <th>Note</th>
+      <th>Company</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
 
 <% @contacts.each do |contact| %>
   <tr>

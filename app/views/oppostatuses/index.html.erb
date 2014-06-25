@@ -1,0 +1,27 @@
+<h1>Listing oppostatuses</h1>
+
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Issue</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+<% @oppostatuses.each do |oppostatus| %>
+  <tr>
+    <td><%= oppostatus.status %></td>
+    <td><%= oppostatus.issue %></td>
+    <td><%= link_to 'Show', oppostatus %></td>
+    <td><%= link_to 'Edit', edit_oppostatus_path(oppostatus) %></td>
+    <td><%= link_to 'Destroy', oppostatus, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Oppostatus', new_oppostatus_path %>

@@ -91,4 +91,34 @@ Contact.create(:name => 'Su',
 	:note => 'Main'
 	)
 
-	
+#...
+Opportunity.delete_all
+Opportunity.create(:priority => 'High',
+	:project_type => 'Digital Walkie Talkie',
+	:solution => 'SCT3258+SCT3700',
+	:note => 'Comsumer radio'
+	)
+Opportunity.create(:priority => 'Middle',
+	:project_type => 'Wireless Data Transfer',
+	:solution => 'SCT3255',
+	:note => 'Electrinical industry'
+	)
+
+#...
+Oppostatus.delete_all
+Oppostatus.create(:status => 'DIN:Hardware design',
+	:issue => 'no equipment'
+	)
+Oppostatus.create(:status => 'MP: Supply support',
+	:issue => 'Supply support'
+	)
+
+
+#...
+Task.delete_all
+Task.create(:description => 'Review sch',
+	:status => 'Done'
+	)
+Task.create(:description => 'Tang',
+	:status => 'cancel'
+	)

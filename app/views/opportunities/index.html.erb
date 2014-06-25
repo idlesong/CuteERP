@@ -1,0 +1,31 @@
+<h1>Listing opportunities</h1>
+
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Priority</th>
+      <th>Project type</th>
+      <th>Solution</th>
+      <th>Note</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+<% @opportunities.each do |opportunity| %>
+  <tr>
+    <td><%= opportunity.priority %></td>
+    <td><%= opportunity.project_type %></td>
+    <td><%= opportunity.solution %></td>
+    <td><%= opportunity.note %></td>
+    <td><%= link_to 'Show', opportunity %></td>
+    <td><%= link_to 'Edit', edit_opportunity_path(opportunity) %></td>
+    <td><%= link_to 'Destroy', opportunity, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Opportunity', new_opportunity_path %>

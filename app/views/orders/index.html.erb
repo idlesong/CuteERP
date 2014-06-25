@@ -1,16 +1,18 @@
 <h1>Listing orders</h1>
 
-<table>
-  <tr>
-    <th>CustomerID</th>
-    <th>Name</th>
-    <th>Address</th>
-    <th>Email</th>
-    <th>Pay type</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>CustomerID</th>
+      <th>Name</th>
+      <th>Address</th>
+      <th>Email</th>
+      <th>Pay type</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
 
 <% @orders.each do |order| %>
   <tr>

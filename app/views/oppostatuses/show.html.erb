@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Status:</b>
+  <%= @oppostatus.status %>
+</p>
+
+<p>
+  <b>Issue:</b>
+  <%= @oppostatus.issue %>
+</p>
+
+
+<%= link_to 'Edit', edit_oppostatus_path(@oppostatus) %> |
+<%= link_to 'Back', oppostatuses_path %>

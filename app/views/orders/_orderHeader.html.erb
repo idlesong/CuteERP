@@ -1,12 +1,14 @@
-<table>
+<table class="pure-table">
+	<thead>
+		<tr>
+			<td>Customer</td>  <td> Supplier</td>
+		</tr>
+	</thead>
 	<tr>
-		<td>Customer</td>  <td> Supplier</td>
-	</tr>
-	<tr>
-		<% if @customer.nil? then %>  
+		<% if @customer.nil? then %>
 			<td>Name:None</td>
 		<% else %>
-			<td>Name:<%= @customer.name %> </td>		
+			<td>Name:<%= @customer.name %> </td>
 		<% end %>
 
 		<td>WuxiSicomm tech.Ltd</td>

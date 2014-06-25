@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  priority: MyString
+  project_type: MyString
+  solution: MyString
+  note: MyString
+
+two:
+  priority: MyString
+  project_type: MyString
+  solution: MyString
+  note: MyString

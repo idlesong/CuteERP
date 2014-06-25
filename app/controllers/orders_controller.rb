@@ -26,7 +26,7 @@ class OrdersController < ApplicationController
   # GET /orders/new
   # GET /orders/new.json
   def new
-    @items = Item.all 
+    @items = Item.all
     @customers = Customer.all
 
     if params[:customer_id]
@@ -65,11 +65,11 @@ class OrdersController < ApplicationController
       if @order.save
         Cart.destroy(session[:cart_id])
         session[:cart_id] = nil
-        format.html { redirect_to(inventory_url, :notice => "Thanks for your Order.") }
-        format.json { render json: @order, status: :created, location: @order }
+        format.html { redirect_to @order, notice: 'Order was created.' }
+        format.js
       else
         format.html { render action: "new" }
-        format.json { render json: @order.errors, status: :unprocessable_entity }
+        format.js
       end
     end
   end
