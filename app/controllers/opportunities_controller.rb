@@ -3,6 +3,8 @@ class OpportunitiesController < ApplicationController
   # GET /opportunities.json
   def index
     @opportunities = Opportunity.all
+    @oppostatuses = Oppostatus.all
+    @tasks = Task.all
 
     respond_to do |format|
       format.html # index.html.erb

@@ -1,4 +1,4 @@
-<h1>Listing opportunities</h1>
+<h3>Listing opportunities</h3>
 
 <table class="pure-table">
   <thead>
@@ -29,3 +29,51 @@
 <br />
 
 <%= link_to 'New Opportunity', new_opportunity_path %>
+
+<h3>Listing oppostatuses</h3>
+
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Issue</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+<% @oppostatuses.each do |oppostatus| %>
+  <tr>
+    <td><%= oppostatus.status %></td>
+    <td><%= oppostatus.issue %></td>
+    <td><%= link_to 'Show', oppostatus %></td>
+    <td><%= link_to 'Edit', edit_oppostatus_path(oppostatus) %></td>
+    <td><%= link_to 'Destroy', oppostatus, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<h3>Listing tasks</h3>
+
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th>Status</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+<% @tasks.each do |task| %>
+  <tr>
+    <td><%= task.description %></td>
+    <td><%= task.status %></td>
+    <td><%= link_to 'Show', task %></td>
+    <td><%= link_to 'Edit', edit_task_path(task) %></td>
+    <td><%= link_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>

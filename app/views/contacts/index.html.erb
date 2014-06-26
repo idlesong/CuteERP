@@ -18,51 +18,18 @@
 
 <% @contacts.each do |contact| %>
   <tr>
-    <td><%= contact.name %></td>
-    <td><%= contact.title %></td>
+    <td><%= best_in_place contact, :name, :type => :input %></td>
+    <td><%= best_in_place contact, :title, :type => :select, :collection => [[1,"CEO"],[2,"Purchaser"],[3,"R&D"],[4,"other"]] %></td>
     <td><%= contact.mobile %></td>
     <td><%= contact.telephone %></td>
     <td><%= contact.email %></td>
     <td><%= contact.note %></td>
-    <td><a href="#openModal">Open Modal</a></td>
+    <td><%= contact.customer_id %></td>
     <td><%= link_to 'Show', contact %></td>
     <td><%= link_to 'Edit', edit_contact_path(contact) %></td>
     <td><%= link_to 'Destroy', contact, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>
 <% end %>
 </table>
-
-<a href="#openModal">Open Modal</a>
-<div id="openModal" class="modalDialog">
-	<div>
-		<a href="#close" title="Close" class="close"> X </a>
-		<h3>Select Your Customer Order</h3>
-		<p> This is sample modal dialog, I want use it as database search</p>
-		<hr class="gray">
-
-		<div class="tablearea">
-		<table>
-		  <tr class='list_line_odd'>
-		    <th>Name</th>
-		    <th>Code</th>
-		    <th>Contact</th>
-		    <th>Level</th>
-		  </tr>
-
-		<% 1.upto(5) %>
-		<% 1.upto(5) do |i| %>
-		  <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-		    <td>Name <%= i.to_s %></td>
-		    <td>Code <%= i.to_s %></td>
-		    <td>Contact <%= i.to_s %></td>
-		    <td>Level <%= i.to_s %></td>
-		  </tr>
-		<% end %>
-		</table>
-	</div>
-	</div>
-</div>
-
-<br />
 
 <%= link_to 'New Contact', new_contact_path %>

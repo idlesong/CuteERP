@@ -1,27 +1,32 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <b>Name:</b>
-  <%= @order.name %>
-</p>
 
-<p>
-  <b>Address:</b>
-  <%= @order.address %>
-</p>
+<table class="pure-table">
+  <thead>
+    <tr>
+      <td>Customer</td>  <td> Supplier</td>
+    </tr>
+  </thead>
+  <tr>
+    <td>Customer:<%= @order.name %></td>
+    <td>Supplier:WuxiSicomm tech.Ltd</td>
+  </tr>
+  <tr>
+    <td>Address:<%= @order.address %></td>
+    <td>Address: Wuxi Provice</td>
+  </tr>
+  <tr>
+    <td>Contact:<%= @order.email %></td>
+    <td>Telephone: 051066682208</td>
+  </tr>
+  <tr>
+    <td>Payment:<%= @order.pay_type %></td>
+    <td>Date: 20140501</td>
+  </tr>
 
-<p>
-  <b>Email:</b>
-  <%= @order.email %>
-</p>
-
-<p>
-  <b>Pay type:</b>
-  <%= @order.pay_type %>
-</p>
+</table>
 
 <%= render(@order) %>
-
 
 <%= link_to 'Edit', edit_order_path(@order) %> |
 <%= link_to 'Back', orders_path %>

@@ -1,0 +1,79 @@
+<h1>Listing contacts</h1>
+
+<table class="pure-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Title</th>
+      <th>Mobile</th>
+      <th>Telephone</th>
+      <th>Email</th>
+      <th>Note</th>
+      <th>Company</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+<% @contacts.each do |contact| %>
+  <tr>
+    <td><%= best_in_place contact, :name, :type => :input %></td>
+    <td><%= contact.title %></td>
+    <td><%= contact.mobile %></td>
+    <td><%= contact.telephone %></td>
+    <td><%= contact.email %></td>
+    <td><%= contact.note %></td>
+    <td><a href="#openModal">Open Modal</a></td>
+    <td><%= link_to 'Show', contact %></td>
+    <td><%= link_to 'Edit', edit_contact_path(contact) %></td>
+    <td><%= link_to 'Destroy', contact, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<div id="openModal" class="modalDialog">
+  <div>
+    <a href="#close" title="Close" class="close"> X </a>
+    <h3>Assign to a customer</h3>
+    <p> This is sample modal dialog, I want use it as database search</p>
+    <hr class="gray">
+
+    <div class="tablearea">
+
+      <table class="pure-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Since</th>
+            <th>Balance</th>
+            <th>Contact</th>
+            <th>Telephone</th>
+            <th>Select</th>
+          </tr>
+        </thead>
+
+      <% @customers.each do |customer| %>
+        <tr>
+          <td><%= customer.name %></td>
+          <td><%= customer.address %></td>
+          <td><%= customer.since %></td>
+          <td><%= customer.balance %></td>
+          <td><%= customer.contact %></td>
+          <td><%= customer.telephone %></td>
+         <!-- <td> <button onmousedown="selectCustomer(this)">Select</button> <td> -->
+         <!--<td><%= link_to 'Select', new_order_path, :remote => true %></td>  -->
+          <td><%= link_to 'Select', {:controller =>'contacts',:action => 'index',:customer_id =>customer.id}, :remote => true %></td>
+        </tr>
+
+      <% end %>
+      </table>
+
+  </div>
+  </div>
+</div>
+
+<br />
+
+<%= link_to 'New Contact', new_contact_path %>

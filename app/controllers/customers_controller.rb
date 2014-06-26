@@ -14,6 +14,11 @@ class CustomersController < ApplicationController
   # GET /customers/1.json
   def show
     @customer = Customer.find(params[:id])
+
+    @contacts = Contact.all
+    @orders = Order.all
+    @opportunities = Opportunity.all
+
     #add session id to customer id when show a customer???
     session[:customer_id] = @customer.id
 

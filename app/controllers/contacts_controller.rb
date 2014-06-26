@@ -3,6 +3,7 @@ class ContactsController < ApplicationController
   # GET /contacts.json
   def index
     @contacts = Contact.all
+    @customer = Customer.all
 
     respond_to do |format|
       format.html # index.html.erb

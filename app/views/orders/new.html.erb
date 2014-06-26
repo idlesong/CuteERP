@@ -6,29 +6,29 @@
 	<!-- Start Special Centered Box; and only one in current page -->
 	<div id="customerListBox">
 	  	<div id="close">
-	  		<button onmousedown="toggleOverlay('customerListBox')">X</button>	
-	  	</div>	
+	  		<button onmousedown="toggleOverlay('customerListBox')">X</button>
+	  	</div>
 	  <%= render("customerList") %>
-	</div>	
-	
-	<div id="productListBox"> 
+	</div>
+
+	<div id="productListBox">
 	  	<div id="close">
-	  		<button onmousedown="toggleOverlay('productListBox')">X</button>	
-	  	</div>	
+	  		<button onmousedown="toggleOverlay('productListBox')">X</button>
+	  	</div>
 	  <%= render("productList") %>
-	</div>		
+	</div>
 
 	<h1> Customer Order </h1>		
-	<fieldset>	
+	<fieldset>
 		<legend>Order Header</legend>
 	    <button onmousedown="toggleOverlay('customerListBox')">SelectCustomer</button>
-	    
+
 	    <div id="orderHeaderDiv">
     		<%= render ("orderHeader") %>
 	    </div>
 	</fieldset>
 
-	<fieldset>	
+	<fieldset>
 		<legend>Order Details </legend>
 		<button onmousedown="toggleOverlay('productListBox')">SelectProduct</button>
 		<div id="cart">
@@ -41,6 +41,3 @@
    		<%= render 'form' %>
 	</fieldset>
 </div>
-
-
-
