@@ -58,6 +58,8 @@
 <% end %>
 </table>
 
+<%= link_to 'New Contact', new_contact_path %>
+
 <h3>Customer orders</h3>
 <table class="pure-table">
   <thead>
@@ -104,16 +106,22 @@
       </tr>
     </thead>
 
-  <% @oppostatuses.each do |oppostatus| %>
-    <% if oppostatus.opportunity_id == opportunity.id %>
-    <tr>
-      <td><%= oppostatus.created_at %></td>
-      <td><%= oppostatus.status %></td>
-      <td><%= oppostatus.issue %></td>
-      <td><%= oppostatus.todo_description %></td>
-      <td><%= oppostatus.todo_status %></td>
-    </tr>
+    <% @oppostatuses.each do |oppostatus| %>
+      <% if oppostatus.opportunity_id == opportunity.id %>
+      <tr>
+        <td><%= oppostatus.created_at %></td>
+        <td><%= oppostatus.status %></td>
+        <td><%= oppostatus.issue %></td>
+        <td><%= oppostatus.todo_description %></td>
+        <td><%= oppostatus.todo_status %></td>
+      </tr>
+      <% end %>
     <% end %>
-  <% end %>
+    <tr>
+      <td><%= link_to 'New Oppostatus', new_oppostatus_path %></td>
+    </tr>
   </table>
 <% end %>
+
+<br />
+<%= link_to 'New Opportunity', new_opportunity_path %>
