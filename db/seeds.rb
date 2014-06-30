@@ -62,28 +62,28 @@ Customer.create(:name => 'Abell',
 
 #...
 Contact.delete_all
-Contact.create(:name => 'Tang',
-	:title => 'Purchaser',
-	:telephone => '075500000000',
-	:mobile => '13817506785',
-	:email => 'pur02@onreal.com',
-	:note => 'Main'
-	)
-Contact.create(:name => 'Chen',
-	:title => 'Purchaser',
-	:telephone => '075500000000',
-	:mobile => '13817506785',
-	:email => 'pur02@onreal.com',
-	:note => 'Main'
-	)
-Contact.create(:name => 'Tan',
+Contact.create(:name => 'Tang yongji',
 	:title => 'CEO',
 	:telephone => '075500000000',
 	:mobile => '13817506785',
 	:email => 'pur02@onreal.com',
 	:note => 'Main'
 	)
-Contact.create(:name => 'Su',
+Contact.create(:name => 'He guoming',
+	:title => 'R&D',
+	:telephone => '075500000000',
+	:mobile => '13817506785',
+	:email => 'pur02@onreal.com',
+	:note => 'Main'
+	)
+Contact.create(:name => 'Tan Jianyin',
+	:title => 'Purchaser',
+	:telephone => '075500000000',
+	:mobile => '13817506785',
+	:email => 'pur02@onreal.com',
+	:note => 'Main'
+	)
+Contact.create(:name => 'Su Wenjia',
 	:title => 'Purchaser',
 	:telephone => '075500000000',
 	:mobile => '13817506785',

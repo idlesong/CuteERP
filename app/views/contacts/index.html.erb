@@ -24,7 +24,7 @@
     <td><%= contact.telephone %></td>
     <td><%= contact.email %></td>
     <td><%= contact.note %></td>
-    <td><%= contact.customer_id %></td>
+    <td><%= best_in_place contact, :customer_id, :type => :input %></td>
     <td><%= link_to 'Show', contact %></td>
     <td><%= link_to 'Edit', edit_contact_path(contact) %></td>
     <td><%= link_to 'Destroy', contact, method: :delete, data: { confirm: 'Are you sure?' } %></td>

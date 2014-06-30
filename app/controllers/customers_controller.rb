@@ -15,9 +15,9 @@ class CustomersController < ApplicationController
   def show
     @customer = Customer.find(params[:id])
 
-    @contacts = Contact.all
-    @orders = Order.all
-    @opportunities = Opportunity.all
+    @contacts = Contact.where("customer_id = ?", @customer.id)
+    @orders = Order.where("customer_id = ?", @customer.id)
+    @opportunities = Opportunity.where("customer_id = ?", @customer.id)
 
     #add session id to customer id when show a customer???
     session[:customer_id] = @customer.id

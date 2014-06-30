@@ -4,6 +4,7 @@ class OpportunitiesController < ApplicationController
   def index
     @opportunities = Opportunity.all
     @oppostatuses = Oppostatus.all
+    @customers = Customer.all
     @tasks = Task.all
 
     respond_to do |format|

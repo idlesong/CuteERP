@@ -7,6 +7,7 @@
       <th>Project type</th>
       <th>Solution</th>
       <th>Note</th>
+      <th>Company</th>
       <th></th>
       <th></th>
       <th></th>
@@ -15,10 +16,11 @@
 
 <% @opportunities.each do |opportunity| %>
   <tr>
-    <td><%= opportunity.priority %></td>
-    <td><%= opportunity.project_type %></td>
-    <td><%= opportunity.solution %></td>
+    <td><%= best_in_place opportunity, :priority, :type => :input %></td>
+    <td><%= best_in_place opportunity, :project_type, :type => :select, :collection => [["DigitalWT","DigitalWT"],["WirelessData","WirelessData"],["激光测距仪","激光测距仪"],["WirelessMic","WirelessMic"]] %></td>
+    <td><%= best_in_place opportunity, :solution, :type => :input %></td>
     <td><%= opportunity.note %></td>
+    <td><%= best_in_place opportunity, :customer_id, :type => :input %></td>
     <td><%= link_to 'Show', opportunity %></td>
     <td><%= link_to 'Edit', edit_opportunity_path(opportunity) %></td>
     <td><%= link_to 'Destroy', opportunity, method: :delete, data: { confirm: 'Are you sure?' } %></td>
@@ -32,27 +34,34 @@
 
 <h3>Listing oppostatuses</h3>
 
-<table class="pure-table">
-  <thead>
-    <tr>
-      <th>Status</th>
-      <th>Issue</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
+<% @opportunities.each do |opportunity| %>
+  <p> Priority:<%= opportunity.priority %> Project type: <%= opportunity.project_type %>
+  Solution:<%= opportunity.solution %> Note:<%= opportunity.note %>
+  Company: <%= opportunity.customer_id %></p>
+  <table class="pure-table">
+    <thead>
+      <tr>
+        <th>Date </th>
+        <th>Status</th>
+        <th>Issue</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
 
-<% @oppostatuses.each do |oppostatus| %>
-  <tr>
-    <td><%= oppostatus.status %></td>
-    <td><%= oppostatus.issue %></td>
-    <td><%= link_to 'Show', oppostatus %></td>
-    <td><%= link_to 'Edit', edit_oppostatus_path(oppostatus) %></td>
-    <td><%= link_to 'Destroy', oppostatus, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
+  <% @oppostatuses.each do |oppostatus| %>
+    <tr>
+      <td><%= oppostatus.created_at %></td>
+      <td><%= oppostatus.status %></td>
+      <td><%= oppostatus.issue %></td>
+      <td><%= link_to 'Show', oppostatus %></td>
+      <td><%= link_to 'Edit', edit_oppostatus_path(oppostatus) %></td>
+      <td><%= link_to 'Destroy', oppostatus, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+    </tr>
+  <% end %>
+  </table>
 <% end %>
-</table>
 
 <h3>Listing tasks</h3>
 
