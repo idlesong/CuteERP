@@ -15,10 +15,11 @@
 
   <!--
   <%= render (@customer) %>
-  -->
+
   <%= link_to 'New Customer', new_customer_path, :remote => true %> |
   <%= link_to 'Edit', edit_customer_path(@customer), :remote => true %> |
   <%= link_to 'Back', customers_path %> |
   <%= link_to 'Destroy', customers_path, method: :delete, data: { confirm: 'Are you sure?' } %>
-
+  -->
+  
 </div>

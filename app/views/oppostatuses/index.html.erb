@@ -6,6 +6,8 @@
       <th>Status</th>
       <th>Issue</th>
       <th>Belongs to</th>
+      <th>todo</th>
+      <th>Status</th>
       <th></th>
       <th></th>
       <th></th>
@@ -17,6 +19,8 @@
     <td><%= best_in_place oppostatus, :status, :type => :input %></td>
     <td><%= oppostatus.issue %></td>
     <td><%= best_in_place oppostatus, :opportunity_id, :type => :input %></td>
+    <td><%= best_in_place oppostatus, :todo_description, :type => :input %></td>
+    <td><%= best_in_place oppostatus, :todo_status, :type => :input %></td>
     <td><%= link_to 'Show', oppostatus %></td>
     <td><%= link_to 'Edit', edit_oppostatus_path(oppostatus) %></td>
     <td><%= link_to 'Destroy', oppostatus, method: :delete, data: { confirm: 'Are you sure?' } %></td>

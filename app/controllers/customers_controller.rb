@@ -18,6 +18,7 @@ class CustomersController < ApplicationController
     @contacts = Contact.where("customer_id = ?", @customer.id)
     @orders = Order.where("customer_id = ?", @customer.id)
     @opportunities = Opportunity.where("customer_id = ?", @customer.id)
+    @oppostatuses = Oppostatus.all
 
     #add session id to customer id when show a customer???
     session[:customer_id] = @customer.id

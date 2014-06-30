@@ -87,29 +87,33 @@
 <% end %>
 </table>
 
-<h3>opportunities</h3>
-<table class="pure-table">
-  <thead>
-    <tr>
-      <th>Priority</th>
-      <th>Project type</th>
-      <th>Solution</th>
-      <th>Note</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
+<h3>Listing oppostatuses</h3>
 
 <% @opportunities.each do |opportunity| %>
-  <tr>
-    <td><%= opportunity.priority %></td>
-    <td><%= opportunity.project_type %></td>
-    <td><%= opportunity.solution %></td>
-    <td><%= opportunity.note %></td>
-    <td><%= link_to 'Show', opportunity %></td>
-    <td><%= link_to 'Edit', edit_opportunity_path(opportunity) %></td>
-    <td><%= link_to 'Destroy', opportunity, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
+  <p> Priority:<%= opportunity.priority %> Project type: <%= opportunity.project_type %>
+  Solution:<%= opportunity.solution %> Note:<%= opportunity.note %>
+  Company: <%= opportunity.customer_id %></p>
+  <table class="pure-table">
+    <thead>
+      <tr>
+        <th>Date </th>
+        <th>Status</th>
+        <th>Issue</th>
+        <th>TASK des</th>
+        <th>TASK Status</th>
+      </tr>
+    </thead>
+
+  <% @oppostatuses.each do |oppostatus| %>
+    <% if oppostatus.opportunity_id == opportunity.id %>
+    <tr>
+      <td><%= oppostatus.created_at %></td>
+      <td><%= oppostatus.status %></td>
+      <td><%= oppostatus.issue %></td>
+      <td><%= oppostatus.todo_description %></td>
+      <td><%= oppostatus.todo_status %></td>
+    </tr>
+    <% end %>
+  <% end %>
+  </table>
 <% end %>
-</table>
