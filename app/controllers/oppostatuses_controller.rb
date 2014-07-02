@@ -24,7 +24,8 @@ class OppostatusesController < ApplicationController
   # GET /oppostatuses/new
   # GET /oppostatuses/new.json
   def new
-    @oppostatus = Oppostatus.new
+    #@oppostatus = Oppostatus.new
+    @oppostatus = Oppostatus.new(params[:oppostatus])
 
     respond_to do |format|
       format.html # new.html.erb

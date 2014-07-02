@@ -27,7 +27,8 @@ class OpportunitiesController < ApplicationController
   # GET /opportunities/new
   # GET /opportunities/new.json
   def new
-    @opportunity = Opportunity.new
+    #@opportunity = Opportunity.new
+    @opportunity = Opportunity.new(params[:opportunity])
 
     respond_to do |format|
       format.html # new.html.erb

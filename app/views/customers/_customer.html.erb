@@ -58,7 +58,7 @@
 <% end %>
 </table>
 
-<%= link_to 'New Contact', new_contact_path %>
+<%= link_to "New Contact", new_contact_path(:contact => { :customer_id => @customer.id } ) %>
 
 <h3>Customer orders</h3>
 <table class="pure-table">
@@ -118,10 +118,10 @@
       <% end %>
     <% end %>
     <tr>
-      <td><%= link_to 'New Oppostatus', new_oppostatus_path %></td>
+      <td><%= link_to 'New Oppostatus', new_oppostatus_path(:oppostatus => { :opportunity_id => opportunity.id } ) %></td>
     </tr>
   </table>
 <% end %>
 
 <br />
-<%= link_to 'New Opportunity', new_opportunity_path %>
+<%= link_to 'New Opportunity', new_opportunity_path(:opportunity => { :customer_id => @customer.id } ) %>
