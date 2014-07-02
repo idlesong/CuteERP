@@ -35,10 +35,6 @@
       <th>Telephone</th>
       <th>Email</th>
       <th>Note</th>
-      <th>Company</th>
-      <th></th>
-      <th></th>
-      <th></th>
     </tr>
   </thead>
 
@@ -50,10 +46,6 @@
     <td><%= contact.telephone %></td>
     <td><%= contact.email %></td>
     <td><%= contact.note %></td>
-    <td><%= contact.customer_id %></td>
-    <td><%= link_to 'Show', contact %></td>
-    <td><%= link_to 'Edit', edit_contact_path(contact) %></td>
-    <td><%= link_to 'Destroy', contact, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>
 <% end %>
 </table>
@@ -101,15 +93,15 @@
         <th>Date </th>
         <th>Status</th>
         <th>Issue</th>
-        <th>TASK des</th>
-        <th>TASK Status</th>
+        <th>Todo des</th>
+        <th>Todo Status</th>
       </tr>
     </thead>
 
     <% @oppostatuses.each do |oppostatus| %>
       <% if oppostatus.opportunity_id == opportunity.id %>
       <tr>
-        <td><%= oppostatus.created_at %></td>
+        <td><%= oppostatus.created_at.strftime("%Y/%m/%d") %></td>
         <td><%= oppostatus.status %></td>
         <td><%= oppostatus.issue %></td>
         <td><%= oppostatus.todo_description %></td>
