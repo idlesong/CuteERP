@@ -1,0 +1,35 @@
+<h3>Listing oppostatuses</h3>
+
+<% @opportunities.each do |opportunity| %>
+  <p> Priority:<%= opportunity.priority %> Project type: <%= opportunity.project_type %>
+  Solution:<%= opportunity.solution %> Note:<%= opportunity.note %>
+  Company: <%= opportunity.customer_id %></p>
+  <table class="pure-table">
+    <thead>
+      <tr>
+        <th>Date </th>
+        <th>Status</th>
+        <th>Issue</th>
+        <th>TASK des</th>
+        <th>TASK Status</th>
+      </tr>
+    </thead>
+
+  <% @oppostatuses.each do |oppostatus| %>
+    <% if oppostatus.opportunity_id == opportunity.id %>
+    <tr>
+      <td><%= oppostatus.created_at %></td>
+      <td><%= oppostatus.status %></td>
+      <td><%= oppostatus.issue %></td>
+      <td><%= oppostatus.todo_description %></td>
+      <td><%= oppostatus.todo_status %></td>
+    </tr>
+    <% end %>
+  <% end %>
+  </table>
+
+  <%= link_to 'New Oppostatus', new_oppostatus_path %>
+<% end %>
+
+<br />
+<%= link_to 'New Opportunity', new_opportunity_path %>

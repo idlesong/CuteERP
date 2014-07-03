@@ -12,7 +12,8 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= requier best_in_place
+//= require best_in_place
+//= require dataTables/jquery.dataTables 
 //= require_tree .
 
 function toggleOverlay( popDialogName ){

@@ -7,7 +7,7 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 Item.delete_all
 #...
-Item.create(:name => 'Analog WalkieTalkie BB',
+Item.create(:name => '数字对讲机基带信号处理芯片',
 	:imageURL => 'rails.png',
 	:partNo => 'SRT3212',
 	:package => 'QFP64',

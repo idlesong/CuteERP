@@ -9,6 +9,9 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
+ *= require jquery.ui.core
+ *= require jquery.ui.theme
+ *= require dataTables/src/demo_table_jui
  *= require_tree .
  */
 // Place all the styles related to the Items controller here.
@@ -1703,7 +1706,7 @@ striping:
   clear: right;
   float: right;
   width: 80%;
-  padding: 0 0;
+  padding: 0 10px 0 0;
   margin: 0 0 0 0;
   display: inline;
 }
@@ -1715,7 +1718,7 @@ striping:
   float: left;
   width: 15%;
   padding: 0px 0;
-  margin: 0 3% 0 0;
+  margin: 0 0 0 0;
   display: inline;
   background: #ccc;
 }
