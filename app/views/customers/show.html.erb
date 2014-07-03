@@ -1,25 +1,7 @@
-<!-- Start Overlay -->
-<div id="overlay"></div>
-
-<!-- Start Special Centered Box -->
-<div id="specialBox">
-  <p>Special box content ...</p>
-  <button onmousedown="toggleOverlay('specialBox')">Close Overlay</button>
+<%- model_class = Customer -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.titleize %>:<%= @customer.name %></h1>
 </div>
 
-<!-- Start Normal Page Content -->
-<div id="wrapper">
-  <p id="notice"><%= notice %></p>
 
-  <%= render (@customer) %>
-
-  <!--
-  <%= render (@customer) %>
-
-  <%= link_to 'New Customer', new_customer_path, :remote => true %> |
-  <%= link_to 'Edit', edit_customer_path(@customer), :remote => true %> |
-  <%= link_to 'Back', customers_path %> |
-  <%= link_to 'Destroy', customers_path, method: :delete, data: { confirm: 'Are you sure?' } %>
-  -->
-  
-</div>
+<%= render (@customer) %>

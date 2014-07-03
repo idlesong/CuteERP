@@ -1,32 +1,10 @@
 <p id="notice"><%= notice %></p>
-<h3> Customer Basic </h3>
+<h5> 客户：<%= @customer.name %> 地址:<%= @customer.address %> 电话：<%= @customer.telephone %></h5>
 
-<table class="pure-table">
-  <thead>
-    <tr>
-      <td>Basic Info</td>  <td> Detail Info</td>
-    </tr>
-  </thead>
-  <tr>
-    <td>Customer:<%= @customer.name %></td>
-    <td>Since:<%= @customer.since %></td>
-  </tr>
-  <tr>
-    <td>Address:<%= @customer.address %></td>
-    <td>balance:<%= @customer.balance %></td>
-  </tr>
-  <tr>
-    <td>Contact:<%= @customer.telephone %></td>
-    <td>Payment:<%= @customer.name %></td>
-  </tr>
-  <tr>
-    <td>Payment:<%= @customer.contact %></td>
-    <td>Type: <%= @customer.name %></td>
-  </tr>
-</table>
-
-<h3> Contacts </h3>
-<table class="pure-table">
+<h3> Contacts <%= link_to "New Contact",
+new_contact_path(:contact => { :customer_id => @customer.id } ),
+:class => "btn btn-mini btn-primary" %></h3>
+<table class="table table-striped table-bordered">
   <thead>
     <tr>
       <th>Name</th>
@@ -38,22 +16,20 @@
     </tr>
   </thead>
 
-<% @contacts.each do |contact| %>
-  <tr>
-    <td><%= contact.name %></td>
-    <td><%= contact.title %></td>
-    <td><%= contact.mobile %></td>
-    <td><%= contact.telephone %></td>
-    <td><%= contact.email %></td>
-    <td><%= contact.note %></td>
-  </tr>
-<% end %>
+  <% @contacts.each do |contact| %>
+    <tr>
+      <td><%= contact.name %></td>
+      <td><%= contact.title %></td>
+      <td><%= contact.mobile %></td>
+      <td><%= contact.telephone %></td>
+      <td><%= contact.email %></td>
+      <td><%= contact.note %></td>
+    </tr>
+  <% end %>
 </table>
 
-<%= link_to "New Contact", new_contact_path(:contact => { :customer_id => @customer.id } ) %>
-
-<h3>Customer orders</h3>
-<table class="pure-table">
+<h3>Orders</h3>
+<table class="table table-striped table-bordered">
   <thead>
     <tr>
       <th>CustomerID</th>
@@ -81,13 +57,15 @@
 <% end %>
 </table>
 
-<h3>Listing oppostatuses</h3>
+<h3>Opportunities <%= link_to 'New Opportunity',
+new_opportunity_path(:opportunity => { :customer_id => @customer.id } ) ,
+:class => "btn btn-mini btn-primary"%></h3>
 
 <% @opportunities.each do |opportunity| %>
-  <p> Priority:<%= opportunity.priority %> Project type: <%= opportunity.project_type %>
-  Solution:<%= opportunity.solution %> Note:<%= opportunity.note %>
-  Company: <%= opportunity.customer_id %></p>
-  <table class="pure-table">
+  <h4> Priority:<%= opportunity.priority %> Project type: <strong><%= opportunity.project_type %>
+    </strong> solution:<strong><%= opportunity.solution %> </strong>Note:<%= opportunity.note %>
+  </h4>
+  <table class="table table-striped table-bordered">
     <thead>
       <tr>
         <th>Date </th>
@@ -110,10 +88,9 @@
       <% end %>
     <% end %>
     <tr>
-      <td><%= link_to 'New Oppostatus', new_oppostatus_path(:oppostatus => { :opportunity_id => opportunity.id } ) %></td>
+      <td><%= link_to 'New Oppostatus', new_oppostatus_path(:oppostatus => { :opportunity_id => opportunity.id })  ,:class => "btn btn-mini btn-primary"%></td>
     </tr>
   </table>
 <% end %>
 
 <br />
-<%= link_to 'New Opportunity', new_opportunity_path(:opportunity => { :customer_id => @customer.id } ) %>

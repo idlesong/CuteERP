@@ -1,33 +1,29 @@
-<p id="notice"><%= notice %></p>
+<%- model_class = Item -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
+</div>
 
-<p>
-  <b>Name:</b>
-  <%= @item.name %>
-</p>
+<dl class="dl-horizontal">
+  <dt><strong><%= model_class.human_attribute_name(:name) %>:</strong></dt>
+  <dd><%= @item.name %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:partNo) %>:</strong></dt>
+  <dd><%= @item.partNo %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:package) %>:</strong></dt>
+  <dd><%= @item.package %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:imageURL) %>:</strong></dt>
+  <dd><%= @item.imageURL %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:price) %>:</strong></dt>
+  <dd><%= @item.price %></dd>
+</dl>
 
-<p>
-  <b>Partno:</b>
-  <%= @item.partNo %>
-</p>
-
-<p>
-  <b>Package:</b>
-  <%= @item.package %>
-</p>
-
-<p>
-  <b>Imageurl:</b>
-  <%= @item.imageURL %>
-</p>
-
-<p>
-  <b>Price:</b>
-  <%= @item.price %>
-</p>
-
-<%= best_in_place @item, :name, :type => :input %>
-
-<%= best_in_place @item, :package, :type => :input, :nil => "Click me to add content!" %>
-
-<%= link_to 'Edit', edit_item_path(@item) %> |
-<%= link_to 'Back', items_path %>
+<div class="form-actions">
+  <%= link_to t('.back', :default => t("helpers.links.back")),
+              items_path, :class => 'btn'  %>
+  <%= link_to t('.edit', :default => t("helpers.links.edit")),
+              edit_item_path(@item), :class => 'btn' %>
+  <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+              item_path(@item),
+              :method => 'delete',
+              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+              :class => 'btn btn-danger' %>
+</div>

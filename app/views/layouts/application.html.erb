@@ -25,19 +25,18 @@
     </div>
     <div id = "layout-content-container">
       <div id = "layout-aside">
-        <div class="pure-menu pure-menu-open">
-            <a class="pure-menu-heading">HOME</a>
-
-            <ul>
-                <li><a href=<%= orders_path %>>Customer Order</a></li>
-                <li><a href="#">Sales Order</a></li>
-                <li><a href="#">Invoice</a></li>
-                <li><a href="#">Finance</a></li>
-                <li class="pure-menu-heading">Tools</li>
-                <li><a href="#">Prices</a></li>
-                <li><a href="#">Report</a></li>
-                <li><a href=<%= opportunities_path %>>CRM</a></li>
-            </ul>
+        <div>
+          <ul class="nav nav-tabs nav-stacked">
+              <li class="nav-header">HOME</li>
+              <li><a href=<%= orders_path %>>Customer Order</a></li>
+              <li><a href="#">Sales Order</a></li>
+              <li><a href="#">Invoice</a></li>
+              <li><a href="#">Finance</a></li>
+              <li class="nav-header">Tools</li>
+              <li><a href="#">Prices</a></li>
+              <li><a href="#">Report</a></li>
+              <li><a href=<%= opportunities_path %>>CRM</a></li>
+          </ul>
         </div>
       </div>
 

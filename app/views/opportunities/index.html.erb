@@ -1,23 +1,45 @@
-<h3>Listing opportunities</h3>
-<table id="opportunities" class="display">
+<%- model_class = Opportunity -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+</div>
+
+<table id="opportunities" class="table table-striped">
   <thead>
     <tr>
-      <th>Project type</th>
-      <th>Company</th>
-      <th>Priority </th>
-      <th>Solution</th>
-      <th>Note</th>
-
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:priority) %></th>
+      <th><%= model_class.human_attribute_name(:project_type) %></th>
+      <th><%= model_class.human_attribute_name(:solution) %></th>
+      <th><%= model_class.human_attribute_name(:note) %></th>
+      <th><%= model_class.human_attribute_name(:customer_id) %></th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
   </thead>
-
-  <% @opportunities.each do |opportunity| %>
-    <tr>
-      <td><%= opportunity.project_type %></td>
-      <td><%= opportunity.customer_id %></td>
-      <td><%= opportunity.priority %></td>
-      <td><%= opportunity.solution %></td>
-      <td><%= opportunity.note %></td>
-    </tr>
-  <% end %>
+  <tbody>
+    <% @opportunities.each do |opportunity| %>
+      <tr>
+        <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
+        <td><%= opportunity.priority %></td>
+        <td><%= opportunity.project_type %></td>
+        <td><%= opportunity.solution %></td>
+        <td><%= opportunity.note %></td>
+        <td><%= opportunity.customer_id %></td>
+        <td><%=l opportunity.created_at %></td>
+        <td>
+          <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                      edit_opportunity_path(opportunity), :class => 'btn btn-mini' %>
+          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                      opportunity_path(opportunity),
+                      :method => :delete,
+                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                      :class => 'btn btn-mini btn-danger' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
 </table>
+
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_opportunity_path,
+            :class => 'btn btn-primary' %>
