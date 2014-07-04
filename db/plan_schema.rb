@@ -33,11 +33,11 @@ ActiveRecord::Schema.define(:version => 20140630054050) do
   create_table "customers", :force => true do |t|
     t.string   "name"
     t.string   "fullname"  #fullname
-    t.string   "sale_type" #inner/oversea
+    t.string   "sales_type" #inner/oversea
     t.string   "payment"   #payment
     t.text     "address"
     t.text     "invoice_address" #invoice address
-    t.texp     "deliver_address" #deliver address
+    t.text     "deliver_address" #deliver address
     t.date     "since"
     t.decimal  "balance"
     t.string   "contact"
@@ -56,8 +56,8 @@ ActiveRecord::Schema.define(:version => 20140630054050) do
     t.decimal  "volume"   # quantity of reel
     t.decimal  "net_weight" # 净重
     t.decimal  "weight"     # 毛重
-    t.decimal  "moq"        # 最小起定量，最小包装
-    t.decimal  "EOQ"        #
+    t.decimal  "moq"        # 最小起定量，
+    t.decimal  "mop"        # 最小包装
     t.datetime "created_at",                               :null => false
     t.datetime "updated_at",                               :null => false
   end

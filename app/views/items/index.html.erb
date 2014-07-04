@@ -7,11 +7,10 @@
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%= model_class.human_attribute_name(:name) %></th>
+      <th><%= model_class.human_attribute_name(:description) %></th>
       <th><%= model_class.human_attribute_name(:partNo) %></th>
-      <th><%= model_class.human_attribute_name(:package) %></th>
-      <th><%= model_class.human_attribute_name(:imageURL) %></th>
       <th><%= model_class.human_attribute_name(:price) %></th>
-      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th><%= model_class.human_attribute_name(:package) %></th>
       <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
   </thead>
@@ -20,11 +19,10 @@
       <tr>
         <td><%= link_to item.id, item_path(item) %></td>
         <td><%= item.name %></td>
+        <td><%= item.description %></td>
         <td><%= item.partNo %></td>
-        <td><%= item.package %></td>
-        <td><%= item.imageURL %></td>
         <td><%= item.price %></td>
-        <td><%=l item.created_at %></td>
+        <td><%= item.package %></td>
         <td>
           <%= link_to t('.edit', :default => t("helpers.links.edit")),
                       edit_item_path(item), :class => 'btn btn-mini' %>
