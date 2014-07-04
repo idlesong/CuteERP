@@ -13,6 +13,8 @@
       <th><%= model_class.human_attribute_name(:note) %></th>
       <th><%= model_class.human_attribute_name(:customer_id) %></th>
       <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th>description</th>
+      <th>status</th>
       <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
   </thead>
@@ -25,7 +27,9 @@
         <td><%= opportunity.solution %></td>
         <td><%= opportunity.note %></td>
         <td><%= opportunity.customer_id %></td>
-        <td><%=l opportunity.created_at %></td>
+        <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
+        <td><%= opportunity.oppostatuses.first.issue %></td>
+        <td><%= opportunity.oppostatuses.first.status %></td>
         <td>
           <%= link_to t('.edit', :default => t("helpers.links.edit")),
                       edit_opportunity_path(opportunity), :class => 'btn btn-mini' %>

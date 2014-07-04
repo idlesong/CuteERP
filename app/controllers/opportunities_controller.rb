@@ -5,7 +5,6 @@ class OpportunitiesController < ApplicationController
     @opportunities = Opportunity.all
     @oppostatuses = Oppostatus.all
     @customers = Customer.all
-    @tasks = Task.all
 
     respond_to do |format|
       format.html # index.html.erb
