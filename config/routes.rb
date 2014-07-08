@@ -18,11 +18,11 @@ RorWebERP::Application.routes.draw do
   get 'admin/index', :as => 'admin'
   #get 'admin' => 'admin/index'
 
-  controller :sessions do
-    get 'login' => :new
-    post 'login' => :create
-    delete 'logout' => :destroy
-  end
+  #controller :sessions do
+  #  get 'login' => :new
+  #  post 'login' => :create
+  #  delete 'logout' => :destroy
+  #end
   resources :admin, :only => [:index]
 
   resources :users
@@ -47,7 +47,7 @@ RorWebERP::Application.routes.draw do
   #get "orders/index"
 
   #root :to => 'orders#index', :as => 'orders'
-
+  root :to => 'admin#index', :as => 'admin'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
