@@ -73,6 +73,7 @@ new_opportunity_path(:opportunity => { :customer_id => @customer.id } ) ,
         <th>Issue</th>
         <th>Todo des</th>
         <th>Todo Status</th>
+        <th>Assign</th>
       </tr>
     </thead>
 
@@ -80,10 +81,11 @@ new_opportunity_path(:opportunity => { :customer_id => @customer.id } ) ,
       <% if oppostatus.opportunity_id == opportunity.id %>
       <tr>
         <td><%= oppostatus.created_at.strftime("%Y/%m/%d") %></td>
-        <td><%= oppostatus.status %></td>
-        <td><%= oppostatus.issue %></td>
-        <td><%= oppostatus.todo_description %></td>
-        <td><%= oppostatus.todo_status %></td>
+        <td><%= best_in_place oppostatus, :status, :type => :input %></td>
+        <td><%= best_in_place oppostatus, :issue, :type => :input %></td>
+        <td><%= best_in_place oppostatus, :todo_description, :type => :input %></td>
+        <td><%= best_in_place oppostatus, :todo_status, :type => :input %></td>
+        <td><%= oppostatus.user.name %>
       </tr>
       <% end %>
     <% end %>

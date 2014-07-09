@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
 
   validate :password_must_be_present
 
+  has_many :oppostatus
+
   def User.encrypt_password(password, salt)
   	Digest::SHA2.hexdigest(password + "wibble" + salt)
   end

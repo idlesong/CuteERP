@@ -10,49 +10,43 @@
       <th><%= model_class.human_attribute_name(:customer_id) %></th>
       <th><%= model_class.human_attribute_name(:project_type) %></th>
       <th><%= model_class.human_attribute_name(:solution) %></th>
-      <th><%= model_class.human_attribute_name(:note) %></th>
+      <th><%= model_class.human_attribute_name(:priority) %></th>
+      <th>date</th>
       <th>status</th>
       <th>issue</th>
-      <th>date</th>
-      <th><%= model_class.human_attribute_name(:priority) %></th>
-      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+      <th>assign</th>
+      <th>todo</th>
+      <th>status</th>
     </tr>
   </thead>
   <tbody>
     <% @opportunities.each do |opportunity| %>
-    <%= if  opportunity.customer.nil?
-          customer_name = ""
-        else
-          customer_name = opportunity.customer.name
-        end
-
-        if  opportunity.oppostatuses.first.nil?
+    <% if  opportunity.oppostatuses.last.nil?
           opportunity_status = ""
           opportunity_issue = ""
+          opportunity_todo_status = ""
+          opportunity_todo_description = ""
+          opportunity_user_id = ""
         else
-          opportunity_status = opportunity.oppostatuses.first.status
-          opportunity_issue = opportunity.oppostatuses.first.issue
+          opportunity_status = opportunity.oppostatuses.last.status
+          opportunity_issue = opportunity.oppostatuses.last.issue
+          opportunity_todo_status = opportunity.oppostatuses.last.todo_status
+          opportunity_todo_description = opportunity.oppostatuses.last.todo_description
+          opportunity_user_id = opportunity.oppostatuses.last.user.name
         end
         %>
       <tr>
         <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
-        <td><%= customer_name %></td>
+        <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer) %></td>
         <td><%= opportunity.project_type %></td>
         <td><%= opportunity.solution %></td>
-        <td><%= opportunity.note %></td>
+        <td><%= opportunity.priority %></td>
+        <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
         <td><%= opportunity_status %></td>
         <td><%= opportunity_issue %></td>
-        <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
-        <td><%= opportunity.priority %></td>
-        <td>
-          <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                      edit_opportunity_path(opportunity), :class => 'btn btn-mini' %>
-          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-                      opportunity_path(opportunity),
-                      :method => :delete,
-                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-                      :class => 'btn btn-mini btn-danger' %>
-        </td>
+        <td><%= opportunity_user_id %></td>
+        <td><%= opportunity_todo_description %></td>
+        <td><%= opportunity_todo_status %></td>
       </tr>
     <% end %>
   </tbody>

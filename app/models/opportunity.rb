@@ -3,4 +3,6 @@ class Opportunity < ActiveRecord::Base
   belongs_to :customer
   has_many :oppostatuses
 
+  validates :customer_id, :presence => true
+
 end

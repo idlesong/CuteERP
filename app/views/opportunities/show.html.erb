@@ -3,8 +3,8 @@
   <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
 </div>
 
-<h4>Customer:<%= @opportunity.customer_id %> |
-  Type:<%= @opportunity.project_type %> |
+<h4>==<%= @opportunity.customer.name %> ==|
+  ==<%= @opportunity.project_type %> ==|
   solution:<%= @opportunity.solution %> |
   note:<%= @opportunity.note %> |
   priority:<%= @opportunity.priority %>
@@ -61,5 +61,5 @@
   </tbody>
 </table>
 <%= link_to t('.new', :default => t("helpers.links.new")),
-            new_oppostatus_path,
+            new_oppostatus_path(:oppostatus => { :opportunity_id => @opportunity.id }),
             :class => 'btn btn-primary' %>

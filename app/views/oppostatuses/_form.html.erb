@@ -29,10 +29,11 @@
       <%= f.text_field :todo_description, :class => 'text_field' %>
     </div>
   </div>
+
   <div class="control-group">
     <%= f.label :user_id, :class => 'control-label' %>
     <div class="controls">
-      <%= f.number_field :user_id, :class => 'number_field' %>
+      <%= f.select(:user_id, options_from_collection_for_select(User.all, :id, :name)) %>
     </div>
   </div>
 
@@ -41,4 +42,7 @@
     <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
                 oppostatuses_path, :class => 'btn' %>
   </div>
+
+
+
 <% end %>
