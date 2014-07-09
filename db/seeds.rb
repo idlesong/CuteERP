@@ -5,6 +5,12 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
+User.delete_all
+User.create(:name => 'admin',
+	:password => 'rorweberp'
+	)
+
+#...
 Item.delete_all
 #...
 Item.create(:name => '数字对讲机基带信号处理芯片',
@@ -112,7 +118,7 @@ oppo2 = Opportunity.create(:priority => 'Middle',
 Oppostatus.delete_all
 Oppostatus.create(:status => 'DIN:Hardware design',
 	:issue => 'no equipment',
-	:opportunity_id => oppo1.id 
+	:opportunity_id => oppo1.id
 	)
 Oppostatus.create(:status => 'MP: Supply support',
 	:issue => 'Supply support',

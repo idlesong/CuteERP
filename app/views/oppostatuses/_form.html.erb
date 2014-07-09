@@ -1,41 +1,44 @@
-<%= form_for(@oppostatus) do |f| %>
-  <% if @oppostatus.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@oppostatus.errors.count, "error") %> prohibited this oppostatus from being saved:</h2>
-
-      <ul>
-      <% @oppostatus.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
+<%= form_for @oppostatus, :html => { :class => 'form-horizontal' } do |f| %>
+  <div class="control-group">
+    <%= f.label :status, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :status, :class => 'text_field' %>
     </div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :status %><br />
-    <%= f.text_field :status %>
   </div>
-  <div class="field">
-    <%= f.label :issue %><br />
-    <%= f.text_field :issue %>
+  <div class="control-group">
+    <%= f.label :issue, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :issue, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :opportunity_id, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.number_field :opportunity_id, :class => 'number_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :todo_status, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :todo_status, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :todo_description, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :todo_description, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :user_id, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.number_field :user_id, :class => 'number_field' %>
+    </div>
   </div>
 
-  <div class="field">
-    <%= f.label :todo_description %><br />
-    <%= f.text_field :todo_description %>
-  </div>
-
-  <div class="field">
-    <%= f.label :todo_status %><br />
-    <%= f.text_field :todo_status %>
-  </div>
-
-  <div class="field">
-    <%= f.label :opportunity_id %><br />
-    <%= f.text_field :opportunity_id %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit %>
+  <div class="form-actions">
+    <%= f.submit nil, :class => 'btn btn-primary' %>
+    <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+                oppostatuses_path, :class => 'btn' %>
   </div>
 <% end %>

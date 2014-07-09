@@ -35,12 +35,14 @@
       <%= f.text_field :note, :class => 'text_field' %>
     </div>
   </div>
+
   <div class="control-group">
     <%= f.label :customer_id, :class => 'control-label' %>
     <div class="controls">
-      <%= f.number_field :customer_id, :class => 'number_field' %>
+      <%= f.select(:customer_id, options_from_collection_for_select(Customer.all, :id, :name)) %>
     </div>
   </div>
+
 
   <div class="form-actions">
     <%= f.submit nil, :class => 'btn btn-primary' %>

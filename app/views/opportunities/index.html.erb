@@ -20,14 +20,28 @@
   </thead>
   <tbody>
     <% @opportunities.each do |opportunity| %>
+    <%= if  opportunity.customer.nil?
+          customer_name = ""
+        else
+          customer_name = opportunity.customer.name
+        end
+
+        if  opportunity.oppostatuses.first.nil?
+          opportunity_status = ""
+          opportunity_issue = ""
+        else
+          opportunity_status = opportunity.oppostatuses.first.status
+          opportunity_issue = opportunity.oppostatuses.first.issue
+        end
+        %>
       <tr>
         <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
-        <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer)  %></td>
+        <td><%= customer_name %></td>
         <td><%= opportunity.project_type %></td>
         <td><%= opportunity.solution %></td>
         <td><%= opportunity.note %></td>
-        <td><%= opportunity.oppostatuses.first.status %></td>
-        <td><%= opportunity.oppostatuses.first.issue %></td>
+        <td><%= opportunity_status %></td>
+        <td><%= opportunity_issue %></td>
         <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
         <td><%= opportunity.priority %></td>
         <td>

@@ -3,18 +3,12 @@
   <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
 </div>
 
-<dl class="dl-horizontal">
-  <dt><strong><%= model_class.human_attribute_name(:priority) %>:</strong></dt>
-  <dd><%= @opportunity.priority %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:project_type) %>:</strong></dt>
-  <dd><%= @opportunity.project_type %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:solution) %>:</strong></dt>
-  <dd><%= @opportunity.solution %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:note) %>:</strong></dt>
-  <dd><%= @opportunity.note %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:customer_id) %>:</strong></dt>
-  <dd><%= @opportunity.customer_id %></dd>
-</dl>
+<h4>Customer:<%= @opportunity.customer_id %> |
+  Type:<%= @opportunity.project_type %> |
+  solution:<%= @opportunity.solution %> |
+  note:<%= @opportunity.note %> |
+  priority:<%= @opportunity.priority %>
+</h4>
 
 <div class="form-actions">
   <%= link_to t('.back', :default => t("helpers.links.back")),
@@ -27,3 +21,45 @@
               :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
               :class => 'btn btn-danger' %>
 </div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:status) %></th>
+      <th><%= model_class.human_attribute_name(:issue) %></th>
+      <th><%= model_class.human_attribute_name(:opportunity_id) %></th>
+      <th><%= model_class.human_attribute_name(:todo_status) %></th>
+      <th><%= model_class.human_attribute_name(:todo_description) %></th>
+      <th><%= model_class.human_attribute_name(:user_id) %></th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @opportunity.oppostatuses.each do |oppostatus| %>
+      <tr>
+        <td><%= link_to oppostatus.id, oppostatus_path(oppostatus) %></td>
+        <td><%= oppostatus.status %></td>
+        <td><%= oppostatus.issue %></td>
+        <td><%= oppostatus.opportunity_id %></td>
+        <td><%= oppostatus.todo_status %></td>
+        <td><%= oppostatus.todo_description %></td>
+        <td><%= oppostatus.user_id %></td>
+        <td><%=l oppostatus.created_at %></td>
+        <td>
+          <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                      edit_oppostatus_path(oppostatus), :class => 'btn btn-mini' %>
+          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                      oppostatus_path(oppostatus),
+                      :method => :delete,
+                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                      :class => 'btn btn-mini btn-danger' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_oppostatus_path,
+            :class => 'btn btn-primary' %>

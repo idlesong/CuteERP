@@ -1,15 +1,31 @@
-<p id="notice"><%= notice %></p>
+<%- model_class = Oppostatus -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
+</div>
 
-<p>
-  <b>Status:</b>
-  <%= @oppostatus.status %>
-</p>
+<dl class="dl-horizontal">
+  <dt><strong><%= model_class.human_attribute_name(:status) %>:</strong></dt>
+  <dd><%= @oppostatus.status %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:issue) %>:</strong></dt>
+  <dd><%= @oppostatus.issue %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:opportunity_id) %>:</strong></dt>
+  <dd><%= @oppostatus.opportunity_id %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:todo_status) %>:</strong></dt>
+  <dd><%= @oppostatus.todo_status %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:todo_description) %>:</strong></dt>
+  <dd><%= @oppostatus.todo_description %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:user_id) %>:</strong></dt>
+  <dd><%= @oppostatus.user_id %></dd>
+</dl>
 
-<p>
-  <b>Issue:</b>
-  <%= @oppostatus.issue %>
-</p>
-
-
-<%= link_to 'Edit', edit_oppostatus_path(@oppostatus) %> |
-<%= link_to 'Back', oppostatuses_path %>
+<div class="form-actions">
+  <%= link_to t('.back', :default => t("helpers.links.back")),
+              oppostatuses_path, :class => 'btn'  %>
+  <%= link_to t('.edit', :default => t("helpers.links.edit")),
+              edit_oppostatus_path(@oppostatus), :class => 'btn' %>
+  <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+              oppostatus_path(@oppostatus),
+              :method => 'delete',
+              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+              :class => 'btn btn-danger' %>
+</div>
