@@ -58,4 +58,23 @@ $(document).ready(function() {
   $('#opportunities').dataTable({
     "sPaginationType": "bootstrap"
   });
+
+  $("h1").click(function(){
+    //alert('Hello ajax!');
+    $.ajax({
+      type: "POST",
+      url: "/items",
+      data: { item: { name: "unknown" ,imageURL: "rails.png" ,partNo: "unknown"}, price: "20" },
+      dataType:"JSON",
+      success: function(data){
+        //$("#image_center").html("<%= escape_javascript(render(:partial => 'items')) %>");
+        //alert (data.id);
+        //jQuery("#image_center").html(data.id);
+        location.reload(true);
+      },
+      error: function(){
+        alert('Error occured');
+      }
+    });
+  });
 });
