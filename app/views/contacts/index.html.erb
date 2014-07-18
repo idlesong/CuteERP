@@ -18,10 +18,16 @@
   </thead>
   <tbody>
     <% @contacts.each do |contact| %>
+    <% if  contact.customer.nil?
+          company_name = ""
+        else
+          company_name = contact.customer.name
+        end
+    %>
       <tr>
         <td><%= link_to contact.id, contact_path(contact) %></td>
         <td><%= contact.name %></td>
-        <td><%= contact.customer.name %></td>
+        <td><%= company_name %></td>
         <td><%= contact.title %></td>
         <td><%= contact.mobile %></td>
         <td><%= contact.telephone %></td>
@@ -41,6 +47,4 @@
   </tbody>
 </table>
 
-<%= link_to t('.new', :default => t("helpers.links.new")),
-            new_contact_path,
-            :class => 'btn btn-primary' %>
+<button type="button" class="btn btn-primary ajax-new" id="contacts">new contact</button>

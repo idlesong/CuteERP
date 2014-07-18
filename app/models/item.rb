@@ -7,7 +7,7 @@ class Item < ActiveRecord::Base
 
 
   validates :name, :partNo, :presence => true
-  #validates :price, :numericality => {:greater_than_or_equal_to => 0.01}
+  validates :price, :numericality => {:greater_than_or_equal_to => 0.01}
   validates :imageURL, :format => {
               :with => %r{\.(gif|jpg|png)$}i,
               :message => "must be a URL for Gif, JPG or PNG image."

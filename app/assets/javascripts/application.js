@@ -59,12 +59,37 @@ $(document).ready(function() {
     "sPaginationType": "bootstrap"
   });
 
-  $("h1").click(function(){
+  $(".ajax-new").click(function(){
     //alert('Hello ajax!');
+    new_url = $(this).attr('id');
+    attr_data = $(this).attr('data');
+    attr_data2 = $(this).attr('data-2');
+
+    switch(new_url)
+    {
+      case "/items":
+        obj_data = { item: { name: "new" ,imageURL: "rails.png" ,partNo: "unknown", price: 0.01 }};
+        break;
+      case "/contacts":
+        obj_data = { contact: { name: "new", customer_id: attr_data}};
+        break;
+      case "/customers":
+        obj_data = { customer: { name: "new" }};
+        break;
+      case "/opportunities":
+        obj_data = { opportunity: { note: "new",customer_id: attr_data }};
+        break;
+      case "/oppostatuses":
+        obj_data = { oppostatus: { status: "new", opportunity_id: attr_data, user_id: attr_data2 }};
+        break;
+      default:
+          break;
+    }
+
     $.ajax({
       type: "POST",
-      url: "/items",
-      data: { item: { name: "unknown" ,imageURL: "rails.png" ,partNo: "unknown"}, price: "20" },
+      url: new_url,
+      data: obj_data,
       dataType:"JSON",
       success: function(data){
         //$("#image_center").html("<%= escape_javascript(render(:partial => 'items')) %>");
