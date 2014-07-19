@@ -18,14 +18,12 @@
     <% @items.each do |item| %>
       <tr>
         <td><%= link_to item.id, item_path(item) %></td>
-        <td><%= item.name %></td>
-        <td><%= item.description %></td>
-        <td><%= item.partNo %></td>
-        <td><%= item.price %></td>
-        <td><%= item.package %></td>
+        <td><%= best_in_place item, :name, :type => :input %></td>
+        <td><%= best_in_place item, :description, :type => :input %></td>
+        <td><%= best_in_place item, :partNo, :type => :input %></td>
+        <td><%= best_in_place item, :price, :type => :input %></td>
+        <td><%= best_in_place item, :package, :type => :input %></td>
         <td>
-          <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                      edit_item_path(item), :class => 'btn btn-mini' %>
           <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
                       item_path(item),
                       :method => :delete,

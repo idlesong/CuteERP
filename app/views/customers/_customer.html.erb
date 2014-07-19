@@ -19,12 +19,12 @@
 
   <% @contacts.each do |contact| %>
     <tr>
-      <td><%= contact.name %></td>
-      <td><%= contact.title %></td>
-      <td><%= contact.mobile %></td>
-      <td><%= contact.telephone %></td>
-      <td><%= contact.email %></td>
-      <td><%= contact.note %></td>
+      <td><%= best_in_place contact, :name, :type => :input %></td>
+      <td><%= best_in_place contact, :title, :type => :input %></td>
+      <td><%= best_in_place contact, :mobile, :type => :input %></td>
+      <td><%= best_in_place contact, :telephone, :type => :input %></td>
+      <td><%= best_in_place contact, :email, :type => :input %></td>
+      <td><%= best_in_place contact, :note, :type => :input %></td>
     </tr>
   <% end %>
 </table>

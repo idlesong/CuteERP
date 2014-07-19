@@ -26,16 +26,14 @@
     %>
       <tr>
         <td><%= link_to contact.id, contact_path(contact) %></td>
-        <td><%= contact.name %></td>
+        <td><%= best_in_place contact, :name, :type => :input %></td>
         <td><%= company_name %></td>
-        <td><%= contact.title %></td>
-        <td><%= contact.mobile %></td>
-        <td><%= contact.telephone %></td>
-        <td><%= contact.email %></td>
-        <td><%= contact.note %></td>
+        <td><%= best_in_place contact, :title, :type => :input %></td>
+        <td><%= best_in_place contact, :mobile, :type => :input %></td>
+        <td><%= best_in_place contact, :telephone, :type => :input %></td>
+        <td><%= best_in_place contact, :email, :type => :input %></td>
+        <td><%= best_in_place contact, :note, :type => :input %></td>
         <td>
-          <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                      edit_contact_path(contact), :class => 'btn btn-mini' %>
           <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
                       contact_path(contact),
                       :method => :delete,
@@ -47,4 +45,4 @@
   </tbody>
 </table>
 
-<button type="button" class="btn btn-primary ajax-new" id="contacts">new contact</button>
+<button type="button" class="btn btn-primary ajax-new" id="/contacts">new contact</button>

@@ -19,15 +19,13 @@
     <% @customers.each do |customer| %>
       <tr>
         <td><%= link_to customer.id, customer_path(customer) %></td>
-        <td><%= link_to customer.name, customer_path(customer) %></td>
-        <td><%= customer.address %></td>
-        <td><%= customer.telephone %></td>
-        <td><%= customer.since %></td>
-        <td><%= customer.balance %></td>
-        <td><%= customer.contact %></td>
+        <td><%= best_in_place customer, :name, :type => :input %></td>
+        <td><%= best_in_place customer, :address, :type => :input %></td>
+        <td><%= best_in_place customer, :telephone, :type => :input %></td>
+        <td><%= best_in_place customer, :since, :type => :input %></td>
+        <td><%= best_in_place customer, :balance, :type => :input %></td>
+        <td><%= best_in_place customer, :contact, :type => :input %></td>
         <td>
-          <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                      edit_customer_path(customer), :class => 'btn btn-mini' %>
           <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
                       customer_path(customer),
                       :method => :delete,
