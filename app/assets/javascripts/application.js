@@ -43,19 +43,7 @@ $(document).ready(function() {
   /* Activating Best In Place */
   jQuery(".best_in_place").best_in_place();
 
-  $('#items').dataTable({
-    "sPaginationType": "bootstrap"
-  });
-
-  $('#customers').dataTable({
-    "sPaginationType": "bootstrap"
-  });
-
-  $('#contacts').dataTable({
-    "sPaginationType": "bootstrap"
-  });
-
-  $('#opportunities').dataTable({
+  $('.datatable').dataTable({
     "sPaginationType": "bootstrap"
   });
 

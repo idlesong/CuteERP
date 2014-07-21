@@ -26,16 +26,12 @@ end
 
 gem 'jquery-rails'
 
-group :assets do
-  gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
-  gem 'jquery-ui-rails'
-end
+gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
 
-gem 'will_paginate'
 
 gem "therubyracer"
 gem "less-rails"
-gem "twitter-bootstrap-rails"
+gem "twitter-bootstrap3-rails"
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
