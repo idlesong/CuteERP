@@ -48,12 +48,12 @@ customer1 = Customer.create(:name => '品芯-Asichip',
 	:contact => '崔继勇',
 	:telephone => '0755-68888888'
 	)
-customer2 = Customer.create(:name => 'HYT',
+customer2 = Customer.create(:name => '海能达',
 	:balance => 100000,
-	:contact => 'Cuijiyong',
+	:contact => '刘娟',
 	:telephone => '0755-68888888'
 	)
-customer3 = Customer.create(:name => 'Army',
+customer3 = Customer.create(:name => '小威',
 	:balance => 100000,
 	:contact => 'Cuijiyong',
 	:telephone => '0755-68888888'

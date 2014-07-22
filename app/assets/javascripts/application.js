@@ -18,27 +18,6 @@
 //= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
 //= require_tree .
 
-function toggleOverlay( popDialogName ){
-  var overlay = document.getElementById('overlay');
-  //var specialBox = document.getElementById('specialBox');
-  var specialBox = document.getElementById(popDialogName);
-  overlay.style.opacity = .8;
-  if(overlay.style.display == "block"){
-    overlay.style.display = "none";
-    specialBox.style.display = "none";
-  } else {
-    overlay.style.display = "block";
-    specialBox.style.display = "block";
-  }
-}
-
-function selectCustomer(elemid){
-  var trid;
-  trid = elemid.id;
-  alert(trid);
-  toggleOverlay('customerListBox');
-}
-
 $(document).ready(function() {
   /* Activating Best In Place */
   jQuery(".best_in_place").best_in_place();
