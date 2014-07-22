@@ -12,7 +12,7 @@
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :password_confirmation, :class => 'control-label' %>
+    <%= f.label :password_confirmation, 'confirm', :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :password_confirmation, :class => 'text_field' %>
     </div>
@@ -36,9 +36,9 @@
     </div>
   </div>
 
-  <div class="form-actions">
-    <%= f.submit nil, :class => 'btn btn-primary' %>
-    <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
-                users_path, :class => 'btn' %>
-  </div>
+
+  <%= f.submit nil, :class => 'btn btn-primary' %>
+  <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+            users_path, :class => 'btn btn-default' %>
+
 <% end %>

@@ -122,7 +122,7 @@ GEM
     treetop (1.4.14)
       polyglot
       polyglot (>= 0.3.1)
-    twitter-bootstrap3-rails (3.2.7.1)
+    twitter-bootstrap-rails (2.2.8)
       actionpack (>= 3.1)
       execjs
       rails (>= 3.1)
@@ -147,5 +147,5 @@ DEPENDENCIES
   rails_12factor
   sass-rails (~> 3.2.3)
   therubyracer
-  twitter-bootstrap3-rails
+  twitter-bootstrap-rails
   uglifier (>= 1.0.3)

@@ -28,11 +28,10 @@ gem 'jquery-rails'
 
 gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
 
-group :assets do
-  gem "therubyracer"
-  gem "less-rails"
-  gem "twitter-bootstrap3-rails"
-end
+gem "therubyracer"
+gem "less-rails"
+gem "twitter-bootstrap-rails"
+
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
