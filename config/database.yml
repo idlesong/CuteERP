@@ -6,7 +6,7 @@
 development:
   adapter: postgresql
   database: db/rorweberp_development
-  host: localhost
+  #host: localhost
   pool: 5
   timeout: 5000
   username: rorweberp
@@ -18,7 +18,7 @@ development:
 test:
   adapter: postgresql
   database: db/rorweberp_test
-  host: localhost
+  #host: localhost
   pool: 5
   timeout: 5000
   username: rorweberp
@@ -27,7 +27,7 @@ test:
 production:
   adapter: postgresql
   database: db/rorweberp_production
-  host: localhost
+  #host: localhost
   pool: 5
   timeout: 5000
   username: rorweberp
