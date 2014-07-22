@@ -9,7 +9,7 @@
  * compiled file, but it's generally better to create a new file per style scope.
  *
  *= require_self
- *= require dataTables/bootstrap/3/jquery.dataTables.bootstrap
+ *= require dataTables/bootstrap/2/jquery.dataTables.bootstrap
  *= require_tree .
  */
 // Place all the styles related to the Items controller here.

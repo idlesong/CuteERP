@@ -7,6 +7,7 @@
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%= model_class.human_attribute_name(:name) %></th>
+      <th><%= model_class.human_attribute_name(:full_name) %></th>
       <th><%= model_class.human_attribute_name(:address) %></th>
       <th><%= model_class.human_attribute_name(:telephone) %></th>
       <th><%= model_class.human_attribute_name(:since) %></th>
@@ -20,6 +21,7 @@
       <tr>
         <td><%= link_to customer.id, customer_path(customer) %></td>
         <td><%= best_in_place customer, :name, :type => :input %></td>
+        <td><%= best_in_place customer, :full_name, :type => :input %></td>
         <td><%= best_in_place customer, :address, :type => :input %></td>
         <td><%= best_in_place customer, :telephone, :type => :input %></td>
         <td><%= best_in_place customer, :since, :type => :input %></td>
