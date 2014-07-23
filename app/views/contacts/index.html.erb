@@ -18,18 +18,11 @@
   </thead>
   <tbody>
     <% @contacts.each do |contact| %>
-    <% if  contact.customer.nil?
-          customer = @customers.first
-          company = @customers.map{|customer| [customer.id, customer.name]}
-        else
-          customer = contact.customer
-          company = @customers.map{|customer| [customer.id, customer.name]}
-        end
-    %>
+      <% company = @customers.map{|customer| [customer.id, customer.name]} %>
       <tr>
         <td><%= link_to contact.id, contact_path(contact) %></td>
         <td><%= best_in_place contact, :name, :type => :input %></td>
-        <td><%= best_in_place customer, :id, :type => :select, :collection => company %></td>
+        <td><%= best_in_place contact, :customer_id, :type => :select, :collection => company %></td>
         <td><%= best_in_place contact, :title, :type => :input %></td>
         <td><%= best_in_place contact, :mobile, :type => :input %></td>
         <td><%= best_in_place contact, :telephone, :type => :input %></td>

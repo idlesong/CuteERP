@@ -80,17 +80,14 @@
 
     <% @oppostatuses.each do |oppostatus| %>
       <% if oppostatus.opportunity_id == opportunity.id %>
+      <% keyman = @users.map{|user| [user.id, user.name]} %>
       <tr>
         <td><%= oppostatus.created_at.strftime("%Y/%m/%d") %></td>
         <td><%= best_in_place oppostatus, :status, :type => :input %></td>
         <td><%= best_in_place oppostatus, :issue, :type => :input %></td>
         <td><%= best_in_place oppostatus, :todo_description, :type => :input %></td>
         <td><%= best_in_place oppostatus, :todo_status, :type => :input %></td>
-        <% if oppostatus.user.nil? %>
-          <td> </td>
-        <% else %>
-          <td><%= oppostatus.user.name %></td>
-        <% end %>
+        <td><%= best_in_place oppostatus, :user_id, :type => :select, :collection => keyman %></td>
       </tr>
       <% end %>
     <% end %>

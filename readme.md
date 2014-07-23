@@ -33,4 +33,17 @@
 - Customer:
 - Opportunity: belongs_to: customer, :priority, :project_type, :design, :description
 - Status: belongs_to: opportunity, :status, :issue, :label
-- Task: :destription, :assign, :status(Doing,Done,Fail,Forgive) 
+- Task: :destription, :assign, :status(Doing,Done,Fail,Forgive)
+
+#### bug fix
+- contacts 修改公司名不起作用 ok
+- Opportunity 更改链接不直观
+- opportunity edit中 customer默认错误，是否不能修改更合适（即必须由customer页面创建，然后不能修改）？ ok
+- customer show中 Oppostatus 责任人不能修改 ok
+- create at 时间格式不对
+- customers 客户名应该加入链接，new customer名称也同样可以加 fail
+- delete opportunity 应该同时删除，相应的oppostatus
+- todo status应该能标注不同颜色，红，灰，绿
+- 性能问题，是否render性能不好？
+- best_in_place delete 编辑太方便，考虑锁的机制
+- customer中加入备注text区域很需要

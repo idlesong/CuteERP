@@ -33,7 +33,7 @@
   <div class="control-group">
     <%= f.label :user_id, :class => 'control-label' %>
     <div class="controls">
-      <%= f.select(:user_id, options_from_collection_for_select(User.all, :id, :name)) %>
+      <%= f.select(:user_id, options_from_collection_for_select(User.all, :id, :name, @oppostatus.user_id)) %>
     </div>
   </div>
 
