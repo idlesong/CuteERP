@@ -10,7 +10,7 @@
 
 #### 实现步骤
 ##### 1.参考Rails in Action实现一个简单，简洁，但可靠的ERP。
- - Overview界面涉及绝大部分功能，
+ - Overview界面涉及绝大部分功能。
  - 根据User不同的权限和职能显示不同内容。如前台看不到客户交易，但可以看到快递单号。
 
 ##### 2.Moden UI： Ajax改造，表单的录入等。
@@ -28,12 +28,17 @@
 ##### 4.添加部分CRM功能：oppotunite，task，自动生成客户项目等界面。
  - 在Sales overview汇总所有客户。
 
-
-#### database table
+#### schema
 - Customer:
 - Opportunity: belongs_to: customer, :priority, :project_type, :design, :description
 - Status: belongs_to: opportunity, :status, :issue, :label
 - Task: :destription, :assign, :status(Doing,Done,Fail,Forgive)
+
+- Product: name, part_number, price(lowest for key customer), price2(lowest for important), price3(lowest for normal), price4(marketing reference)
+- Price: customer_id, product_id, value, unit,
+- customer_order
+- sales_order
+- invoice
 
 #### bug fix
 - contacts 修改公司名不起作用 ok
@@ -47,3 +52,13 @@
 - 性能问题，是否render性能不好？
 - best_in_place delete 编辑太方便，考虑锁的机制
 - customer中加入备注text区域很需要
+
+
+### Feature request
+- Price, customer price,
+- Products, create chipset
+- auto make quotation(pdf)
+- add Markdown notes in customer show page
+- Auto create Marketings, solutions page according to oppotunities  
+- Docs, fetch 1st line as post title
+- Docs, add edit preview in the same page.

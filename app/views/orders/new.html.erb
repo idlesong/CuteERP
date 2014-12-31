@@ -1,43 +1,46 @@
 <div class = "inventory_form">
 
-	<!-- Start Overlay -->
-	<div id="overlay"></div>
+	<%= render 'shared/customers_modal' %>
+	<%= render 'shared/products_modal' %>
 
-	<!-- Start Special Centered Box; and only one in current page -->
-	<div id="customerListBox">
-	  	<div id="close">
-	  		<button onmousedown="toggleOverlay('customerListBox')">X</button>
-	  	</div>
-	  <%= render("customerList") %>
+	<h1> Customer Order </h1>
+	<h4> Order Header </h4>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<td>Customer
+					<a type="button" class="btn btn-sm" data-toggle="modal" data-target="#customersModal">
+						SelectCustomer
+					</a>
+				</td>
+				<td> Supplier</td>
+			</tr>
+		</thead>
+		<tr>
+			<% if @customer.nil? then %>
+			<td>Name:None</td>
+			<% else %>
+			<td>Name:<%= @customer.name %> </td>
+			<% end %>
+
+			<td>WuxiSicomm tech.Ltd</td>
+		</tr>
+		<tr>
+			<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
+		</tr>
+	</table>
+	<hr>
+
+	<h4> Order details </h4>
+	<a type="button" class="btn btn-sm" data-toggle="modal" data-target="#productsModal">
+		SelectProduct
+	</a>
+	<div id="cart">
+		<%= render @cart %>
 	</div>
+	<hr>
 
-	<div id="productListBox">
-	  	<div id="close">
-	  		<button onmousedown="toggleOverlay('productListBox')">X</button>
-	  	</div>
-	  <%= render("productList") %>
-	</div>
+	<h4>Please Confirm dispatch info and place order</h4>
+	<%= render 'form' %>
 
-	<h1> Customer Order </h1>		
-	<fieldset>
-		<legend>Order Header</legend>
-	    <button onmousedown="toggleOverlay('customerListBox')">SelectCustomer</button>
-
-	    <div id="orderHeaderDiv">
-    		<%= render ("orderHeader") %>
-	    </div>
-	</fieldset>
-
-	<fieldset>
-		<legend>Order Details </legend>
-		<button onmousedown="toggleOverlay('productListBox')">SelectProduct</button>
-		<div id="cart">
-			<%= render @cart %>
-		</div>
-	</fieldset>
-
-	<fieldset>
-      	<legend>Please Confirm dispatch info and place order</legend>
-   		<%= render 'form' %>
-	</fieldset>
 </div>

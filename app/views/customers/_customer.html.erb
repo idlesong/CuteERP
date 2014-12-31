@@ -1,5 +1,6 @@
 <p id="notice"><%= notice %></p>
-<h5> 客户：<%= @customer.name %> 地址:<%= @customer.address %> 电话：<%= @customer.telephone %></h5>
+<h4> 客户：<%= @customer.name %> 地址:<%= @customer.address %> 电话：<%= @customer.telephone %>
+  <%= link_to 'edit', edit_customer_path(@customer) %></h4>
 
 <h3> Contacts
 <button type="button" class="btn btn-mini btn-primary ajax-new" data= <%= @customer.id %> id="/contacts">new contact</button>

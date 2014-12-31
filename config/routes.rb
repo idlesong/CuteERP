@@ -1,12 +1,12 @@
 RorWebERP::Application.routes.draw do
-  resources :tasks
+  resources :posts
 
+
+  resources :tasks
 
   resources :oppostatuses
 
-
   resources :opportunities
-
 
   resources :contacts
   resources :customers

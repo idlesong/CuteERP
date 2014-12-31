@@ -1,4 +1,5 @@
-source 'https://rubygems.org'
+#source 'https://rubygems.org'
+source 'https://ruby.taobao.org/'
 
 gem 'rails', '3.2.13'
 
@@ -7,8 +8,8 @@ gem 'rails', '3.2.13'
 
 gem 'rails_12factor', group: :production
 
-#gem 'sqlite3'
-gem 'pg'
+gem 'sqlite3'
+#gem 'pg'
 
 gem 'best_in_place'
 
@@ -26,11 +27,14 @@ end
 
 gem 'jquery-rails'
 
-gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
+#gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
+gem 'jquery-datatables-rails', '~> 3.1.1'
 
 gem "therubyracer"
 gem "less-rails"
 gem "twitter-bootstrap-rails"
+
+gem 'redcarpet'
 
 
 # To use ActiveModel has_secure_password
