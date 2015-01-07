@@ -1,4 +1,26 @@
 <div class="cart_title"> Your Order Detail Info </div>
-<table>
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				<h4>#</h4>
+			</th>
+			<th>
+				<h4>Product name</h4>
+			</th>
+			<th>
+				<h4>PartNo.</h4>
+			</th>
+			<th>
+				<h4>Qty</h4>
+			</th>
+			<th>
+				<h4>Price</h4>
+			</th>
+			<th>
+				<h4>Suble Total</h4>
+			</th>
+		</tr>
+	</thead>	
 	<%= render(@order.line_items) %>
 </table>

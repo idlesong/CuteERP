@@ -9,9 +9,10 @@
       <th><%= model_class.human_attribute_name(:name) %></th>
       <th><%= model_class.human_attribute_name(:address) %></th>
       <th><%= model_class.human_attribute_name(:telephone) %></th>
-      <th><%= model_class.human_attribute_name(:since) %></th>
-      <th><%= model_class.human_attribute_name(:balance) %></th>
       <th><%= model_class.human_attribute_name(:contact) %></th>
+      <th>delivery address<th>
+      <th><%= model_class.human_attribute_name(:balance) %></th>
+      <th><%= model_class.human_attribute_name(:since) %></th>
       <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
   </thead>
@@ -22,9 +23,10 @@
         <td><%= link_to customer.name, customer_path(customer) %></td>
         <td><%= customer.address %></td>
         <td><%= customer.telephone %></td>
-        <td><%= customer.since %></td>
-        <td><%= customer.balance %></td>
         <td><%= customer.contact %></td>
+        <td>shenzhen<td>
+        <td><%= customer.balance %></td>
+        <td><%= customer.since %></td>
         <td>
           <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
                       customer_path(customer),

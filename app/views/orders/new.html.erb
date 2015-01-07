@@ -4,41 +4,23 @@
 	<%= render 'shared/products_modal' %>
 
 	<h1> Customer Order </h1>
-	<h4> Order Header </h4>
-	<table class="table table-bordered">
-		<thead>
-			<tr>
-				<td>Customer
-					<a type="button" class="btn btn-sm" data-toggle="modal" data-target="#customersModal">
-						SelectCustomer
-					</a>
-				</td>
-				<td> Supplier</td>
-			</tr>
-		</thead>
-		<tr>
-			<% if @customer.nil? then %>
-			<td>Name:None</td>
-			<% else %>
-			<td>Name:<%= @customer.name %> </td>
-			<% end %>
-
-			<td>WuxiSicomm tech.Ltd</td>
-		</tr>
-		<tr>
-			<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
-		</tr>
-	</table>
-	<hr>
-
-	<h4> Order details </h4>
-	<a type="button" class="btn btn-sm" data-toggle="modal" data-target="#productsModal">
-		SelectProduct
-	</a>
-	<div id="cart">
-		<%= render @cart %>
+	<div id="orderHeaderDiv">
+		<%= render 'orderHeader' %>
 	</div>
-	<hr>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4> Order details </h4>
+		</div>
+		<div class="panel-body">
+			<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#productsModal">
+				SelectProduct
+			</a>
+			<div id="cart">
+				<%= render @cart %>
+			</div>
+		</div>
+	</div>
 
 	<h4>Please Confirm dispatch info and place order</h4>
 	<%= render 'form' %>

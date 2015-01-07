@@ -1,4 +1,7 @@
 RorWebERP::Application.routes.draw do
+  resources :prices
+
+
   resources :posts
 
 

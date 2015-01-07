@@ -3,5 +3,6 @@ class Customer < ActiveRecord::Base
   has_many :orders
   has_many :contacts
   has_many :opportunities
+  has_many :prices
 
 end

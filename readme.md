@@ -62,3 +62,5 @@
 - Auto create Marketings, solutions page according to oppotunities  
 - Docs, fetch 1st line as post title
 - Docs, add edit preview in the same page.
+- Orders index with lineitems(like excel)
+- Packing Note

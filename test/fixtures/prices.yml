@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  item_id: 1
+  customer_id: 1
+  price: 9.99
+  payment_terms: MyString
+  condition: MyString
+  sales_suggestion: MyString
+  department_suggestion: MyString
+  finance_suggestion: MyString
+  boss_suggestion: MyString
+
+two:
+  item_id: 1
+  customer_id: 1
+  price: 9.99
+  payment_terms: MyString
+  condition: MyString
+  sales_suggestion: MyString
+  department_suggestion: MyString
+  finance_suggestion: MyString
+  boss_suggestion: MyString

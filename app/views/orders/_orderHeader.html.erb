@@ -1,20 +1,32 @@
-<table class="table table-bordered">
-	<thead>
-		<tr>
-			<td>Customer</td>  <td> Supplier</td>
-		</tr>
-	</thead>
-	<tr>
-		<% if @customer.nil? then %>
-			<td>Name:None</td>
-		<% else %>
-			<td>Name:<%= @customer.name %> </td>
-		<% end %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4> Order Header </h4>
+	</div>
 
-		<td>WuxiSicomm tech.Ltd</td>
-	</tr>
-	<tr>
-		<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
-	</tr>
+	<div class="panel-body">
+		<table class="table">
+			<thead>
+				<tr>
+					<td>Customer
+						<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#customersModal">
+							SelectCustomer
+						</a>
+					</td>
+					<td> Ship to:</td>
+				</tr>
+			</thead>
+			<tr>
+				<% if @customer.nil? then %>
+				<td>Name:None</td>
+				<% else %>
+				<td>Name:<%= @customer.name %> </td>
+				<% end %>
 
-</table>
+				<td>WuxiSicomm tech.Ltd</td>
+			</tr>
+			<tr>
+				<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
+			</tr>
+		</table>
+	</div>
+</div>

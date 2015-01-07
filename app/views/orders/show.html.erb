@@ -1,32 +1,159 @@
 <p id="notice"><%= notice %></p>
+<h1>Sales Order</h1>
+<hr>
+<!-- <h1>Sales Order</h1>
+<div class="panel panel-default">
+  <div class="panel-heading"><h2>Sales Order<h2></div>
+  <div class="panel-body">
 
+    <table class="table">
+      <thead>
+        <tr>
+          <td><h4>Customer</h4></td>  <td><h4> Supplier</h4></td>
+        </tr>
+      </thead>
+      <tr>
+        <td>Customer:<%= @order.name %></td>
+        <td>Supplier:WuxiSicomm tech.Ltd</td>
+      </tr>
+      <tr>
+        <td>Address:<%= @order.address %></td>
+        <td>Address: Wuxi Provice</td>
+      </tr>
+      <tr>
+        <td>Contact:<%= @order.email %></td>
+        <td>Telephone: 051066682208</td>
+      </tr>
+      <tr>
+        <td>Payment:<%= @order.pay_type %></td>
+        <td>Date: 20140501</td>
+      </tr>
 
-<table class="pure-table">
-  <thead>
-    <tr>
-      <td>Customer</td>  <td> Supplier</td>
-    </tr>
-  </thead>
-  <tr>
-    <td>Customer:<%= @order.name %></td>
-    <td>Supplier:WuxiSicomm tech.Ltd</td>
-  </tr>
-  <tr>
-    <td>Address:<%= @order.address %></td>
-    <td>Address: Wuxi Provice</td>
-  </tr>
-  <tr>
-    <td>Contact:<%= @order.email %></td>
-    <td>Telephone: 051066682208</td>
-  </tr>
-  <tr>
-    <td>Payment:<%= @order.pay_type %></td>
-    <td>Date: 20140501</td>
-  </tr>
+    </table>
 
-</table>
+    <%= render(@order) %>
+  </div>
 
-<%= render(@order) %>
+  <div class="panel-footer">
+    <%= link_to 'Edit', edit_order_path(@order) %> |
+    <%= link_to 'Back', orders_path %> |
+
+    <%= link_to 'Print Quotation' %> |
+    <%= link_to 'Print Invoice' %>
+  </div>
+</div> -->
+
+<div class="container">
+  <div class="row">
+    <div class="col-xs-6">
+      <h1>
+        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+      </h1>
+      Wuxi Sicomm Communication Tech</br>
+      Address: Wuxi</br>
+      Tel: 0510-66682208 Fax:0510-66682207</br>
+    </div>
+    <div class="col-xs-6 text-right">
+      <h1>Quotation</h1>
+      <h1><small>Quotation #001</small></h1>
+      <h4>Payment:<%= @order.pay_type %></h4>
+      <h4>Date: 20140501</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4>Bill to: <a href="#"><%=@order.customer.name%></a></h4>
+        </div>
+        <div class="panel-body">
+          <p>
+            Address:Wuxi China <br>
+            details <br>
+            TEL: 0510-66682208  FAX: 021-66682207
+            <br>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4>Ship to : <a href="#"><%=@order.customer.name %></a></h4>
+        </div>
+        <div class="panel-body">
+          <p>
+            Attn:<%= @order.name %> <br>
+            Address: <%= @order.address %><br>
+            Tel: <br>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- / end client details section -->
+
+  <%= render(@order) %>
+
+  <div class="row text-right">
+    <div class="col-xs-2 col-xs-offset-8">
+      <p>
+        <strong>
+          Sub Total : <br>
+          TAX : <br>
+          Total : <br>
+        </strong>
+      </p>
+    </div>
+    <div class="col-xs-2">
+      <strong>
+        $1200.00 <br>
+        N/A <br>
+        $1200.00 <br>
+      </strong>
+    </div>
+  </div>
+  <hr>
+  remarks:
+  <hr>
+  <div class="row">
+    <div class="col-xs-5">
+      <div class="panel panel-info">
+        <div class="panel-heading">
+          <h4>Bank details</h4>
+        </div>
+        <div class="panel-body">
+          <p>Your Name</p>
+          <p>Bank Name</p>
+          <p>SWIFT : --------</p>
+          <p>Account Number : --------</p>
+          <p>IBAN : --------</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-7">
+      <div class="span7">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h4>Contact Details</h4>
+          </div>
+          <div class="panel-body">
+            <p>
+              Email : you@example.com <br><br>
+              Mobile : -------- <br> <br>
+              Twitter : <a href="https://twitter.com/tahirtaous">@TahirTaous</a>
+            </p>
+            <h4>Payment should be made by Bank Transfer</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <%= link_to 'Edit', edit_order_path(@order) %> |
-<%= link_to 'Back', orders_path %>
+<%= link_to 'Back', orders_path %> |
+
+<%= link_to 'Print Quotation' %> |
+<%= link_to 'Print Invoice' %>
+<hr>

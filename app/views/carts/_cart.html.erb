@@ -1,10 +1,20 @@
 <% unless cart.line_items.empty? %>
 <div class="cart_title"> Your Cart </div>
-<table class="table table-striped table-bordered">
+<table class="table">
+	<thead>
+		<tr>
+			<th><h4>#</h4></th>
+			<th><h4>Product name</h4></th>
+			<th><h4>PartNo.</h4></th>
+			<th><h4>Qty</h4></th>
+			<th><h4>Price</h4></th>
+			<th><h4>Suble Total</h4></th>
+		</tr>
+	</thead>
 	<%= render(@cart.line_items) %>
 
 	<tr class="total_line">
-		<td colspan="2"> Total</td>
+		<td colspan="5"> Total</td>
 		<td class="total_cell"><%= number_to_currency(@cart.total_price) %></td>
 	</tr>
 </table>

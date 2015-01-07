@@ -51,6 +51,17 @@ class OrdersController < ApplicationController
   # GET /orders/1/edit
   def edit
     @order = Order.find(params[:id])
+
+    @items = Item.all
+    @customers = Customer.all
+
+    #
+    @cart = Cart.create
+    @cart.line_items = @order.line_items
+    if @cart.line_items.empty?
+      #redirect_to inventory_url, :notice => "Your cart is empty"
+      #return
+    end
   end
 
   # POST /orders
