@@ -7,7 +7,7 @@
 		<table class="table">
 			<thead>
 				<tr>
-					<td>Customer
+					<td>Bill to:
 						<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#customersModal">
 							SelectCustomer
 						</a>
@@ -15,18 +15,20 @@
 					<td> Ship to:</td>
 				</tr>
 			</thead>
-			<tr>
-				<% if @customer.nil? then %>
-				<td>Name:None</td>
-				<% else %>
-				<td>Name:<%= @customer.name %> </td>
-				<% end %>
+			<%
+					customer_info = Array.new(8," ")
+					customer_label= ["Customer:","address:","contact:","TEL:","", "adress:","contact:","TEL"]
+					if @customer.nil?
+					else
+						customer_info = [@customer.name.to_s, @customer.address.to_s, @customer.contact.to_s,
+							@customer.telephone.to_s,'', 'depot_addr', 'depot_contact', 'depot_tel']
+				  end
+			%>
+			<tr><td><%= customer_label[0] %><%= customer_info[0] %> </td>  <td><%= customer_label[4] %><%= customer_info[4] %> </td></tr>
+			<tr><td><%= customer_label[1] %><%= customer_info[1] %> </td>  <td><%= customer_label[5] %><%= customer_info[5] %> </td></tr>
+			<tr><td><%= customer_label[2] %><%= customer_info[2] %> </td>  <td><%= customer_label[6] %><%= customer_info[6] %> </td></tr>
+			<tr><td><%= customer_label[3] %><%= customer_info[3] %> </td>  <td><%= customer_label[7] %><%= customer_info[7] %> </td></tr>
 
-				<td>WuxiSicomm tech.Ltd</td>
-			</tr>
-			<tr>
-				<td>Addr:Shenzhen</td><td>Addr: Wuxi Provice</td>
-			</tr>
 		</table>
 	</div>
 </div>

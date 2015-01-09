@@ -1,7 +1,6 @@
 <p id="notice"><%= notice %></p>
 <h1>Sales Order</h1>
-<hr>
-<!-- <h1>Sales Order</h1>
+
 <div class="panel panel-default">
   <div class="panel-heading"><h2>Sales Order<h2></div>
   <div class="panel-body">
@@ -9,7 +8,7 @@
     <table class="table">
       <thead>
         <tr>
-          <td><h4>Customer</h4></td>  <td><h4> Supplier</h4></td>
+          <td><h4>Bill to:</h4></td>  <td><h4> Ship to:</h4></td>
         </tr>
       </thead>
       <tr>
@@ -28,9 +27,14 @@
         <td>Payment:<%= @order.pay_type %></td>
         <td>Date: 20140501</td>
       </tr>
-
     </table>
 
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><h2>Order Details<h2></div>
+  <div class="panel-body">
     <%= render(@order) %>
   </div>
 
@@ -41,8 +45,9 @@
     <%= link_to 'Print Quotation' %> |
     <%= link_to 'Print Invoice' %>
   </div>
-</div> -->
+</div>
 
+<h1>Quotation</h1>
 <div class="container">
   <div class="row">
     <div class="col-xs-6">

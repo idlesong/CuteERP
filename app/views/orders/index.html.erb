@@ -1,4 +1,4 @@
-<h1>Listing orders</h1>
+<!-- <h1>Listing orders</h1>
 
 <table class="table">
   <thead>
@@ -7,7 +7,7 @@
       <th>ContactName</th>
       <th>ShipAddress</th>
       <th>Email</th>
-      <th>Pay type</th>
+      <th>PayType</th>
       <th></th>
       <th></th>
       <th></th>
@@ -28,11 +28,38 @@
 <% end %>
 </table>
 
-<br />
+<br /> -->
 
-<%= link_to 'New Order', new_order_path %>
 
-<% @orders.each do |order| %>
-  <% @order = order %>
-  <%= render(@order) %>
-<% end %>
+<h3> Orders with lineitems </h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th><h4>#</h4></th>
+      <th><h4>Customer</h4></th>
+      <th><h4>Date</h4></th>
+      <th><h4>Product name</h4></th>
+      <th><h4>PartNo.</h4></th>
+      <th><h4>Price</h4></th>
+      <th><h4>Qty</h4></th>
+      <th><h4>Suble Total</h4></th>
+    </tr>
+  </thead>
+
+  <% @orders.each do |order| %>
+    <% order.line_items.each do |line_item|%>
+      <tr>
+        <td>#<%= link_to(order.id,order_path(order.id)) %></td>
+        <td><%= order.customer.name %></td>
+        <td><%= order.created_at.strftime("%F") %>
+        <td><%= line_item.item.name %> </td>
+        <td><%= line_item.item.partNo %> </td>
+        <td><%= line_item.item.price %> </td>
+        <td>x<%= line_item.quantity %> </td>
+        <td><%= number_to_currency(line_item.total_price) %></td>
+      </tr>
+    <% end %>
+  <% end %>
+</table>
+
+<%= link_to 'New Order', new_order_path, :class=>"btn btn-primary" %>

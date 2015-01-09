@@ -1,19 +1,35 @@
 <%- model_class = Post -%>
 
-<%= markdown(@post.content).html_safe %>
+<div class="row">
+  <div class="col-xs-8 col-md-8">
 
-<hr>
-<p>title: <%= @post.title %> </p>
-<p>subject:<%= @post.subject %> </p>
+    <%= markdown(@post.content).html_safe %>
 
-<div class="form-actions">
-  <%= link_to t('.back', :default => t("helpers.links.back")),
-              posts_path, :class => 'btn'  %>
-  <%= link_to t('.edit', :default => t("helpers.links.edit")),
-              edit_post_path(@post), :class => 'btn' %>
-  <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-              post_path(@post),
-              :method => 'delete',
-              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-              :class => 'btn btn-danger' %>
-</div>
+    <hr>
+    <p>title: <%= @post.title %> </p>
+    <p>subject:<%= @post.subject %> </p>
+
+    <div class="form-actions">
+      <%= link_to t('.back', :default => t("helpers.links.back")),
+                  posts_path, :class => 'btn'  %>
+      <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                  edit_post_path(@post), :class => 'btn' %>
+      <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                  post_path(@post),
+                  :method => 'delete',
+                  :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                  :class => 'btn btn-danger' %>
+    </div>
+  </div>
+  <div class="col-xs-4 col-md-4">
+    <ul class="list-group">
+      <% @posts.each do |post| %>
+        <li class="list-group-item"><%= link_to(post.title,post_path(post)) %></li>
+      <% end %>
+      <li class="list-group-item">相关主题（10）</li>
+      <li class="list-group-item">Dapibus ac facilisis in</li>
+      <li class="list-group-item">Morbi leo risus</li>
+      <li class="list-group-item">Porta ac consectetur ac</li>
+      <li class="list-group-item">Vestibulum at eros</li>
+    </ul>
+  </div>

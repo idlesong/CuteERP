@@ -1,28 +1,30 @@
-<div class = "inventory_form">
+<%= render 'shared/customers_modal' %>
+<%= render 'shared/products_modal' %>
 
-	<%= render 'shared/customers_modal' %>
-	<%= render 'shared/products_modal' %>
+<h1> Customer Order </h1>
+<div id="orderHeaderDiv">
+	<%= render 'orderHeader' %>
+</div>
 
-	<h1> Customer Order </h1>
-	<div id="orderHeaderDiv">
-		<%= render 'orderHeader' %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4> Order details </h4>
 	</div>
-
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h4> Order details </h4>
-		</div>
-		<div class="panel-body">
-			<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#productsModal">
-				SelectProduct
-			</a>
-			<div id="cart">
-				<%= render @cart %>
-			</div>
+	<div class="panel-body">
+		<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#productsModal">
+			SelectProduct
+		</a>
+		<div id="cart">
+			<%= render @cart %>
 		</div>
 	</div>
+</div>
 
-	<h4>Please Confirm dispatch info and place order</h4>
-	<%= render 'form' %>
-
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4>Please Confirm dispatch info and place order</h4>
+	</div>
+	<div class="panel-body">
+		<%= render 'form' %>
+	</div>
 </div>
