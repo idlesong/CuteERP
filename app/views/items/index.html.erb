@@ -11,7 +11,6 @@
       <th><%= model_class.human_attribute_name(:partNo) %></th>
       <th><%= model_class.human_attribute_name(:price) %></th>
       <th><%= model_class.human_attribute_name(:package) %></th>
-      <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
   </thead>
   <tbody>
@@ -23,13 +22,6 @@
         <td><%= best_in_place item, :partNo, :type => :input %></td>
         <td><%= best_in_place item, :price, :type => :input %></td>
         <td><%= best_in_place item, :package, :type => :input %></td>
-        <td>
-          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-                      item_path(item),
-                      :method => :delete,
-                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-                      :class => 'btn btn-mini btn-danger' %>
-        </td>
       </tr>
     <% end %>
   </tbody>

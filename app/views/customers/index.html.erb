@@ -13,7 +13,6 @@
       <th>delivery address<th>
       <th><%= model_class.human_attribute_name(:balance) %></th>
       <th><%= model_class.human_attribute_name(:since) %></th>
-      <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
   </thead>
   <tbody>
@@ -27,13 +26,6 @@
         <td>shenzhen<td>
         <td><%= customer.balance %></td>
         <td><%= customer.since %></td>
-        <td>
-          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-                      customer_path(customer),
-                      :method => :delete,
-                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-                      :class => 'btn btn-mini btn-danger' %>
-        </td>
       </tr>
     <% end %>
   </tbody>

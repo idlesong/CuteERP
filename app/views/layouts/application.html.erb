@@ -11,28 +11,26 @@
   <div id = "layout-container">
     <div id = "menu">
       <ul>
-        <li class="nav_left"><a href="#">Home    </a></li>
+        <li class="nav_left"><a href="#"><i class="fa fa-cubes"></i>CuteERP    </a></li>
         <li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>
-        <li class="nav_right"><a href=<%= contacts_path %>>@contacts</a></li>
-        <li class="nav_right"><a href=<%= items_path %>>Products </a></li>
-        <li class="nav_right"><a href=<%= customers_path %>>Customers</a></li>
-        <li class="nav_right"><a href=<%= posts_path %>>Docs</a></li>
-        <li class="nav_right"><a href="#">Suppliers</a></li>
+        <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-cube"></i>Products </a></li>
+        <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i>Customers</a></li>
+        <li class="nav_right"><a href="#"><i class="fa fa-truck"></i>Suppliers</a></li>
       </ul>
     </div>
     <div id = "layout-content-container">
       <div id = "layout-aside">
         <div>
-          <ul class="nav nav-tabs nav-stacked">
-              <li class="nav-header">Group Sales</li>
-              <li><a href=<%= opportunities_path %>>Opportunities</a></li>
-              <li><a href="#">Customer Order</a></li>
-              <li><a href=<%= orders_path %>>Sales Order</a></li>
-              <li><a href="#">Finance</a></li>
-              <li class="nav-header">Tools</li>
-              <li><a href=<%= prices_path %>>Prices</a></li>
-              <li><a href=<%= users_path %>>Users</a></li>
-              <li><a href=<%= admin_path %>>MyPanel</a></li>
+          <ul class="list-group">
+              <li class="list-group-item disabled">Group Sales</li>
+              <li class="list-group-item"><a href=<%= opportunities_path %>>Opportunities</a></li>
+              <li class="list-group-item"><a href="#">Customer Order</a></li>
+              <li class="list-group-item"><a href=<%= orders_path %>>Sales Order</a></li>
+              <li class="list-group-item"><a href=<%= prices_path %>>Prices</a></li>
+              <li class="list-group-item disabled">Tools</li>
+              <li class="list-group-item"><a href=<%= contacts_path %>><i class="fa fa-male"></i>&nbsp Contacts</a><%= link_to ' @new', new_contact_path %></li>
+              <li class="list-group-item"><a href=<%= posts_path %>><i class="fa fa-file-o"></i>&nbsp Documents</a></li>
+              <li class="list-group-item"><a href=<%= admin_path %>>MyPanel</a></li>
           </ul>
         </div>
       </div>
