@@ -14,13 +14,18 @@ class PostsController < ApplicationController
   # GET /posts/1.json
   def show
     @posts = Post.all
-    @post = Post.find(params[:id])
+    if(params[:query] == 'subject')
+      @post = Post.find_by_subject!(params[:id])
+    else
+      @post = Post.find(params[:id])
+    end
 
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @post }
     end
   end
+
 
   # GET /posts/new
   # GET /posts/new.json

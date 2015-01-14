@@ -38,7 +38,7 @@
       <tr>
         <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
         <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer) %></td>
-        <td><%= opportunity.project_type %></td>
+        <td><%= link_to(opportunity.project_type, post_path(opportunity.project_type,:query => "subject")) %></td>
         <td><%= opportunity.solution %></td>
         <td><%= opportunity.priority %></td>
         <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
