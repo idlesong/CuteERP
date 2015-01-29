@@ -17,11 +17,19 @@
 			</thead>
 			<%
 					customer_info = Array.new(8," ")
-					customer_label= ["Customer:","address:","contact:","TEL:","", "adress:","contact:","TEL"]
+					customer_label= ["Customer:","contact:","TEL:","address:","", "contact:","TEL","adress:"]
+
+
 					if @customer.nil?
 					else
-						customer_info = [@customer.name.to_s, @customer.address.to_s, @customer.contact.to_s,
-							@customer.telephone.to_s,'', 'depot_addr', 'depot_contact', 'depot_tel']
+						contact_window =  @customer.contacts.where(note: "contact window").first
+						stock_window =  @customer.contacts.where(note: "stock window").first
+						if contact_window and stock_window
+							customer_info = [@customer.name.to_s, contact_window.name.to_s,
+													contact_window.telephone.to_s,contact_window.address.to_s,
+													'', stock_window.name.to_s,
+													stock_window.telephone.to_s, stock_window.address.to_s]
+						end
 				  end
 			%>
 			<tr><td><%= customer_label[0] %><%= customer_info[0] %> </td>  <td><%= customer_label[4] %><%= customer_info[4] %> </td></tr>

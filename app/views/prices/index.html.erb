@@ -6,15 +6,12 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%= model_class.human_attribute_name(:item_id) %></th>
+      <th>Part name</th>
+      <th>Part No.</th>
       <th><%= model_class.human_attribute_name(:customer_id) %></th>
       <th>price/limit price</th>
       <th><%= model_class.human_attribute_name(:payment_terms) %></th>
-      <th><%= model_class.human_attribute_name(:condition) %></th>
-      <th><%= model_class.human_attribute_name(:sales_suggestion) %></th>
-      <th><%= model_class.human_attribute_name(:department_suggestion) %></th>
-      <th><%= model_class.human_attribute_name(:finance_suggestion) %></th>
-      <th><%= model_class.human_attribute_name(:boss_suggestion) %></th>
+      <th>status </th>
       <th><%= model_class.human_attribute_name(:created_at) %></th>
       <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
@@ -23,15 +20,12 @@
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= price.item.name %> - <%= price.item.partNo %></td>
+        <td><%= price.item.name %> </td>
+        <td> <%= price.item.partNo %></td>
         <td><%= price.customer.name %></td>
         <td><%= price.price %>/<%=price.item.price %></td>
         <td><%= price.payment_terms %></td>
-        <td><%= price.condition %></td>
-        <td><%= price.sales_suggestion %></td>
-        <td><%= price.department_suggestion %></td>
-        <td><%= price.finance_suggestion %></td>
-        <td><%= price.boss_suggestion %></td>
+        <td>Approved</td>
         <td><%= price.created_at.strftime("%F") %></td>
         <td>
           <%= link_to t('.edit', :default => t("helpers.links.edit")),

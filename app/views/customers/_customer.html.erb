@@ -1,5 +1,7 @@
 <p id="notice"><%= notice %></p>
-<h4> 客户：<%= @customer.name %> 地址:<%= @customer.address %> 电话：<%= @customer.telephone %>
+<h4> 客户：<%= @customer.name %> 地址:<%= @customer.address %>
+   电话：<%= @customer.telephone %> 联系窗口：<%= @customer.contact %>
+   <%= link_to('wiki', post_path(@customer.name,:query => "url")) %>
   <%= link_to 'edit', edit_customer_path(@customer) %></h4>
 
 <h3> Contacts

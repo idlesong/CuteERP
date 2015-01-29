@@ -6,22 +6,24 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:partNo) %></th>
       <th><%= model_class.human_attribute_name(:name) %></th>
       <th><%= model_class.human_attribute_name(:description) %></th>
-      <th><%= model_class.human_attribute_name(:partNo) %></th>
       <th><%= model_class.human_attribute_name(:price) %></th>
       <th><%= model_class.human_attribute_name(:package) %></th>
+      <th> wiki </th>
     </tr>
   </thead>
   <tbody>
     <% @items.each do |item| %>
       <tr>
         <td><%= link_to item.id, item_path(item) %></td>
-        <td><%= best_in_place item, :name, :type => :input %></td>
-        <td><%= best_in_place item, :description, :type => :input %></td>
-        <td><%= best_in_place item, :partNo, :type => :input %></td>
-        <td><%= best_in_place item, :price, :type => :input %></td>
-        <td><%= best_in_place item, :package, :type => :input %></td>
+        <td><%= link_to item.partNo, item_path(item)   %></td>
+        <td><%= item.name        %></td>
+        <td><%= item.description %></td>
+        <td><%= item.price       %></td>
+        <td><%= item.package     %></td>
+        <td><%= link_to('wiki', post_path(item.partNo,:query => "url")) %></td>
       </tr>
     <% end %>
   </tbody>

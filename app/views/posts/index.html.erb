@@ -13,6 +13,7 @@
       <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%= model_class.human_attribute_name(:title) %></th>
       <th><%= model_class.human_attribute_name(:subject) %></th>
+      <th><%= model_class.human_attribute_name(:internal_url) %></th>
       <th><%= model_class.human_attribute_name(:created_at) %></th>
       <th><%=t '.actions', :default => t("helpers.actions") %></th>
     </tr>
@@ -23,6 +24,7 @@
         <td><%= link_to post.id, post_path(post) %></td>
         <td><%= link_to(post.title, post_path(post)) %></td>
         <td><%= post.subject %></td>
+        <td><%= post.internal_url %></td>
         <td><%= post.created_at.strftime("%F") %></td>
         <td>
           <%= link_to t('.edit', :default => t("helpers.links.edit")),
