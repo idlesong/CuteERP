@@ -2,7 +2,13 @@ class PostsController < ApplicationController
   # GET /posts
   # GET /posts.json
   def index
-    @posts = Post.all
+
+
+    if(params[:subject])
+      @posts = Post.where("subject = ?", params[:subject]).order("title asc")
+    else
+      @posts = Post.order("title asc").all
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -19,10 +25,9 @@ class PostsController < ApplicationController
     else
       @post = Post.find(params[:id])
     end
-    
-    Post.order("subject")
-    @posts = Post.where("subject = ?", @post.subject)
-    #@posts = @posts.order("subject")
+
+    Post.order("title")
+    @posts = Post.where("subject = ?", @post.subject).order("title asc")
 
     respond_to do |format|
       format.html # show.html.erb

@@ -13,6 +13,8 @@
       <ul>
         <li class="nav_left"><a href="#"><i class="fa fa-cubes"></i>CuteERP    </a></li>
         <li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>
+        <li class="nav_right"><a href=<%= contacts_path %>><i class="fa fa-cube"></i>Contacts </a></li>
+        <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i>Docs</a></li>
         <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-cube"></i>Products </a></li>
         <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i>Customers</a></li>
         <li class="nav_right"><a href="#"><i class="fa fa-truck"></i>Suppliers</a></li>
@@ -28,9 +30,7 @@
               <li class="list-group-item"><a href=<%= orders_path %>>Sales Order</a></li>
               <li class="list-group-item"><a href=<%= prices_path %>>Prices</a></li>
               <li class="list-group-item disabled">Tools</li>
-              <li class="list-group-item"><a href=<%= contacts_path %>><i class="fa fa-male"></i>&nbsp Contacts</a><%= link_to ' @new', new_contact_path %></li>
-              <li class="list-group-item"><a href=<%= posts_path %>><i class="fa fa-file-o"></i>&nbsp Documents</a></li>
-              <li class="list-group-item"><a href=<%= admin_path %>>MyPanel</a></li>
+              <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-plus-square-o"></i> New contact</a></li>
           </ul>
         </div>
       </div>

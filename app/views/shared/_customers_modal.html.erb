@@ -25,8 +25,6 @@
             <td><%= customer.balance %></td>
             <td><%= customer.contact %></td>
             <td><%= customer.telephone %></td>
-            <!-- <td> <button onmousedown="selectCustomer(this)">Select</button> <td> -->
-            <!--<td><%= link_to 'Select', new_order_path, :remote => true %></td>  -->
             <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}, :remote => true %></td>
           </tr>
 

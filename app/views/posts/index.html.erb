@@ -1,13 +1,19 @@
 <%- model_class = Post -%>
 <div class="page-header">
   <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
-  <ol class="breadcrumb">
-    <li><a href="#">Docs(All)</a></li>
-    <li><a href="#">Subject(Markets,Products,Suppliers)</a></li>
-    <li class="active">Sub-subject(电力负控，停车场，通用窄带数传)</li>
-  </ol>
+  <div class="btn-group" role="group" aria-label="...">
+
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Products" ) %> >Products </a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Customers" ) %> >Customers</a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Suppliers" ) %> >Suppliers</a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Marketing" ) %> >Marketing</a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Sales" ) %> >Sales    </a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "R&D" ) %> >R-D      </a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Others" ) %> >Others    </a>
+  </div>
+
 </div>
-<table class="table table-striped">
+<table class="table table-striped datatable">
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
