@@ -1,4 +1,4 @@
-## rorWebERP introduce
+## rorWebERP(cuteERP) introduce
 
 超小型的ERP系统， 参考WebERP。
 
