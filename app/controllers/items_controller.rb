@@ -70,6 +70,11 @@ class ItemsController < ApplicationController
     end
   end
 
+  def import
+    Item.import(params[:file])
+    redirect_to products_url, notice: "Products imported."
+  end
+
   # DELETE /items/1
   # DELETE /items/1.json
   def destroy

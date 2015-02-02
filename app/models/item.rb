@@ -16,6 +16,16 @@ class Item < ActiveRecord::Base
 
   before_destroy :ensure_not_referenced_by_any_line_item
 
+  def self.import(file)
+    # csv_text = CSV.new(file)
+    # csv_text = File.read(file)
+    # csv = CSV.parse(csv_text, :headers => true)
+    # csv.each do |row|
+    #   Item.create!(row.to_hash)
+    # end
+  end
+
+
  private
   #ensure that there are no line items referencing this item
   def ensure_not_referenced_by_any_line_item

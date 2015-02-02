@@ -44,6 +44,7 @@ RorWebERP::Application.routes.draw do
 
   resources :items do
     get :who_bought, :on => :member
+    collection { post :import }
   end
 
   #get "inventory/index"

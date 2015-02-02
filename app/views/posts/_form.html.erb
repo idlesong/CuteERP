@@ -1,4 +1,4 @@
-<%= form_for @post, :url => users_path, :html => { :multipart => true } do |f| %>
+<%= form_for @post, :html => { :multipart => true } do |f| %>
 
   <div class="panel panel-default">
     <div class="panel-body">
@@ -12,6 +12,12 @@
       <div class="">
         <%= f.text_area :content, :rows =>50, :cols => 150 %>
       </div>
+
+      <div class="field">
+        <%= f.label "Add attachments" %><br>
+        <%= file_field_tag "documents", type: :file, multiple: true %>
+      </div>
+
     </div>
   </div>
 

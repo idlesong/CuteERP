@@ -59,6 +59,12 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       if @post.save
+        if params[:documents]
+          params[:documents].each { |doc|
+            @design.attachments.create(document: doc)
+          }
+        end
+
         format.html { redirect_to @post, notice: 'Post was successfully created.' }
         format.json { render json: @post, status: :created, location: @post }
       else
