@@ -51,7 +51,8 @@
 - todo status应该能标注不同颜色，红，灰，绿
 - 性能问题，是否render性能不好？
 - best_in_place delete 编辑太方便，考虑锁的机制
-- customer中加入备注text区域很需要
+- customer中加入备注text区域很需要 -> wiki貌似已经可以完全替代
+-
 
 
 ### Feature request
