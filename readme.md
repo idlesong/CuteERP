@@ -53,6 +53,7 @@
 - best_in_place delete 编辑太方便，考虑锁的机制
 - customer中加入备注text区域很需要 -> wiki貌似已经可以完全替代
 - customer order fix
+- new item: can't new.
 
 
 ### Feature request
