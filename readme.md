@@ -54,6 +54,7 @@
 - customer中加入备注text区域很需要 -> wiki貌似已经可以完全替代
 - customer order fix
 - new item: can't new.
+- bootstrap pagination
 
 
 ### Feature request
