@@ -1,6 +1,6 @@
 <%= form_for(@order) do |f| %>
-  <!-- <% if @order.errors.any? %>
-    <div id="error_explanation">
+  <% if @order.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
       <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
 
       <ul>
@@ -9,7 +9,7 @@
       <% end %>
       </ul>
     </div>
-  <% end %> -->
+  <% end %>
 
   <div class="field">
     <%= f.label :name %><br />
@@ -25,7 +25,7 @@
   </div>
   <div class="field">
     <%= f.label :pay_type %><br />
-    <%= f.select :pay_type, Order::PAYMENT_TYPES, :prompt => 'Select a payment method' %>
+    <%= f.select :pay_type, Order::PAYMENT_TYPES, :prompt => 'Select payment method' %>
   </div>
 
   </br>

@@ -5,4 +5,6 @@ class Customer < ActiveRecord::Base
   has_many :opportunities
   has_many :prices
 
+  validates :name, :presence => true, :uniqueness => true
+
 end

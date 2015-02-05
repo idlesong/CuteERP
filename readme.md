@@ -55,6 +55,9 @@
 - customer order fix
 - new item: can't new.
 - bootstrap pagination
+- opportiunities index: No route matches {:action=>"show", :controller=>"posts", :query=>"url", :id=>nil} => new opportunites must have value;
+- opportunities status can't save(boot strap)
+- Items and Customers show: add wiki content
 
 
 ### Feature request
@@ -67,3 +70,4 @@
 - Docs, add edit preview in the same page.
 - Orders index with lineitems(like excel)
 - Packing Note
+- Opportunities priority style : 1-2, 1-3, 2-2 客户排名；项目排名；

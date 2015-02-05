@@ -8,8 +8,8 @@ gem 'rails', '3.2.13'
 
 gem 'rails_12factor', group: :production
 
-#gem 'sqlite3'
-gem 'pg'
+gem 'sqlite3'
+#gem 'pg'
 
 gem 'best_in_place'
 
@@ -32,7 +32,7 @@ gem 'jquery-datatables-rails', '~> 3.1.1'
 
 gem "therubyracer"
 gem "less-rails"
-gem "twitter-bootstrap-rails", :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
+gem "twitter-bootstrap-rails"
 
 gem 'redcarpet'
 

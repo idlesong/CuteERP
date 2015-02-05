@@ -8,8 +8,9 @@ class ItemTest < ActiveSupport::TestCase
   	item = Item.new
   	assert item.invalid?
   	assert item.errors[:name].any?
-  	assert item.errors[:package].any?
-  	assert item.errors[:price].any?
+    assert item.errors[:partNo].any?
+  	#assert item.errors[:package].any?
+  	#assert item.errors[:price].any?
   end
 
   test "item price must be positive" do
@@ -18,12 +19,12 @@ class ItemTest < ActiveSupport::TestCase
   					:imageURL => "rails.png")
   	item.price = -1
   	assert item.invalid?
-  	assert_equal "must be greater than or equal to 0.01", 
+  	assert_equal "must be greater than or equal to 0.01",
   		item.errors[:price].join(';')
 
     item.price = 0
     assert item.invalid?
-    assert_equal "must be greater than or equal to 0.01", 
+    assert_equal "must be greater than or equal to 0.01",
       item.errors[:price].join(';')
 
   	item.price = 1
@@ -38,8 +39,8 @@ class ItemTest < ActiveSupport::TestCase
   			 :imageURL => image_URL)
   end
 
-  test "image url" do 
-  	ok = %w{fred.gif fred.png FRED.JPG FRED.Jpg 
+  test "image url" do
+  	ok = %w{fred.gif fred.png FRED.JPG FRED.Jpg
   			http://a.b.c/x/y/z/fred.gif}
 
   	bad = %w{ fred.doc fred.gif/more fred.gif.more }

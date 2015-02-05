@@ -1,20 +1,26 @@
 <%= form_for @item, :html => { :class => 'form-horizontal' } do |f| %>
+  <% if @item.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@item.errors.count, "error") %> prohibited this order from being saved:</h2>
+
+      <ul>
+        <% @item.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <div class="control-group">
     <%= f.label :name, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :name, :class => 'text_field' %>
+      <%= f.text_field :name, :class => 'text_field', :placeholder => '*Product name' %>
     </div>
   </div>
   <div class="control-group">
     <%= f.label :partNo, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :partNo, :class => 'text_field' %>
-    </div>
-  </div>
-  <div class="control-group">
-    <%= f.label :description, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.text_field :description, :class => 'text_field' %>
+      <%= f.text_field :partNo, :class => 'text_field', :placeholder => '*Part number,must unique'%>
     </div>
   </div>
   <div class="control-group">
@@ -26,13 +32,43 @@
   <div class="control-group">
     <%= f.label :imageURL, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :imageURL, :class => 'text_field' %>
+      <%= f.text_field :imageURL, :class => 'text_field', :value => 'default_chip.png' %>
     </div>
   </div>
   <div class="control-group">
     <%= f.label :price, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :price, :class => 'text_field' %>
+      <%= f.text_field :price, :class => 'text_field', :placeholder => '*Reference price' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :description, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :description, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :volume, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :volume, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :weight, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :weight, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :moq, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.number_field :moq, :class => 'number_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :mop, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.number_field :mop, :class => 'number_field' %>
     </div>
   </div>
 

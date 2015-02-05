@@ -1,5 +1,6 @@
 class Item < ActiveRecord::Base
-  attr_accessible :imageURL, :name, :package, :partNo, :price, :description
+  attr_accessible :imageURL, :name, :package, :partNo, :price, :description,
+    :volume, :weight, :moq, :mop
   default_scope :order => 'name'
 
   has_many :line_items
@@ -8,6 +9,7 @@ class Item < ActiveRecord::Base
 
 
   validates :name, :partNo, :presence => true
+  validates :partNo, :uniqueness => true
   validates :price, :numericality => {:greater_than_or_equal_to => 0.01}
   validates :imageURL, :format => {
               :with => %r{\.(gif|jpg|png)$}i,
@@ -15,15 +17,6 @@ class Item < ActiveRecord::Base
               }
 
   before_destroy :ensure_not_referenced_by_any_line_item
-
-  def self.import(file)
-    # csv_text = CSV.new(file)
-    # csv_text = File.read(file)
-    # csv = CSV.parse(csv_text, :headers => true)
-    # csv.each do |row|
-    #   Item.create!(row.to_hash)
-    # end
-  end
 
 
  private

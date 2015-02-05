@@ -1,4 +1,16 @@
 <%= form_for @price, :html => { :class => 'form-horizontal' } do |f| %>
+  <% if @price.errors.any? %>
+  <div id="error_explanation" class="alert alert-danger" role="alert">
+    <h2><%= pluralize(@price.errors.count, "error") %> prohibited this order from being saved:</h2>
+
+    <ul>
+      <% @price.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+  <% end %>
+
   <div class="control-group">
     <%= f.label :item_id, :class => 'control-label' %>
     <div class="controls">
@@ -20,8 +32,7 @@
   <div class="control-group">
     <%= f.label :payment_terms, :class => 'control-label' %>
     <div class="controls">
-      <%= f.select(:payment_terms, [['T.T in advance','T.T in advance'],
-      ['COD','COD'],['T.T 30days','T.T 30days'],['T.T 60days','T.T 60days']]) %>
+      <%= f.select(:payment_terms, Order::PAYMENT_TYPES) %>
     </div>
   </div>
   <div class="control-group">

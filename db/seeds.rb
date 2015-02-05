@@ -124,5 +124,9 @@ Oppostatus.create(:status => 'DIN:Hardware design',
 Oppostatus.create(:status => 'MP: Supply support',
 	:issue => 'Supply support',
 	:opportunity_id => oppo2.id,
-	:user_id => user1.id	
+	:user_id => user1.id
 	)
+
+
+Price.delete_all
+Order.delete_all
