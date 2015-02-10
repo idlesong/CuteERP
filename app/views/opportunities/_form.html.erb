@@ -2,7 +2,7 @@
   <% if @opportunity.errors.any? %>
   <div id="error_explanation" class="alert alert-danger" role="alert">
     <h2><%= pluralize(@opportunity.errors.count, "error") %> prohibited this order from being saved:</h2>
-    
+
     <ul>
       <% @opportunity.errors.full_messages.each do |msg| %>
       <li><%= msg %></li>
@@ -14,7 +14,7 @@
   <div class="control-group">
     <%= f.label :priority, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :priority, :class => 'text_field' %>
+      <%= f.text_field :priority, :class => 'text_field', :placeholder => "eg. 1-01" %>
     </div>
   </div>
   <div class="control-group">

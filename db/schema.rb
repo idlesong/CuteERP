@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150202042540) do
+ActiveRecord::Schema.define(:version => 20150206121048) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -101,6 +101,7 @@ ActiveRecord::Schema.define(:version => 20150202042540) do
     t.string   "todo_status"
     t.string   "todo_description"
     t.integer  "user_id"
+    t.string   "status_mark"
   end
 
   create_table "orders", :force => true do |t|

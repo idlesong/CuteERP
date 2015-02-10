@@ -19,19 +19,25 @@ class PostsController < ApplicationController
   # GET /posts/1
   # GET /posts/1.json
   def show
+    begin
+      if(params[:query] == 'url')
+        @post = Post.find_by_internal_url!(params[:id])
+      else
+        @post = Post.find(params[:id])
+      end
 
-    if(params[:query] == 'url')
-      @post = Post.find_by_internal_url!(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      logger.error "Attempt to show invalid post #{params[:id]}"
+      redirect_to new_post_path :internal_url => params[:id]
     else
-      @post = Post.find(params[:id])
-    end
 
-    Post.order("title")
-    @posts = Post.where("subject = ?", @post.subject).order("title asc")
+      Post.order("title")
+      @posts = Post.where("subject = ?", @post.subject).order("title asc")
 
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @post }
+      respond_to do |format|
+        format.html # show.html.erb
+        format.json { render json: @post }
+      end
     end
   end
 
@@ -40,6 +46,11 @@ class PostsController < ApplicationController
   # GET /posts/new.json
   def new
     @post = Post.new
+
+    if(params[:internal_url])
+      @post.title = params[:internal_url]
+      @post.internal_url = params[:internal_url]
+    end
 
     respond_to do |format|
       format.html # new.html.erb

@@ -22,12 +22,14 @@
   <tbody>
     <% @opportunities.each do |opportunity| %>
     <% if  opportunity.oppostatuses.last.nil?
+          opportunity_status_mark = ""
           opportunity_status = ""
           opportunity_issue = ""
           opportunity_todo_status = ""
           opportunity_todo_description = ""
           opportunity_user_id = ""
         else
+          opportunity_status_mark = opportunity.oppostatuses.last.status_mark
           opportunity_status = opportunity.oppostatuses.last.status
           opportunity_issue = opportunity.oppostatuses.last.issue
           opportunity_todo_status = opportunity.oppostatuses.last.todo_status
@@ -42,7 +44,7 @@
         <td><%= opportunity.solution %></td>
         <td><%= opportunity.priority %></td>
         <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
-        <td><%= opportunity_status %></td>
+        <td><%= opportunity_status_mark %>:<%= opportunity_status %></td>
         <td><%= opportunity_issue %></td>
         <td><%= opportunity_user_id %></td>
         <td><%= opportunity_todo_description %></td>

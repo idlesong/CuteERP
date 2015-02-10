@@ -71,3 +71,4 @@
 - Orders index with lineitems(like excel)
 - Packing Note
 - Opportunities priority style : 1-2, 1-3, 2-2 客户排名；项目排名；
+- Opportunities solution: DT(SCT3258); WT(SCT3258)
