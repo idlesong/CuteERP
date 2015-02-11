@@ -34,7 +34,7 @@
         <td><%= post.created_at.strftime("%F") %></td>
         <td>
           <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                      edit_post_path(post), :class => 'btn btn-mini' %>
+                      edit_post_path(post), :class => 'btn btn-xs btn-primary' %>
         </td>
       </tr>
     <% end %>

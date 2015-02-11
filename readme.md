@@ -41,34 +41,23 @@
 - invoice
 
 #### bug fix
-- contacts 修改公司名不起作用 ok
-- Opportunity 更改链接不直观
-- opportunity edit中 customer默认错误，是否不能修改更合适（即必须由customer页面创建，然后不能修改）？ ok
-- customer show中 Oppostatus 责任人不能修改 ok
-- create at 时间格式不对
-- customers 客户名应该加入链接，new customer名称也同样可以加 fail
 - delete opportunity 应该同时删除，相应的oppostatus
-- todo status应该能标注不同颜色，红，灰，绿
-- 性能问题，是否render性能不好？
-- best_in_place delete 编辑太方便，考虑锁的机制
 - customer中加入备注text区域很需要 -> wiki貌似已经可以完全替代
 - customer order fix
-- new item: can't new.
-- bootstrap pagination
-- opportiunities index: No route matches {:action=>"show", :controller=>"posts", :query=>"url", :id=>nil} => new opportunites must have value;
-- opportunities status can't save(boot strap)
-- Items and Customers show: add wiki content
+- opportunities status can't save(pg or bootstrap?)
+
 
 
 ### Feature request
 - Price, customer price,
 - Products, create chipset
 - auto make quotation(pdf)
-- add Markdown notes in customer show page
-- Auto create Marketings, solutions page according to oppotunities  
+- add Markdown notes in customer show page 
 - Docs, fetch 1st line as post title
 - Docs, add edit preview in the same page.
 - Orders index with lineitems(like excel)
 - Packing Note
 - Opportunities priority style : 1-2, 1-3, 2-2 客户排名；项目排名；
 - Opportunities solution: DT(SCT3258); WT(SCT3258)
+- Items and Customers show: add wiki content
+- customer/show: add new opportunity modal

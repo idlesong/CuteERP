@@ -93,9 +93,14 @@
 </h3>
 
 <% @opportunities.each do |opportunity| %>
-  <h4> Priority:<%= opportunity.priority %> Project type: <strong><%= opportunity.project_type %>
-    </strong> solution:<strong><%= opportunity.solution %> </strong>Note:<%= opportunity.note %>
-  </h4>
+    <h4>
+      <p class="bg-warning">Priority:<%= opportunity.priority %> Project type: <strong><%= opportunity.project_type %>
+      </strong> solution:<strong><%= opportunity.solution %> </strong>
+
+      </br>
+      Note:<%= opportunity.note %>
+      </p>
+    </h4>
   <table class="table table-striped table-bordered">
     <thead>
       <tr>
@@ -118,13 +123,13 @@
         <td><%= best_in_place oppostatus, :status, :type => :input %></td>
         <td><%= best_in_place oppostatus, :issue, :type => :input %></td>
         <td><%= best_in_place oppostatus, :todo_description, :type => :input %></td>
-        <td><%= best_in_place oppostatus, :todo_status, :type => :input %></td>
+        <td><%= best_in_place oppostatus, :todo_status, :type => :select, :collection => Oppostatus::STATUS_FLAG %></td>
         <td><%= best_in_place oppostatus, :user_id, :type => :select, :collection => keyman %></td>
       </tr>
       <% end %>
     <% end %>
     <tr>
-      <td COLSPAN=6>
+      <td COLSPAN=7>
       <button type="button" class="btn btn-mini btn-primary ajax-new"
       data= <%= opportunity.id %> data-2= <%= session[:user_id] %>
       id="/oppostatuses">new oppostatus</button>

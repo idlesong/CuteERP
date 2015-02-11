@@ -7,16 +7,16 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%= model_class.human_attribute_name(:customer_id) %></th>
-      <th><%= model_class.human_attribute_name(:project_type) %></th>
-      <th><%= model_class.human_attribute_name(:solution) %></th>
       <th><%= model_class.human_attribute_name(:priority) %></th>
-      <th>date</th>
+      <th><%= model_class.human_attribute_name(:customer_id) %></th>
+      <th>market</th>
+      <th><%= model_class.human_attribute_name(:solution) %></th>
       <th>status</th>
       <th>issue</th>
       <th>assign</th>
       <th>todo</th>
       <th>status</th>
+      <th>date</th>
     </tr>
   </thead>
   <tbody>
@@ -35,20 +35,21 @@
           opportunity_todo_status = opportunity.oppostatuses.last.todo_status
           opportunity_todo_description = opportunity.oppostatuses.last.todo_description
           opportunity_user_id = opportunity.oppostatuses.last.user.name
+          opportunity_last_edit = opportunity.oppostatuses.last.created_at.strftime("%Y/%m/%d")
         end
         %>
       <tr>
         <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
+        <td><%= opportunity.priority %></td>
         <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer) %></td>
         <td><%= link_to(opportunity.project_type, post_path(opportunity.project_type,:query => "url")) %></td>
         <td><%= opportunity.solution %></td>
-        <td><%= opportunity.priority %></td>
-        <td><%= opportunity.created_at.strftime("%Y/%m/%d") %></td>
-        <td><%= opportunity_status_mark %>:<%= opportunity_status %></td>
+        <td><span class="label label-success"><%= opportunity_status_mark %></span><%= opportunity_status %></td>
         <td><%= opportunity_issue %></td>
         <td><%= opportunity_user_id %></td>
         <td><%= opportunity_todo_description %></td>
         <td><%= opportunity_todo_status %></td>
+        <td><%= opportunity_last_edit %></td>
       </tr>
     <% end %>
   </tbody>

@@ -11,10 +11,8 @@
         <strong>subject:  </strong><%= @post.subject %>
         <strong>short_url:</strong><%= @post.internal_url %>
 
-        <%= link_to t('.back', :default => t("helpers.links.back")),
-        posts_path, :class => 'btn'  %>
         <%= link_to t('.edit', :default => t("helpers.links.edit")),
-        edit_post_path(@post), :class => 'btn' %>
+        edit_post_path(@post), :class => 'btn btn-xs btn-primary' %>
         <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
           post_path(@post),
           :method => 'delete',
