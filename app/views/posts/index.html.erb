@@ -2,14 +2,16 @@
 <div class="page-header">
   <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
   <div class="btn-group" role="group" aria-label="...">
-
-    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Products" ) %> >Products </a>
-    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Customers" ) %> >Customers</a>
-    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Suppliers" ) %> >Suppliers</a>
     <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Marketing" ) %> >Marketing</a>
     <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Sales" ) %> >Sales    </a>
     <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "R&D" ) %> >R-D      </a>
     <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Others" ) %> >Others    </a>
+  </div>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Products" ) %> >Products </a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Customers" ) %> >Customers</a>
+    <a role="button" class="btn btn-default" href= <%= posts_path(:subject => "Suppliers" ) %> >Suppliers</a>
   </div>
 
 </div>

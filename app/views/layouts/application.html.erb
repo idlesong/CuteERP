@@ -6,41 +6,39 @@
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
 </head>
-<body id="inventory">
-
-  <div id = "layout-container">
-    <div id = "menu">
-      <ul>
-        <li class="nav_left"><a href="#"><i class="fa fa-cubes"></i>CuteERP    </a></li>
-        <li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>
-        <li class="nav_right"><a href=<%= contacts_path %>><i class="fa fa-cube"></i>Contacts </a></li>
-        <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i>Docs</a></li>
-        <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-cube"></i>Products </a></li>
-        <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i>Customers</a></li>
-        <li class="nav_right"><a href="#"><i class="fa fa-truck"></i>Suppliers</a></li>
-      </ul>
-    </div>
-    <div id = "layout-content-container">
-      <div id = "layout-aside">
-        <div>
-          <ul class="list-group">
-              <li class="list-group-item disabled">Group Sales</li>
-              <li class="list-group-item"><a href=<%= opportunities_path %>>Opportunities</a></li>
-              <li class="list-group-item"><a href="#">Customer Order</a></li>
-              <li class="list-group-item"><a href=<%= orders_path %>>Sales Order</a></li>
-              <li class="list-group-item"><a href=<%= prices_path %>>Prices</a></li>
-              <li class="list-group-item disabled">Tools</li>
-              <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-plus-square-o"></i> New contact</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div id = "layout-content">
-  			     <%= yield %>
-  		</div>
-  	</div>
+<body>
+  <div id = "menu">
+    <ul>
+      <li class="nav_left"><a href="#"><i class="fa fa-suitcase"></i>CuteERP    </a></li>
+      <li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>
+      <li class="nav_right"><a href=<%= contacts_path %>><i class="fa fa-user"></i>Contacts </a></li>
+      <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i>Docs</a></li>
+      <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-tags"></i>Products </a></li>
+      <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i>Customers</a></li>
+      <li class="nav_right"><a href="#"><i class="fa fa-truck"></i>Suppliers</a></li>
+    </ul>
   </div>
 
+  <div class = "container-fluid">
+    <div class="row">
+      <div class="col-md-2">
+        <ul class="list-group">
+            <li class="list-group-item disabled">Group Sales</li>
+            <li class="list-group-item"><a href=<%= opportunities_path %>>Opportunities</a></li>
+            <li class="list-group-item"><a href="#">Customer Order</a></li>
+            <li class="list-group-item"><a href=<%= orders_path %>>Sales Order</a></li>
+            <li class="list-group-item"><a href=<%= prices_path %>>Prices</a></li>
+            <li class="list-group-item disabled">Tools</li>
+            <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-user"></i> New contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-10">
+  			    <%= yield %>
+  		</div>
+
+    </div>
+  </div>
 
 </body>
 </html>

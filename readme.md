@@ -20,11 +20,6 @@
 ##### 3.可编辑文档系统： 整合Markdown文件，替代Wiki。
  - 全公司都可以使用的文档系统，用于协调。
 
- tips:
- - Customer 中包含多个联系人
- - Opertunite： Product ID;
- - task
-
 ##### 4.添加部分CRM功能：oppotunite，task，自动生成客户项目等界面。
  - 在Sales overview汇总所有客户。
 
@@ -42,7 +37,6 @@
 
 #### bug fix
 - delete opportunity 应该同时删除，相应的oppostatus
-- customer中加入备注text区域很需要 -> wiki貌似已经可以完全替代
 - customer order fix
 - opportunities status can't save(pg or bootstrap?)
 
@@ -52,7 +46,7 @@
 - Price, customer price,
 - Products, create chipset
 - auto make quotation(pdf)
-- add Markdown notes in customer show page 
+- add Markdown notes in customer show page
 - Docs, fetch 1st line as post title
 - Docs, add edit preview in the same page.
 - Orders index with lineitems(like excel)
@@ -61,3 +55,5 @@
 - Opportunities solution: DT(SCT3258); WT(SCT3258)
 - Items and Customers show: add wiki content
 - customer/show: add new opportunity modal
+- English/Chinese switch(Product name, currency $, RMB),customer payment type
+- Opportunities: prority强制转换中英文字符和格式编码；
