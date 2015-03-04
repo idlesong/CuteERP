@@ -8,8 +8,8 @@ gem 'rails', '3.2.13'
 
 gem 'rails_12factor', group: :production
 
-gem 'sqlite3'
-#gem 'pg'
+#gem 'sqlite3'
+gem 'pg'
 
 gem 'best_in_place'
 
