@@ -38,9 +38,12 @@
 #### bug fix
 - delete opportunity 应该同时删除，相应的oppostatus
 - customer order fix
-- opportunities status can't save(pg or bootstrap?)
+- best in place opportunities status can't save(pg or bootstrap?)
 
-
+#### feature bug fix
+- oppostatus default current user.
+- status mark default uses last status
+- todo status using auto; with label color
 
 ### Feature request
 - Price, customer price,
