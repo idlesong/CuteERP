@@ -12,7 +12,7 @@ gem 'rails_12factor', group: :production
 #gem 'sqlite3'
 gem 'pg'
 
-gem 'best_in_place', '~> 3.0.3'
+gem 'best_in_place', '~> 2.1.0'
 
 gem 'sass', '3.2.9'
 
