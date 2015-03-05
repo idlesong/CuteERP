@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 #source 'https://ruby.taobao.org/'
+ruby '2.0.0'
 
 gem 'rails', '3.2.13'
 
@@ -12,6 +13,8 @@ gem 'rails_12factor', group: :production
 gem 'pg'
 
 gem 'best_in_place', '~> 3.0.1'
+
+gem 'sass', '3.2.9'
 
 # Gems used only for assets and not required
 # in production environments by default.

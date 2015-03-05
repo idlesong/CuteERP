@@ -153,6 +153,7 @@ DEPENDENCIES
   rails (= 3.2.13)
   rails_12factor
   redcarpet
+  sass (= 3.2.9)
   sass-rails (~> 3.2.3)
   therubyracer
   twitter-bootstrap-rails
