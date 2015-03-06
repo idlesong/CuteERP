@@ -25,6 +25,7 @@ $(document).ready(function() {
   $('.datatable').dataTable({
     "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
     "sPaginationType": "bootstrap",
+    "pageLength": 25,
     "order": [ 1, 'asc' ]
   });
 
@@ -46,7 +47,7 @@ $(document).ready(function() {
         obj_data = { customer: { name: "new" }};
         break;
       case "/opportunities":
-        obj_data = { opportunity: { note: "new", project_type: "数字对讲机", customer_id: attr_data }};
+        obj_data = { opportunity: { note: "new", priority: "401", project_type: "数字对讲机", customer_id: attr_data }};
         break;
       case "/oppostatuses":
         obj_data = { oppostatus: { status: "new", opportunity_id: attr_data, user_id: attr_data2 }};
