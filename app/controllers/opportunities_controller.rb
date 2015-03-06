@@ -2,7 +2,12 @@ class OpportunitiesController < ApplicationController
   # GET /opportunities
   # GET /opportunities.json
   def index
-    @opportunities = Opportunity.all
+    if(params[:catalog])
+      @opportunities = Opportunity.where("solution LIKE ?", "#{params[:catalog]}%")
+    else
+      @opportunities = Opportunity.all
+    end
+
     @oppostatuses = Oppostatus.all
     @customers = Customer.all
 

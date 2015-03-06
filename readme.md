@@ -23,40 +23,28 @@
 ##### 4.添加部分CRM功能：oppotunite，task，自动生成客户项目等界面。
  - 在Sales overview汇总所有客户。
 
-#### schema
-- Customer:
-- Opportunity: belongs_to: customer, :priority, :project_type, :design, :description
-- Status: belongs_to: opportunity, :status, :issue, :label
-- Task: :destription, :assign, :status(Doing,Done,Fail,Forgive)
-
-- Product: name, part_number, price(lowest for key customer), price2(lowest for important), price3(lowest for normal), price4(marketing reference)
-- Price: customer_id, product_id, value, unit,
-- customer_order
-- sales_order
-- invoice
 
 #### bug fix
-- delete opportunity 应该同时删除，相应的oppostatus
 - customer order fix
 - best in place opportunities status can't save(pg or bootstrap?)
+- customer show, oppostatus need order with create_at
 
 #### feature bug fix
 - oppostatus default current user.
 - status mark default uses last status
 - todo status using auto; with label color
+- customers/show: beautfiy opportunity info & add edit link
+- Opportunities: prority force to integer
+- delete opportunity 应该同时删除，相应的oppostatus
+- customer model add consigne(receiver);
+- customer/show: can assign a contact and consigne, and their address(remove contact address)
+- product wiki: auto create short url according to products name policy.
 
 ### Feature request
-- Price, customer price,
-- Products, create chipset
+- user management(group rights, active/deactive)
+- active/deactive items, prices, customers and other.
 - auto make quotation(pdf)
-- add Markdown notes in customer show page
 - Docs, fetch 1st line as post title
 - Docs, add edit preview in the same page.
-- Orders index with lineitems(like excel)
 - Packing Note
-- Opportunities priority style : 1-2, 1-3, 2-2 客户排名；项目排名；
-- Opportunities solution: DT(SCT3258); WT(SCT3258)
-- Items and Customers show: add wiki content
-- customer/show: add new opportunity modal
 - English/Chinese switch(Product name, currency $, RMB),customer payment type
-- Opportunities: prority强制转换中英文字符和格式编码；

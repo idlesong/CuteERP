@@ -1,9 +1,16 @@
 <%- model_class = Opportunity -%>
 <div class="page-header">
-  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %>
+    <div class="btn-group" role="group" aria-label="...">
+      <a role="button" class="btn btn-default" href= <%= opportunities_path(:catalog => "[WT]" ) %> >WalkieTalkie</a>
+      <a role="button" class="btn btn-default" href= <%= opportunities_path(:catalog => "[DT]" ) %> > WirelessDataTrans    </a>
+      <a role="button" class="btn btn-default" href= <%= opportunities_path %> > All    </a>
+    </div>
+  </h1>
 </div>
 
-<table class="table table-striped datatable">
+
+<table id="oppotunities-table" class="table table-striped datatable">
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
@@ -40,7 +47,14 @@
         %>
       <tr>
         <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
-        <td><%= opportunity.priority %></td>
+        <td><% if opportunity.priority < '200' %>
+          <span class="label label-danger"><%= opportunity.priority %></span>
+        <% elsif  opportunity.priority > '899' %>
+          <span class="label label-default"><%= opportunity.priority %></span>
+        <% else %>
+          <span class="label label-primary"><%= opportunity.priority %></span>
+        <% end %>
+        </td>
         <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer) %></td>
         <td><%= link_to(opportunity.project_type, post_path(opportunity.project_type,:query => "url")) %></td>
         <td><%= opportunity.solution %></td>
