@@ -28,6 +28,7 @@
 - customer order fix
 - best in place opportunities status can't save(pg or bootstrap?)
 - customer show, oppostatus need order with create_at
+- opportunity new, need add solution:[WT]
 
 #### feature bug fix
 - oppostatus default current user.
@@ -39,12 +40,17 @@
 - customer model add consigne(receiver);
 - customer/show: can assign a contact and consigne, and their address(remove contact address)
 - product wiki: auto create short url according to products name policy.
+- assign correct subject in customer wiki, product wiki creation
+- Add website for customers
 
 ### Feature request
 - user management(group rights, active/deactive)
 - active/deactive items, prices, customers and other.
+- Lock price, make status approved, after boss approved;
+- Lock before oppostatus when a new oppostatus created.
 - auto make quotation(pdf)
 - Docs, fetch 1st line as post title
 - Docs, add edit preview in the same page.
 - Packing Note
 - English/Chinese switch(Product name, currency $, RMB),customer payment type
+- customer short name support; show short name; auto fetch short name; use full name create wiki
