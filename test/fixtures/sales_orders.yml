@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  serial_number: MyString
+  customer_id: 1
+  bill_contact: MyString
+  bill_address: MyText
+  bill_telephone: MyString
+  ship_contact: MyString
+  ship_address: MyText
+  ship_telephone: MyString
+  payment_term: MyString
+
+two:
+  serial_number: MyString
+  customer_id: 1
+  bill_contact: MyString
+  bill_address: MyText
+  bill_telephone: MyString
+  ship_contact: MyString
+  ship_address: MyText
+  ship_telephone: MyString
+  payment_term: MyString

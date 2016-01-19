@@ -3,28 +3,44 @@
 
 <h1> Customer Order </h1>
 <div id="orderHeaderDiv">
-	<%= render 'orderHeader' %>
+	<%= render partial: 'orderHeader' %>
 </div>
 
 <div class="panel panel-default">
-	<div class="panel-heading">
-		<h4> Order details </h4>
-	</div>
 	<div class="panel-body">
-		<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#productsModal">
-			SelectProduct
-		</a>
+		<a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+		data-target="#productsModal"> SelectProduct </a>
 		<div id="cart">
 			<%= render @cart %>
 		</div>
 	</div>
-</div>
+  <div class="panel-footer">
+		<%= form_for(@order) do |f| %>
+		  <% if @order.errors.any? %>
+		    <div id="error_explanation" class="alert alert-danger" role="alert">
+		      <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
 
-<div class="panel panel-default">
-	<div class="panel-heading">
-		<h4>Please Confirm dispatch info and place order</h4>
-	</div>
-	<div class="panel-body">
-		<%= render 'form' %>
+		      <ul>
+		      <% @order.errors.full_messages.each do |msg| %>
+		        <li><%= msg %></li>
+		      <% end %>
+		      </ul>
+		    </div>
+		  <% end %>
+
+	    <%= f.hidden_field :name, :placeholder => @order.name %>
+	    <%= f.hidden_field :address, :placeholder => @order.address %>
+	    <%= f.hidden_field :telephone, :placeholder => @order.telephone %>
+	    <%= f.hidden_field :ship_contact %>
+	    <%= f.hidden_field :ship_address %>
+	    <%= f.hidden_field :ship_telephone %>
+	    <%= f.hidden_field :pay_type %>
+
+			<div class="actions">
+				Customer PO#:<%= f.text_field :order_number, :placeholder => "PO#{DateTime.now.to_date}",:size => 20 %>
+				Received date#:<%= DateTime.now.to_date %>
+		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
+		  </div>
+		<% end %>
 	</div>
 </div>

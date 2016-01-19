@@ -1,0 +1,43 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4> Order Header </h4>
+	</div>
+
+	<div class="panel-body">
+		<table class="table">
+			<thead>
+				<tr>
+					<td>Bill to:
+						<a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#customersModal">
+							SelectCustomer
+						</a>
+					</td>
+					<td> Ship to:</td>
+				</tr>
+			</thead>
+			<%
+					customer_info = Array.new(8," ")
+					customer_label= ["Customer:","contact:","TEL:","address:","", "contact:","TEL","adress:"]
+
+
+					if @customer.nil?
+					else
+						contact_window =  @customer.contacts.where(note: "bill_to").first
+						stock_window =  @customer.contacts.where(note: "ship_to").first
+						if contact_window and stock_window
+							customer_info = [@customer.name.to_s, contact_window.name.to_s,
+													contact_window.telephone.to_s,contact_window.address.to_s,
+													'', stock_window.name.to_s,
+													stock_window.telephone.to_s, stock_window.address.to_s]
+						end
+				  end
+			%>
+			<%= @customer.name if not @customer.nil? %>
+			<tr><td><%= customer_label[0] %><%= customer_info[0] %> </td>  <td><%= customer_label[4] %><%= customer_info[4] %> </td></tr>
+			<tr><td><%= customer_label[1] %><%= customer_info[1] %> </td>  <td><%= customer_label[5] %><%= customer_info[5] %> </td></tr>
+			<tr><td><%= customer_label[2] %><%= customer_info[2] %> </td>  <td><%= customer_label[6] %><%= customer_info[6] %> </td></tr>
+			<tr><td><%= customer_label[3] %><%= customer_info[3] %> </td>  <td><%= customer_label[7] %><%= customer_info[7] %> </td></tr>
+
+		</table>
+	</div>
+</div>

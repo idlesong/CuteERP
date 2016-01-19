@@ -1,4 +1,7 @@
 RorWebERP::Application.routes.draw do
+  resources :sales_orders
+
+
   resources :attachments
 
 
@@ -46,7 +49,7 @@ RorWebERP::Application.routes.draw do
     get :who_bought, :on => :member
   end
 
-  #get "inventory/index"
+  get "inventory/index"
 
   #get "orders/index"
 

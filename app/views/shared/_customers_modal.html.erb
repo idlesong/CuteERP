@@ -17,17 +17,18 @@
             <th>Select</th>
           </tr>
 
-          <% @customers.each do |customer| %>
-          <tr>
-            <td><%= customer.name %></td>
-            <td><%= customer.address %></td>
-            <td><%= customer.since %></td>
-            <td><%= customer.balance %></td>
-            <td><%= customer.contact %></td>
-            <td><%= customer.telephone %></td>
-            <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}, :remote => true %></td>
-          </tr>
-
+          <% if not @customers.nil? then %>
+              <% @customers.each do |customer| %>
+              <tr>
+                <td><%= customer.name %></td>
+                <td><%= customer.address %></td>
+                <td><%= customer.since %></td>
+                <td><%= customer.balance %></td>
+                <td><%= customer.contact %></td>
+                <td><%= customer.telephone %></td>
+                <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}, :remote => true %></td>
+              </tr>
+              <% end %>
           <% end %>
         </table>
       </div>

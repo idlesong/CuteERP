@@ -3,7 +3,7 @@ class Item < ActiveRecord::Base
     :volume, :weight, :moq, :mop
   default_scope :order => 'name'
 
-  has_many :line_items
+  has_many :line_items, as: :line
   has_many :orders, :through => :line_items
   has_many :prices
 
@@ -11,10 +11,10 @@ class Item < ActiveRecord::Base
   validates :name, :partNo, :presence => true
   validates :partNo, :uniqueness => true
   validates :price, :numericality => {:greater_than_or_equal_to => 0.01}
-  validates :imageURL, :format => {
-              :with => %r{\.(gif|jpg|png)$}i,
-              :message => "must be a URL for Gif, JPG or PNG image."
-              }
+  # validates :imageURL, :format => {
+  #             :with => %r{\.(gif|jpg|png)$}i,
+  #             :message => "must be a URL for Gif, JPG or PNG image."
+  #             }
 
   before_destroy :ensure_not_referenced_by_any_line_item
 

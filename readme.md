@@ -1,12 +1,45 @@
-## rorWebERP(cuteERP) introduce
+# rorWebERP(cuteERP)
 
 超小型的ERP系统， 参考WebERP。
 
-界面更简单
+## Features
+## customers
+1. customer: name(nick name), full_name, has_many contacts, has_many deliver_info(address,contact), balance, payment_term
+1. contacts
+1. delivery_info: contact, address, email, telephone, customer_id, default
+1. wiki
+
+## products
+1. products
+1. wiki
+
+## order system
+1. customer order: customer_id, has_many line_items, received_date, total_amount, request_date, po_number, attachment(pdf po)
+1. sales order: order_number, customer_id, line_items(with po number), total_amount, delivery_info_id,
+1. price: price, customer_id, item_id
+1. invoice
+1. packing list
+
+
+## payment & receivable
+1. payment
+1. receivable account
+1. balance
+
+## opportunities management(customer project status)
+## reports(docs)
+
+## administrator interface(Overview)
+1. user role
+1. sales overview
+ - uncompleted customer order
+ - receivable(sales order not receive the payment)
+
+
+
 
 #### tips
-- DEMO on heroku demo地址
-- 默认用户名 admin； 密码：rorWebERP
+- admin:rorWebERP
 
 #### 实现步骤
 ##### 1.参考Rails in Action实现一个简单，简洁，但可靠的ERP。
@@ -22,6 +55,8 @@
 
 ##### 4.添加部分CRM功能：oppotunite，task，自动生成客户项目等界面。
  - 在Sales overview汇总所有客户。
+
+
 
 
 #### bug fix
@@ -44,7 +79,7 @@
 - Add website for customers
 
 ### Feature request
-- user management(group rights, active/deactive)
+- user role management(group rights, active/deactive)
 - active/deactive items, prices, customers and other.
 - Lock price, make status approved, after boss approved;
 - Lock before oppostatus when a new oppostatus created.
@@ -53,4 +88,8 @@
 - Docs, add edit preview in the same page.
 - Packing Note
 - English/Chinese switch(Product name, currency $, RMB),customer payment type
-- customer short name support; show short name; auto fetch short name; use full name create wiki
+- customer short name support; show short name; auto fetch short name; use full name create wiki；e.g. Wuxi *Sicomm* Communication Technologies Inc.
+
+### tips
+- items: add mpq net_weight gross_weight
+ 

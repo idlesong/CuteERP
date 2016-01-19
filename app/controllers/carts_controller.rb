@@ -1,6 +1,6 @@
 class CartsController < ApplicationController
   skip_before_filter :authorize, :only => [:create, :update, :destory]
-  
+
   # GET /carts
   # GET /carts.json
   def index
@@ -16,7 +16,7 @@ class CartsController < ApplicationController
   # GET /carts/1.json
   def show
     begin
-      @cart = Cart.find(params[:id])    
+      @cart = Cart.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       logger.error "Attempt to access invalid cart #{params[:id]}"
       redirect_to inventory_url, :notice => 'Invalid cart'
@@ -83,6 +83,10 @@ class CartsController < ApplicationController
     @cart = current_cart
     @cart.destroy
     session[:cart_id] = nil
+
+    @cart = current_issue_cart
+    @cart.destroy
+    session[:issue_cart_id] = nil
 
     respond_to do |format|
       format.html { redirect_to(orders_url)}

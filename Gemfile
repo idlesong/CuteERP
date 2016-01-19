@@ -1,5 +1,5 @@
-source 'https://rubygems.org'
-#source 'https://ruby.taobao.org/'
+# source 'https://rubygems.org'
+source 'https://ruby.taobao.org/'
 ruby '2.0.0'
 
 gem 'rails', '3.2.13'
@@ -9,8 +9,8 @@ gem 'rails', '3.2.13'
 
 gem 'rails_12factor', group: :production
 
-#gem 'sqlite3'
-gem 'pg'
+gem 'sqlite3'
+# gem 'pg'
 
 gem 'best_in_place', '~> 2.1.0'
 
@@ -23,7 +23,7 @@ group :assets do
   gem 'coffee-rails', '~> 3.2.1'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  # gem 'therubyracer', :platforms => :ruby
+  gem 'therubyracer', :platforms => :ruby
 
   gem 'uglifier', '>= 1.0.3'
 end
@@ -33,10 +33,11 @@ gem 'jquery-rails'
 #gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
 gem 'jquery-datatables-rails', '~> 3.1.1'
 
-gem "therubyracer"
+# gem "therubyracer"
 gem "less-rails"
 gem "twitter-bootstrap-rails", :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
-#gem "twitter-bootstrap-rails", '~> 2.2.8'
+# gem "twitter-bootstrap-rails", '~> 2.2.8'
+# gem "twitter-bootstrap-rails"
 gem 'redcarpet'
 
 gem "paperclip", "~> 4.2"

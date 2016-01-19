@@ -1,0 +1,115 @@
+<div class="panel panel-default">
+    <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
+    <div class="panel-body">
+      <h2>
+        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5>Wuxi Sicomm Communication Tech</h5>
+              <h5>Address: B building #21 road, Wuxi </h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"> Date: <%= DateTime.now.to_date %></h4>
+              <h4 class="text-right"> PO#:<%= @sales_order.serial_number %></h4>
+              <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> Sales Order</h3></td></tr>
+        <tr><td><h4>Bill to:<%= @sales_order.customer.name%></h4></td>  <td><h4> Ship to:</h4></td></tr>
+
+        <tr><td>Address:<%= @sales_order.bill_address %></td> <td>Address:<%= @sales_order.ship_address %></td></tr>
+        <tr><td>Contact:<%= @sales_order.bill_contact %></td> <td>Contact:<%= @sales_order.ship_contact %></td></tr>
+        <tr><td>TEL:<%= @sales_order.bill_telephone %></td> <td>TEL:<%= @sales_order.ship_telephone %></td></tr>
+      </table>
+
+    </div>
+  </div>
+
+<div class="panel panel-default">
+	<div class="panel-body">
+<h3> Customer Orders(PO in lineitems) </h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th><h4>#</h4></th>
+      <th><h4>Customer</h4></th>
+      <th><h4>Date</h4></th>
+      <th><h4>Product name</h4></th>
+      <th><h4>PartNo.</h4></th>
+      <th><h4>Price</h4></th>
+      <th><h4>Qty</h4></th>
+      <th><h4>Qty issued</h4></th>
+      <th><h4>Suble Total</h4></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <% @orders.each do |order| %>
+  <% unless order.line_items.nil? then %>
+    <% order.line_items.each do |line_item|%>
+      <% if line_item.quantity > line_item.quantity_issued then %>
+        <tr>
+          <td>#<%= link_to(order.id,order_path(order.id)) %></td>
+          <td><%= order.customer.name %></td>
+          <td><%= order.created_at.strftime("%F") %>
+          <td><%= line_item.item.name %> </td>
+          <td><%= line_item.item.partNo %> </td>
+          <td><%= line_item.item.price %> </td>
+          <td>x<%= line_item.quantity %> </td>
+          <td>x<%= line_item.quantity_issued %> </td>
+          <td><%= number_to_currency(line_item.total_price) %></td>
+          <td><%= button_to 'issue to Cart', line_items_path(:line_id => line_item.id, ) , :remote => true %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% end %>
+</table>
+</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-body">
+    <h5> Add line items to Sales Order </h5>
+		<div id="cart">
+			<%= render @cart %>
+		</div>
+	</div>
+</div>
+
+<%= form_for(@sales_order) do |f| %>
+  <% if @sales_order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@sales_order.errors.count, "error") %> prohibited this sales_order from being saved:</h2>
+
+      <ul>
+      <% @sales_order.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="panel panel-default">
+  	<div class="panel-body">
+      <table class="table">
+        <thead><tr><td colspan="2"><h3> Please confirm the bill ship info, and place order</h3></td></tr></thead>
+        <tr><td><h4>Bill to: <%= f.number_field :customer_id %></h4></td>
+          <td><h4> Ship to:</h4></td></tr>
+        <tr><td>Address:<%= f.text_area :bill_address, :rows=> 1 %></td>
+          <td>Address:<%= f.text_area :ship_address, :rows=> 1 %></td></tr>
+        <tr><td>Contact:<%= f.text_field :bill_contact %></td>
+          <td>Contact:<%= f.text_field :ship_contact %></td></tr>
+        <tr><td>TEL:<%= f.text_field :bill_telephone %></td>
+          <td>TEL:<%= f.text_field :ship_telephone %></td></tr>
+        <tr><td colspan="2">  <div class="text-center">
+          <%= f.submit "Place Sales Order", :class=>"btn btn-primary" %></div></td></tr>
+      </table>
+    </div>
+  </div>
+<% end %>

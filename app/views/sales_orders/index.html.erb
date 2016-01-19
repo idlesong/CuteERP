@@ -1,0 +1,74 @@
+<h1>Listing sales_orders</h1>
+
+<table class="table">
+  <tr>
+    <th>Serial number</th>
+    <th>Customer</th>
+    <th>Bill contact</th>
+    <th>Bill address</th>
+    <th>Bill telephone</th>
+    <th>Ship contact</th>
+    <th>Ship address</th>
+    <th>Ship telephone</th>
+    <th>Payment term</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @sales_orders.each do |sales_order| %>
+  <tr>
+    <td><%= sales_order.serial_number %></td>
+    <td><%= sales_order.customer.name %></td>
+    <td><%= sales_order.bill_contact %></td>
+    <td><%= sales_order.bill_address %></td>
+    <td><%= sales_order.bill_telephone %></td>
+    <td><%= sales_order.ship_contact %></td>
+    <td><%= sales_order.ship_address %></td>
+    <td><%= sales_order.ship_telephone %></td>
+    <td><%= sales_order.payment_term %></td>
+    <td><%= link_to 'Show', sales_order %></td>
+    <td><%= link_to 'Edit', edit_sales_order_path(sales_order) %></td>
+    <td><%= link_to 'Destroy', sales_order, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Sales order', new_sales_order_path %>
+
+<h3> Sales Orders(SO in lineitems) </h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th><h4>#</h4></th>
+      <th><h4>Customer</h4></th>
+      <th><h4>Date</h4></th>
+      <th><h4>Product name</h4></th>
+      <th><h4>PartNo.</h4></th>
+      <th><h4>Price</h4></th>
+      <th><h4>Qty</h4></th>
+      <th><h4>Suble Total</h4></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <% @sales_orders.each do |order| %>
+    <% if not order.line_items.nil? then %>
+      <% order.line_items.each do |line_item|%>
+        <tr>
+          <td>#<%= link_to(order.id,order_path(order.id)) %></td>
+          <td><%= order.customer.name %></td>
+          <td><%= order.created_at.strftime("%F") %>
+          <td><%= line_item.item.name %> </td>
+          <td><%= line_item.item.partNo %> </td>
+          <td><%= line_item.item.price %> </td>
+          <td>x<%= line_item.quantity %> </td>
+          <td><%= number_to_currency(line_item.total_price) %></td>
+          <td> invoice</td>
+        </tr>
+      <% end %>
+    <% end %>
+  <% end %>
+</table>

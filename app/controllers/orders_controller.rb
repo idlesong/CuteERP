@@ -30,9 +30,26 @@ class OrdersController < ApplicationController
     @customers = Customer.all
 
     if params[:customer_id]
+      # logger.debug "=====customer_id== #{params[:customer_id]}"
       session[:customer_id] = params[:customer_id]
       @customer  = Customer.find(params[:customer_id])
+      # logger.debug "=====customer== #{@customer}"
+    else
+      @customer = Customer.first
+      session[:customer_id] = @customer.id
     end
+
+    # initialize orders with customer selected customer
+    @order = Order.new
+    @order.customer = @customer
+
+    # set bill_to and ship_to contact by default, then confirm it in sales order
+    @order.name      = @order.ship_contact = @customer.contact
+    @order.address   = @order.ship_address = @customer.address
+    @order.telephone = @order.ship_telephone = @customer.telephone
+    @order.pay_type = @customer.payment
+    # bill_to = @customer.contacts.find_by_note("bill_to") if @customer.contacts.where(note: "bill_to").exists?
+    # ship_to = @customer.contacts.find_by_note("ship_to") if @customer.contacts.where(note: "ship_to").exists?
 
     @cart = current_cart
     if @cart.line_items.empty?
@@ -40,10 +57,9 @@ class OrdersController < ApplicationController
       #return
     end
 
-    @order = Order.new
-
     respond_to do |format|
       format.html # new.html.erb
+      # format.json { render json: @order }
       format.js
     end
   end
@@ -69,7 +85,6 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(params[:order])
     @order.add_line_items_from_cart(current_cart)
-    #add customer.id to order.
     @order.customer_id = session[:customer_id]
 
     respond_to do |format|
@@ -78,9 +93,11 @@ class OrdersController < ApplicationController
         session[:cart_id] = nil
         format.html { redirect_to @order, notice: 'Order was created.' }
         format.js
+        # format.json { render json: @order }
       else
         format.html { render action: "new" }
         format.js
+        # format.json { render json: @order }
       end
     end
   end

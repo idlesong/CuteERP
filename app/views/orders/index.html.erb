@@ -1,37 +1,4 @@
-<!-- <h1>Listing orders</h1>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>Customer</th>
-      <th>ContactName</th>
-      <th>ShipAddress</th>
-      <th>Email</th>
-      <th>PayType</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-
-<% @orders.each do |order| %>
-  <tr>
-    <td><%= order.customer.name %></td>
-    <td><%= order.name %></td>
-    <td><%= order.address %></td>
-    <td><%= order.email %></td>
-    <td><%= order.pay_type %></td>
-    <td><%= link_to 'Show', order %></td>
-    <td><%= link_to 'Edit', edit_order_path(order) %></td>
-    <td><%= link_to 'Destroy', order, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
-<% end %>
-</table>
-
-<br /> -->
-
-
-<h3> Orders with lineitems </h3>
+<h3> Customer Orders(PO in lineitems) </h3>
 <table class="table">
   <thead>
     <tr>
@@ -42,11 +9,15 @@
       <th><h4>PartNo.</h4></th>
       <th><h4>Price</h4></th>
       <th><h4>Qty</h4></th>
+      <th><h4>Qty left</h4></th>
       <th><h4>Suble Total</h4></th>
+      <th></th>
     </tr>
   </thead>
 
   <% @orders.each do |order| %>
+  <%= order.order_number %>
+  <% if not order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
       <tr>
         <td>#<%= link_to(order.id,order_path(order.id)) %></td>
@@ -56,9 +27,16 @@
         <td><%= line_item.item.partNo %> </td>
         <td><%= line_item.item.price %> </td>
         <td>x<%= line_item.quantity %> </td>
+        <td> <%= line_item.quantity - line_item.quantity_issued %> </td>
         <td><%= number_to_currency(line_item.total_price) %></td>
+        <td>
+        <% if line_item.quantity > line_item.quantity_issued then %>
+          <%= link_to "issue", new_sales_order_path(:customer_id => order.customer.id) %>
+        <% end %>
+        </td>
       </tr>
     <% end %>
+  <% end %>
   <% end %>
 </table>
 

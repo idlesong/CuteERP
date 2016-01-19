@@ -15,14 +15,16 @@
             <th>Action</th>
           </tr>
 
-          <% @items.each do |item| %>
-          <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-            <td><%= item.partNo %></td>
-            <td><%= item.name %></td>
-            <td><%= item.package %></td>
-            <td><%= number_to_currency(item.price)%></td>
-            <td><%= button_to 'Add to Cart', line_items_path(:item_id => item) , :remote => true %></td>
-          </tr>
+          <% if not @customers.nil? then %>
+            <% @items.each do |item| %>
+            <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+              <td><%= item.partNo %></td>
+              <td><%= item.name %></td>
+              <td><%= item.package %></td>
+              <td><%= number_to_currency(item.price)%></td>
+              <td><%= button_to 'Add to Cart', line_items_path(:item_id => item) , :remote => true %></td>
+            </tr>
+            <% end %>
           <% end %>
 
         </table>

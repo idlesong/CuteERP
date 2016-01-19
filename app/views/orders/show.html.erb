@@ -1,39 +1,47 @@
 <p id="notice"><%= notice %></p>
-<h1>Sales Order</h1>
+<h1>Customer Order</h1>
 
 <div class="panel panel-default">
-  <div class="panel-heading"><h2>Sales Order<h2></div>
+  <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
   <div class="panel-body">
 
+    <h2>
+      <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+    </h2>
     <table class="table">
       <thead>
         <tr>
-          <td><h4>Bill to:</h4></td>  <td><h4> Ship to:</h4></td>
+          <td>
+            <h5>Wuxi Sicomm Communication Tech</h5>
+            <h5>Address: B building #21 road, Wuxi </h5>
+            <h5>Tel:051066682208 Fax: 051066682208</h5>
+          </td>
+          <td>
+            <h4 class="text-right"> Date: <%= @order.created_at.to_date %></h4>
+            <h4 class="text-right"> PO#:PO<%= @order.order_number %></h4>
+            <h4 class="text-right"> Payment:<%= @order.pay_type %></h4>
+          </td>
         </tr>
       </thead>
-      <tr>
-        <td>Customer:<%= @order.name %></td>
-        <td>Supplier:WuxiSicomm tech.Ltd</td>
+      <tr><td colspan = "2"><h3 class="text-center"> Customer Order</h3></td></tr>
+      <tr><td><h4>Bill to: <%= @order.customer.name %></h4></td>
+          <td><h4> Ship to: <%= @order.customer.name %></h4></td></tr>
+
       </tr>
-      <tr>
-        <td>Address:<%= @order.address %></td>
-        <td>Address: Wuxi Provice</td>
-      </tr>
-      <tr>
-        <td>Contact:<%= @order.email %></td>
-        <td>Telephone: 051066682208</td>
-      </tr>
-      <tr>
-        <td>Payment:<%= @order.pay_type %></td>
+      <tr><td>Contact:<%= @order.name %></td> <td>Contact:<%= @order.ship_contact %></td></tr>
+      <tr><td>Address:<%= @order.address %></td><td>Address:<%= @order.ship_address %></td></tr>
+      <tr><td>Tel:<%= @order.telephone %></td><td>Tel:<%= @order.ship_telephone %></td></tr>
+      <!-- <tr>
+        <td>Payment:<%= @order.customer.payment %></td>
         <td>Date: 20140501</td>
-      </tr>
+      </tr> -->
     </table>
 
   </div>
 </div>
 
 <div class="panel panel-default">
-  <div class="panel-heading"><h2>Order Details<h2></div>
+  <!-- <div class="panel-heading"><h2>Order Details<h2></div> -->
   <div class="panel-body">
     <%= render(@order) %>
   </div>
@@ -66,7 +74,7 @@
           <div class="col-xs-4 text-right">
             <h2>Quotation</h2>
             <h2><small>Quotation #001</small></h2>
-            <h4>Payment:<%= @order.pay_type %></h4>
+            <h4>Payment:<%= @order.customer.payment %></h4>
             <h4>Date: 20140501</h4>
           </div>
         </div>
@@ -95,10 +103,10 @@
               </div>
               <div class="panel-body">
                 <dl class="dl-horizontal">
-                  <dt>Contact:</dt>
-                  <dd><%= @order.name %></dd>
-                  <dt>Adress:</dt>
-                  <dd><%= @order.address %></dd>
+                  <dt>amount:</dt>
+                  <dd></dd>
+                  <dt>PO#:</dt>
+                  <dd></dd>
                   <dt>Tel</dt>
                   <dd>...</dd>
                 </dl>

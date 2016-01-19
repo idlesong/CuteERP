@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20150206121048) do
+ActiveRecord::Schema.define(:version => 20160118010346) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -75,12 +75,16 @@ ActiveRecord::Schema.define(:version => 20150206121048) do
 
   create_table "line_items", :force => true do |t|
     t.integer  "item_id"
-    t.integer  "cart_id"
-    t.datetime "created_at",                :null => false
-    t.datetime "updated_at",                :null => false
-    t.integer  "quantity",   :default => 1
-    t.integer  "order_id"
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
+    t.integer  "quantity",        :default => 1
+    t.integer  "quantity_issued", :default => 0
+    t.integer  "line_id"
+    t.string   "line_type"
+    t.integer  "refer_line_id"
   end
+
+  add_index "line_items", ["line_id"], :name => "index_line_items_on_line_id"
 
   create_table "opportunities", :force => true do |t|
     t.string   "priority"
@@ -109,9 +113,14 @@ ActiveRecord::Schema.define(:version => 20150206121048) do
     t.text     "address"
     t.string   "email"
     t.string   "pay_type"
-    t.datetime "created_at",  :null => false
-    t.datetime "updated_at",  :null => false
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
     t.integer  "customer_id"
+    t.string   "order_number"
+    t.string   "telephone"
+    t.string   "ship_contact"
+    t.text     "ship_address"
+    t.string   "ship_telephone"
   end
 
   create_table "posts", :force => true do |t|
@@ -136,6 +145,20 @@ ActiveRecord::Schema.define(:version => 20150206121048) do
     t.datetime "created_at",            :null => false
     t.datetime "updated_at",            :null => false
     t.string   "status"
+  end
+
+  create_table "sales_orders", :force => true do |t|
+    t.string   "serial_number"
+    t.integer  "customer_id"
+    t.string   "bill_contact"
+    t.text     "bill_address"
+    t.string   "bill_telephone"
+    t.string   "ship_contact"
+    t.text     "ship_address"
+    t.string   "ship_telephone"
+    t.string   "payment_term"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
   create_table "tasks", :force => true do |t|
