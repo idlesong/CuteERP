@@ -29,16 +29,13 @@ class OrdersController < ApplicationController
     @items = Item.all
     @customers = Customer.all
 
-    if params[:customer_id]
-      # logger.debug "=====customer_id== #{params[:customer_id]}"
+    # switch current customer, clear cart
+    if (params[:customer_id] && (params[:customer_id] != current_customer.id))
       session[:customer_id] = params[:customer_id]
-      @customer  = Customer.find(params[:customer_id])
-      # logger.debug "=====customer== #{@customer}"
-    else
-      @customer = Customer.first
-      session[:customer_id] = @customer.id
+      current_cart.line_items.clear
     end
 
+    @customer = current_customer
     # initialize orders with customer selected customer
     @order = Order.new
     @order.customer = @customer
@@ -52,10 +49,6 @@ class OrdersController < ApplicationController
     # ship_to = @customer.contacts.find_by_note("ship_to") if @customer.contacts.where(note: "ship_to").exists?
 
     @cart = current_cart
-    if @cart.line_items.empty?
-      #redirect_to inventory_url, :notice => "Your cart is empty"
-      #return
-    end
 
     respond_to do |format|
       format.html # new.html.erb
@@ -71,19 +64,14 @@ class OrdersController < ApplicationController
     @items = Item.all
     @customers = Customer.all
 
-    #
     @cart = Cart.create
     @cart.line_items = @order.line_items
-    if @cart.line_items.empty?
-      #redirect_to inventory_url, :notice => "Your cart is empty"
-      #return
-    end
   end
 
   # POST /orders
   # POST /orders.json
   def create
-    @order = Order.new(params[:order])
+    @order = Order.new(params[:order]) if @order.nil?
     @order.add_line_items_from_cart(current_cart)
     @order.customer_id = session[:customer_id]
 

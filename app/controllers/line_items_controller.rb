@@ -42,15 +42,21 @@ class LineItemsController < ApplicationController
   # POST /line_items
   # POST /line_items.json
   def create
-    #@line_item = LineItem.new(params[:line_item])
+
     if(params[:line_id])
       @cart = current_issue_cart
       line = LineItem.find(params[:line_id])
-      @line_item = @cart.issue_line_item(line)
+      # logger.debug "=====quantity== #{params[:quantity]}"
+
+      if(params[:quantity].to_i <= line.quantity - line.quantity_issued)
+        @line_item = @cart.issue_line_item(line, params[:quantity].to_i)
+      end
     else
       @cart = current_cart
       item = Item.find(params[:item_id])
-      @line_item = @cart.add_item(item.id)
+      # logger.debug "=====quantity== #{params[:quantity]}"
+      price = current_customer.get_special_price(item)
+      @line_item = @cart.add_item(item.id, params[:quantity].to_i, price)
     end
 
     respond_to do |format|

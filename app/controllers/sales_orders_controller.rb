@@ -58,14 +58,16 @@ class SalesOrdersController < ApplicationController
     @sales_order.add_line_items_from_issue_cart(current_issue_cart)
 
     current_issue_cart.line_items.each do |line|
+      # logger.debug "=====refer_line_id== #{line.refer_line_id}"
       po_line = LineItem.find(line.refer_line_id)
-      po_line.update_attribute(:quantity_issued, line.quantity)
+      po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
     end
+    
     # @sales_order.customer_id = session[:customer_id]
     respond_to do |format|
       if @sales_order.save
         Cart.destroy(session[:issue_cart_id])
-        session[:cart_id] = nil
+        session[:issue_cart_id] = nil
         format.html { redirect_to @sales_order, notice: 'Sales order was successfully created.' }
         format.json { render json: @sales_order, status: :created, location: @sales_order }
       else

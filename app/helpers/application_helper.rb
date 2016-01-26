@@ -5,6 +5,10 @@ module ApplicationHelper
 		end
 		content_tag("div", attributes, &block)
 	end
+
+	def find_order_number_from_reference(refer_line_id)
+		order_number = LineItem.find(refer_line_id).line.order_number
+	end
 end
 
 def markdown(content)

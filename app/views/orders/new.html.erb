@@ -28,16 +28,18 @@
 		    </div>
 		  <% end %>
 
-	    <%= f.hidden_field :name, :placeholder => @order.name %>
-	    <%= f.hidden_field :address, :placeholder => @order.address %>
-	    <%= f.hidden_field :telephone, :placeholder => @order.telephone %>
+	    <%= f.hidden_field :name %>
+	    <%= f.hidden_field :address %>
+	    <%= f.hidden_field :telephone %>
 	    <%= f.hidden_field :ship_contact %>
 	    <%= f.hidden_field :ship_address %>
 	    <%= f.hidden_field :ship_telephone %>
 	    <%= f.hidden_field :pay_type %>
 
 			<div class="actions">
-				Customer PO#:<%= f.text_field :order_number, :placeholder => "PO#{DateTime.now.to_date}",:size => 20 %>
+				Customer PO#:<%= f.text_field :order_number,
+					:value => "#{@order.customer.name}#{DateTime.now.to_date}",
+					:placeholder => "#{@order.customer.name}#{DateTime.now.to_date}",:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
 		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
 		  </div>

@@ -4,8 +4,9 @@
   <tr>
     <th> ID </th>
     <th>Item</th>
+    <th>Price</th>
     <th>Qty</th>
-    <th>Qty left</th>
+    <th>Qty issued</th>
     <th>line type</th>
     <th>line id</th>
     <th>refer line id</th>
@@ -18,6 +19,7 @@
   <tr>
     <td>#<%= line_item.id %></td>
     <td><%= line_item.item_id %></td>
+    <td><%= line_item.price %></td>
     <td>x<%= line_item.quantity %></td>
     <td><%= line_item.quantity_issued %></td>
     <td><%= line_item.line_type %></td>

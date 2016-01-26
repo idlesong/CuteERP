@@ -1,59 +1,5 @@
-<p id="notice"><%= notice %></p>
-<h1>Customer Order</h1>
-
-<div class="panel panel-default">
-  <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
-  <div class="panel-body">
-
-    <h2>
-      <%= @order.customer.name %>
-    </h2>
-    <table class="table">
-      <thead>
-        <tr>
-          <td>
-          </td>
-          <td>
-            <h4 class="text-right"> Date: <%= @order.created_at.to_date %></h4>
-            <h4 class="text-right"> PO#:<%= @order.order_number %></h4>
-            <h4 class="text-right"> Payment:<%= @order.pay_type %></h4>
-          </td>
-        </tr>
-      </thead>
-      <tr><td colspan = "2"><h3 class="text-center"> Customer Order</h3></td></tr>
-      <tr><td><h4>Bill to: <%= @order.customer.name %></h4></td>
-          <td><h4> Ship to: <%= @order.customer.name %></h4></td></tr>
-
-      </tr>
-      <tr><td>Contact:<%= @order.name %></td> <td>Contact:<%= @order.ship_contact %></td></tr>
-      <tr><td>Address:<%= @order.address %></td><td>Address:<%= @order.ship_address %></td></tr>
-      <tr><td>Tel:<%= @order.telephone %></td><td>Tel:<%= @order.ship_telephone %></td></tr>
-      <!-- <tr>
-        <td>Payment:<%= @order.customer.payment %></td>
-        <td>Date: 20140501</td>
-      </tr> -->
-    </table>
-
-  </div>
-</div>
-
-<div class="panel panel-default">
-  <!-- <div class="panel-heading"><h2>Order Details<h2></div> -->
-  <div class="panel-body">
-    <%= render(@order) %>
-  </div>
-
-  <div class="panel-footer">
-    <%= link_to 'Edit', edit_order_path(@order) %>
-
-    <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-quotation-modal-lg">Print Quotation</button>
-  </div>
-</div>
-
-
 <!-- Large modal Invoice-->
-<div class="modal fade bs-quotation-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+<div class="modal fade bs-invoice-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-body">
@@ -72,23 +18,28 @@
                       <h5>Tel:051066682208 Fax: 051066682208</h5>
                     </td>
                     <td>
-                      <h4 class="text-right"> Date: <%= @order.created_at.to_date %></h4>
-                      <h4 class="text-right"> Quotation#:Q<%= @order.created_at.to_date %></h4>
-                      <h4 class="text-right"> Payment:<%= @order.pay_type %></h4>
+                      <h4 class="text-right"> Date: <%= @sales_order.created_at.to_date %></h4>
+                      <h4 class="text-right"> PO#:PO<%= @sales_order.serial_number %></h4>
+                      <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
                     </td>
                   </tr>
                 </thead>
-                <tr><td colspan = "2"><h3 class="text-center"> Quotation</h3></td></tr>
-                <tr><td><h4>ATTN: <%= @order.customer.name %></h4></td>
-                    <td><h4>From: 无锡士康通讯技术有线公司</h4></td>
-                </tr>
+                <tr><td colspan = "2"><h3 class="text-center"> Invoice</h3></td></tr>
+                <tr><td><h4>Bill to: <%= @sales_order.customer.name %></h4></td>
+                    <td><h4> Ship to: <%= @sales_order.customer.name %></h4></td></tr>
 
+                </tr>
+                <tr><td>Contact:<%= @sales_order.bill_contact %></td> <td>Contact:<%= @sales_order.ship_contact %></td></tr>
+                <tr><td>Address:<%= @sales_order.bill_address %></td><td>Address:<%= @sales_order.ship_address %></td></tr>
+                <tr><td>Tel:  <%= @sales_order.bill_telephone %></td><td>Tel:<%= @sales_order.ship_telephone %></td></tr>
               </table>
 
             </div>
           </div>
         </div>
 
+
+        <div class="cart_title"> Order details </div>
         <table class="table">
         	<thead>
         		<tr>
@@ -100,7 +51,7 @@
         			<th><h4>Suble Total</h4></th>
         		</tr>
         	</thead>
-        	<%= render(@order.line_items) %>
+        	<%= render(@sales_order.line_items) %>
         </table>
 
         <div class="row text-right">
@@ -130,7 +81,7 @@
                 <h4>Received and checked by</h4>
               </div>
               <div class="panel-body">
-                <p> <%= @order.customer.name %> </p>
+                <p> <%= @sales_order.customer.name %> </p>
                 <p> _</p>
               </div>
             </div>

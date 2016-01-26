@@ -15,7 +15,7 @@
 		<td><%= item.partNo %></td>
 		<td><%= item.name %></td>
 		<td><%= item.package %></td>
-		<td><%= number_to_currency(item.price)%></td>
+		<td><%= number_to_currency(current_customer_of_cart.get_special_price(item)%></td>
 		<td><%= button_to 'Add to Cart', line_items_path(:item_id => item) , :remote => true %></td>
 	  </tr>
 	<% end %>

@@ -52,7 +52,8 @@
   <% @orders.each do |order| %>
   <% unless order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
-      <% if line_item.quantity > line_item.quantity_issued then %>
+      <% quantity_left = line_item.quantity - line_item.quantity_issued %>
+      <% if quantity_left > 0 then %>
         <tr>
           <td>#<%= link_to(order.id,order_path(order.id)) %></td>
           <td><%= order.customer.name %></td>
@@ -62,8 +63,12 @@
           <td><%= line_item.item.price %> </td>
           <td>x<%= line_item.quantity %> </td>
           <td>x<%= line_item.quantity_issued %> </td>
-          <td><%= number_to_currency(line_item.total_price) %></td>
-          <td><%= button_to 'issue to Cart', line_items_path(:line_id => line_item.id, ) , :remote => true %></td>
+
+          <%= form_tag(line_items_path(:line_id => line_item.id), remote: true) do %>
+          <td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
+          <td><%= submit_tag("Issue PO Line") %></td>
+          <% end %>
+          <!-- <td>< button_to 'issue to Cart', line_items_path(:line_id => line_item.id, ) , :remote => true ></td> -->
         </tr>
       <% end %>
     <% end %>

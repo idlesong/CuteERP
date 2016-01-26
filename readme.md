@@ -77,6 +77,7 @@
 - product wiki: auto create short url according to products name policy.
 - assign correct subject in customer wiki, product wiki creation
 - Add website for customers
+- need to set a default customer
 
 ### Feature request
 - user role management(group rights, active/deactive)
@@ -92,4 +93,8 @@
 
 ### tips
 - items: add mpq net_weight gross_weight
- 
+- filter of sales order and customer order
+
+### todo
+- [x] message box in admin
+- [ ]

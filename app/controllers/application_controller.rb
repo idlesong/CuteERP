@@ -19,6 +19,16 @@ class ApplicationController < ActionController::Base
       cart
     end
 
+    def current_customer
+      Customer.find(session[:customer_id])
+    rescue ActiveRecord::RecordNotFound
+      customer = Customer.first
+      session[:customer_id] = customer.id
+      customer
+    end
+
+    helper_method :current_customer    
+
   protected
     def authorize
     	unless User.find_by_id(session[:user_id])

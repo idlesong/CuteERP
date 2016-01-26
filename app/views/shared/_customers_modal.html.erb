@@ -26,7 +26,7 @@
                 <td><%= customer.balance %></td>
                 <td><%= customer.contact %></td>
                 <td><%= customer.telephone %></td>
-                <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}, :remote => true %></td>
+                <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}%></td>
               </tr>
               <% end %>
           <% end %>

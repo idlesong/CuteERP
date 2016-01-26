@@ -2,7 +2,7 @@
 <table class="table">
   <thead>
     <tr>
-      <th><h4>#</h4></th>
+      <th><h4>#-Customer PO#</h4></th>
       <th><h4>Customer</h4></th>
       <th><h4>Date</h4></th>
       <th><h4>Product name</h4></th>
@@ -16,16 +16,15 @@
   </thead>
 
   <% @orders.each do |order| %>
-  <%= order.order_number %>
   <% if not order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
       <tr>
-        <td>#<%= link_to(order.id,order_path(order.id)) %></td>
+        <td>#<%= link_to(order.id,order_path(order.id)) %>-<%= order.order_number %></td>
         <td><%= order.customer.name %></td>
         <td><%= order.created_at.strftime("%F") %>
         <td><%= line_item.item.name %> </td>
         <td><%= line_item.item.partNo %> </td>
-        <td><%= line_item.item.price %> </td>
+        <td><%= line_item.price %> </td>
         <td>x<%= line_item.quantity %> </td>
         <td> <%= line_item.quantity - line_item.quantity_issued %> </td>
         <td><%= number_to_currency(line_item.total_price) %></td>

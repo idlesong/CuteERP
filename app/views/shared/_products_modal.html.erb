@@ -3,7 +3,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">add products to cart</h4>
+        <h4 class="modal-title" id="myModalLabel">add products to cart: <%= current_customer.name %></h4>
       </div>
       <div class="modal-body">
         <table class="table table-striped">
@@ -12,6 +12,7 @@
             <th>Name</th>
             <th>Package</th>
             <th>Price</th>
+            <th>Quantity</th>
             <th>Action</th>
           </tr>
 
@@ -21,12 +22,14 @@
               <td><%= item.partNo %></td>
               <td><%= item.name %></td>
               <td><%= item.package %></td>
-              <td><%= number_to_currency(item.price)%></td>
-              <td><%= button_to 'Add to Cart', line_items_path(:item_id => item) , :remote => true %></td>
+              <td><%= current_customer.get_special_price(item)%></td>
+              <%= form_tag(line_items_path(:item_id => item), remote: true) do %>
+              <td><%= text_field_tag(:quantity, item.volume, placeholder: item.volume) %></td>
+              <td><%= submit_tag("Add item") %></td>
+              <% end %>
             </tr>
             <% end %>
           <% end %>
-
         </table>
       </div>
       <div class="modal-footer">
