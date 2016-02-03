@@ -1,0 +1,86 @@
+<%= form_for(@sales_order) do |f| %>
+  <% if @sales_order.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@sales_order.errors.count, "error") %> prohibited this sales_order from being saved:</h2>
+
+      <ul>
+      <% @sales_order.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= f.hidden_field :serial_number %>
+  <%= f.hidden_field :customer_id %>
+  <%= f.hidden_field :bill_contact %>
+  <%= f.hidden_field :bill_address,:rows=> 4%>
+  <%= f.hidden_field :bill_telephone %>
+  <%= f.hidden_field :ship_contact %>
+  <%= f.hidden_field :ship_address,:rows=> 4 %>
+  <%= f.hidden_field :ship_telephone %>
+  <%= f.hidden_field :payment_term %>
+
+  <p id="notice"><%= notice %></p>
+  <h1>Confirm Sales Order</h1>
+
+  <div class="panel panel-default">
+    <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
+    <div class="panel-body">
+
+      <h2>
+        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5>Wuxi Sicomm Communication Tech</h5>
+              <h5>Address: B building #21 road, Wuxi </h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"> Date: <%= @sales_order.created_at.to_date %></h4>
+              <h4 class="text-right"> PO#:<%= @sales_order.serial_number %></h4>
+              <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
+              <h4 class="text-right"> Ship:<%= f.date_select :delivery_date, :class => 'date_select' %></h4>
+
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> Sales Order</h3></td></tr>
+        <tr><td><h4>Bill to: <%= @sales_order.customer.name %></h4></td>
+            <td><h4> Ship to: <%= @sales_order.customer.name %></h4></td></tr>
+
+        </tr>
+        <tr><td>Contact:<%= f.text_field :bill_contact %></td> <td>Contact:<%= f.text_field :ship_contact %></td></tr>
+        <tr><td>Address:<%= f.text_field :bill_address %></td><td>Address:<%= f.text_field :ship_address %></td></tr>
+        <tr><td>Tel:  <%= f.text_field :bill_telephone %></td><td>Tel:<%= f.text_field :ship_telephone %></td></tr>
+      </table>
+
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <!-- <div class="panel-heading"><h2>Order Details<h2></div> -->
+    <div class="cart_title"> Order details </div>
+    <table class="table">
+    	<thead>
+    		<tr>
+    			<th><h4>#</h4></th>
+    			<th><h4>Product name</h4></th>
+    			<th><h4>PartNo.</h4></th>
+    			<th><h4>Qty</h4></th>
+    			<th><h4>Price</h4></th>
+    			<th><h4>Suble Total</h4></th>
+    		</tr>
+    	</thead>
+    	<%= render(@sales_order.line_items) %>
+    </table>
+
+    <div class="panel-footer">
+      <p class="text-center"><%= f.submit 'Please Confrim the bill&ship info, then Place Sales Order', :class=>"btn btn-primary" %> </p>
+    </div>
+  </div>
+
+<% end %>

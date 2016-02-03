@@ -94,7 +94,6 @@ A cute online ERP, with order system, docs system.
 ### tips
 - items: add mpq net_weight gross_weight
 - filter of sales order and customer order
-- confirm the bill and ship info to make a delivery(delivery date, status(tracking), invoice date, status)
 
 ### todo
 - [x] message box in admin: Pub/Sub with wisper

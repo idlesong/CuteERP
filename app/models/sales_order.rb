@@ -1,6 +1,7 @@
 class SalesOrder < ActiveRecord::Base
   attr_accessible :bill_address, :bill_contact, :bill_telephone, :customer_id,
-  :payment_term, :serial_number, :ship_address, :ship_contact, :ship_telephone
+  :payment_term, :serial_number, :ship_address, :ship_contact, :ship_telephone,
+  :delivery_date, :delivery_status
 
   # validates :bill_address, :bill_contact, :bill_telephone, :ship_contact, :ship_address,
     # :ship_telephone, :presence => true
@@ -21,4 +22,5 @@ class SalesOrder < ActiveRecord::Base
 
   # before_edit :ensure_not_invooced_or_delivered
   # before_destroy :ensure_not_invooced_or_delivered
+  # before_confirm :ensure_not_invooced_or_delivered
 end

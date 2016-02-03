@@ -69,7 +69,7 @@ Order.delete_all
 
 
 # prices
-onreal_sct3258p_price = onreal.prices.create(item_id: sct3258p.id, price: 38)
+onreal_sct3258p_price = onreal.prices.create(item_id: sct3258p.id, price: 38, payment_terms: 'T.T in advance')
 # cart & line_item
 cart = Cart.create
 # line_sct3258p = LineItem.create()

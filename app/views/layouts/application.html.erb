@@ -9,8 +9,14 @@
 <body>
   <div id = "menu">
     <ul>
-      <li class="nav_left"><a href="#"><i class="fa fa-suitcase"></i>CuteERP    </a></li>
-      <li class="nav_left"><%= link_to 'Group#sales', orders_path %></li>
+      <li class="nav_left"><a href="#"><i class="fa fa-suitcase"></i>CuteERP </a></li>
+      <% if current_user %>
+        <li class="nav_left"> <%= link_to "@#{current_user.name}", '/admin' %> </li>
+        <li class="nav_left"> <%= link_to "Logout", '/logout' %></li>
+      <% else %>
+        <li class="nav_left"><%= link_to 'Login', '/login' %> </li>
+        <li class="nav_left"> <%= link_to 'Signup', '/signup' %> </li>
+      <% end %>
       <li class="nav_right"><a href=<%= contacts_path %>><i class="fa fa-user"></i>Contacts </a></li>
       <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i>Docs</a></li>
       <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-tags"></i>Products </a></li>
@@ -30,6 +36,7 @@
             <li class="list-group-item"><a href=<%= prices_path %>>Prices</a></li>
             <li class="list-group-item disabled">Tools</li>
             <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-user"></i> New contact</a></li>
+            <li class="list-group-item"><a href=<%= new_customer_path %> ><i class="fa fa-user"></i> New customer</a></li>
         </ul>
       </div>
 

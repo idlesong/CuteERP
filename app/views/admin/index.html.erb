@@ -1,8 +1,8 @@
 <h1>Welcome Admin</h1>
-It's <%= Time.now %>
+It's <%= Time.now.to_date %>,
 We have <%= pluralize(@total_orders, "order") %>
 
-<h3> Customer Orders(PO in lineitems) </h3>
+<h3> Customer Orders(Unissued PO in lineitems) </h3>
 <table class="table">
   <thead>
     <tr>
@@ -15,29 +15,31 @@ We have <%= pluralize(@total_orders, "order") %>
       <th><h4>Qty</h4></th>
       <th><h4>Qty left</h4></th>
       <th><h4>Suble Total</h4></th>
-      <th></th>
+      <th><h4>Action</th></th>
     </tr>
   </thead>
 
   <% @orders.each do |order| %>
   <% if not order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
-      <tr>
-        <td>#<%= link_to(order.id,order_path(order.id)) %>-<%= order.order_number %></td>
-        <td><%= order.customer.name %></td>
-        <td><%= order.created_at.strftime("%F") %>
-        <td><%= line_item.item.name %> </td>
-        <td><%= line_item.item.partNo %> </td>
-        <td><%= line_item.item.price %> </td>
-        <td>x<%= line_item.quantity %> </td>
-        <td><%= line_item.quantity - line_item.quantity_issued %> </td>
-        <td><%= number_to_currency(line_item.total_price) %></td>
-        <td>
-        <% if line_item.quantity > line_item.quantity_issued then %>
-          <%= link_to "issue", new_sales_order_path(:customer_id => order.customer.id) %>
-        <% end %>
-        </td>
-      </tr>
+      <% if line_item.quantity > line_item.quantity_issued %>
+        <tr>
+          <td>#<%= link_to(order.id,order_path(order.id)) %>-<%= order.order_number %></td>
+          <td><%= order.customer.name %></td>
+          <td><%= order.created_at.strftime("%F") %>
+          <td><%= line_item.item.name %> </td>
+          <td><%= line_item.item.partNo %> </td>
+          <td><%= line_item.price %> </td>
+          <td>x<%= line_item.quantity %> </td>
+          <td> <%= line_item.quantity - line_item.quantity_issued %> </td>
+          <td><%= number_to_currency(line_item.total_price) %></td>
+          <td>
+          <% if line_item.quantity > line_item.quantity_issued then %>
+            <%= link_to "issue", new_sales_order_path(:customer_id => order.customer.id) %>
+          <% end %>
+          </td>
+        </tr>
+      <% end %>
     <% end %>
   <% end %>
   <% end %>
@@ -58,7 +60,7 @@ We have <%= pluralize(@total_orders, "order") %>
       <th><h4>Price</h4></th>
       <th><h4>Qty</h4></th>
       <th><h4>Suble Total</h4></th>
-      <th><h4>Date</h4></th>
+      <th><h4>Ship Date</h4></th>
     </tr>
   </thead>
 
@@ -75,7 +77,13 @@ We have <%= pluralize(@total_orders, "order") %>
           <td><%= line_item.item.price %> </td>
           <td>x<%= line_item.quantity %> </td>
           <td><%= number_to_currency(line_item.total_price) %></td>
-          <td><%= order.created_at.strftime("%F") %>
+          <td>
+            <% if order.delivery_date %>
+              <a data-toggle="tooltip" data-placement="top" title="SF201572441752">
+                <%= order.delivery_date.to_date%></a>
+            <% else %>
+              <%= link_to('ship now', confirm_sales_order_path(order.id)) %>
+            <% end %>
           <td> </td>
         </tr>
       <% end %>

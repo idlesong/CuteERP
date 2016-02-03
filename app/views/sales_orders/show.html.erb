@@ -17,9 +17,10 @@
             <h5>Tel:051066682208 Fax: 051066682208</h5>
           </td>
           <td>
-            <h4 class="text-right"> Date: <%= @sales_order.created_at.to_date %></h4>
+            <h4 class="text-right"> Order Date: <%= @sales_order.created_at.to_date %></h4>
             <h4 class="text-right"> PO#:<%= @sales_order.serial_number %></h4>
             <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
+            <h4 class="text-right"> Ship Date:<%= @sales_order.delivery_date.to_date if @sales_order.delivery_date%></h4>
           </td>
         </tr>
       </thead>
@@ -28,9 +29,12 @@
           <td><h4> Ship to: <%= @sales_order.customer.name %></h4></td></tr>
 
       </tr>
-      <tr><td>Contact:<%= @sales_order.bill_contact %></td> <td>Contact:<%= @sales_order.ship_contact %></td></tr>
-      <tr><td>Address:<%= @sales_order.bill_address %></td><td>Address:<%= @sales_order.ship_address %></td></tr>
-      <tr><td>Tel:  <%= @sales_order.bill_telephone %></td><td>Tel:<%= @sales_order.ship_telephone %></td></tr>
+      <tr><td><strong>Contact:</strong><%= @sales_order.bill_contact %></td>
+          <td><strong>Contact:</strong><%= @sales_order.ship_contact %></td></tr>
+      <tr><td><strong>Address:</strong><%= @sales_order.bill_address %></td>
+          <td><strong>Address:</strong><%= @sales_order.ship_address %></td></tr>
+      <tr><td><strong>Tel:  </strong><%= @sales_order.bill_telephone %></td>
+          <td><strong>Tel:  </strong><%= @sales_order.ship_telephone %></td></tr>
     </table>
 
   </div>

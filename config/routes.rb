@@ -1,6 +1,9 @@
 RorWebERP::Application.routes.draw do
-  resources :sales_orders
-
+  resources :sales_orders do
+    member do
+      get 'confirm'
+    end
+  end
 
   resources :attachments
 
@@ -28,9 +31,11 @@ RorWebERP::Application.routes.draw do
   controller :sessions do
     get 'login' => :new
     post 'login' => :create
-    delete 'logout' => :destroy
+    get 'logout' => :destroy
   end
   resources :admin, :only => [:index]
+
+  # get '/signup' => 'users#new'
 
   resources :users
   get "users/show"

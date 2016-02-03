@@ -5,10 +5,10 @@ class Order < ActiveRecord::Base
   attr_accessible :customer_id, :amount, :order_number, :name, :address,
     :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type
 
-  # PAYMENT_TYPES = ["T.T in advance", "COD", "T.T 30days",'T.T 60days']
-  #
+  PAYMENT_TYPES = ["T.T in advance", "COD", "T.T 30days",'T.T 60days']
+
   validates :name, :address, :pay_type, :presence => true
-  # validates :pay_type, :inclusion => PAYMENT_TYPES
+  validates :pay_type, :inclusion => PAYMENT_TYPES
   # validates :customer_id, :presence => true
 
   def add_line_items_from_cart(cart)

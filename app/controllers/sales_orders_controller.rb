@@ -51,6 +51,11 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.find(params[:id])
   end
 
+  # GET /sales_orders/1/confirm
+  def confirm
+    @sales_order = SalesOrder.find(params[:id])
+  end
+
   # POST /sales_orders
   # POST /sales_orders.json
   def create
@@ -62,7 +67,7 @@ class SalesOrdersController < ApplicationController
       po_line = LineItem.find(line.refer_line_id)
       po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
     end
-    
+
     # @sales_order.customer_id = session[:customer_id]
     respond_to do |format|
       if @sales_order.save

@@ -22,6 +22,8 @@ $(document).ready(function() {
   /* Activating Best In Place */
   jQuery(".best_in_place").best_in_place();
 
+  $('[data-toggle="tooltip"]').tooltip();
+
   $('.datatable').dataTable({
     "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
     "sPaginationType": "bootstrap",

@@ -3,6 +3,6 @@ class AdminController < ApplicationController
   	@total_orders = Order.count
 
     @orders = Order.all
-    @sales_orders = SalesOrder.all    
+    @sales_orders = SalesOrder.all
   end
 end

@@ -26,6 +26,8 @@
   <dd><%= @price.status %></dd>
 </dl>
 
+
+
 <div class="form-actions">
   <%= link_to t('.print requst'), prices_path, :class => 'btn btn-primary'  %>
   <%= link_to t('.back', :default => t("helpers.links.back")),
@@ -37,4 +39,26 @@
               :method => 'delete',
               :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
               :class => 'btn btn-danger' %>
+</div>
+
+</br>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <table class="table table-bordered">
+      <tr><td colspan="4"><h4 class="text-center">Special Price Request</h4></td></tr>
+      <tr><td class="active">Customr Name</td><td><%= @price.customer.name %></td>
+          <td class="active">payment term</td><td><%= @price.customer.payment %></td></tr>
+      <tr><td class="active">Product </td><td><%= @price.item.name %><%= @price.item.partNo %></td>
+          <td class="active">Forecast per year</td><td>10k</td></tr>
+      <tr><td class="active">Default Price</td><td>¥<%= @price.item.price %></td>
+          <td class="active">Last price</td><td>¥</td></tr>
+      <tr><td class="active">Request Price</td><td class="danger">¥<%= @price.price %></td>
+          <td class="active">Request Date</td><td><%= @price.created_at.to_date %></td></tr>
+      <tr><td class="active">Sales suggestion</td><td colspan="3"><%= @price.sales_suggestion %></td></tr>
+      <tr><td class="active">Department suggestion</td><td colspan="3"><%= @price.department_suggestion %></td></tr>
+      <tr><td class="active">finance suggestion</td><td colspan="3"><%= @price.finance_suggestion %></td></tr>
+      <tr><td class="active">Boss suggestion</td><td colspan="3"><%= @price.boss_suggestion %></td></tr>
+    </table>
+  </div>
 </div>
