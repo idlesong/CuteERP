@@ -57,4 +57,12 @@ class OrdersControllerTest < ActionController::TestCase
     assert_equal flash[:notice], 'Your cart is empty'
   end
 
+  test "must have line_items before create or update" do
+  end
+
+  test "price must be special price or default price" do
+
+  end
+
+  
 end

@@ -50,7 +50,7 @@
       <th><h4>Price</h4></th>
       <th><h4>Qty</h4></th>
       <th><h4>Suble Total</h4></th>
-      <th><h4>Date</h4></th>
+      <th><h4>Ship status - Date</h4></th>
     </tr>
   </thead>
 
@@ -67,7 +67,7 @@
           <td><%= line_item.item.price %> </td>
           <td>x<%= line_item.quantity %> </td>
           <td><%= number_to_currency(line_item.total_price) %></td>
-          <td><%= order.created_at.strftime("%F") %>
+          <td><%= link_to('ship', edit_sales_order_path(order.id)) %><%= order.created_at.strftime("%F") %>
           <td> </td>
         </tr>
       <% end %>

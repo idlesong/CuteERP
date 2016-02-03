@@ -73,9 +73,9 @@ onreal_sct3258p_price = onreal.prices.create(item_id: sct3258p.id, price: 38)
 # cart & line_item
 cart = Cart.create
 # line_sct3258p = LineItem.create()
-line_sct3258p = cart.add_item(sct3258p.id, 260)
+line_sct3258p = cart.add_item(sct3258p.id, 260, 50)
 line_sct3258p.save
-line_srt3210 = cart.add_item(srt3210.id, 490)
+line_srt3210 = cart.add_item(srt3210.id, 490, 10)
 line_srt3210.save
 
 # customer_orders
@@ -86,7 +86,7 @@ po_line_sct3258p = onreal_po.line_items.find(line_sct3258p.id)
 
 # sales_orders
 issue_cart = Cart.create
-issued_line1 = issue_cart.issue_line_item(po_line_sct3258p)
+issued_line1 = issue_cart.issue_line_item(po_line_sct3258p, 260)
 issued_line1.save
 
 issue_cart.line_items.each do |line|

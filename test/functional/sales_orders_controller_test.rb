@@ -46,4 +46,8 @@ class SalesOrdersControllerTest < ActionController::TestCase
 
     assert_redirected_to sales_orders_path
   end
+
+  test "sales order equal to issue customer order" do
+
+  end
 end

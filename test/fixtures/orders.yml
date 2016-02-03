@@ -1,13 +1,15 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
 one:
-  name: Dave Thoma
+  name: MissWhite
   address: MyText
   email: dave@example.org
   pay_type: Check
+  order_number: PO201601
 
 two:
-  name: MyString
+  name: Mr.White
   address: MyText
-  email: MyString
+  email: MyString@exapmle.org
   pay_type: MyString
+  order_number: PO201602

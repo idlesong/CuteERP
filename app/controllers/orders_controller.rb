@@ -64,7 +64,7 @@ class OrdersController < ApplicationController
     @items = Item.all
     @customers = Customer.all
 
-    @cart = Cart.create
+    @cart = current_cart
     @cart.line_items = @order.line_items
   end
 
@@ -94,6 +94,7 @@ class OrdersController < ApplicationController
   # PUT /orders/1.json
   def update
     @order = Order.find(params[:id])
+    @order.add_line_items_from_cart(current_cart)
 
     respond_to do |format|
       if @order.update_attributes(params[:order])

@@ -2,7 +2,6 @@
 
 one:
   item: ruby
-  order: one
 
 two:
   item: ruby

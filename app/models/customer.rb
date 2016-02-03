@@ -6,6 +6,8 @@ class Customer < ActiveRecord::Base
   has_many :opportunities
   has_many :prices
   # validates :name, :presence => true, :uniqueness => true
+  # validates :payment, :presence => true
+
 
   def get_special_price(item)
     price = prices.where(item_id: item.id).first

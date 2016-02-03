@@ -47,4 +47,9 @@ class CartsControllerTest < ActionController::TestCase
 
     assert_redirected_to inventory_path
   end
+
+  test "always have unique cart and issue_cart " do
+  end
+
+  
 end

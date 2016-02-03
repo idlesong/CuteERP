@@ -4,19 +4,16 @@ one:
   name: "Analog RF"
   partNo: "SRT3500"
   package: "QFN28"
-  imageURL: "rails.png"
   price: 4
 
 two:
-  name: "ModuleDemodule"
-  partNo: "SRT3300"
-  package: "QFN16"
-  imageURL: "rails.png"
-  price: 1
+  name: "Digital RF"
+  partNo: "SCT3700"
+  package: "QFN48"
+  price: 15
 
 ruby:
   name: 'FMradio'
   partNo: 'SRT8305'
   package: 'QFN24'
-  imageURL: 'rails.png'
-  price: 2.3  
+  price: 2.3
