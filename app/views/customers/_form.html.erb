@@ -14,7 +14,7 @@
   <div class="control-group">
     <%= f.label :name, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :name, :class => 'text_field' %>
+      <%= f.text_field :name, :class => 'text_field', placeholder:'Company *name*' %>
     </div>
   </div>
   <div class="control-group">
@@ -24,30 +24,36 @@
     </div>
   </div>
   <div class="control-group">
+    <%= f.label :contact, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :contact, :class => 'text_field', placeholder:'Please enter contact name' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :telephone, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :telephone, :class => 'text_field',placeholder:'0510-6682208' %>
+    </div>
+  </div>
+
+  <div class="control-group">
     <%= f.label :since, :class => 'control-label' %>
     <div class="controls">
       <%= f.date_select :since, :class => 'date_select' %>
     </div>
   </div>
   <div class="control-group">
+    <%= f.label :payment, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.select(:payment, Order::PAYMENT_TYPES) %>
+    </div>
+  </div>
+  <div class="control-group">
     <%= f.label :balance, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :balance, :class => 'text_field' %>
+      <%= f.text_field :balance, :class => 'text_field', :value => 0 %>
     </div>
   </div>
-  <div class="control-group">
-    <%= f.label :contact, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.text_field :contact, :class => 'text_field' %>
-    </div>
-  </div>
-  <div class="control-group">
-    <%= f.label :telephone, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.text_field :telephone, :class => 'text_field' %>
-    </div>
-  </div>
-
   <div class="form-actions">
     <%= f.submit nil, :class => 'btn btn-primary' %>
     <%= link_to t('.cancel', :default => t("helpers.links.cancel")),

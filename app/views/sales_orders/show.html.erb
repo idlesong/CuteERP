@@ -18,9 +18,15 @@
           </td>
           <td>
             <h4 class="text-right"> Order Date: <%= @sales_order.created_at.to_date %></h4>
-            <h4 class="text-right"> PO#:<%= @sales_order.serial_number %></h4>
+            <h4 class="text-right"> SO#:<%= @sales_order.serial_number %></h4>
             <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
-            <h4 class="text-right"> Ship Date:<%= @sales_order.delivery_date.to_date if @sales_order.delivery_date%></h4>
+            <h4 class="text-right"> Ship Date:
+              <% if @sales_order.delivery_date %>
+                <%= @sales_order.delivery_date.to_date %>
+              <% else %>
+                <%= link_to('ship now', confirm_sales_order_path(@sales_order)) %>
+              <% end %>
+            </h4>
           </td>
         </tr>
       </thead>
@@ -41,21 +47,23 @@
 </div>
 
 <div class="panel panel-default">
-  <!-- <div class="panel-heading"><h2>Order Details<h2></div> -->
-  <div class="cart_title"> Order details </div>
-  <table class="table">
-  	<thead>
-  		<tr>
-  			<th><h4>#</h4></th>
-  			<th><h4>Product name</h4></th>
-  			<th><h4>PartNo.</h4></th>
-  			<th><h4>Qty</h4></th>
-  			<th><h4>Price</h4></th>
-  			<th><h4>Suble Total</h4></th>
-  		</tr>
-  	</thead>
-  	<%= render(@sales_order.line_items) %>
-  </table>
+  <!-- <div class="panel-heading"><h5>Order Details<h5></div> -->
+  <div class="panel-body">
+    <h5> Order details </h5>
+    <table class="table">
+    	<thead>
+    		<tr>
+    			<th><h4>#</h4></th>
+    			<th><h4>Product name</h4></th>
+    			<th><h4>PartNo.</h4></th>
+    			<th><h4>Qty</h4></th>
+    			<th><h4>Price</h4></th>
+    			<th><h4>Suble Total</h4></th>
+    		</tr>
+    	</thead>
+    	<%= render(@sales_order.line_items) %>
+    </table>
+  </div>
 
   <div class="panel-footer">
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"

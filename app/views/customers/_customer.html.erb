@@ -76,7 +76,7 @@
 
   <% @orders.each do |order| %>
     <tr>
-      <td><%= order.customer_id %></td>
+      <td><%= order.customer.short_name %></td>
       <td><%= order.name %></td>
       <td><%= order.address %></td>
       <td><%= order.email %></td>
@@ -94,9 +94,9 @@
 
 <% @opportunities.each do |opportunity| %>
     <h4>
-      <p class="bg-warning">Priority:<%= opportunity.priority %> Project type: <strong><%= opportunity.project_type %>
+      <p class="bg-success">Priority:<%= opportunity.priority %> Project type: <strong><%= opportunity.project_type %>
       </strong> solution:<strong><%= opportunity.solution %> </strong>
-
+        <%= link_to('edit', edit_opportunity_path(opportunity))%>
       </br>
       Note:<%= opportunity.note %>
       </p>

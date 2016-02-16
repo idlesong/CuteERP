@@ -7,9 +7,10 @@
 </div>
 
 <div class="panel panel-default">
+	<div class="panel-heading"> <h3 class="panel-title">Order lineitems</h3></div>
 	<div class="panel-body">
 		<a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-		data-target="#productsModal"> SelectProduct </a>
+		data-target="#productsModal"> Add products to order </a>
 		<div id="cart">
 			<%= render @cart %>
 		</div>
@@ -38,7 +39,7 @@
 
 			<div class="actions">
 				Customer PO#:<%= f.text_field :order_number,
-					:value => "#{@order.customer.name}#{DateTime.now.to_date}",
+					:value => "#{@order.customer.short_name}#{@order.generate_order_number}",
 					:placeholder => "#{@order.customer.name}#{DateTime.now.to_date}",:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
 		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>

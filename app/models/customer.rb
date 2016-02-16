@@ -5,9 +5,8 @@ class Customer < ActiveRecord::Base
   has_many :contacts
   has_many :opportunities
   has_many :prices
-  # validates :name, :presence => true, :uniqueness => true
-  # validates :payment, :presence => true
-
+  validates :name, :presence => true, :uniqueness => true
+  validates :payment, :presence => true
 
   def get_special_price(item)
     price = prices.where(item_id: item.id).first
@@ -15,6 +14,14 @@ class Customer < ActiveRecord::Base
       special_price = item.price
     else
       special_price = price.price
+    end
+  end
+
+  def short_name
+    if name =~ /\*.*\*/
+      short_name = "#{$&}"
+    else
+      short_name = name
     end
   end
 

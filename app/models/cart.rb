@@ -14,13 +14,13 @@ class Cart < ActiveRecord::Base
   	current_item
   end
 
-  def issue_line_item(po_line, item_quantity)
-    # unless line_items.where(refer_line_id: po_line.id).exists? then
-      # if quantity_left = po_line.quantity - po_line.quantity_issued > 0 then
+  def issue_line_item(po_line, issue_quantity)
+    unless line_items.where(refer_line_id: po_line.id).exists? then
+      if issue_quantity <= po_line.quantity - po_line.quantity_issued
         line_item = line_items.build(item_id: po_line.item_id,
-          quantity: item_quantity, refer_line_id: po_line.id, price: po_line.price)
-      # end
-    # end
+          quantity: issue_quantity, refer_line_id: po_line.id, price: po_line.price)
+      end
+    end
   end
 
   def total_price

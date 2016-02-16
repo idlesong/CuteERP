@@ -11,6 +11,9 @@ User.delete_all
 user1 = User.create(:name => 'admin',
 	:password => 'rorweberp'
 	)
+idlesong = User.create(:name => 'idlesong',
+	:password => 'rorweberp'
+	)
 
 # items(products)
 Item.delete_all
@@ -27,13 +30,13 @@ srt3210 = Item.create({name: 'Analog WalkieTalkie BB',	description: 'DPMR直通�
 
 #Customers
 Customer.delete_all
-asichip = Customer.create({name: 'Asichip', balance: 0, contact: 'cuijiyong',
-	telephone: '0755-68888888', address: 'futian', payment:'TT in advance'})
-hyt = Customer.create({name: 'hyt', balance: 0, contact: 'liujuan',
+asichip = Customer.create({name: 'Shenzhen *Asichip* Limited', balance: 0, contact: 'cuijiyong',
+	telephone: '0755-68888888', address: 'futian', payment:'T.T in advance'})
+hyt = Customer.create({name: 'Shenzhen *hytera* Group', balance: 0, contact: 'liujuan',
 	telephone: '0755-68888888', address: 'shilong', payment:'COD'})
-xiaowei = Customer.create({name: 'xiaowei', balance: 0, contact: 'liujunye',
+xiaowei = Customer.create({name: 'Shenzhen *xiaowei* tech', balance: 0, contact: 'liujunye',
 	telephone: '0755-68888888', address: 'ba gua ling', payment:'COD'})
-onreal = Customer.create({name: 'Onreal', balance: 0, contact: 'tangjianyin',
+onreal = Customer.create({name: '*Onreal* Limited', balance: 0, contact: 'tangjianyin',
 	telephone: '0755-68888888', address: 'xixiang', payment:'COD'})
 
 # customers

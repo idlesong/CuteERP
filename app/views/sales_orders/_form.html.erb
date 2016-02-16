@@ -1,6 +1,6 @@
 <%= form_for(@sales_order) do |f| %>
   <% if @sales_order.errors.any? %>
-    <div id="error_explanation">
+    <div id="error_explanation" class="alert alert-danger" role="alert">
       <h2><%= pluralize(@sales_order.errors.count, "error") %> prohibited this sales_order from being saved:</h2>
 
       <ul>

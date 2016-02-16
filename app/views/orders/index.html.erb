@@ -20,7 +20,7 @@
     <% order.line_items.each do |line_item|%>
       <tr>
         <td>#<%= link_to(order.id,order_path(order.id)) %>-<%= order.order_number %></td>
-        <td><%= order.customer.name %></td>
+        <td><%= order.customer.short_name %></td>
         <td><%= order.created_at.strftime("%F") %>
         <td><%= line_item.item.name %> </td>
         <td><%= line_item.item.partNo %> </td>

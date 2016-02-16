@@ -37,8 +37,9 @@ class SalesOrdersController < ApplicationController
     @sales_order.bill_address   = @sales_order.ship_address = @customer.address
     @sales_order.bill_telephone = @sales_order.ship_telephone = @customer.telephone
 
-    so_date = DateTime.now.to_date
-    @sales_order.serial_number = "SO#{so_date}-01"
+    # so_date = DateTime.now.to_date
+    # @sales_order.serial_number = "SO#{so_date}-01"
+    @sales_order.serial_number = @sales_order.generate_order_number
 
     respond_to do |format|
       format.html # new.html.erb
@@ -75,7 +76,10 @@ class SalesOrdersController < ApplicationController
         session[:issue_cart_id] = nil
         format.html { redirect_to @sales_order, notice: 'Sales order was successfully created.' }
         format.json { render json: @sales_order, status: :created, location: @sales_order }
-      else
+      else        
+        @orders = Order.where(customer_id: @sales_order.customer.id)
+        @cart = current_issue_cart
+
         format.html { render action: "new" }
         format.json { render json: @sales_order.errors, status: :unprocessable_entity }
       end

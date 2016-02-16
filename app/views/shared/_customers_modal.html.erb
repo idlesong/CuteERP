@@ -3,29 +3,25 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">add products to cart</h4>
+        <h4 class="modal-title" id="myModalLabel">Change customer</h4>
       </div>
       <div class="modal-body">
         <table class="table table-striped">
           <tr>
             <th>Name</th>
-            <th>Address</th>
-            <th>Since</th>
-            <th>Balance</th>
             <th>Contact</th>
             <th>Telephone</th>
+            <th>Balance</th>
             <th>Select</th>
           </tr>
 
           <% if not @customers.nil? then %>
               <% @customers.each do |customer| %>
               <tr>
-                <td><%= customer.name %></td>
-                <td><%= customer.address %></td>
-                <td><%= customer.since %></td>
-                <td><%= customer.balance %></td>
+                <td><strong><%= customer.short_name %></strong></td>
                 <td><%= customer.contact %></td>
                 <td><%= customer.telephone %></td>
+                <td><%= customer.balance %></td>
                 <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}%></td>
               </tr>
               <% end %>

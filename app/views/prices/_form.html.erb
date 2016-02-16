@@ -1,7 +1,7 @@
 <%= form_for @price, :html => { :class => 'form-horizontal' } do |f| %>
   <% if @price.errors.any? %>
   <div id="error_explanation" class="alert alert-danger" role="alert">
-    <h2><%= pluralize(@price.errors.count, "error") %> prohibited this order from being saved:</h2>
+    <h2><%= pluralize(@price.errors.count, "error") %> prohibited this price from being saved:</h2>
 
     <ul>
       <% @price.errors.full_messages.each do |msg| %>
@@ -70,7 +70,9 @@
   <div class="control-group">
     <%= f.label :status, :class => 'control-label' %>
     <div class="controls">
-      <%= f.select(:status, [['Requesting'],['Approved']]) %>
+      <%= f.select(:status, [['1.Sales requested'],['2.Finance suggested'],
+      ['3.Mananger rejected'],['3. Mananger approved'], ['4.Boss rejected'],
+      ['4.Boss approved']]) %>
     </div>
   </div>
 

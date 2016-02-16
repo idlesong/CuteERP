@@ -47,10 +47,10 @@ class LineItemsController < ApplicationController
       @cart = current_issue_cart
       line = LineItem.find(params[:line_id])
       # logger.debug "=====quantity== #{params[:quantity]}"
-
-      if(params[:quantity].to_i <= line.quantity - line.quantity_issued)
-        @line_item = @cart.issue_line_item(line, params[:quantity].to_i)
+      unless @line_item = @cart.issue_line_item(line, params[:quantity].to_i)
+        return
       end
+
     else
       @cart = current_cart
       item = Item.find(params[:item_id])

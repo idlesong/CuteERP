@@ -38,15 +38,14 @@ class OrdersController < ApplicationController
     @customer = current_customer
     # initialize orders with customer selected customer
     @order = Order.new
-    @order.customer = @customer
+    # @order.copy_customer_info_to_order(current_customer)
 
+    @order.customer = @customer
     # set bill_to and ship_to contact by default, then confirm it in sales order
     @order.name      = @order.ship_contact = @customer.contact
     @order.address   = @order.ship_address = @customer.address
     @order.telephone = @order.ship_telephone = @customer.telephone
     @order.pay_type = @customer.payment
-    # bill_to = @customer.contacts.find_by_note("bill_to") if @customer.contacts.where(note: "bill_to").exists?
-    # ship_to = @customer.contacts.find_by_note("ship_to") if @customer.contacts.where(note: "ship_to").exists?
 
     @cart = current_cart
 
@@ -83,7 +82,11 @@ class OrdersController < ApplicationController
         format.js
         # format.json { render json: @order }
       else
-        format.html { render action: "new" }
+        @items = Item.all
+        @customers = Customer.all
+        @cart = current_cart
+        
+        format.html { render action: "new", notice: 'Errors when save order.' }
         format.js
         # format.json { render json: @order }
       end

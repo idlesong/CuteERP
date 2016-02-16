@@ -10,16 +10,16 @@
             </td>
             <td>
               <h4 class="text-right"> Date: <%= DateTime.now.to_date %></h4>
-              <h4 class="text-right"> Payment:TT in advance</h4>
+              <h4 class="text-right"> Payment:<%= @order.pay_type%></h4>
             </td>
           </tr>
         </thead>
         <tr><td colspan = "2"><h3 class="text-center"> Customer Order</h3></td></tr>
-        <tr><td><h4>Bill to:
+        <tr><td><h4>Bill to: <%= @order.customer.name %>
           <a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
           data-target="#customersModal">
-            SelectCustomer
-          </a> <%= @order.customer.name %> </h4>
+            ChangeCustomer
+          </a>  </h4>
         </td>  <td><h4> Ship to:</h4></td></tr>
 
         <tr><td>Address:<%= @order.address %></td> <td>Address:<%= @order.ship_address %></td></tr>
