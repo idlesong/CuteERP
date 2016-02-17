@@ -1,7 +1,7 @@
 class SalesOrder < ActiveRecord::Base
   attr_accessible :bill_address, :bill_contact, :bill_telephone, :customer_id,
   :payment_term, :serial_number, :ship_address, :ship_contact, :ship_telephone,
-  :delivery_date, :delivery_status
+  :delivery_date, :delivery_status, :exchange_rate
 
   has_many :line_items, :as => :line
   belongs_to :customer

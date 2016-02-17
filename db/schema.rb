@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160203015905) do
+ActiveRecord::Schema.define(:version => 20160217092526) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -49,13 +49,14 @@ ActiveRecord::Schema.define(:version => 20160203015905) do
     t.decimal  "balance"
     t.string   "contact"
     t.string   "telephone"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.string   "full_name"
     t.string   "sales_type"
     t.string   "payment"
     t.text     "invoice_address"
     t.text     "deliver_address"
+    t.string   "currency",        :default => "RMB"
   end
 
   create_table "items", :force => true do |t|
@@ -63,14 +64,16 @@ ActiveRecord::Schema.define(:version => 20160203015905) do
     t.string   "partNo"
     t.string   "package"
     t.string   "imageURL"
-    t.decimal  "price",       :precision => 8, :scale => 2
-    t.datetime "created_at",                                :null => false
-    t.datetime "updated_at",                                :null => false
+    t.decimal  "price",        :precision => 8, :scale => 2
+    t.datetime "created_at",                                                   :null => false
+    t.datetime "updated_at",                                                   :null => false
     t.string   "description"
     t.decimal  "volume"
     t.decimal  "weight"
     t.integer  "moq"
     t.integer  "mop"
+    t.decimal  "rmb_tax_rate", :precision => 8, :scale => 2, :default => 0.17
+    t.decimal  "usd_tax_rate", :precision => 8, :scale => 2, :default => 0.0
   end
 
   create_table "line_items", :force => true do |t|
@@ -115,14 +118,15 @@ ActiveRecord::Schema.define(:version => 20160203015905) do
     t.text     "address"
     t.string   "email"
     t.string   "pay_type"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.datetime "created_at",                                   :null => false
+    t.datetime "updated_at",                                   :null => false
     t.integer  "customer_id"
     t.string   "order_number"
     t.string   "telephone"
     t.string   "ship_contact"
     t.text     "ship_address"
     t.string   "ship_telephone"
+    t.decimal  "exchange_rate",  :precision => 8, :scale => 2
   end
 
   create_table "posts", :force => true do |t|
@@ -159,10 +163,11 @@ ActiveRecord::Schema.define(:version => 20160203015905) do
     t.text     "ship_address"
     t.string   "ship_telephone"
     t.string   "payment_term"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
+    t.datetime "created_at",                                    :null => false
+    t.datetime "updated_at",                                    :null => false
     t.datetime "delivery_date"
     t.string   "delivery_status"
+    t.decimal  "exchange_rate",   :precision => 8, :scale => 2
   end
 
   create_table "tasks", :force => true do |t|

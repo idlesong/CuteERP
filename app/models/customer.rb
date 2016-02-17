@@ -1,5 +1,8 @@
 class Customer < ActiveRecord::Base
-  attr_accessible :address, :balance, :contact, :name, :since, :telephone, :payment
+  attr_accessible :address, :balance, :contact, :name, :since, :telephone, :payment ,:currency
+
+  CURRENCY_TYPES = ['RMB', 'USD']
+
   has_many :orders
   has_many :sales_orders
   has_many :contacts
@@ -7,6 +10,8 @@ class Customer < ActiveRecord::Base
   has_many :prices
   validates :name, :presence => true, :uniqueness => true
   validates :payment, :presence => true
+  # validates :currency, :presence => true
+  # validates :currency, :inclusion => CURRENCY_TYPES
 
   def get_special_price(item)
     price = prices.where(item_id: item.id).first

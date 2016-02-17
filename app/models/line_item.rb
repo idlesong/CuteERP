@@ -12,11 +12,25 @@ class LineItem < ActiveRecord::Base
   belongs_to :item
   belongs_to :cart
 
+  # default price is in RMB, currency_price:exchange_with_tax
+  def show_currency_price(exchange_rate, customer_currency)
+    if(customer_currency == 'USD')
+      final_price = price/(1+item.rmb_tax_rate)*(1+item.usd_tax_rate)/exchange_rate
+    else
+      final_price = price
+    end
+  end
+
   def total_price
     if price.nil?
       total_amount = 0
     else
   	  total_amount = price * quantity
     end
+  end
+
+  def total_currency_price(exchange_rate, customer_currency)
+    unit_price = show_currency_price(exchange_rate, customer_currency)
+  	total_amount = unit_price * quantity    
   end
 end

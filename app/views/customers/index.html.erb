@@ -11,7 +11,7 @@
       <th><%= model_class.human_attribute_name(:telephone) %></th>
       <th><%= model_class.human_attribute_name(:contact) %></th>
       <th><%= model_class.human_attribute_name(:payment) %></th>
-      <th><%= model_class.human_attribute_name(:balance) %></th>
+      <th><%= model_class.human_attribute_name(:currency) %></th>
       <th><%= model_class.human_attribute_name(:since) %></th>
     </tr>
   </thead>
@@ -23,8 +23,8 @@
         <td><%= customer.address %></td>
         <td><%= customer.telephone %></td>
         <td><%= customer.contact %></td>
-        <td><%= customer.payment %></td>        
-        <td><%= customer.balance %></td>
+        <td><%= customer.payment %></td>
+        <td><%= customer.currency %></td>
         <td><%= customer.since %></td>
       </tr>
     <% end %>

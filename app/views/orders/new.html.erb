@@ -43,6 +43,8 @@
 					:placeholder => "#{@order.customer.name}#{DateTime.now.to_date}",:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
 		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
+				Exchange rate:
+				<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>
 		  </div>
 		<% end %>
 	</div>

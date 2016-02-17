@@ -47,6 +47,13 @@
     <%= f.label :payment_term %><br />
     <%= f.text_field :payment_term %>
   </div>
+  <div class="field">
+    <%= f.label :exchange_rate %><br />
+    <%= f.number_field :exchange_rate, :class => 'number_field',
+      :step =>'any', :placeholder => 6.5 %>  
+  </div>
+
+
   <div class="actions">
     <%= f.submit %>
   </div>

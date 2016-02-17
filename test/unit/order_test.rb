@@ -13,5 +13,8 @@ class OrderTest < ActiveSupport::TestCase
 
   test "order must belongs to a customer" do
   end
-  
+
+  test "dollar customer must input a exchange_rate" do
+  end
+
 end

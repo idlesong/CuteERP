@@ -1,12 +1,11 @@
 class Item < ActiveRecord::Base
   attr_accessible :imageURL, :name, :package, :partNo, :price, :description,
-    :volume, :weight, :moq, :mop
+    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate
   default_scope :order => 'name'
 
   has_many :line_items, as: :line
   has_many :orders, :through => :line_items
   has_many :prices
-
 
   validates :name, :partNo, :presence => true
   validates :partNo, :uniqueness => true

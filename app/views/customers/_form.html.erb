@@ -16,6 +16,11 @@
     <div class="controls">
       <%= f.text_field :name, :class => 'text_field', placeholder:'Company *name*' %>
     </div>
+
+    <%= f.label :currency, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.select(:currency, Customer::CURRENCY_TYPES) %>
+    </div>
   </div>
   <div class="control-group">
     <%= f.label :address, :class => 'control-label'%>

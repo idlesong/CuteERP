@@ -59,9 +59,30 @@
     			<th><h4>Qty</h4></th>
     			<th><h4>Price</h4></th>
     			<th><h4>Suble Total</h4></th>
+    			<th><h4>Remark</h4></th>
     		</tr>
     	</thead>
-    	<%= render(@sales_order.line_items) %>
+      <% if @sales_order.customer.currency == 'RMB'
+            currency_unit = '¥'
+          else
+            currency_unit = '$'
+          end %>
+    	<% @sales_order.line_items.each do |line_item| %>
+    		<tr>
+    			<td>1 </td>
+    			<td><%= line_item.item.name %> </td>
+    			<td><%= line_item.item.partNo %> </td>
+    			<td><%= line_item.quantity %> </td>
+    			<% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
+    			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+    	    <td><%= number_to_currency(line_item.total_currency_price(@sales_order.exchange_rate,
+    								@sales_order.customer.currency), unit: currency_unit) %></td>
+    			<td></td>
+    		</tr>
+    	<% end %>
+
+	    <tr><td colspan="7"> <strong>Remarks:</strong>
+         Exchange rate:<%= @sales_order.exchange_rate %> </td></tr>
     </table>
   </div>
 

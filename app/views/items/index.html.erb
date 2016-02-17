@@ -10,6 +10,8 @@
       <th><%= model_class.human_attribute_name(:name) %></th>
       <th><%= model_class.human_attribute_name(:description) %></th>
       <th><%= model_class.human_attribute_name(:price) %></th>
+      <th><%= model_class.human_attribute_name(:rmb_tax_rate) %></th>
+      <th><%= model_class.human_attribute_name(:usd_tax_rate) %></th>
       <th><%= model_class.human_attribute_name(:package) %></th>
       <th> wiki </th>
     </tr>
@@ -22,6 +24,8 @@
         <td><%= item.name        %></td>
         <td><%= item.description %></td>
         <td><%= item.price       %></td>
+        <td><%= item.rmb_tax_rate%></td>
+        <td><%= item.usd_tax_rate       %></td>
         <td><%= item.package     %></td>
         <td><%= link_to('wiki', post_path(item.partNo,:query => "url")) %></td>
       </tr>

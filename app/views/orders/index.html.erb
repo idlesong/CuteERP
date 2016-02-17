@@ -16,6 +16,13 @@
   </thead>
 
   <% @orders.each do |order| %>
+
+  <% if order.customer.currency == 'RMB'
+        currency_unit = '¥'
+      else
+        currency_unit = '$'
+      end %>
+
   <% if not order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
       <tr>
@@ -24,10 +31,11 @@
         <td><%= order.created_at.strftime("%F") %>
         <td><%= line_item.item.name %> </td>
         <td><%= line_item.item.partNo %> </td>
-        <td><%= line_item.price %> </td>
+        <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
+        <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
         <td>x<%= line_item.quantity %> </td>
         <td> <%= line_item.quantity - line_item.quantity_issued %> </td>
-        <td><%= number_to_currency(line_item.total_price) %></td>
+        <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
         <td>
         <% if line_item.quantity > line_item.quantity_issued then %>
           <%= link_to "issue", new_sales_order_path(:customer_id => order.customer.id) %>

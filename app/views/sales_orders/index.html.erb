@@ -1,44 +1,4 @@
-<h1>Listing sales_orders</h1>
-
-<table class="table">
-  <tr>
-    <th>Serial number</th>
-    <th>Customer</th>
-    <th>Bill contact</th>
-    <th>Bill address</th>
-    <th>Bill telephone</th>
-    <th>Ship contact</th>
-    <th>Ship address</th>
-    <th>Ship telephone</th>
-    <th>Payment term</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
-<% @sales_orders.each do |sales_order| %>
-  <tr>
-    <td><%= sales_order.serial_number %></td>
-    <td><%= sales_order.customer.short_name %></td>
-    <td><%= sales_order.bill_contact %></td>
-    <td><%= sales_order.bill_address %></td>
-    <td><%= sales_order.bill_telephone %></td>
-    <td><%= sales_order.ship_contact %></td>
-    <td><%= sales_order.ship_address %></td>
-    <td><%= sales_order.ship_telephone %></td>
-    <td><%= sales_order.payment_term %></td>
-    <td><%= link_to 'Show', sales_order %></td>
-    <td><%= link_to 'Edit', edit_sales_order_path(sales_order) %></td>
-    <td><%= link_to 'Destroy', sales_order, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-  </tr>
-<% end %>
-</table>
-
-<br />
-
-<%= link_to 'New Sales order', new_sales_order_path %>
-
-<h3> Sales Orders(SO in lineitems) </h3>
+<div class="page-header"><h1> Linsting sales orders(in lineitems) </h1></div>
 <table class="table">
   <thead>
     <tr>
@@ -55,18 +15,25 @@
   </thead>
 
   <% @sales_orders.each do |order| %>
-    <% if not order.line_items.nil? then %>
+    <% if order.customer.currency == 'RMB'
+          currency_unit = '¥'
+        else
+          currency_unit = '$'
+        end
+    %>
+    <% unless order.line_items.nil? %>
       <% order.line_items.each do |line_item|%>
-      <% order_number = find_order_number_from_reference(line_item.refer_line_id) %>
+        <% order_number = find_order_number_from_reference(line_item.refer_line_id) %>
         <tr>
           <td>#<%= link_to(order.id,sales_order_path(order.id)) %></td>
           <td><%= order.customer.short_name %></td>
           <td><%= order_number%></td>
           <td><%= line_item.item.name %> </td>
           <td><%= line_item.item.partNo %> </td>
-          <td><%= line_item.item.price %> </td>
+          <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
+          <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
           <td>x<%= line_item.quantity %> </td>
-          <td><%= number_to_currency(line_item.total_price) %></td>
+          <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>          
           <td>
             <% if order.delivery_date %>
               <a data-toggle="tooltip" data-placement="top" title="SF201572441752">

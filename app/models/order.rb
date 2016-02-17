@@ -1,9 +1,10 @@
 class Order < ActiveRecord::Base
+  attr_accessible :customer_id, :amount, :order_number, :name, :address,
+    :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type,
+    :exchange_rate
+
   has_many :line_items, as: :line,  :dependent => :destroy
   belongs_to :customer
-
-  attr_accessible :customer_id, :amount, :order_number, :name, :address,
-    :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type
 
   PAYMENT_TYPES = ["T.T in advance", "COD", "T.T 30days",'T.T 60days']
 
