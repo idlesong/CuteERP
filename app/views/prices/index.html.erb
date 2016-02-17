@@ -6,33 +6,28 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%= model_class.human_attribute_name(:created_at) %></th>
       <th><%= model_class.human_attribute_name(:customer_id) %></th>
-      <th>Part No.</th>
-      <th>Part name</th>
-      <th>price</th>
       <th><%= model_class.human_attribute_name(:payment_terms) %></th>
-
-      <th>status </th>
-      <th><%=t '.actions', :default => t("helpers.actions") %></th>
+      <th>Part No.</th>
+      <th>Default</th>
+      <th>Price</th>
+      <th>Condition</th>
+      <th>Status </th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
     </tr>
   </thead>
   <tbody>
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= price.created_at.strftime("%F") %></td>
-        <td><%= price.customer.name %></td>
-        <td><%= price.item.partNo %></td>
-        <td><%= price.item.name %> </td>
-        <td>¥<%= price.price %></td>
+        <td><%= price.customer.short_name %></td>
         <td><%= price.payment_terms %></td>
-
+        <td><%= price.item.partNo %></td>
+        <td>¥<%= price.item.price %></td>
+        <td><strong>¥<%= price.price %></strong></td>
+        <td><%= price.condition %> </td>
         <td><%= price.status %></td>
-        <td>
-          <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                      edit_price_path(price), :class => 'btn btn-xs' %>
-        </td>
+        <td><%= price.created_at.strftime("%F") %></td>
       </tr>
     <% end %>
   </tbody>
