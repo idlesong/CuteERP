@@ -105,6 +105,10 @@
       <%= f.hidden_field :ship_telephone %></td></tr>
       <%= f.hidden_field :payment_term %>
       <%= f.hidden_field :serial_number %>
+      <% if @sales_order.customer.currency == "USD" %>
+        <%= f.label :exchange_rate %>
+        <%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>
+      <% end %>
 
       <p class="text-center"> <%= f.submit "Place Sales Order", :class=>"btn btn-primary" %> </p>
     <% end %>

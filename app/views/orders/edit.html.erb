@@ -1,39 +1,6 @@
 <h1>Editing order</h1>
 
 <%= render 'shared/customers_modal' %>
-<%= render 'shared/products_modal' %>
+<%= render 'shared/products_modal',:locals => { :order => @order} %>
 
-<div id="orderHeaderDiv" >
-  <%= render 'orderHeader' %>
-</div>
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h4> Order details </h4>
-  </div>
-  <div class="panel-body">
-    <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#productsModal">
-      SelectProduct
-    </a>
-
-    <div id="cart">
-      <%= render @cart %>
-    </div>
-  </div>
-</div>
-
-
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h4> Order details </h4>
-  </div>
-  <div class="panel-body">
-
-    <h4>Please Confirm dispatch info and place order</h4>
-    <%= render 'form' %>
-
-  </div>
-</div>
-
-<%= link_to 'Show', @order %> |
-<%= link_to 'Back', orders_path %>
+<%= render :partial => 'form' %>

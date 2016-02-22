@@ -1,0 +1,90 @@
+<%= form_for(@order) do |f| %>
+  <% if @order.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
+
+      <ul>
+      <% @order.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <div class="field">
+    <%= f.label :order_number %><br />
+    <%= f.text_field :order_number, :size => 40 %>
+  </div>
+  <div class="field">
+    <%= f.label :bill_contact %><br />
+    <%= f.text_field :name, :placeholder => @order.name %>
+  </div>
+  <div class="field">
+    <%= f.label :bill_address %><br />
+    <%= f.text_area :address, :placeholder => @order.address %>
+  </div>
+  <div class="field">
+    <%= f.label :bill_telephone %><br />
+    <%= f.text_field :telephone, :placeholder => @order.telephone %>
+  </div>
+  <div class="field">
+    <%= f.label :ship_contact %><br />
+    <%= f.text_field :ship_contact %>
+  </div>
+  <div class="field">
+    <%= f.label :ship_address %><br />
+    <%= f.text_area :ship_address %>
+  </div>
+  <div class="field">
+    <%= f.label :ship_telephone %><br />
+    <%= f.text_field :ship_telephone %>
+  </div>
+  <div class="field">
+    <%= f.label :payment_term %><br />
+    <%= f.text_field :pay_type %>
+  </div>
+
+  </br>
+  <div class="actions">
+    <%= f.submit 'Place Order', :class=>"btn btn-primary" %>
+  </div>
+<% end %>
+
+
+
+<!-- edit origin -->
+<div id="orderHeaderDiv" >
+  <%= render 'orderHeader' %>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4> Order details </h4>
+  </div>
+  <div class="panel-body">
+    <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#productsModal">
+      SelectProduct
+    </a>
+
+    <div id="cart">
+      <%= render @cart %>
+    </div>
+  </div>
+</div>
+
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4> Order details </h4>
+  </div>
+  <div class="panel-body">
+
+    <h4>Please Confirm dispatch info and place order</h4>
+    <%= render 'form' %>
+
+  </div>
+</div>
+
+<%= link_to 'Show', @order %> |
+<%= link_to 'Back', orders_path %>

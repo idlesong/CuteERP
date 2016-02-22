@@ -1,5 +1,4 @@
-<% unless cart.line_items.empty? %>
-<h5> Your Cart </h5>
+<!-- <div class="cart_title"> Cart </div> -->
 <table class="table">
 	<thead>
 		<tr>
@@ -9,17 +8,33 @@
 			<th><h4>Qty</h4></th>
 			<th><h4>Price</h4></th>
 			<th><h4>Suble Total</h4></th>
+			<th><h4>Remark</h4></th>
 		</tr>
 	</thead>
-	<%= render(@cart.line_items) %>
+	<% 	if current_cart_currency == 'RMB'
+        currency_unit = '¥'
+    	else
+        currency_unit = '$'
+      end %>
+	<% @cart.line_items.each do |line_item| %>
+		<tr>
+			<td>1 </td>
+			<td><%= line_item.item.name %> </td>
+			<td><%= line_item.item.partNo %> </td>
+			<td><%= line_item.quantity %> </td>
+			<% line_price = line_item.show_currency_price(current_cart_exchange_rate, current_cart_currency) %>
+			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+	    <td><%= number_to_currency(line_item.total_currency_price(current_cart_exchange_rate,
+								current_cart_currency), unit: currency_unit) %></td>
+			<td><%= link_to 'Destroy', line_item, method: :delete, remote: true %></td>
+		</tr>
+	<% end %>
+		<tr>
+			<td colspan="7"><a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+				data-target="#productsModal"> Add products to order </a></td>
+		</tr>
 
-	<tr class="total_line">
-		<td colspan="5"> Total</td>
-		<td class="total_cell"><%= number_to_currency(@cart.total_price) %></td>
-	</tr>
+	<tr><td colspan="7"> <strong>Remarks:</strong>
+		<%= "Exchange rate: #{current_cart_exchange_rate}" if currency_unit == '$' %>
+	</td></tr>
 </table>
-
-<!-- <%= button_to 'Check out', new_order_path, :method => :get %> -->
-<%= button_to 'Empty cart', @cart, :method => :delete, :confirm => 'Are you sure', :class => 'btn' %>
-
-<% end %>

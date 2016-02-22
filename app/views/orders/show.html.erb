@@ -45,9 +45,14 @@
 
   <div class="panel-footer">
     <%= link_to 'Edit', edit_order_path(@order) %>
-
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
       data-target=".bs-quotation-modal-lg">Print Quotation</button>
+
+    <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                order_path(@order),
+                :method => :delete,
+                :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                :class => 'btn btn-mini btn-danger' %>
   </div>
 </div>
 

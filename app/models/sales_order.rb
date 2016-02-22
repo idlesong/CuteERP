@@ -13,7 +13,6 @@ class SalesOrder < ActiveRecord::Base
 
   def add_line_items_from_issue_cart(cart)
     cart.line_items.each do |line|
-      line.cart_id = nil
       line_items << line
     end
   end
@@ -23,7 +22,25 @@ class SalesOrder < ActiveRecord::Base
     order_number = DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s
   end
 
-  # before_edit :ensure_not_invoiced_or_delivered
-  # before_destroy :ensure_not_invoiced_or_delivered
-  # before_confirm :ensure_not_invoiced_or_delivered
+  def initialize_order_header(new_customer)
+    self.customer = new_customer
+    self.payment_term = new_customer.payment
+    self.bill_contact   = self.ship_contact = new_customer.contact
+    self.bill_address   = self.ship_address = new_customer.address
+    self.bill_telephone = self.ship_telephone = new_customer.telephone
+
+    self.serial_number = self.generate_order_number
+  end
+
+  before_destroy :ensure_not_invoiced_or_delivered
+
+  private
+   def ensure_not_invoiced_or_delivered
+   	unless delivery_date.nil?
+   		return true
+   	else
+   		errors.add(:base, 'Line Items present')
+   		return false
+   	end
+  end
 end

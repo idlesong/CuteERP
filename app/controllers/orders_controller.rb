@@ -29,25 +29,20 @@ class OrdersController < ApplicationController
     @items = Item.all
     @customers = Customer.all
 
-    # switch current customer, clear cart
+    # switch current customer, clear cart and destroy associated line_items
     if (params[:customer_id] && (params[:customer_id] != current_customer.id))
       session[:customer_id] = params[:customer_id]
       current_cart.line_items.clear
     end
 
     @customer = current_customer
-    # initialize orders with customer selected customer
+    # initialize orders with selected customer
     @order = Order.new
-    # @order.copy_customer_info_to_order(current_customer)
-
-    @order.customer = @customer
-    # set bill_to and ship_to contact by default, then confirm it in sales order
-    @order.name      = @order.ship_contact = @customer.contact
-    @order.address   = @order.ship_address = @customer.address
-    @order.telephone = @order.ship_telephone = @customer.telephone
-    @order.pay_type = @customer.payment
+    @order.initialize_order_header(current_customer)
 
     @cart = current_cart
+    session[:cart_currency] = @order.customer.currency
+    session[:exchange_rate] = @order.exchange_rate
 
     respond_to do |format|
       format.html # new.html.erb
@@ -65,6 +60,9 @@ class OrdersController < ApplicationController
 
     @cart = current_cart
     @cart.line_items = @order.line_items
+
+    session[:cart_currency] = @order.customer.currency
+    session[:exchange_rate] = @order.exchange_rate
   end
 
   # POST /orders
@@ -85,7 +83,7 @@ class OrdersController < ApplicationController
         @items = Item.all
         @customers = Customer.all
         @cart = current_cart
-        
+
         format.html { render action: "new", notice: 'Errors when save order.' }
         format.js
         # format.json { render json: @order }
@@ -114,11 +112,16 @@ class OrdersController < ApplicationController
   # DELETE /orders/1.json
   def destroy
     @order = Order.find(params[:id])
-    @order.destroy
+    # @order.destroy
 
     respond_to do |format|
-      format.html { redirect_to orders_url }
-      format.json { head :no_content }
+      if @order.destroy
+        format.html { redirect_to orders_url }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to order_url(@order), :notice => "Order can't destroyed" }
+        format.json { head :no_content }
+      end
     end
   end
 end

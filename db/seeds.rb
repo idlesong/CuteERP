@@ -31,13 +31,13 @@ srt3210 = Item.create({name: 'Analog WalkieTalkie BB',	description: 'DPMR直通�
 #Customers
 Customer.delete_all
 asichip = Customer.create({name: 'Shenzhen *Asichip* Limited', balance: 0, contact: 'cuijiyong',
-	telephone: '0755-68888888', address: 'futian', payment:'T.T in advance'})
+	telephone: '0755-68888888', address: 'futian', payment:'T.T in advance', currency: 'RMB'})
 hyt = Customer.create({name: 'Shenzhen *hytera* Group', balance: 0, contact: 'liujuan',
-	telephone: '0755-68888888', address: 'shilong', payment:'COD'})
-xiaowei = Customer.create({name: 'Shenzhen *xiaowei* tech', balance: 0, contact: 'liujunye',
-	telephone: '0755-68888888', address: 'ba gua ling', payment:'COD'})
+	telephone: '0755-68888888', address: 'shilong', payment:'COD', currency: 'RMB'})
 onreal = Customer.create({name: '*Onreal* Limited', balance: 0, contact: 'tangjianyin',
-	telephone: '0755-68888888', address: 'xixiang', payment:'COD'})
+	telephone: '0755-68888888', address: 'xixiang', payment:'COD', currency: 'RMB'})
+celetra = Customer.create({name: 'Korea *celetra* ltd', balance: 0, contact: 'young',
+		telephone: '0755-68888888', address: 'Korea street', payment:'COD', currency: 'USD'})
 
 # customers
 Contact.delete_all
@@ -75,15 +75,15 @@ Order.delete_all
 onreal_sct3258p_price = onreal.prices.create(item_id: sct3258p.id, price: 38, payment_terms: 'T.T in advance')
 # cart & line_item
 cart = Cart.create
-# line_sct3258p = LineItem.create()
 line_sct3258p = cart.add_item(sct3258p.id, 260, 50)
 line_sct3258p.save
 line_srt3210 = cart.add_item(srt3210.id, 490, 10)
 line_srt3210.save
 
 # customer_orders
-onreal_po = onreal.orders.create(order_number: 'PO20160101')
+onreal_po = onreal.orders.build(order_number: 'Onreal20160101',name:'Tang',address:'Shenzhen', pay_type:'COD')
 onreal_po.add_line_items_from_cart(cart)
+onreal_po.save
 
 po_line_sct3258p = onreal_po.line_items.find(line_sct3258p.id)
 
@@ -97,8 +97,12 @@ issue_cart.line_items.each do |line|
 	po_line.update_attribute(:quantity_issued, line.quantity)
 end
 
-sales_order_onreal = onreal.sales_orders.create(serial_number: 'SO2016001')
+sales_order_onreal = onreal.sales_orders.build(serial_number: 'SO2016001',
+	bill_contact:'Tang',bill_address:'Shenzhen', bill_telephone:'0755-68888888',
+	ship_contact:'Tang',ship_address:'Shenzhen', ship_telephone:'0755-68888888',
+	payment_term:'COD')
 sales_order_onreal.add_line_items_from_issue_cart(issue_cart)
+sales_order_onreal.save
 
 
 

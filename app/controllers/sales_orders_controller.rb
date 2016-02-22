@@ -31,13 +31,10 @@ class SalesOrdersController < ApplicationController
     @orders = Order.where(customer_id: params[:customer_id])
     @cart = current_issue_cart
 
-    @sales_order.customer = @customer
-    @sales_order.payment_term = @customer.payment
-    @sales_order.bill_contact   = @sales_order.ship_contact = @customer.contact
-    @sales_order.bill_address   = @sales_order.ship_address = @customer.address
-    @sales_order.bill_telephone = @sales_order.ship_telephone = @customer.telephone
+    session[:cart_order_type] = "SalesOrder"
+    session[:cart_order_id] = @sales_order.id
 
-    @sales_order.serial_number = @sales_order.generate_order_number
+    @sales_order.initialize_order_header(@customer)
 
     respond_to do |format|
       format.html # new.html.erb
@@ -48,6 +45,9 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1/edit
   def edit
     @sales_order = SalesOrder.find(params[:id])
+
+    session[:cart_order_type] = "SalesOrder"
+    session[:cart_order_id] = @sales_order.id
   end
 
   # GET /sales_orders/1/confirm
@@ -61,15 +61,20 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.new(params[:sales_order])
     @sales_order.add_line_items_from_issue_cart(current_issue_cart)
 
-    current_issue_cart.line_items.each do |line|
-      # logger.debug "=====refer_line_id== #{line.refer_line_id}"
-      po_line = LineItem.find(line.refer_line_id)
-      po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
-    end
-
     # @sales_order.customer_id = session[:customer_id]
     respond_to do |format|
       if @sales_order.save
+
+        # issue refer po's line items, after save
+        # current_issue_cart.line_items.each do |line|
+        #   # logger.debug "=====refer_line_id== #{line.refer_line_id}"
+        #   po_line = LineItem.find(line.refer_line_id)
+        #   po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
+        #
+        #   line.update_attribute(:cart_id, nil)
+        # end
+        current_issue_cart.issue_refer_line_item
+
         Cart.destroy(session[:issue_cart_id])
         session[:issue_cart_id] = nil
         format.html { redirect_to @sales_order, notice: 'Sales order was successfully created.' }
@@ -77,6 +82,9 @@ class SalesOrdersController < ApplicationController
       else
         @orders = Order.where(customer_id: @sales_order.customer.id)
         @cart = current_issue_cart
+
+        session[:cart_order_type] = "SalesOrder"
+        session[:cart_order_id] = @sales_order.id
 
         format.html { render action: "new" }
         format.json { render json: @sales_order.errors, status: :unprocessable_entity }

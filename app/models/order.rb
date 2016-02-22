@@ -14,13 +14,13 @@ class Order < ActiveRecord::Base
   validates :line_items, :presence => true
   validates :customer_id, :presence => true
 
-  def copy_customer_info_to_order(new_customer)
-    customer = new_customer
+  def initialize_order_header(new_customer)
+    self.customer = new_customer
     # set bill_to and ship_to contact by default, then confirm it in sales order
-    name      = ship_contact = new_customer.contact
-    address   = ship_address = new_customer.address
-    telephone = ship_telephone = new_customer.telephone
-    pay_type  = new_customer.payment
+    self.name  = self.ship_contact = new_customer.contact
+    self.address   = self.ship_address = new_customer.address
+    self.telephone = self.ship_telephone = new_customer.telephone
+    self.pay_type  = new_customer.payment
   end
 
   def add_line_items_from_cart(cart)
@@ -39,17 +39,21 @@ class Order < ActiveRecord::Base
   def cancel
   end
 
-  # before_edit :ensure_not_issued_by_sales_order
-  # before_destroy :ensure_not_issued_by_sales_order
+  # before_update :ensure_not_issued_by_sales_order
+  before_destroy :ensure_not_issued_by_sales_order
 
  private
   # ensure ensure this order is not issued by any of the sales order
   def ensure_not_issued_by_sales_order
-    line_items.each do |line|
-      if line.quantity_issued > 0
-        errors.add(:base, 'Order has been used by sales orders')
-        return false
-      end
+    # line_items.each do |line|
+    #   if line.quantity_issued > 0
+    #     errors.add(:base, 'Order has been used by sales orders')
+    #     return false
+    #   end
+    # end
+    if line_items.where("quantity_issued > 0")
+      errors.add(:base, 'Order has been used by sales orders')
+      return false
     end
 
     return true

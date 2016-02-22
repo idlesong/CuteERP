@@ -20,7 +20,7 @@
           data-target="#customersModal">
             ChangeCustomer
           </a>  </h4>
-        </td>  <td><h4> Ship to:</h4></td></tr>
+        </td>  <td><h4> Ship to:<%= @order.customer.name %></h4></td></tr>
 
         <tr><td>Address:<%= @order.address %></td> <td>Address:<%= @order.ship_address %></td></tr>
         <tr><td>Contact:<%= @order.name %></td> <td>Contact:<%= @order.ship_contact %></td></tr>

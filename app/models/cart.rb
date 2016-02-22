@@ -1,5 +1,4 @@
 class Cart < ActiveRecord::Base
-  # attr_accessible :title, :body
   # has_many :line_items, :as => :line
   has_many :line_items
 
@@ -20,6 +19,17 @@ class Cart < ActiveRecord::Base
         line_item = line_items.build(item_id: po_line.item_id,
           quantity: issue_quantity, refer_line_id: po_line.id, price: po_line.price)
       end
+    end
+  end
+
+  def issue_refer_line_item
+    # issue refer po's line items, after save; and then clear cart
+    line_items.each do |line|
+      # logger.debug "=====refer_line_id== #{line.refer_line_id}"
+      po_line = LineItem.find(line.refer_line_id)
+      po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
+
+      line.update_attribute(:cart_id, nil)
     end
   end
 

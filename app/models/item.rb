@@ -3,7 +3,7 @@ class Item < ActiveRecord::Base
     :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate
   default_scope :order => 'name'
 
-  has_many :line_items, as: :line
+  has_many :line_items
   has_many :orders, :through => :line_items
   has_many :prices
 

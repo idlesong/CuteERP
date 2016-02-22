@@ -19,6 +19,25 @@ class ApplicationController < ActionController::Base
       cart
     end
 
+    def current_cart_currency
+      session[:cart_currency]
+    end
+
+    def current_cart_exchange_rate
+      session[:cart_exchange_rate] = 6.5 if session[:cart_exchange_rate].nil?
+      session[:cart_exchange_rate]
+    end
+
+    def current_cart_order
+      if(session[:cart_order_type] == "SalesOrder")
+        # SalesOrder.find(session[:cart_order_id])
+        session[:cart_order_type]
+      else
+        # Order.find(session[:cart_order_id])
+        session[:cart_order_type]
+      end
+    end
+
     def current_customer
       Customer.find(session[:customer_id])
     rescue ActiveRecord::RecordNotFound
@@ -30,10 +49,11 @@ class ApplicationController < ActionController::Base
     def current_user
       @current_user ||= User.find(session[:user_id]) if session[:user_id]
     end
-    
-    helper_method :current_user
 
+    helper_method :current_cart_currency
+    helper_method :current_cart_exchange_rate
     helper_method :current_customer
+    helper_method :current_user
 
   protected
     def authorize

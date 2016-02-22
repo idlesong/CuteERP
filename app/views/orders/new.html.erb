@@ -1,51 +1,5 @@
-<%= render 'shared/customers_modal' %>
-<%= render 'shared/products_modal' %>
-
 <h1> Customer Order </h1>
-<div id="orderHeaderDiv">
-	<%= render partial: 'orderHeader' %>
-</div>
+<%= render 'shared/customers_modal' %>
+<%= render 'shared/products_modal',:locals => { :order => @order} %>
 
-<div class="panel panel-default">
-	<div class="panel-heading"> <h3 class="panel-title">Order lineitems</h3></div>
-	<div class="panel-body">
-		<a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-		data-target="#productsModal"> Add products to order </a>
-		<div id="cart">
-			<%= render @cart %>
-		</div>
-	</div>
-  <div class="panel-footer">
-		<%= form_for(@order) do |f| %>
-		  <% if @order.errors.any? %>
-		    <div id="error_explanation" class="alert alert-danger" role="alert">
-		      <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
-
-		      <ul>
-		      <% @order.errors.full_messages.each do |msg| %>
-		        <li><%= msg %></li>
-		      <% end %>
-		      </ul>
-		    </div>
-		  <% end %>
-
-	    <%= f.hidden_field :name %>
-	    <%= f.hidden_field :address %>
-	    <%= f.hidden_field :telephone %>
-	    <%= f.hidden_field :ship_contact %>
-	    <%= f.hidden_field :ship_address %>
-	    <%= f.hidden_field :ship_telephone %>
-	    <%= f.hidden_field :pay_type %>
-
-			<div class="actions">
-				Customer PO#:<%= f.text_field :order_number,
-					:value => "#{@order.customer.short_name}#{@order.generate_order_number}",
-					:placeholder => "#{@order.customer.name}#{DateTime.now.to_date}",:size => 20 %>
-				Received date#:<%= DateTime.now.to_date %>
-		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
-				Exchange rate:
-				<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>
-		  </div>
-		<% end %>
-	</div>
-</div>
+<%= render :partial => 'form' %>
