@@ -10,9 +10,10 @@ class Order < ActiveRecord::Base
 
   validates :name, :address, :pay_type, :presence => true
   validates :pay_type, :inclusion => PAYMENT_TYPES
-
   validates :line_items, :presence => true
   validates :customer_id, :presence => true
+  validates :exchange_rate, :presence => true #:if => oversea_customer?
+
 
   def initialize_order_header(new_customer)
     self.customer = new_customer
@@ -39,7 +40,7 @@ class Order < ActiveRecord::Base
   def cancel
   end
 
-  # before_update :ensure_not_issued_by_sales_order
+  before_update :ensure_not_issued_by_sales_order
   before_destroy :ensure_not_issued_by_sales_order
 
  private

@@ -95,7 +95,11 @@ class LineItemsController < ApplicationController
     @line_item = LineItem.find(params[:id])
     @line_item.destroy
 
-    @cart = current_cart unless session[:cart_order_type] == "SalesOrder"
+    if session[:cart_order_type] == "SalesOrder"
+      @cart = current_issue_cart
+    else
+      @cart = current_cart
+    end
 
     respond_to do |format|
       format.html { redirect_to line_items_url }

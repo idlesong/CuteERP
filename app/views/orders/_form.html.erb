@@ -6,7 +6,7 @@
 	<div class="panel-heading"> <h3 class="panel-title">Order cart lineitems</h3></div>
 	<div class="panel-body">
 		<div id="cart">
-			<%= render @cart %>  
+			<%= render(@cart, :input_exchange_rate => 1) %>	
 		</div>
 	</div>
   <div class="panel-footer">
@@ -39,8 +39,10 @@
 				Received date#:<%= DateTime.now.to_date %>
 		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
         <% if @order.customer.currency == 'USD'%>
-				Exchange rate:
-				<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any' %>
+					Exchange rate:
+					<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :id =>'exchange_rate' %>
+				<% else %>
+	    		<%= f.hidden_field :exchange_rate %>
         <% end %>
 		  </div>
 		<% end %>

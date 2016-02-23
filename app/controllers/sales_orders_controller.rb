@@ -29,12 +29,15 @@ class SalesOrdersController < ApplicationController
     # @orders = Order.all
     @customer = Customer.find( params[:customer_id])
     @orders = Order.where(customer_id: params[:customer_id])
-    @cart = current_issue_cart
-
-    session[:cart_order_type] = "SalesOrder"
-    session[:cart_order_id] = @sales_order.id
 
     @sales_order.initialize_order_header(@customer)
+
+    @cart = current_issue_cart
+    session[:cart_order_type] = "SalesOrder"
+    # session[:cart_order_id] = @sales_order.id
+    session[:cart_currency] = @sales_order.customer.currency
+    session[:exchange_rate] = @sales_order.exchange_rate
+
 
     respond_to do |format|
       format.html # new.html.erb
@@ -47,7 +50,9 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.find(params[:id])
 
     session[:cart_order_type] = "SalesOrder"
-    session[:cart_order_id] = @sales_order.id
+    # session[:cart_order_id] = @sales_order.id
+    session[:cart_currency] = @sales_order.customer.currency
+    session[:exchange_rate] = @sales_order.exchange_rate
   end
 
   # GET /sales_orders/1/confirm
@@ -65,14 +70,6 @@ class SalesOrdersController < ApplicationController
     respond_to do |format|
       if @sales_order.save
 
-        # issue refer po's line items, after save
-        # current_issue_cart.line_items.each do |line|
-        #   # logger.debug "=====refer_line_id== #{line.refer_line_id}"
-        #   po_line = LineItem.find(line.refer_line_id)
-        #   po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
-        #
-        #   line.update_attribute(:cart_id, nil)
-        # end
         current_issue_cart.issue_refer_line_item
 
         Cart.destroy(session[:issue_cart_id])

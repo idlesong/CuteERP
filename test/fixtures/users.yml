@@ -10,3 +10,13 @@ two:
   name: MyString
   hashed_password: MyString
   salt: MyString
+
+admin:
+  name: wang
+  hashed_password: rorweberp
+  salt: <%= SALT %>
+
+idlesong:
+  name: idlesong
+  hashed_password: rorweberp
+  salt: <%= SALT %>    

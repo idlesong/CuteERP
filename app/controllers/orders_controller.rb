@@ -41,6 +41,7 @@ class OrdersController < ApplicationController
     @order.initialize_order_header(current_customer)
 
     @cart = current_cart
+    session[:cart_order_type] = "Order"
     session[:cart_currency] = @order.customer.currency
     session[:exchange_rate] = @order.exchange_rate
 
@@ -61,6 +62,7 @@ class OrdersController < ApplicationController
     @cart = current_cart
     @cart.line_items = @order.line_items
 
+    session[:cart_order_type] = "Order"
     session[:cart_currency] = @order.customer.currency
     session[:exchange_rate] = @order.exchange_rate
   end

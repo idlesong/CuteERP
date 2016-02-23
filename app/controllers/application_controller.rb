@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
     end
 
     def current_cart_exchange_rate
-      session[:cart_exchange_rate] = 6.5 if session[:cart_exchange_rate].nil?
+      session[:cart_exchange_rate] = 1 if session[:cart_exchange_rate].nil?
       session[:cart_exchange_rate]
     end
 

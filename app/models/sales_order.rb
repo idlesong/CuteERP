@@ -10,6 +10,7 @@ class SalesOrder < ActiveRecord::Base
     :ship_telephone, :presence => true
   validates :customer_id, :payment_term, :presence => true
   validates :line_items, :presence => true
+  validates :exchange_rate, :presence => true #:if => usd_currency_customer?
 
   def add_line_items_from_issue_cart(cart)
     cart.line_items.each do |line|
