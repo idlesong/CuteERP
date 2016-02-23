@@ -19,8 +19,9 @@ class SalesOrder < ActiveRecord::Base
   end
 
   def generate_order_number
-    next_id=SalesOrder.maximum(:id).next
-    order_number = DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s
+    next_id=1
+    next_id=SalesOrder.maximum(:id).next if SalesOrder.exists?
+    order_number = DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
   end
 
   def initialize_order_header(new_customer)

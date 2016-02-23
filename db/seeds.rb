@@ -81,7 +81,8 @@ line_srt3210 = cart.add_item(srt3210.id, 490, 10)
 line_srt3210.save
 
 # customer_orders
-onreal_po = onreal.orders.build(order_number: 'Onreal20160101',name:'Tang',address:'Shenzhen', pay_type:'COD')
+onreal_po = onreal.orders.build(order_number: 'Onreal20160101',name:'Tang',
+		address:'Shenzhen', pay_type:'COD', exchange_rate:1)
 onreal_po.add_line_items_from_cart(cart)
 onreal_po.save
 
@@ -92,17 +93,14 @@ issue_cart = Cart.create
 issued_line1 = issue_cart.issue_line_item(po_line_sct3258p, 260)
 issued_line1.save
 
-issue_cart.line_items.each do |line|
-	po_line = LineItem.find(line.refer_line_id)
-	po_line.update_attribute(:quantity_issued, line.quantity)
-end
-
 sales_order_onreal = onreal.sales_orders.build(serial_number: 'SO2016001',
 	bill_contact:'Tang',bill_address:'Shenzhen', bill_telephone:'0755-68888888',
 	ship_contact:'Tang',ship_address:'Shenzhen', ship_telephone:'0755-68888888',
-	payment_term:'COD')
+	payment_term:'COD', exchange_rate: 7)
 sales_order_onreal.add_line_items_from_issue_cart(issue_cart)
 sales_order_onreal.save
+
+issue_cart.issue_refer_line_items
 
 
 

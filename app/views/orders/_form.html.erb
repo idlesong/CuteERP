@@ -6,7 +6,7 @@
 	<div class="panel-heading"> <h3 class="panel-title">Order cart lineitems</h3></div>
 	<div class="panel-body">
 		<div id="cart">
-			<%= render(@cart, :input_exchange_rate => 1) %>	
+			<%= render(@cart, :input_exchange_rate => 1) %>
 		</div>
 	</div>
   <div class="panel-footer">
@@ -33,9 +33,7 @@
 
       <% @order.exchange_rate = current_cart_exchange_rate if @order.exchange_rate.nil? %>
 			<div class="actions">
-				Customer PO#:<%= f.text_field :order_number,
-					:value => "#{@order.customer.short_name}#{@order.generate_order_number}",
-					:placeholder => "#{@order.customer.name}#{DateTime.now.to_date}",:size => 20 %>
+				Customer PO#:<%= f.text_field :order_number,:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
 		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
         <% if @order.customer.currency == 'USD'%>

@@ -1,8 +1,9 @@
 <p id="notice"><%= notice %></p>
-<h4> 客户：<%= @customer.name %> 地址:<%= @customer.address %>
-   电话：<%= @customer.telephone %> 联系窗口：<%= @customer.contact %>
-   <%= link_to('wiki', post_path(@customer.name,:query => "url")) %>
-  <%= link_to 'edit', edit_customer_path(@customer) %></h4>
+
+<h5> 客户：<%= @customer.name %> ， 地址:<%= @customer.address %>
+   ， 电话：<%= @customer.telephone %>， 联系人：<%= @customer.contact %>
+  <%= link_to 'edit', edit_customer_path(@customer) %></h5>
+
 
 <h3> Contacts
 <button type="button" class="btn btn-mini btn-primary ajax-new" data= <%= @customer.id %> id="/contacts">new contact</button>
@@ -29,33 +30,6 @@
       <td><%= best_in_place contact, :email, :type => :input %></td>
       <td><%= best_in_place contact, :note, :type => :input %></td>
     </tr>
-  <% end %>
-</table>
-
-<h3>Pries</h3>
-<table class="table table-striped table-bordered">
-  <thead>
-    <tr>
-      <th>Price id</th>
-      <th>Item name</th>
-      <th>part number</th>
-      <th>price</th>
-      <th>payment terms</th>
-      <th>codition</th>
-      <th>status</th>
-    </tr>
-  </thead>
-
-  <% @prices.each do |price| %>
-  <tr>
-    <td><%= link_to price.id, price_path(price) %></td>
-    <td><%= price.item.name %> </td>
-    <td><%= price.item.partNo %></td>
-    <td><%= price.item.price %></td>
-    <td><%= price.payment_terms %></td>
-    <td><%= price.condition %></td>
-    <td>Aproved</td>
-  </tr>
   <% end %>
 </table>
 
@@ -87,6 +61,8 @@
     </tr>
   <% end %>
 </table>
+
+<%= render("shared/sales_orders_list") %>
 
 <h3>Opportunities
 <button type="button" class="btn btn-mini btn-primary ajax-new" data= <%= @customer.id %> id="/opportunities">new opportunity</button>

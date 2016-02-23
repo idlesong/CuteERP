@@ -17,12 +17,13 @@
       <%= f.label :title, :class => 'control-label' %>
       <%= f.text_field :title, :class => 'text_field' %>
       <%= f.label :subject, :class => 'control-label' %>
-      <%= f.select(:subject,[['Suppliers'],['Products'],['Customers'],['Marketing'],['R&D'],['Sales'],['Others']]) %>
+      <%= f.select(:subject,[['Suppliers'],['Products'],['Customers'],
+                            ['Marketing'],['R&D'],['Sales'],['Others']]) %>
       <%= f.label :internal_url, :class => 'control-label' %>
       <%= f.text_field :internal_url, :class => 'text_field' %>
       </br>
       <div class="">
-        <%= f.text_area :content, :rows =>50, :cols => 150 %>
+        <%= f.text_area :content, :rows =>50, :cols => 148 %>
       </div>
 
       <div class="field">

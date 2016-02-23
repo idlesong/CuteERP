@@ -1,6 +1,6 @@
-<p id="notice"><%= notice %></p>
-<div class="page-header"><h1> Linsting sales orders(in lineitems) </h1></div>
-<table class="table">
+<!-- Listing sales orders -->
+<h3> Sales Orders List </h3>
+<table class="table table-hover table-bordered">
   <thead>
     <tr>
       <th><h4>SO#</h4></th>
@@ -20,11 +20,11 @@
           currency_unit = '¥'
         else
           currency_unit = '$'
-        end
-    %>
-    <% unless order.line_items.nil? %>
+        end %>
+
+    <% if not order.line_items.nil? then %>
       <% order.line_items.each do |line_item|%>
-        <% order_number = find_order_number_from_reference(line_item.refer_line_id) %>
+      <% order_number = find_order_number_from_reference(line_item.refer_line_id) %>
         <tr>
           <td>#<%= link_to(order.id,sales_order_path(order.id)) %></td>
           <td><%= order.customer.short_name %></td>
@@ -42,11 +42,9 @@
             <% else %>
               <%= link_to('ship now', confirm_sales_order_path(order.id)) %>
             <% end %>
-          <td> </td>
+          </td>
         </tr>
       <% end %>
     <% end %>
   <% end %>
 </table>
-
-</br>

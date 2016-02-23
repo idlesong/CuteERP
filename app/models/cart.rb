@@ -22,7 +22,7 @@ class Cart < ActiveRecord::Base
     end
   end
 
-  def issue_refer_line_item
+  def issue_refer_line_items
     # issue refer po's line items, after save; and then clear cart
     line_items.each do |line|
       # logger.debug "=====refer_line_id== #{line.refer_line_id}"

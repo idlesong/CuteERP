@@ -82,7 +82,10 @@
     	<% end %>
 
 	    <tr><td colspan="7"> <strong>Remarks:</strong>
-         Exchange rate:<%= @sales_order.exchange_rate %> </td></tr>
+         <% if currency_unit == '$' %>
+           Exchange rate:<%= @sales_order.exchange_rate %>
+         <% end %>
+         </td></tr>
     </table>
   </div>
 

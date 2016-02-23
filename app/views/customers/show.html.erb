@@ -1,6 +1,8 @@
 <%- model_class = Customer -%>
 <div class="page-header">
-  <h1><%=t '.title', :default => model_class.model_name.human.titleize %>:<%= @customer.name %></h1>
+  <h1><%=t '.title', :default => model_class.model_name.human.titleize %>:<%= @customer.name %>
+    <%= link_to('(wiki)', post_path(@customer.name,:query => "url")) %>
+  </h1>
 </div>
 
 

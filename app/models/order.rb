@@ -22,6 +22,8 @@ class Order < ActiveRecord::Base
     self.address   = self.ship_address = new_customer.address
     self.telephone = self.ship_telephone = new_customer.telephone
     self.pay_type  = new_customer.payment
+
+    self.order_number = self.generate_order_number
   end
 
   def add_line_items_from_cart(cart)
@@ -32,8 +34,9 @@ class Order < ActiveRecord::Base
   end
 
   def generate_order_number
-    next_id=Order.maximum(:id).next
-    order_number = DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s
+    next_id=1
+    next_id=Order.maximum(:id).next if Order.exists?
+    order_number = customer.short_name + DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
   end
 
   # Cancel issued order left quantity

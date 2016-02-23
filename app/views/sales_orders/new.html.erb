@@ -15,7 +15,7 @@
             </td>
             <td>
               <h4 class="text-right"> Date: <%= DateTime.now.to_date %></h4>
-              <h4 class="text-right"> SO#:<%= @sales_order.generate_order_number %></h4>
+              <h4 class="text-right"> SO#:<%= @sales_order.serial_number %></h4>
               <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
             </td>
           </tr>
@@ -105,9 +105,13 @@
       <%= f.hidden_field :ship_telephone %></td></tr>
       <%= f.hidden_field :payment_term %>
       <%= f.hidden_field :serial_number %>
+
+      <% @sales_order.exchange_rate = current_cart_exchange_rate if @sales_order.exchange_rate.nil? %>
       <% if @sales_order.customer.currency == "USD" %>
         <%= f.label :exchange_rate %>
         <%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>
+      <% else %>
+        <%= f.hidden_field :exchange_rate %>
       <% end %>
 
       <p class="text-center"> <%= f.submit "Place Sales Order", :class=>"btn btn-primary" %> </p>

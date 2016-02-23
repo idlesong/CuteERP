@@ -70,7 +70,7 @@ class SalesOrdersController < ApplicationController
     respond_to do |format|
       if @sales_order.save
 
-        current_issue_cart.issue_refer_line_item
+        current_issue_cart.issue_refer_line_items
 
         Cart.destroy(session[:issue_cart_id])
         session[:issue_cart_id] = nil
