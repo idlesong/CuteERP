@@ -31,6 +31,17 @@ class LineItem < ActiveRecord::Base
 
   def total_currency_price(exchange_rate, customer_currency)
     unit_price = show_currency_price(exchange_rate, customer_currency)
-  	total_amount = unit_price * quantity    
+  	total_amount = unit_price * quantity
   end
+
+  before_destroy :ensure_not_used_by_locked_orders
+
+ private
+  # ensure ensure this order is not issued by any of the sales order
+  def ensure_not_used_by_locked_orders
+    return false if quantity_issued > 0 or !refer_line_id.nil?
+
+    return true
+  end
+
 end
