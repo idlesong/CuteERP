@@ -60,16 +60,13 @@ see issues
 
 1. Orders(customer order)
 - filters for sales order and customer order(big table)
-- don't allow issue sales order when the cart is empty
-- don't allow issue sales order when the bill to or ship to info is empty
 
+- sales order should merge same items line like order does
 
 1. Opportunities
 - status mark default uses last status
 - todo status using auto; with label color
-- customers/show: beautify opportunity info & add edit link
 - Opportunities: priority force to integer
-- delete opportunity 应该同时删除，相应的oppostatus
 
 1. documents(posts)
 - assign correct subject in customer wiki, product wiki creation

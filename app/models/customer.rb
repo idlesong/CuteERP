@@ -1,5 +1,6 @@
 class Customer < ActiveRecord::Base
-  attr_accessible :address, :balance, :contact, :name, :since, :telephone, :payment ,:currency
+  attr_accessible :address, :balance, :contact, :name, :since, :telephone,
+                  :payment ,:currency, :ship_contact, :ship_address, :ship_telephone
 
   CURRENCY_TYPES = ['RMB', 'USD']
 
@@ -30,6 +31,7 @@ class Customer < ActiveRecord::Base
     end
   end
 
+  before_save  :copy_ship_to_from_bill_to
   before_destroy :ensure_not_used_by_others
 
  private
@@ -41,6 +43,12 @@ class Customer < ActiveRecord::Base
       errors.add(:base, 'orders,sales_orders,contacts,opportunities or prices exist')
   		return false
   	end
+  end
+
+  def copy_ship_to_from_bill_to
+    self.ship_contact = contact if ship_contact.blank?
+    self.ship_address = address if ship_address.blank?
+    self.ship_telephone = telephone if ship_telephone.blank?
   end
 
 end

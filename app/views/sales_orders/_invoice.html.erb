@@ -38,42 +38,50 @@
           </div>
         </div>
 
+        <div class="panel panel-default">
+          <!-- <div class="panel-heading"><h5>Order Details<h5></div> -->
+          <div class="panel-body">
+            <h5> Order details </h5>
+            <table class="table">
+            	<thead>
+            		<tr>
+            			<th><h4>#</h4></th>
+            			<th><h4>Product name</h4></th>
+            			<th><h4>PartNo.</h4></th>
+            			<th><h4>Qty</h4></th>
+            			<th><h4>Price</h4></th>
+            			<th><h4>Suble Total</h4></th>
+            			<th><h4>Remark</h4></th>
+            		</tr>
+            	</thead>
+              <% if @sales_order.customer.currency == 'RMB'
+                    currency_unit = '¥'
+                  else
+                    currency_unit = '$'
+                  end %>
+            	<% @sales_order.line_items.each do |line_item| %>
+            		<tr>
+            			<td>1 </td>
+            			<td><%= line_item.item.name %> </td>
+            			<td><%= line_item.item.partNo %> </td>
+            			<td><%= line_item.quantity %> </td>
+            			<% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
+            			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+            	    <td><%= number_to_currency(line_item.total_currency_price(@sales_order.exchange_rate,
+            								@sales_order.customer.currency), unit: currency_unit) %></td>
+            			<td></td>
+            		</tr>
+            	<% end %>
 
-        <div class="cart_title"> Order details </div>
-        <table class="table">
-        	<thead>
-        		<tr>
-        			<th><h4>#</h4></th>
-        			<th><h4>Product name</h4></th>
-        			<th><h4>PartNo.</h4></th>
-        			<th><h4>Qty</h4></th>
-        			<th><h4>Price</h4></th>
-        			<th><h4>Suble Total</h4></th>
-        		</tr>
-        	</thead>
-        	<%= render(@sales_order.line_items) %>
-        </table>
-
-        <div class="row text-right">
-          <div class="col-xs-2 col-xs-offset-8">
-            <p>
-              <strong>
-                TAX : <br>
-                Total : <br>
-              </strong>
-            </p>
-          </div>
-          <div class="col-xs-2">
-            <strong>
-              $1200.00 <br>
-              N/A <br>
-              $1200.00 <br>
-            </strong>
+        	    <tr><td colspan="7"> <strong>Remarks:</strong>
+                 <% if currency_unit == '$' %>
+                   Exchange rate:<%= @sales_order.exchange_rate %>
+                 <% end %>
+                 </td></tr>
+            </table>
           </div>
         </div>
-        <hr>
-        remarks:
-        <hr>
+        
         <div class="row">
           <div class="col-xs-6">
             <div class="panel panel-default">

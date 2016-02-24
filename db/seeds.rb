@@ -20,13 +20,13 @@ Item.delete_all
 
 digital_name = '数字对讲机基带信号处理芯片'
 sct3252p = Item.create({name: digital_name, description:'DPMR直通加中转（SCT3252P）',
-	partNo: 'SCT3252PN',package: 'LQFP100', price: 50.0, volume: 490})
+	partNo: 'SCT3252PN',package: 'LQFP100', price: 50.0, mop: 490})
 sct3252rn = Item.create({name: digital_name, description: 'DPMR直通加中转,模拟录音和高等级加密（SCT3252R）',
-	partNo: 'SCT3252RN', package: 'LQFP100', price: 50.0, volume: 490})
+	partNo: 'SCT3252RN', package: 'LQFP100', price: 50.0, mop: 490})
 sct3258p = Item.create({name: digital_name, description: 'DPMR直通加中转（SCT3258P）',
-	partNo: 'SCT3258PN',package: 'QFN64',price: 50.0, volume: 260})
+	partNo: 'SCT3258PN',package: 'QFN64',price: 50.0, mop: 260})
 srt3210 = Item.create({name: 'Analog WalkieTalkie BB',	description: 'DPMR直通加中转（SCT3252P）',
-	partNo: 'SRT3210', package: 'LQFP100', price: 10.0, volume: 490})
+	partNo: 'SRT3210', package: 'LQFP100', price: 10.0, mop: 490})
 
 #Customers
 Customer.delete_all

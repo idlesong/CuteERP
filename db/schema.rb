@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160217092526) do
+ActiveRecord::Schema.define(:version => 20160223090245) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -57,6 +57,9 @@ ActiveRecord::Schema.define(:version => 20160217092526) do
     t.text     "invoice_address"
     t.text     "deliver_address"
     t.string   "currency",        :default => "RMB"
+    t.string   "ship_contact"
+    t.text     "ship_address"
+    t.string   "ship_telephone"
   end
 
   create_table "items", :force => true do |t|

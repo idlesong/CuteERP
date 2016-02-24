@@ -1,8 +1,10 @@
-<p id="notice"><%= notice %></p>
+<% if notice %>
+  <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+<% end %>
 
-<h5> 客户：<%= @customer.name %> ， 地址:<%= @customer.address %>
-   ， 电话：<%= @customer.telephone %>， 联系人：<%= @customer.contact %>
-  <%= link_to 'edit', edit_customer_path(@customer) %></h5>
+<h5>发票地址:<%= @customer.address %>， 电话：<%= @customer.telephone %>， 联系人：<%= @customer.contact %></h5>
+<h5>仓库地址:<%= @customer.ship_address %>， 仓库电话：<%= @customer.ship_telephone %>， 收货人：<%= @customer.ship_contact %>
+<%= link_to 'edit', edit_customer_path(@customer) %></h5>
 
 
 <h3> Contacts
@@ -29,35 +31,6 @@
       <td><%= best_in_place contact, :telephone, :type => :input %></td>
       <td><%= best_in_place contact, :email, :type => :input %></td>
       <td><%= best_in_place contact, :note, :type => :input %></td>
-    </tr>
-  <% end %>
-</table>
-
-<h3>Orders</h3>
-<table class="table table-striped table-bordered">
-  <thead>
-    <tr>
-      <th>CustomerID</th>
-      <th>Name</th>
-      <th>Address</th>
-      <th>Email</th>
-      <th>Pay type</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-
-  <% @orders.each do |order| %>
-    <tr>
-      <td><%= order.customer.short_name %></td>
-      <td><%= order.name %></td>
-      <td><%= order.address %></td>
-      <td><%= order.email %></td>
-      <td><%= order.pay_type %></td>
-      <td><%= link_to 'Show', order %></td>
-      <td><%= link_to 'Edit', edit_order_path(order) %></td>
-      <td><%= link_to 'Destroy', order, method: :delete, data: { confirm: 'Are you sure?' } %></td>
     </tr>
   <% end %>
 </table>

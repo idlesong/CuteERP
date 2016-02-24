@@ -19,7 +19,7 @@ class CustomersController < ApplicationController
     @contacts = Contact.where("customer_id = ?", @customer.id)
     @orders = Order.where("customer_id = ?", @customer.id)
     @sales_orders = SalesOrder.where("customer_id = ?", @customer.id)
-    @opportunities = Opportunity.where("customer_id = ?", @customer.id)
+    @opportunities = Opportunity.where("customer_id = ?", @customer.id).order("created_at")
     @oppostatuses = Oppostatus.all
     @users = User.all
     @prices = Price.where("customer_id = ?", @customer.id)
@@ -39,8 +39,13 @@ class CustomersController < ApplicationController
     @customer = Customer.new
 
     respond_to do |format|
-      format.html # new.html.erb
-      format.js
+      if(params[:simplify] =='yes')
+        format.html {render "new_simplify"}
+        format.js
+      else
+        format.html # new.html.erb
+        format.js
+      end
     end
   end
 
@@ -53,7 +58,6 @@ class CustomersController < ApplicationController
   # POST /customers.json
   def create
     @customer = Customer.new(params[:customer])
-    #customer add new order.
 
     respond_to do |format|
       if @customer.save

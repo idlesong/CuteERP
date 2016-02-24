@@ -14,6 +14,20 @@
   <dd><%= @item.imageURL %></dd>
   <dt><strong><%= model_class.human_attribute_name(:price) %>:</strong></dt>
   <dd><%= @item.price %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:description) %>:</strong></dt>
+  <dd><%= @item.description %></dd>
+  <dt><strong>volume:</strong></dt>
+  <dd><%= @item.volume %></dd>
+  <dt><strong>weight:</strong></dt>
+  <dd><%= @item.weight %></dd>
+  <dt><strong>MOQ(Minimum Order Quantity)::</strong></dt>
+  <dd><%= @item.moq %></dd>
+  <dt><strong>MPQ(Minimum Packing Quantity):</strong></dt>
+  <dd><%= @item.mop %></dd>
+  <dt><strong>RMB tax rate:</strong></dt>
+  <dd><%= @item.rmb_tax_rate %></dd>
+  <dt><strong>USD tax rate:</strong></dt>
+  <dd><%= @item.usd_tax_rate %></dd>  
 </dl>
 
 <div class="form-actions">

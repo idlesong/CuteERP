@@ -27,9 +27,12 @@ class SalesOrder < ActiveRecord::Base
   def initialize_order_header(new_customer)
     self.customer = new_customer
     self.payment_term = new_customer.payment
-    self.bill_contact   = self.ship_contact = new_customer.contact
-    self.bill_address   = self.ship_address = new_customer.address
-    self.bill_telephone = self.ship_telephone = new_customer.telephone
+    self.bill_contact   = new_customer.contact
+    self.bill_address   = new_customer.address
+    self.bill_telephone = new_customer.telephone
+    self.ship_contact   = new_customer.ship_contact
+    self.ship_address   = new_customer.ship_address
+    self.ship_telephone = new_customer.ship_telephone
 
     self.serial_number = self.generate_order_number
   end

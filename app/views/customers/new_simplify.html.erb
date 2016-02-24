@@ -1,0 +1,43 @@
+<%- model_class = Customer -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => [:'helpers.titles.new', 'New %{model}'], :model => model_class.model_name.human.titleize %></h1>
+</div>
+
+<%= form_for @customer, :html => { :class => 'form-horizontal' } do |f| %>
+  <div class="control-group">
+    <%= f.label :name, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :name, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :address, :class => 'control-label'%>
+    <div class="controls">
+      <%= f.text_area :address, :class => 'text_area',:rows=> 4, placeholder:'Please enter address'  %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :contact, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :contact, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label :telephone, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :telephone, :class => 'text_field' %>
+    </div>
+  </div>
+
+  <%= f.hidden_field :since, :value => DateTime.now %>
+  <%= f.hidden_field :currency, :value => 'RMB' %>
+  <%= f.hidden_field :payment, :value => 'T.T in advance'%>
+  <%= f.hidden_field :balance, :value => 0 %>
+
+  </br>
+  <div class="form-actions">
+    <%= f.submit nil, :class => 'btn btn-primary' %>
+    <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+    customers_path, :class => 'btn' %>
+  </div>
+<% end %>

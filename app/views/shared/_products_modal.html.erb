@@ -24,8 +24,8 @@
               <td><%= item.package %></td>
               <td><%= current_customer.get_special_price(item)%></td>
               <%= form_tag(line_items_path(:item_id => item), remote: true) do %>
-              <td><%= text_field_tag(:quantity, item.volume, placeholder: item.volume) %></td>
-              <td><%= submit_tag("Add item") %></td>
+                <td><%= text_field_tag(:quantity, item.mop, placeholder: item.mop, size:10) %></td>
+                <td><%= submit_tag("Add item") %></td>
               <% end %>
             </tr>
             <% end %>

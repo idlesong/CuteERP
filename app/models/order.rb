@@ -18,11 +18,14 @@ class Order < ActiveRecord::Base
   def initialize_order_header(new_customer)
     self.customer = new_customer
     # set bill_to and ship_to contact by default, then confirm it in sales order
-    self.name  = self.ship_contact = new_customer.contact
-    self.address   = self.ship_address = new_customer.address
-    self.telephone = self.ship_telephone = new_customer.telephone
-    self.pay_type  = new_customer.payment
+    self.name      = new_customer.contact
+    self.address   = new_customer.address
+    self.telephone = new_customer.telephone
+    self.ship_contact = new_customer.ship_contact
+    self.ship_address = new_customer.ship_address
+    self.ship_telephone = new_customer.ship_telephone
 
+    self.pay_type  = new_customer.payment
     self.order_number = self.generate_order_number
   end
 
