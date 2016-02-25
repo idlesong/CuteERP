@@ -72,9 +72,19 @@
     </div>
   </div>
 
+  <div class="control-group">
+    <%= f.label :assembled, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :assembled, :class => 'text_field' %>
+    </div>
+  </div>
+
+  </br>
   <div class="form-actions">
     <%= f.submit nil, :class => 'btn btn-primary' %>
     <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
                 items_path, :class => 'btn' %>
   </div>
+
+
 <% end %>

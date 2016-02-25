@@ -2,13 +2,27 @@ class Cart < ActiveRecord::Base
   # has_many :line_items, :as => :line
   has_many :line_items
 
-  def add_item(item_id, item_quantity, price)
-  	current_item = line_items.where(:item_id => item_id).first
+  def add_item(item_id, item_addition_id, item_suffix, item_quantity, price)
+    item = Item.find(item_id)
+    if item_addition_id.nil?
+      full_part_number = item.partNo
+      full_name = item.name
+      price = item.price
+    else
+      addition = Item.find(item_addition_id)
+      item_suffix = '' if item_suffix == '-' or item_suffix.nil?
+      full_part_number = item.partNo + addition.partNo + item_suffix
+      full_part_number[0, 1]='' if addition.partNo == 'D'      
+      full_name = item.name + ':' + item.description + ',' + addition.name
+      price = price + addition.price
+    end
+
+  	current_item = line_items.where(:full_part_number => full_part_number).first
   	if current_item
   		current_item.quantity += item_quantity
   	else
-  		current_item = line_items.build(:item_id => item_id,
-        :quantity => item_quantity, :price => price)
+  		current_item = line_items.build(:item_id => item_id, :full_part_number => full_part_number,
+        :full_name => full_name, :quantity => item_quantity, :price => price)
   	end
   	current_item
   end
@@ -17,6 +31,7 @@ class Cart < ActiveRecord::Base
     unless line_items.where(refer_line_id: po_line.id).exists? then
       if issue_quantity <= po_line.quantity - po_line.quantity_issued
         line_item = line_items.build(item_id: po_line.item_id,
+          full_part_number: po_line.full_part_number, full_name: po_line.full_name,
           quantity: issue_quantity, refer_line_id: po_line.id, price: po_line.price)
       end
     end

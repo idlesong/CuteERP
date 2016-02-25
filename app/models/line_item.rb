@@ -1,6 +1,6 @@
 class LineItem < ActiveRecord::Base
   attr_accessible :cart_id, :item_id, :quantity, :order_id,
-      :quantity_issued, :refer_line_id, :price
+      :quantity_issued, :refer_line_id, :price, :full_part_number, :full_name
 
   # validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0.01}
   # validates :quantity,:presence => true, :numericality => {:greater_than_or_equal_to => 0.01}

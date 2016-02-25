@@ -20,8 +20,8 @@
 	<% @cart.line_items.each do |line_item| %>
 		<tr>
 			<td>1 </td>
-			<td><%= line_item.item.name %> </td>
-			<td><%= line_item.item.partNo %> </td>
+			<td><%= line_item.full_name %> </td>
+			<td><%= line_item.full_part_number %> </td>
 			<td><%= line_item.quantity %> </td>
 			<% line_price = line_item.show_currency_price(current_cart_exchange_rate, current_cart_currency) %>
 			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>

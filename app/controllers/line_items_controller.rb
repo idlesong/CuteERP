@@ -56,7 +56,8 @@ class LineItemsController < ApplicationController
       item = Item.find(params[:item_id])
       # logger.debug "=====quantity== #{params[:quantity]}"
       price = current_customer.get_special_price(item)
-      @line_item = @cart.add_item(item.id, params[:quantity].to_i, price)
+      # @line_item = @cart.add_item(item.id, params[:quantity].to_i, price)
+      @line_item = @cart.add_item(item.id, params[:addition], params[:suffix],params[:quantity].to_i, price)
     end
 
     respond_to do |format|

@@ -1,7 +1,10 @@
 class Item < ActiveRecord::Base
   attr_accessible :imageURL, :name, :package, :partNo, :price, :description,
-    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate
+    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate, :assembled
+
   default_scope :order => 'name'
+
+  FW_MARTK_TYPES = ["-","S"]
 
   has_many :line_items
   has_many :orders, :through => :line_items

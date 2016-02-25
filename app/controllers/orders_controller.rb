@@ -27,6 +27,8 @@ class OrdersController < ApplicationController
   # GET /orders/new.json
   def new
     @items = Item.all
+    @option_items = Item.where(:package => 'software')
+    @main_items = @items - @option_items
     @customers = Customer.all
 
     # switch current customer, clear cart and destroy associated line_items

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160223090245) do
+ActiveRecord::Schema.define(:version => 20160225025821) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -77,19 +77,22 @@ ActiveRecord::Schema.define(:version => 20160223090245) do
     t.integer  "mop"
     t.decimal  "rmb_tax_rate", :precision => 8, :scale => 2, :default => 0.17
     t.decimal  "usd_tax_rate", :precision => 8, :scale => 2, :default => 0.0
+    t.string   "assembled"
   end
 
   create_table "line_items", :force => true do |t|
     t.integer  "item_id"
-    t.datetime "created_at",                                                   :null => false
-    t.datetime "updated_at",                                                   :null => false
-    t.integer  "quantity",                                      :default => 1
-    t.integer  "quantity_issued",                               :default => 0
+    t.datetime "created_at",                                                    :null => false
+    t.datetime "updated_at",                                                    :null => false
+    t.integer  "quantity",                                       :default => 1
+    t.integer  "quantity_issued",                                :default => 0
     t.integer  "line_id"
     t.string   "line_type"
     t.integer  "refer_line_id"
-    t.decimal  "price",           :precision => 8, :scale => 2
+    t.decimal  "price",            :precision => 8, :scale => 2
     t.integer  "cart_id"
+    t.string   "full_part_number"
+    t.string   "full_name"
   end
 
   add_index "line_items", ["line_id"], :name => "index_line_items_on_line_id"

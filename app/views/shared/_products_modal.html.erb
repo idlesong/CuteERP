@@ -1,5 +1,5 @@
 <div class="modal fade" id="productsModal" tabindex="-1" role="dialog" aria-labelledby="productsModal" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -8,8 +8,10 @@
       <div class="modal-body">
         <table class="table table-striped">
           <tr>
-            <th>PartNo</th>
             <th>Name</th>
+            <th>PartNo</th>
+            <th></th>
+            <th></th>
             <th>Package</th>
             <th>Price</th>
             <th>Quantity</th>
@@ -17,15 +19,17 @@
           </tr>
 
           <% if not @customers.nil? then %>
-            <% @items.each do |item| %>
+            <% @main_items.each do |item| %>
             <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-              <td><%= item.partNo %></td>
-              <td><%= item.name %></td>
-              <td><%= item.package %></td>
-              <td><%= current_customer.get_special_price(item)%></td>
               <%= form_tag(line_items_path(:item_id => item), remote: true) do %>
+                <td><%= item.name %></td>
+                <td><strong><%= item.partNo %></strong></td>
+                <td><%= select_tag("addition", options_from_collection_for_select(@option_items, "id","partNo")) if item.assembled == 'yes'%></td>
+                <td><%= select_tag("suffix", options_for_select(Item::FW_MARTK_TYPES)) if item.assembled == 'yes'%></td>
+                <td><%= item.package %></td>
+                <td>¥<%= current_customer.get_special_price(item)%></td>
                 <td><%= text_field_tag(:quantity, item.mop, placeholder: item.mop, size:10) %></td>
-                <td><%= submit_tag("Add item") %></td>
+                <td><%= submit_tag("add") %></td>
               <% end %>
             </tr>
             <% end %>

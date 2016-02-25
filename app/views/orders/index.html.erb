@@ -32,7 +32,7 @@
         <td><%= order.customer.short_name %></td>
         <td><%= order.created_at.strftime("%F") %>
         <td><%= line_item.item.name %> </td>
-        <td><%= line_item.item.partNo %> </td>
+        <td><%= line_item.full_part_number %> </td>
         <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
         <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
         <td>x<%= line_item.quantity %> </td>

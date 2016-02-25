@@ -19,8 +19,8 @@
 	<% @order.line_items.each do |line_item| %>
 		<tr>
 			<td>1 </td>
-			<td><%= line_item.item.name %> </td>
-			<td><%= line_item.item.partNo %> </td>
+			<td><%= line_item.full_name %> </td>
+			<td><%= line_item.full_part_number %> </td>
 			<td><%= line_item.quantity %> </td>
 			<% line_price = line_item.show_currency_price(@order.exchange_rate, @order.customer.currency) %>
 			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>

@@ -4,6 +4,8 @@
   <tr>
     <th> ID </th>
     <th>Item</th>
+    <th>full PartNo.</th>
+    <th>full name</th>
     <th>Price</th>
     <th>Qty</th>
     <th>Qty issued</th>
@@ -20,13 +22,15 @@
   <tr>
     <td>#<%= line_item.id %></td>
     <td><%= line_item.item_id %></td>
+    <td><%= line_item.full_part_number %></td>
+    <td><%= line_item.full_name %></td>        
     <td><%= line_item.price %></td>
     <td>x<%= line_item.quantity %></td>
     <td><%= line_item.quantity_issued %></td>
     <td><%= line_item.line_type %></td>
     <td><%= line_item.line_id %></td>
     <td><%= line_item.refer_line_id %></td>
-    <td><%= line_item.cart_id %></td>    
+    <td><%= line_item.cart_id %></td>
     <td><%= link_to 'Show', line_item %></td>
     <td><%= link_to 'Edit', edit_line_item_path(line_item) %></td>
     <td><%= link_to 'Destroy', line_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>

@@ -19,14 +19,22 @@ idlesong = User.create(:name => 'idlesong',
 Item.delete_all
 
 digital_name = '数字对讲机基带信号处理芯片'
-sct3252p = Item.create({name: digital_name, description:'DPMR直通加中转（SCT3252P）',
-	partNo: 'SCT3252PN',package: 'LQFP100', price: 50.0, mop: 490})
-sct3252rn = Item.create({name: digital_name, description: 'DPMR直通加中转,模拟录音和高等级加密（SCT3252R）',
-	partNo: 'SCT3252RN', package: 'LQFP100', price: 50.0, mop: 490})
-sct3258p = Item.create({name: digital_name, description: 'DPMR直通加中转（SCT3258P）',
-	partNo: 'SCT3258PN',package: 'QFN64',price: 50.0, mop: 260})
-srt3210 = Item.create({name: 'Analog WalkieTalkie BB',	description: 'DPMR直通加中转（SCT3252P）',
-	partNo: 'SRT3210', package: 'LQFP100', price: 10.0, mop: 490})
+srt3210 = Item.create({name: 'Analog WalkieTalkie BB',	description: '模拟对讲机基带',
+	partNo: 'SRT3210', package: 'LQFP100', price: 12.0, mop: 490})
+sct3252p = Item.create({name: digital_name, description:'DPMR直通加中转',
+	partNo: 'SCT3252P',package: 'LQFP100', price: 40.0, mop: 490, assembled: 'yes'})
+sct3252r = Item.create({name: digital_name, description: 'DPMR直通加中转,模拟录音和高等级加密',
+	partNo: 'SCT3252R', package: 'LQFP100', price: 40.0, mop: 490, assembled: 'yes'})
+sct3258p = Item.create({name: digital_name, description: 'DPMR直通加中转',
+	partNo: 'SCT3258P',package: 'QFN64',price: 50.0, mop: 260, assembled: 'yes'})
+sct3258t = Item.create({name: digital_name, description: 'DMR直通加中转，DPMR直通加中转（全球通）',
+		partNo: 'SCT3258T',package: 'QFN64',price: 50.0, mop: 260, assembled: 'yes'})
+sct3258v = Item.create({name: digital_name, description: 'DPMR直通加中转',
+		partNo: 'SCT3258V',package: 'QFN64',price: 50.0, mop: 260, assembled: 'yes'})
+vocoder_d = Item.create({name: 'DVSI+2声码器', description: '',
+		partNo: 'D',package: 'software',price: 40, mop: 260, assembled: 'no'})
+vocoder_t = Item.create({name: '清华声码器V1.7', description: '',
+		partNo: 'T',package: 'software',price: 15, mop: 260, assembled: 'no'})
 
 #Customers
 Customer.delete_all
@@ -75,9 +83,9 @@ Order.delete_all
 onreal_sct3258p_price = onreal.prices.create(item_id: sct3258p.id, price: 38, payment_terms: 'T.T in advance')
 # cart & line_item
 cart = Cart.create
-line_sct3258p = cart.add_item(sct3258p.id, 260, 50)
+line_sct3258p = cart.add_item(sct3258p.id, vocoder_t.id, '-', 260, 40)
 line_sct3258p.save
-line_srt3210 = cart.add_item(srt3210.id, 490, 10)
+line_srt3210 = cart.add_item(srt3210.id, nil, nil,490, 10)
 line_srt3210.save
 
 # customer_orders
