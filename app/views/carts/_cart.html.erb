@@ -11,7 +11,11 @@
 			<th><h4>Remark</h4></th>
 		</tr>
 	</thead>
-	 <!-- input_exchange_rate  -->
+
+	<!-- input_exchange_rate  -->
+	<% exchange_rate = 1 if exchange_rate.nil? %>
+	<% currency	=	current_cart_currency if currency.nil?%>
+
 	<% 	if current_cart_currency == 'RMB'
         currency_unit = '¥'
     	else
@@ -23,10 +27,10 @@
 			<td><%= line_item.full_name %> </td>
 			<td><%= line_item.full_part_number %> </td>
 			<td><%= line_item.quantity %> </td>
-			<% line_price = line_item.show_currency_price(current_cart_exchange_rate, current_cart_currency) %>
+			<% line_price = line_item.show_currency_price(exchange_rate, currency) %>
 			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
-	    <td><%= number_to_currency(line_item.total_currency_price(current_cart_exchange_rate,
-								current_cart_currency), unit: currency_unit) %></td>
+	    <td><%= number_to_currency(line_item.total_currency_price(exchange_rate,
+								currency), unit: currency_unit) %></td>
 			<td><%= link_to 'Destroy', line_item, method: :delete, remote: true %></td>
 		</tr>
 	<% end %>
@@ -36,6 +40,6 @@
 		</tr>
 
 	<tr><td colspan="7"> <strong>Remarks:</strong>
-		<%= "Exchange rate: #{current_cart_exchange_rate}" if currency_unit == '$' %>
+		<%= "Exchange rate: #{exchange_rate}" if currency_unit == '$' %>
 	</td></tr>
 </table>

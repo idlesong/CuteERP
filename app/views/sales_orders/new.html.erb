@@ -82,7 +82,7 @@
 <div class="panel panel-default">
 	<div class="panel-body">
 		<div id="cart">
-			<%= render @cart %>
+			<%= render(@cart, :exchange_rate => @sales_order.exchange_rate)%>
 		</div>
     <%= form_for(@sales_order) do |f| %>
       <% if @sales_order.errors.any? %>
@@ -106,7 +106,7 @@
       <%= f.hidden_field :payment_term %>
       <%= f.hidden_field :serial_number %>
 
-      <% @sales_order.exchange_rate = current_cart_exchange_rate if @sales_order.exchange_rate.nil? %>
+      <% @sales_order.exchange_rate = 1 if @sales_order.exchange_rate.nil? %>
       <% if @sales_order.customer.currency == "USD" %>
         <%= f.label :exchange_rate %>
         <%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>

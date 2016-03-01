@@ -25,6 +25,7 @@ class Order < ActiveRecord::Base
     self.ship_address = new_customer.ship_address
     self.ship_telephone = new_customer.ship_telephone
 
+    self.exchange_rate = 1 #default for rmb
     self.pay_type  = new_customer.payment
     self.order_number = self.generate_order_number
   end
@@ -46,19 +47,12 @@ class Order < ActiveRecord::Base
   def cancel
   end
 
-  before_update :ensure_not_issued_by_sales_order
-  before_destroy :ensure_not_issued_by_sales_order
+  before_update :not_issued?
+  before_destroy :not_issued?
 
- private
   # ensure ensure this order is not issued by any of the sales order
-  def ensure_not_issued_by_sales_order
-    # line_items.each do |line|
-    #   if line.quantity_issued > 0
-    #     errors.add(:base, 'Order has been used by sales orders')
-    #     return false
-    #   end
-    # end
-    if line_items.where("quantity_issued > 0")
+  def not_issued?
+    if line_items.where("quantity_issued > 0").exists?
       errors.add(:base, 'Order has been used by sales orders')
       return false
     end

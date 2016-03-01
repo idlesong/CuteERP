@@ -2,15 +2,15 @@
 	<%= render partial: 'orderHeader' %>
 </div>
 
-<div class="panel panel-default">
-	<div class="panel-heading"> <h3 class="panel-title">Order cart lineitems</h3></div>
-	<div class="panel-body">
-		<div id="cart">
-			<%= render(@cart, :input_exchange_rate => 1) %>
+<%= form_for(@order) do |f| %>
+	<div class="panel panel-default">
+		<div class="panel-heading"> <h3 class="panel-title">Order cart lineitems</h3></div>
+		<div class="panel-body">
+			<div id="cart">
+				<%= render(@cart, :exchange_rate => @order.exchange_rate) %>
+			</div>
 		</div>
-	</div>
-  <div class="panel-footer">
-		<%= form_for(@order) do |f| %>
+		<div class="panel-footer">
 		  <% if @order.errors.any? %>
 		    <div id="error_explanation" class="alert alert-danger" role="alert">
 		      <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
@@ -31,7 +31,7 @@
 	    <%= f.hidden_field :ship_telephone %>
 	    <%= f.hidden_field :pay_type %>
 
-      <% @order.exchange_rate = current_cart_exchange_rate if @order.exchange_rate.nil? %>
+      <% @order.exchange_rate = 1 if @order.exchange_rate.nil? %>
 			<div class="actions">
 				Customer PO#:<%= f.text_field :order_number,:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
@@ -43,6 +43,6 @@
 	    		<%= f.hidden_field :exchange_rate %>
         <% end %>
 		  </div>
-		<% end %>
+		</div>
 	</div>
-</div>
+<% end %>

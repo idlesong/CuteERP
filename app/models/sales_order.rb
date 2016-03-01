@@ -34,6 +34,8 @@ class SalesOrder < ActiveRecord::Base
     self.ship_address   = new_customer.ship_address
     self.ship_telephone = new_customer.ship_telephone
 
+    self.exchange_rate  = 1  
+
     self.serial_number = self.generate_order_number
   end
 

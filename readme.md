@@ -60,7 +60,7 @@ see issues
 
 1. Orders(customer order)
 - filters for sales order and customer order(big table)
-
+- forbidden edit issued orders failed when the line not be issued
 - sales order should merge same items line like order does
 
 1. Opportunities
@@ -78,3 +78,5 @@ see issues
 - markets model? name, catalog(based on solution), market catalog label
 
 1. others
+- cart price with input
+- Opportunities market / catalog select with new

@@ -58,15 +58,35 @@ class OrdersController < ApplicationController
   def edit
     @order = Order.find(params[:id])
 
-    @items = Item.all
-    @customers = Customer.all
+    if @order.not_issued?
+      @items = Item.all
+      @option_items = Item.where(:package => 'software')
+      @main_items = @items - @option_items
+      @customers = Customer.all
 
-    @cart = current_cart
-    @cart.line_items = @order.line_items
+      @cart = current_cart
+      # @cart.line_items = @order.line_items
+      @cart.line_items.clear
+      @order.line_items.each do |line|
+        new_line = line.dup
+        new_line.line = nil
+        @cart.line_items << new_line
+      end
 
-    session[:cart_order_type] = "Order"
-    session[:cart_currency] = @order.customer.currency
-    session[:exchange_rate] = @order.exchange_rate
+      session[:cart_order_type] = "Order"
+      session[:cart_currency] = @order.customer.currency
+      # session[:exchange_rate] = @order.exchange_rate
+    end
+
+    respond_to do |format|
+      if @order.not_issued?
+        format.html
+        format.json
+      else
+        format.html { redirect_to @order, notice: 'Can not edit this order, order been issued!'}
+        format.json { render json: @order.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   # POST /orders
@@ -99,13 +119,16 @@ class OrdersController < ApplicationController
   # PUT /orders/1.json
   def update
     @order = Order.find(params[:id])
-    @order.add_line_items_from_cart(current_cart)
 
     respond_to do |format|
       if @order.update_attributes(params[:order])
+        @order.line_items.clear
+        @order.add_line_items_from_cart(current_cart)
+
         format.html { redirect_to @order, notice: 'Order was successfully updated.' }
         format.json { head :no_content }
       else
+        @cart = current_cart
         format.html { render action: "edit" }
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
@@ -123,7 +146,7 @@ class OrdersController < ApplicationController
         format.html { redirect_to orders_url }
         format.json { head :no_content }
       else
-        format.html { redirect_to order_url(@order), :notice => "Order can't destroyed" }
+        format.html { redirect_to order_url(@order), :notice => "Can not destroy, this order has been issued!" }
         format.json { head :no_content }
       end
     end

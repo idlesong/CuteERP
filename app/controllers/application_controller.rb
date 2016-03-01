@@ -20,13 +20,14 @@ class ApplicationController < ActionController::Base
     end
 
     def current_cart_currency
+      session[:cart_currency] = 'RMB' if session[:cart_currency].nil?
       session[:cart_currency]
     end
 
-    def current_cart_exchange_rate
-      session[:cart_exchange_rate] = 1 if session[:cart_exchange_rate].nil?
-      session[:cart_exchange_rate]
-    end
+    # def current_cart_exchange_rate
+    #   session[:cart_exchange_rate] = 1 if session[:cart_exchange_rate].nil?
+    #   session[:cart_exchange_rate]
+    # end
 
     def current_cart_order
       if(session[:cart_order_type] == "SalesOrder")
@@ -51,7 +52,7 @@ class ApplicationController < ActionController::Base
     end
 
     helper_method :current_cart_currency
-    helper_method :current_cart_exchange_rate
+    # helper_method :current_cart_exchange_rate
     helper_method :current_customer
     helper_method :current_user
 

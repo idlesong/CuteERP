@@ -12,7 +12,7 @@ class Cart < ActiveRecord::Base
       addition = Item.find(item_addition_id)
       item_suffix = '' if item_suffix == '-' or item_suffix.nil?
       full_part_number = item.partNo + addition.partNo + item_suffix
-      full_part_number[0, 1]='' if addition.partNo == 'D'      
+      full_part_number[0, 1]='' if addition.partNo == 'D'
       full_name = item.name + ':' + item.description + ',' + addition.name
       price = price + addition.price
     end
