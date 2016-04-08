@@ -5,4 +5,12 @@ class Opportunity < ActiveRecord::Base
 
   validates :customer_id, :project_type, :presence => true
 
+  def market
+    if solution =~ /\[.*\]/
+      market = "#{$&}"
+    else
+      market = ''
+    end
+  end
+
 end

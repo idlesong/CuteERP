@@ -2,8 +2,10 @@ class OpportunitiesController < ApplicationController
   # GET /opportunities
   # GET /opportunities.json
   def index
+    @product_catalogs = Opportunity.select(:project_type).uniq
+
     if(params[:catalog])
-      @opportunities = Opportunity.where("solution LIKE ?", "#{params[:catalog]}%")
+      @opportunities = Opportunity.where("project_type LIKE ?", "#{params[:catalog]}%")
     else
       @opportunities = Opportunity.all
     end

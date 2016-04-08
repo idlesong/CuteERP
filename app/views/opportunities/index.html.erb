@@ -2,8 +2,9 @@
 <div class="page-header">
   <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %>
     <div class="btn-group" role="group" aria-label="...">
-      <a role="button" class="btn btn-default" href= <%= opportunities_path(:catalog => "[WT]" ) %> >WalkieTalkie</a>
-      <a role="button" class="btn btn-default" href= <%= opportunities_path(:catalog => "[DT]" ) %> > WirelessDataTrans    </a>
+      <% @product_catalogs.each do |catalog|%>
+        <a role="button" class="btn btn-default" href= <%= opportunities_path(:catalog => catalog.project_type) %> ><%= catalog.project_type %></a>
+      <% end %>
       <a role="button" class="btn btn-default" href= <%= opportunities_path %> > All    </a>
     </div>
   </h1>
@@ -16,8 +17,8 @@
       <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%= model_class.human_attribute_name(:priority) %></th>
       <th><%= model_class.human_attribute_name(:customer_id) %></th>
-      <th>market</th>
-      <th><%= model_class.human_attribute_name(:solution) %></th>
+      <th>catalog</th>
+      <th>[market]solution</th>
       <th>status</th>
       <th>issue</th>
       <th>assign</th>
@@ -56,8 +57,9 @@
         <% end %>
         </td>
         <td><%= link_to opportunity.customer.short_name, customer_path(opportunity.customer) %></td>
-        <td><%= link_to(opportunity.project_type, post_path(opportunity.project_type,:query => "url")) %></td>
-        <td><%= opportunity.solution %></td>
+        <td><%= opportunity.project_type %></td>
+        <td><%= link_to(opportunity.market, post_path(opportunity.market,:query => "url")) %>
+        <%= opportunity.solution.to_s.delete(opportunity.market.to_s)%></td>
         <td><span class="label label-success"><%= opportunity_status_mark %></span><%= opportunity_status %></td>
         <td><%= opportunity_issue %></td>
         <td><%= opportunity_user_id %></td>

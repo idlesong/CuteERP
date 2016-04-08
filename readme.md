@@ -51,32 +51,32 @@ see issues
 
 ### bugs and small Feature points
 1. items
-- items: add mpq net_weight gross_weight
+ - items: add mpq net_weight gross_weight
 
 1. customers
-- customer model add consigne(receiver);
-- customer/show: can assign a contact and consigne, and their address(remove contact address)
-- need to set a default customer?
+  - customer model add consigne(receiver);
+  - customer/show: can assign a contact and consigne, and their address(remove contact address)
+  - need to set a default customer?
 
 1. Orders(customer order)
-- filters for sales order and customer order(big table)
-- forbidden edit issued orders failed when the line not be issued
-- sales order should merge same items line like order does
+  - filters for sales order and customer order(big table)
+  - forbidden edit issued orders failed when the line not be issued
+  - sales order should merge same items line like order does
 
 1. Opportunities
-- status mark default uses last status
-- todo status using auto; with label color
-- Opportunities: priority force to integer
+  - status mark default uses last status
+  - todo status using auto; with label color
+  - Opportunities: priority force to integer
 
 1. documents(posts)
-- assign correct subject in customer wiki, product wiki creation
-- default wiki templates for customer wiki, products wiki, markets wiki
-- product wiki: auto create short url according to products name policy.
-- Add website for customers in templates
-- Docs, fetch 1st line as post title
-- Docs, add edit preview in the same page.
-- markets model? name, catalog(based on solution), market catalog label
+  - assign correct subject in customer wiki, product wiki creation
+  - default wiki templates for customer wiki, products wiki, markets wiki
+  - product wiki: auto create short url according to products name policy.
+  - Add website for customers in templates
+  - Docs, fetch 1st line as post title
+  - Docs, add edit preview in the same page.
+  - markets model? name, catalog(based on solution), market catalog label
 
 1. others
-- cart price with input
-- Opportunities market / catalog select with new
+  - cart price with input
+  - Opportunities market / catalog select with new
