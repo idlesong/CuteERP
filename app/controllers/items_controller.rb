@@ -2,12 +2,16 @@ class ItemsController < ApplicationController
   # GET /items
   # GET /items.json
   def index
-    @items = Item.all
+    # @items = Item.all
+    @items = Item.order(:id)
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: ItemsDatatable.new(view_context) }
       #format.json { render json: @items }
+
+      format.csv { send_data @items.to_csv }
+      format.xls # { send_data @products.to_csv(col_sep: "\t") }
     end
   end
 
@@ -94,6 +98,11 @@ class ItemsController < ApplicationController
       format.atom
       format.xml{ render :xml => @item }
     end
+  end
+
+  def import
+    Item.imprt(params[:file])
+    redirect_to root_url, notice: "Products imported."
   end
 
 end

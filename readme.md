@@ -79,4 +79,3 @@ see issues
 
 1. others
   - cart price with input
-  - Opportunities market / catalog select with new
