@@ -59,6 +59,7 @@ GEM
     execjs (2.6.0)
     hike (1.2.3)
     i18n (0.6.1)
+    iconv (1.0.4)
     journey (1.0.4)
     jquery-datatables-rails (3.1.1)
       actionpack (>= 3.1)
@@ -88,6 +89,7 @@ GEM
       mime-types
       mimemagic (= 0.3.0)
     pg (0.18.4)
+    pg (0.18.4-x86-mingw32)
     polyglot (0.3.5)
     rack (1.4.7)
     rack-cache (1.5.1)
@@ -151,6 +153,7 @@ PLATFORMS
 DEPENDENCIES
   best_in_place (~> 2.1.0)
   coffee-rails (~> 3.2.1)
+  iconv (~> 1.0.3)
   jquery-datatables-rails (~> 3.1.1)
   jquery-rails
   less-rails

@@ -42,6 +42,8 @@ gem 'redcarpet'
 
 gem "paperclip", "~> 4.2"
 
+gem "iconv", "~> 1.0.3"
+
 # gem 'wicked_pdf'
 # gem 'wkhtmltopdf-binary'
 
