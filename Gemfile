@@ -34,10 +34,10 @@ gem 'jquery-rails'
 gem 'jquery-datatables-rails', '~> 3.1.1'
 
 # gem "therubyracer"
-gem "less-rails"
-gem "twitter-bootstrap-rails", :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
+# gem "less-rails"
+# gem "twitter-bootstrap-rails", :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
 # gem "twitter-bootstrap-rails", '~> 2.2.8'
-# gem "twitter-bootstrap-rails"
+gem "twitter-bootstrap-rails"
 gem 'redcarpet'
 
 gem "paperclip", "~> 4.2"
