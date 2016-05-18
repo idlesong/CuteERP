@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160225025821) do
+ActiveRecord::Schema.define(:version => 20160518071733) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -78,6 +78,7 @@ ActiveRecord::Schema.define(:version => 20160225025821) do
     t.decimal  "rmb_tax_rate", :precision => 8, :scale => 2, :default => 0.17
     t.decimal  "usd_tax_rate", :precision => 8, :scale => 2, :default => 0.0
     t.string   "assembled"
+    t.integer  "index"
   end
 
   create_table "line_items", :force => true do |t|

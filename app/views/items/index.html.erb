@@ -5,7 +5,7 @@
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th>ID</th>
       <th><%= model_class.human_attribute_name(:partNo) %></th>
       <th><%= model_class.human_attribute_name(:name) %></th>
       <th><%= model_class.human_attribute_name(:description) %></th>
@@ -20,7 +20,7 @@
   <tbody>
     <% @items.each do |item| %>
       <tr>
-        <td><%= link_to item.id, item_path(item) %></td>
+        <td><%= item.index %></td>
         <td><%= link_to item.partNo, item_path(item)   %></td>
         <td><%= item.name        %></td>
         <td><%= item.description %></td>
@@ -44,8 +44,10 @@
   <%= link_to "Excel", items_path(format: "xls") %>
 </p>
 
-<p>Import Products</p>
-<%= form_tag import_items_path, multipart: true do %>
-  <%= file_field_tag :file %>
-  <%= submit_tag "Import" %>
+<!-- <p>Import Products</p> -->
+<% if false %>
+  <%= form_tag import_items_path, multipart: true do %>
+    <%= file_field_tag :file %>
+    <%= submit_tag "Import" %>
+  <% end %>
 <% end %>

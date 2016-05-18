@@ -77,5 +77,13 @@ see issues
   - Docs, add edit preview in the same page.
   - markets model? name, catalog(based on solution), market catalog label
 
+1. users
+ - only admin can add new user, and update the profile
+ - user can reset the password  
+ - admin can active , inactive user
+
 1. others
   - cart price with input
+
+1. new customer error(no currency)
+1. project type: default should be DT  

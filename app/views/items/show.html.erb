@@ -4,6 +4,8 @@
 </div>
 
 <dl class="dl-horizontal">
+  <dt><strong>index:</strong></dt>
+  <dd><%= @item.index %></dd>
   <dt><strong><%= model_class.human_attribute_name(:name) %>:</strong></dt>
   <dd><%= @item.name %></dd>
   <dt><strong><%= model_class.human_attribute_name(:partNo) %>:</strong></dt>
@@ -29,7 +31,7 @@
   <dt><strong>USD tax rate:</strong></dt>
   <dd><%= @item.usd_tax_rate %></dd>
   <dt><strong>assembled:</strong></dt>
-  <dd><%= @item.assembled %></dd>  
+  <dd><%= @item.assembled %></dd>
 </dl>
 
 <div class="form-actions">

@@ -1,6 +1,6 @@
 class Item < ActiveRecord::Base
   attr_accessible :imageURL, :name, :package, :partNo, :price, :description,
-    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate, :assembled
+    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate, :assembled, :index
 
   default_scope :order => 'name'
 
