@@ -70,9 +70,7 @@
   <div class="control-group">
     <%= f.label :status, :class => 'control-label' %>
     <div class="controls">
-      <%= f.select(:status, [['1.Sales requested'],['2.Finance suggested'],
-      ['3.Mananger rejected'],['3. Mananger approved'], ['4.Boss rejected'],
-      ['4.Boss approved']]) %>
+      <%= f.select(:status, [['request'],['approved']]) %>
     </div>
   </div>
 

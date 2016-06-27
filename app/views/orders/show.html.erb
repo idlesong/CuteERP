@@ -17,6 +17,7 @@
             <h4 class="text-right"> Date: <%= @order.created_at.to_date %></h4>
             <h4 class="text-right"> PO#:<%= @order.order_number %></h4>
             <h4 class="text-right"> Payment:<%= @order.pay_type %></h4>
+            <h4 class="text-right"> <%= link_to "issue sales order", new_sales_order_path(:customer_id => @order.customer.id) %></h4>
           </td>
         </tr>
       </thead>

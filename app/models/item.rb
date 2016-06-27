@@ -4,7 +4,7 @@ class Item < ActiveRecord::Base
 
   default_scope :order => 'name'
 
-  FW_MARTK_TYPES = ["-","S"]
+  FW_MARK_TYPES = ["-","S"]
 
   has_many :line_items
   has_many :orders, :through => :line_items

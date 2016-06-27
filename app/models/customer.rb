@@ -15,7 +15,7 @@ class Customer < ActiveRecord::Base
   validates :currency, :inclusion => CURRENCY_TYPES
 
   def get_special_price(item)
-    price = prices.where(item_id: item.id).first
+    price = prices.where({item_id: item.id, status: 'approved'}).order("created_at ASC").last
     if price.nil?
       special_price = item.price
     else

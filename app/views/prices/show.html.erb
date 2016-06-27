@@ -20,19 +20,28 @@
       <tr><td class="active">Department suggestion</td><td colspan="3"><%= @price.department_suggestion %></td></tr>
       <tr><td class="active">finance suggestion</td><td colspan="3"><%= @price.finance_suggestion %></td></tr>
       <tr><td class="active">Boss suggestion</td><td colspan="3"><%= @price.boss_suggestion %></td></tr>
-      <tr><td colspan="4"><p class="text-center"><%= @price.status %></p></td></tr>
+      <tr><td colspan="4"><p class="text-center">
+        <% if @price.status != 'approved' %>
+          <%= link_to("approve", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %>
+        <% else %>
+          <%= @price.status %>
+        <% end %>
+      </p></td></tr>
     </table>
 
     <div >
       <%= link_to t('.print'), prices_path, :class => 'btn btn-primary'  %>
-      <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                  edit_price_path(@price), :class => 'btn' %>
-      <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-                  price_path(@price),
-                  :method => 'delete',
-                  :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-                  :class => 'btn btn-danger' %>
-    </div>
+      <% if @price.status != 'approved' %>
+        <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                    edit_price_path(@price), :class => 'btn' %>
+        <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                    price_path(@price),
+                    :method => 'delete',
+                    :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                    :class => 'btn btn-danger' %>
+      <% end %>
+      </div>
+
   </div>
 </div>
 
@@ -40,6 +49,7 @@
 
 </br>
 </br>
+<% if false %>
 <h1> Price in traditional form </h1>
 
 <dl class="dl-horizontal">
@@ -79,5 +89,5 @@
               :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
               :class => 'btn btn-danger' %>
 </div>
-
+<% end %>
 </br>
