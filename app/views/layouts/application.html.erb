@@ -9,7 +9,7 @@
 <body>
   <div id = "menu">
     <ul>
-      <li class="nav_left"><a href="#"><i class="fa fa-suitcase"></i>CuteERP </a></li>
+      <li class="nav_left"><a href=<%= settings_path %>><i class="fa fa-suitcase"></i>CuteERP </a></li>
       <% if current_user %>
         <li class="nav_left"> <%= link_to "@#{current_user.name}", '/admin' %> </li>
         <li class="nav_left"> <%= link_to "Logout", '/logout' %></li>

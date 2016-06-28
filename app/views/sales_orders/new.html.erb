@@ -59,9 +59,9 @@
           <td>#<%= link_to(order.id,order_path(order.id)) %></td>
           <td><%= order.customer.short_name %></td>
           <td><%= order.created_at.strftime("%F") %>
-          <td><%= line_item.item.name %> </td>
-          <td><%= line_item.item.partNo %> </td>
-          <td><%= line_item.item.price %> </td>
+          <td><%= line_item.full_name %> </td>
+          <td><%= line_item.full_part_number %> </td>
+          <td>¥<%= line_item.price %> </td>
           <td>x<%= line_item.quantity %> </td>
           <td>x<%= line_item.quantity_issued %> </td>
 

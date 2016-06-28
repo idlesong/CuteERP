@@ -24,10 +24,19 @@ class ApplicationController < ActionController::Base
       session[:cart_currency]
     end
 
-    # def current_cart_exchange_rate
-    #   session[:cart_exchange_rate] = 1 if session[:cart_exchange_rate].nil?
-    #   session[:cart_exchange_rate]
-    # end
+    def monthly_exchange_rate
+      this_month_start = DateTime.now.beginning_of_month()
+      @exchange_rate_setting = Setting.where("name = ? AND updated_at > ?", 'exchange rate', this_month_start).first
+      # @exchange_rate_setting = Setting.where(:name => 'exchange rate').first
+
+      if not @exchange_rate_setting.nil?
+        if @exchange_rate_setting.value.to_f > 0
+          session[:exchange_rate] = @exchange_rate_setting.value.to_f
+        end
+      else
+        session[:exchange_rate] = 1
+      end
+    end
 
     def current_cart_order
       if(session[:cart_order_type] == "SalesOrder")
@@ -52,7 +61,7 @@ class ApplicationController < ActionController::Base
     end
 
     helper_method :current_cart_currency
-    # helper_method :current_cart_exchange_rate
+    helper_method :monthly_exchange_rate
     helper_method :current_customer
     helper_method :current_user
 

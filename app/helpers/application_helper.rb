@@ -9,6 +9,10 @@ module ApplicationHelper
 	def find_order_number_from_reference(refer_line_id)
 		order_number = LineItem.find(refer_line_id).line.order_number
 	end
+
+	def refresh_exchange_rate
+		
+	end
 end
 
 def markdown(content)

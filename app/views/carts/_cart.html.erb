@@ -5,15 +5,15 @@
 			<th><h4>#</h4></th>
 			<th><h4>Product name</h4></th>
 			<th><h4>PartNo.</h4></th>
-			<th><h4>Qty</h4></th>
 			<th><h4>Price</h4></th>
+			<th><h4>Qty</h4></th>
 			<th><h4>Suble Total</h4></th>
 			<th><h4>Remark</h4></th>
 		</tr>
 	</thead>
 
 	<!-- input_exchange_rate  -->
-	<% exchange_rate = 1 if exchange_rate.nil? %>
+	<% exchange_rate = monthly_exchange_rate if exchange_rate.nil? %>
 	<% currency	=	current_cart_currency if currency.nil?%>
 
 	<% 	if current_cart_currency == 'RMB'
@@ -26,9 +26,15 @@
 			<td>1 </td>
 			<td><%= line_item.full_name %> </td>
 			<td><%= line_item.full_part_number %> </td>
+			<td> <% line_price = line_item.show_currency_price(exchange_rate, currency) %>
+				<% if currency_unit == '$' %>
+					<a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.price})/1.17/#{exchange_rate}" %>>
+						<%= number_to_currency(line_price, unit: currency_unit) %>	</a>
+				<% else %>
+					<%= number_to_currency(line_price, unit: currency_unit) %>
+				<% end %>
+			</td>
 			<td><%= line_item.quantity %> </td>
-			<% line_price = line_item.show_currency_price(exchange_rate, currency) %>
-			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
 	    <td><%= number_to_currency(line_item.total_currency_price(exchange_rate,
 								currency), unit: currency_unit) %></td>
 			<td><%= link_to 'Destroy', line_item, method: :delete, remote: true %></td>

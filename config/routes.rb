@@ -1,4 +1,7 @@
 RorWebERP::Application.routes.draw do
+  resources :settings
+
+
   resources :sales_orders do
     member do
       get 'confirm'

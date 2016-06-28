@@ -31,6 +31,10 @@ class OrdersController < ApplicationController
     @main_items = @items - @option_items
     @customers = Customer.all
 
+    # this_month_start = DateTime.now.beginning_of_month()
+    # month_exchange_rate = Setting.where("name = ? AND updated_at > ?", 'exchange rate', this_month_start)
+    # @exchange_rate_setting = Setting.where(:name => 'exchange rate').first
+
     # switch current customer, clear cart and destroy associated line_items
     if (params[:customer_id] && (params[:customer_id] != current_customer.id))
       session[:customer_id] = params[:customer_id]
@@ -41,11 +45,14 @@ class OrdersController < ApplicationController
     # initialize orders with selected customer
     @order = Order.new
     @order.initialize_order_header(current_customer)
+    @order.exchange_rate = monthly_exchange_rate
 
     @cart = current_cart
+
+    # @order.exchange_rate = @exchange_rate_setting.value.to_i if @exchange_rate_setting.value.to_f > 0
     session[:cart_order_type] = "Order"
     session[:cart_currency] = @order.customer.currency
-    session[:exchange_rate] = @order.exchange_rate
+    # session[:exchange_rate] = @order.exchange_rate
 
     respond_to do |format|
       format.html # new.html.erb

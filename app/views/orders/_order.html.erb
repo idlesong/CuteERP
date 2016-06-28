@@ -21,9 +21,16 @@
 			<td>1 </td>
 			<td><%= line_item.full_name %> </td>
 			<td><%= line_item.full_part_number %> </td>
-			<td><%= line_item.quantity %> </td>
 			<% line_price = line_item.show_currency_price(@order.exchange_rate, @order.customer.currency) %>
-			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+			<td>
+				<% if currency_unit == '$' %>
+					<a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.price})/1.17/#{@order.exchange_rate}" %>>
+						<%= number_to_currency(line_price, unit: currency_unit) %>	</a>
+				<% else %>
+					<%= number_to_currency(line_price, unit: currency_unit) %>
+				<% end %>
+			</td>
+			<td><%= line_item.quantity %> </td>
 	    <td><%= number_to_currency(line_item.total_currency_price(@order.exchange_rate,
 								@order.customer.currency), unit: currency_unit) %></td>
 			<td></td>

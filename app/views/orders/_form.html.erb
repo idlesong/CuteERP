@@ -31,7 +31,7 @@
 	    <%= f.hidden_field :ship_telephone %>
 	    <%= f.hidden_field :pay_type %>
 
-      <% @order.exchange_rate = 1 if @order.exchange_rate.nil? %>
+      <% @order.exchange_rate = 2 if @order.exchange_rate.nil? %>
 			<div class="actions">
 				Customer PO#:<%= f.text_field :order_number,:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
