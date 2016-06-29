@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 <div class="page-header"><h1> Linsting sales orders(in lineitems) </h1></div>
-<table class="table">
+<table class="table datatable">
   <thead>
     <tr>
       <th><h4>SO#</h4></th>
@@ -42,7 +42,7 @@
             <% else %>
               <%= link_to('ship now', confirm_sales_order_path(order.id)) %>
             <% end %>
-          <td> </td>
+        </td>
         </tr>
       <% end %>
     <% end %>

@@ -13,7 +13,7 @@ class Price < ActiveRecord::Base
 
  private
   def price_request_approved?
-    if status == '4.Boss approved'
+    if status == 'approved'
       return false
     else
       return true

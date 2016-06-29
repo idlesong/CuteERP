@@ -6,16 +6,17 @@
         <h4 class="modal-title" id="myModalLabel">Change customer</h4>
       </div>
       <div class="modal-body">
-        <table class="table table-striped">
-          <tr>
-            <th>Name</th>
-            <th>Contact</th>
-            <th>Telephone</th>
-            <th>Balance</th>
-            <th>$/¥</th>
-            <th>Select</th>
-          </tr>
-
+        <table class="table table-striped datatable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Telephone</th>
+              <th>Balance</th>
+              <th>$/¥</th>
+              <th>Select</th>
+            </tr>
+          </thead>
           <% if not @customers.nil? then %>
               <% @customers.each do |customer| %>
               <tr>

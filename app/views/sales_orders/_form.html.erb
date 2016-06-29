@@ -48,9 +48,13 @@
     <%= f.text_field :payment_term %>
   </div>
   <div class="field">
+    <%= f.label :delivery_status %><br />
+    <%= f.text_field :delivery_status %>
+  </div>
+  <div class="field">
     <%= f.label :exchange_rate %><br />
     <%= f.number_field :exchange_rate, :class => 'number_field',
-      :step =>'any', :placeholder => 6.5 %>  
+      :step =>'any', :placeholder => 6.5 %>
   </div>
 
 

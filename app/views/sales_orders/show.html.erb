@@ -1,3 +1,5 @@
+<%= render 'shared/delivery_status_modal'%>
+
 <p id="notice"><%= notice %></p>
 <h1>Sales Order</h1>
 
@@ -100,7 +102,10 @@
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
       data-target=".bs-invoice-modal-lg">Print Invoice</button> |
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-packing-modal-lg">Print Packing List</button>
+      data-target=".bs-packing-modal-lg">Print Packing List</button> |
+
+      <a class="shipLink" data-toggle="modal" data-target="#deliveryStatusModal"
+      data-id=<%="#{@sales_order.id}" %> > <%=@sales_order.delivery_date.to_date %> </a>
   </div>
 </div>
 

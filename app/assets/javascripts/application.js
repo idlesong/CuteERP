@@ -27,8 +27,15 @@ $(document).ready(function() {
   $('.datatable').dataTable({
     "sDom": "<'row-fluid'<'span6'l><'span6'f>r>t<'row-fluid'<'span6'i><'span6'p>>",
     "sPaginationType": "bootstrap",
-    "pageLength": 25,
+    "pageLength": 50,
     "order": [ 1, 'asc' ]
+  });
+
+  $('.shipLink').on( "click", function() {
+     var orderId = $(this).data('id');
+    //  $(".modal-body #delivery_status").val( orderId );
+     $(".modal-body #ship_status").attr("action", "/sales_orders/"+orderId);
+    //  console.log(orderId);
   });
 
   $(".ajax-new").click(function(){

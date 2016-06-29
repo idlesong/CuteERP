@@ -1,8 +1,8 @@
 <div class="page-header">
   <h1>Dashboard  <small>Welcome <%= current_user.name %>!</small></h1>
-
 </div>
 
+<%= render 'shared/delivery_status_modal'%>
 <h3> Customer Orders(Unissued PO in lineitems) </h3>
 <table class="table">
   <thead>
@@ -57,7 +57,7 @@
 <%= link_to 'New Order', new_order_path, :class=>"btn btn-primary" %>
 
 <!-- Listing sales orders -->
-<h3> Sales Orders(list in lineitems) </h3>
+<h3> Sales Orders(list in lineitems,this year) </h3>
 <table class="table">
   <thead>
     <tr>
@@ -95,8 +95,18 @@
           <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
           <td>
             <% if order.delivery_date %>
-              <a data-toggle="tooltip" data-placement="top" title="SF201572441752">
-                <%= order.delivery_date.to_date%></a>
+              <% if order.delivery_status %>
+                <a data-toggle="tooltip" data-placement="top" title=<%= "ship:#{order.delivery_status}" %> >
+                  <%= order.delivery_date.to_date%></a>
+              <% else %>
+                <!-- <= link_to(order.delivery_date.to_date,
+                 sales_order_path(:id => order.id, "sales_order[delivery_status]" => '8d1t'),
+                 :method => :put, :confirm => "Sure?") > -->
+
+                 <a class="shipLink" data-toggle="modal" data-target="#deliveryStatusModal"
+                 data-id=<%="#{order.id}" %> > <%=order.delivery_date.to_date %> </a>
+
+              <% end %>
             <% else %>
               <%= link_to('ship now', confirm_sales_order_path(order.id)) %>
             <% end %>
