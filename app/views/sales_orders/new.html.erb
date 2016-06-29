@@ -106,7 +106,8 @@
       <%= f.hidden_field :payment_term %>
       <%= f.hidden_field :serial_number %>
 
-      <% @sales_order.exchange_rate = 1 if @sales_order.exchange_rate.nil? %>
+      <% @sales_order.exchange_rate = monthly_exchange_rate if @sales_order.exchange_rate.nil? %>
+      
       <% if @sales_order.customer.currency == "USD" %>
         <%= f.label :exchange_rate %>
         <%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>

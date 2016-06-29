@@ -31,13 +31,13 @@ class SalesOrdersController < ApplicationController
     @orders = Order.where(customer_id: params[:customer_id])
 
     @sales_order.initialize_order_header(@customer)
+    @sales_order.exchange_rate = monthly_exchange_rate
 
     @cart = current_issue_cart
     session[:cart_order_type] = "SalesOrder"
     # session[:cart_order_id] = @sales_order.id
     session[:cart_currency] = @sales_order.customer.currency
-    session[:exchange_rate] = @sales_order.exchange_rate
-
+    # session[:exchange_rate] = @sales_order.exchange_rate
 
     respond_to do |format|
       format.html # new.html.erb

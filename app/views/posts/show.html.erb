@@ -22,7 +22,11 @@
       </div>
     </div>
 
-
+    <div>
+      <% @post.attachments.each do |attachment| %>
+        <%= attachment.name %>
+      <% end %>
+    </div>
 
   </div>
   <div class="col-xs-4 col-md-4">

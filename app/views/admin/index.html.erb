@@ -99,13 +99,8 @@
                 <a data-toggle="tooltip" data-placement="top" title=<%= "ship:#{order.delivery_status}" %> >
                   <%= order.delivery_date.to_date%></a>
               <% else %>
-                <!-- <= link_to(order.delivery_date.to_date,
-                 sales_order_path(:id => order.id, "sales_order[delivery_status]" => '8d1t'),
-                 :method => :put, :confirm => "Sure?") > -->
-
                  <a class="shipLink" data-toggle="modal" data-target="#deliveryStatusModal"
                  data-id=<%="#{order.id}" %> > <%=order.delivery_date.to_date %> </a>
-
               <% end %>
             <% else %>
               <%= link_to('ship now', confirm_sales_order_path(order.id)) %>
