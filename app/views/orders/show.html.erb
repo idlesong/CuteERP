@@ -15,9 +15,8 @@
           </td>
           <td>
             <h4 class="text-right"> Date: <%= @order.created_at.to_date %></h4>
-            <h4 class="text-right"> PO#:<%= @order.order_number %></h4>
+            <h4 class="text-right"> PO#:<%= link_to(@order.order_number, @order.document.url, target: "_blank")%></h4>
             <h4 class="text-right"> Payment:<%= @order.pay_type %></h4>
-            <h4 class="text-right"> <%= link_to "issue sales order", new_sales_order_path(:customer_id => @order.customer.id) %></h4>
           </td>
         </tr>
       </thead>
@@ -46,14 +45,17 @@
 
   <div class="panel-footer">
     <%= link_to 'Edit', edit_order_path(@order) %>
-    <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-quotation-modal-lg">Print Quotation</button>
 
     <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
                 order_path(@order),
                 :method => :delete,
                 :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
                 :class => 'btn btn-mini btn-danger' %>
+
+  <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
+    data-target=".bs-quotation-modal-lg">Print Quotation</button> |
+
+   <%= link_to "Issue sales order", new_sales_order_path(:customer_id => @order.customer.id) %>
   </div>
 </div>
 

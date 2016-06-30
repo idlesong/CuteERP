@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160628024501) do
+ActiveRecord::Schema.define(:version => 20160630061354) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -125,15 +125,19 @@ ActiveRecord::Schema.define(:version => 20160628024501) do
     t.text     "address"
     t.string   "email"
     t.string   "pay_type"
-    t.datetime "created_at",                                   :null => false
-    t.datetime "updated_at",                                   :null => false
+    t.datetime "created_at",                                          :null => false
+    t.datetime "updated_at",                                          :null => false
     t.integer  "customer_id"
     t.string   "order_number"
     t.string   "telephone"
     t.string   "ship_contact"
     t.text     "ship_address"
     t.string   "ship_telephone"
-    t.decimal  "exchange_rate",  :precision => 8, :scale => 2
+    t.decimal  "exchange_rate",         :precision => 8, :scale => 2
+    t.string   "document_file_name"
+    t.string   "document_content_type"
+    t.integer  "document_file_size"
+    t.datetime "document_updated_at"
   end
 
   create_table "posts", :force => true do |t|

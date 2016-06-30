@@ -1,12 +1,18 @@
 class Order < ActiveRecord::Base
   attr_accessible :customer_id, :amount, :order_number, :name, :address,
     :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type,
-    :exchange_rate
+    :exchange_rate, :document
 
   has_many :line_items, as: :line,  :dependent => :destroy
   belongs_to :customer
 
   PAYMENT_TYPES = ["T.T in advance", "COD", "T.T 30days",'T.T 60days']
+
+  has_attached_file :document
+
+  validates_attachment :document, :content_type => {:content_type =>
+    %w(image/jpeg image/jpg image/png application/pdf application/msword
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document)}
 
   validates :name, :address, :pay_type, :presence => true
   validates :pay_type, :inclusion => PAYMENT_TYPES
