@@ -37,7 +37,8 @@
 		</tr>
 	<% end %>
 
-	<tr><td colspan="7"> <strong>Remarks:</strong>
+	<tr><td colspan="7"> <strong>Remark:</strong>
+		<%= order.remark %>
 		<%= "Exchange rate: #{@order.exchange_rate}" if currency_unit == '$' %>
 	</td></tr>
 </table>

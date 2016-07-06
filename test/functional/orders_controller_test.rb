@@ -51,18 +51,7 @@ class OrdersControllerTest < ActionController::TestCase
     assert_redirected_to orders_path
   end
 
-  test "require item in cart" do
-    get :new
-    assert_redirected_to inventory_path
-    assert_equal flash[:notice], 'Your cart is empty'
-  end
 
-  test "must have line_items before create or update" do
-  end
 
-  test "price must be special price or default price" do
 
-  end
-
-  
 end

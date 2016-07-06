@@ -12,7 +12,7 @@ class Item < ActiveRecord::Base
 
   validates :name, :partNo, :presence => true
   validates :partNo, :uniqueness => true
-  validates :price, :numericality => {:greater_than_or_equal_to => 0.01}
+  validates :price, :numericality => {:greater_than_or_equal_to => 0}
 
   before_destroy :ensure_not_referenced_by_any_line_item
 

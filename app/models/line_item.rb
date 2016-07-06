@@ -2,9 +2,9 @@ class LineItem < ActiveRecord::Base
   attr_accessible :cart_id, :item_id, :quantity, :order_id,
       :quantity_issued, :refer_line_id, :price, :full_part_number, :full_name
 
-  # validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0.01}
-  # validates :quantity,:presence => true, :numericality => {:greater_than_or_equal_to => 0.01}
-  # validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
+  validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
+  validates :quantity,:presence => true, :numericality => {:greater_than_or_equal_to => 1}
+  validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
 
   belongs_to :line, :polymorphic => true
   # belongs_to :order
@@ -39,7 +39,7 @@ class LineItem < ActiveRecord::Base
  private
   # ensure ensure this order is not issued by any of the sales order
   def ensure_not_used_by_locked_orders
-    return false if quantity_issued > 0 or !refer_line_id.nil?
+    return false if quantity_issued > 0 #or refer_line_id
 
     return true
   end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160630061354) do
+ActiveRecord::Schema.define(:version => 20160706073419) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -138,6 +138,7 @@ ActiveRecord::Schema.define(:version => 20160630061354) do
     t.string   "document_content_type"
     t.integer  "document_file_size"
     t.datetime "document_updated_at"
+    t.string   "remark"
   end
 
   create_table "posts", :force => true do |t|

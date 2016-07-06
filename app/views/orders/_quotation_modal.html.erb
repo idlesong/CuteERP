@@ -54,14 +54,15 @@
         	<% @order.line_items.each do |line_item| %>
         		<tr>
         			<td>1 </td>
-        			<td><%= line_item.item.name %> </td>
-        			<td><%= line_item.item.partNo %> </td>
+        			<td><%= line_item.full_name %> </td>
+        			<td><%= line_item.full_part_number %> </td>
         			<td><%= line_item.quantity %> </td>
         			<% line_price = line_item.show_currency_price(1, 'RMB') %>
         			<td><%= number_to_currency(line_price, unit: '¥') %> </td>
         	    <td><%= number_to_currency(line_item.total_currency_price(1,'RMB'), unit: '¥') %></td>
         			<td></td>
         		</tr>
+            <tr><td colspan="7"> <strong>Remark:</strong><%= @order.remark%></td></tr>
         	<% end %>
         </table>
 

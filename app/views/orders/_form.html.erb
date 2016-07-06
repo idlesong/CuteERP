@@ -8,6 +8,9 @@
 		<div class="panel-body">
 			<div id="cart">
 				<%= render(@cart, :exchange_rate => @order.exchange_rate) %>
+				<strong>Remark:<%= f.text_field :remark,:size => 80 %>
+					<%= "Exchange rate: #{@order.exchange_rate}" if @order.customer.currency == 'usd' %>
+				</strong>
 			</div>
 		</div>
 		<div class="panel-footer">
