@@ -28,7 +28,7 @@
   <% if not order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
       <tr>
-        <td>#<%= link_to(order.id,order_path(order.id)) %>-<%= order.order_number %></td>
+        <td>#<%= link_to(order.order_number, order_path(order.id))%>-<%= link_to(order.id,order_path(order.id)) %></td>
         <td><%= order.customer.short_name %></td>
         <td><%= order.created_at.strftime("%F") %>
         <td><%= line_item.item.name %> </td>

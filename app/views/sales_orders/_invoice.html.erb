@@ -1,13 +1,8 @@
-<!-- Large modal Invoice-->
-<div class="modal fade bs-invoice-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-body">
         <div class="row">
           <div class="panel panel-default">
             <div class="panel-body">
               <h2>
-                <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+                <%= image_tag('sicomm_logo.png') %>无锡士康通讯技术有线公司
               </h2>
               <table class="table">
                 <thead>
@@ -62,8 +57,8 @@
             	<% @sales_order.line_items.each do |line_item| %>
             		<tr>
             			<td>1 </td>
-            			<td><%= line_item.item.name %> </td>
-            			<td><%= line_item.item.partNo %> </td>
+            			<td><%= line_item.full_name %> </td>
+            			<td><%= line_item.full_part_number %> </td>
             			<td><%= line_item.quantity %> </td>
             			<% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
             			<td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
@@ -81,7 +76,7 @@
             </table>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col-xs-6">
             <div class="panel panel-default">
@@ -110,11 +105,3 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Print Invoice</button>
-      </div>
-    </div>
-  </div>
-</div>

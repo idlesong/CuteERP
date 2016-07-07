@@ -1,0 +1,107 @@
+<div class="row">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2>
+        <%= wicked_pdf_image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5>Wuxi Sicomm Communication Tech</h5>
+              <h5>Address: B building #21 road, Wuxi </h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"> Date: <%= @sales_order.created_at.to_date %></h4>
+              <h4 class="text-right"> PO#:PO<%= @sales_order.serial_number %></h4>
+              <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> Packing List</h3></td></tr>
+        <tr><td><h4>Bill to: <%= @sales_order.customer.name %></h4></td>
+            <td><h4> Ship to: <%= @sales_order.customer.name %></h4></td></tr>
+
+        </tr>
+        <tr><td>Contact:<%= @sales_order.bill_contact %></td> <td>Contact:<%= @sales_order.ship_contact %></td></tr>
+        <tr><td>Address:<%= @sales_order.bill_address %></td><td>Address:<%= @sales_order.ship_address %></td></tr>
+        <tr><td>Tel:  <%= @sales_order.bill_telephone %></td><td>Tel:<%= @sales_order.ship_telephone %></td></tr>
+      </table>
+
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <!-- <div class="panel-heading"><h5>Order Details<h5></div> -->
+  <div class="panel-body">
+    <h5> Order details </h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><h4>#</h4></th>
+          <th><h4>Product name</h4></th>
+          <th><h4>PartNo.</h4></th>
+          <th><h4>Qty</h4></th>
+          <th><h4>Price</h4></th>
+          <th><h4>Suble Total</h4></th>
+          <th><h4>Remark</h4></th>
+        </tr>
+      </thead>
+      <% if @sales_order.customer.currency == 'RMB'
+            currency_unit = '¥'
+          else
+            currency_unit = '$'
+          end %>
+      <% @sales_order.line_items.each do |line_item| %>
+        <tr>
+          <td>1 </td>
+          <td><%= line_item.item.name %> </td>
+          <td><%= line_item.item.partNo %> </td>
+          <td><%= line_item.quantity %> </td>
+          <% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
+          <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+          <td><%= number_to_currency(line_item.total_currency_price(@sales_order.exchange_rate,
+                    @sales_order.customer.currency), unit: currency_unit) %></td>
+          <td></td>
+        </tr>
+      <% end %>
+
+      <tr><td colspan="7"> <strong>Remarks:</strong>
+         <% if currency_unit == '$' %>
+           Exchange rate:<%= @sales_order.exchange_rate %>
+         <% end %>
+         </td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4>Received and checked by</h4>
+      </div>
+      <div class="panel-body">
+        <p> <%= @sales_order.customer.name %> </p>
+        <p> _</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-6">
+    <div class="span7">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4>For and on behalf of</h4>
+        </div>
+        <div class="panel-body">
+          <p>
+            Wuxi Sicomm Communication Technologies,Inc.
+          </p>
+          <p> AUTHORIZED SIGNATURE（S）</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

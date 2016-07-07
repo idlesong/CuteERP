@@ -37,9 +37,9 @@ class LineItem < ActiveRecord::Base
   before_destroy :ensure_not_used_by_locked_orders
 
  private
-  # ensure ensure this order is not issued by any of the sales order
+  # ensure this order is not issued by any of the sales order
   def ensure_not_used_by_locked_orders
-    return false if quantity_issued > 0 #or refer_line_id
+    return false if quantity_issued > 0
 
     return true
   end

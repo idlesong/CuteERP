@@ -60,11 +60,24 @@
                 :class => 'btn btn-mini btn-danger' %>
 
   <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-    data-target=".bs-quotation-modal-lg">Print Quotation</button> |
+    data-target=".bs-quotation-modal-lg">Quotation</button> |
 
    <%= link_to "Issue sales order", new_sales_order_path(:customer_id => @order.customer.id) %>
   </div>
 </div>
 
+<!-- Large modal Quotation-->
+<div class="modal fade bs-quotation-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
 
-<%= render("quotation_modal")%>
+        <%= render("quotation")%>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <a href= <%="#{quotation_order_path(@order)}.pdf"%> class="btn btn-primary" target="_blank">Print Quotation</a>
+      </div>
+    </div>
+  </div>
+</div>

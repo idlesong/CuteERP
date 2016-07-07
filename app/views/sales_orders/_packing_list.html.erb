@@ -105,7 +105,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Print Invoice</button>
+        <a href= <%="#{packing_list_sales_order_path(@sales_order)}.pdf"%>
+          class="btn btn-primary" target="_blank">Print packing list </a>
       </div>
     </div>
   </div>

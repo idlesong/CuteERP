@@ -100,17 +100,34 @@
 
   <div class="panel-footer">
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-invoice-modal-lg">Print Invoice</button> |
+      data-target=".bs-invoice-modal-lg">Invoice</button> |
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-packing-modal-lg">Print Packing List</button> |
+      data-target=".bs-packing-modal-lg">Packing List</button> |
     <% if @sales_order.delivery_status %>
       <%= "ship:#{@sales_order.delivery_status}" %>
     <% else %>
       <a class="shipLink" data-toggle="modal" data-target="#deliveryStatusModal"
-      data-id=<%="#{@sales_order.id}" %> > ship status </a>
+      data-id=<%="#{@sales_order.id}" %> > Ship Status </a>
     <% end %>
   </div>
 </div>
 
-<%= render('invoice') %>
+
 <%= render('packing_list') %>
+
+
+<!-- Large modal Invoice-->
+<div class="modal fade bs-invoice-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+
+        <%= render('invoice') %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <a href= <%="#{invoice_sales_order_path(@sales_order)}.pdf"%> class="btn btn-primary" target="_blank">Print Invoice </a>
+      </div>
+    </div>
+  </div>
+</div>

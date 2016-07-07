@@ -49,4 +49,6 @@ class SalesOrder < ActiveRecord::Base
    		return false
    	end
   end
+
+  # completed: can't update after both invoiced and shipped
 end

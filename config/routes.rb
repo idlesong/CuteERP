@@ -5,13 +5,19 @@ RorWebERP::Application.routes.draw do
   resources :sales_orders do
     member do
       get 'confirm'
+      get 'invoice'
+      get 'packing_list'
     end
   end
 
   resources :attachments
 
 
-  resources :prices
+  resources :prices do
+    member do
+      get 'apply'
+    end
+  end
 
   resources :posts
 
@@ -44,7 +50,11 @@ RorWebERP::Application.routes.draw do
   get "users/show"
 
 
-  resources :orders
+  resources :orders do
+    member do
+      get 'quotation'
+    end
+  end
 
 
   resources :line_items

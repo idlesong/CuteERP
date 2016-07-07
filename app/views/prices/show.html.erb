@@ -30,7 +30,7 @@
     </table>
 
     <div >
-      <%= link_to t('.print'), prices_path, :class => 'btn btn-primary'  %>
+      <a href= <%="#{apply_price_path(@price)}.pdf"%> class="btn btn-primary" target="_blank">Print</a>
       <% if @price.status != 'approved' %>
         <%= link_to t('.edit', :default => t("helpers.links.edit")),
                     edit_price_path(@price), :class => 'btn' %>
@@ -79,6 +79,7 @@
 
 <div class="form-actions">
   <%= link_to t('.print requst'), prices_path, :class => 'btn btn-primary'  %>
+
   <%= link_to t('.back', :default => t("helpers.links.back")),
               prices_path, :class => 'btn'  %>
   <%= link_to t('.edit', :default => t("helpers.links.edit")),

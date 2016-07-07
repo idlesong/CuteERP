@@ -8,12 +8,13 @@ class Price < ActiveRecord::Base
   validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0.01}
   validates :item_id, :presence => true
 
-  # before_update :price_request_approved?
+  before_update :price_request_approved?
   before_destroy :price_request_approved?
 
  private
   def price_request_approved?
-    if status == 'approved'
+    if status_was == 'approved'
+      errors.add(:base, 'price has been approved, cannot update!')
       return false
     else
       return true

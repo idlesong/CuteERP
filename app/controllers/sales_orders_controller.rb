@@ -60,6 +60,34 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.find(params[:id])
   end
 
+  # GET /sales_orders/1/invoice
+  def invoice
+    @sales_order = SalesOrder.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf do
+        render pdf: "file_name",
+        layout:      "/layouts/pdf.html.erb"
+      end
+      format.json { render json: @sales_order }
+    end
+  end
+
+  # GET /sales_orders/1/packing_list
+  def packing_list
+    @sales_order = SalesOrder.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf do
+        render pdf: "file_name",
+        layout:      "/layouts/pdf.html.erb"
+      end
+      format.json { render json: @sales_order }
+    end    
+  end
+
   # POST /sales_orders
   # POST /sales_orders.json
   def create

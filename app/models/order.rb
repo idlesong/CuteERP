@@ -53,17 +53,22 @@ class Order < ActiveRecord::Base
   def cancel
   end
 
-  before_update :not_issued?
-  before_destroy :not_issued?
+  before_update :besure_not_issued?
+  before_destroy :besure_not_issued?
 
-  # ensure ensure this order is not issued by any of the sales order
-  def not_issued?
+ private
+  # ensure this order is not issued by any of the sales order
+  def besure_not_issued?
     if line_items.where("quantity_issued > 0").exists?
       errors.add(:base, 'Order has been used by sales orders')
       return false
     end
 
     return true
+  end
+
+  # ensure not completed: canceled or all items issued
+  def besure_not_completed?
   end
 
 end

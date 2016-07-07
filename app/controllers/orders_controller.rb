@@ -23,6 +23,19 @@ class OrdersController < ApplicationController
     end
   end
 
+  # GET /orders/quotation
+  def quotation
+    @order = Order.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf  do
+        render pdf: "file_name",
+        layout:      "/layouts/pdf.html.erb"
+      end
+    end
+  end
+
   # GET /orders/new
   # GET /orders/new.json
   def new

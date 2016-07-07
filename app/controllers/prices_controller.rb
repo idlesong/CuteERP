@@ -21,6 +21,19 @@ class PricesController < ApplicationController
     end
   end
 
+  # GET /prices/1/apply
+  def apply
+    @price = Price.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf  do
+        render pdf: "file_name",
+        layout:      "/layouts/pdf.html.erb"
+      end
+    end
+  end
+
   # GET /prices/new
   # GET /prices/new.json
   def new

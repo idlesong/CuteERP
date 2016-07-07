@@ -145,6 +145,8 @@ GEM
     uglifier (2.7.2)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
+    wicked_pdf (1.0.6)
+    wkhtmltopdf_binary (0.12.3.2)
 
 PLATFORMS
   ruby
@@ -166,6 +168,8 @@ DEPENDENCIES
   therubyracer
   twitter-bootstrap-rails!
   uglifier (>= 1.0.3)
+  wicked_pdf
+  wkhtmltopdf_binary (~> 0.12.3.2)
 
 BUNDLED WITH
    1.11.2

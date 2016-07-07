@@ -44,8 +44,8 @@ gem "paperclip", "~> 4.2"
 
 gem "iconv", "~> 1.0.3"
 
-# gem 'wicked_pdf'
-# gem 'wkhtmltopdf-binary'
+gem 'wicked_pdf'
+gem 'wkhtmltopdf_binary', "~> 0.12.3.2"
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
