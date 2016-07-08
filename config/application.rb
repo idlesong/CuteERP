@@ -64,5 +64,7 @@ module RorWebERP
     config.assets.version = '1.1'
 
     config.assets.initialize_on_precompile = true
+
+    config.assets.precompile += ['blueprint/screen.css', 'pdf.css', 'pdf.js']    
   end
 end
