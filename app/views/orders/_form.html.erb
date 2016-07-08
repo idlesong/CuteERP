@@ -1,30 +1,37 @@
-<div id="orderHeaderDiv">
-	<%= render partial: 'orderHeader' %>
-</div>
-
 <%= form_for(@order, html: { multipart: true }) do |f| %>
+	<% if @order.errors.any? %>
+		<div id="error_explanation" class="alert alert-danger" role="alert">
+			<h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
+
+			<ul>
+			<% @order.errors.full_messages.each do |msg| %>
+				<li><%= msg %></li>
+			<% end %>
+			</ul>
+		</div>
+	<% end %>
+
+	<div id="orderHeaderDiv">
+		<%= render partial: 'orderHeader', :locals => { :f => f}%>
+	</div>
+
 	<div class="panel panel-default">
 		<div class="panel-heading"> <h3 class="panel-title">Order cart lineitems</h3></div>
 		<div class="panel-body">
 			<div id="cart">
 				<%= render(@cart, :exchange_rate => @order.exchange_rate) %>
-				<strong>Remark:<%= f.text_field :remark,:size => 80 %>
-					<%= "Exchange rate: #{@order.exchange_rate}" if @order.customer.currency == 'usd' %>
-				</strong>
 			</div>
+			<strong>Remark:<%= f.text_field :remark, :value => '以上包含17%增值税',:size => 60 %>
+				<%= "Exchange rate: #{@order.exchange_rate}" if @order.customer.currency == 'usd' %>
+			</strong>
+			<% if @order.customer.currency == 'USD'%>
+				Exchange rate:
+				<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :id =>'exchange_rate' %>
+			<% else %>
+				<%= f.hidden_field :exchange_rate%>
+			<% end %>
 		</div>
 		<div class="panel-footer">
-		  <% if @order.errors.any? %>
-		    <div id="error_explanation" class="alert alert-danger" role="alert">
-		      <h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
-
-		      <ul>
-		      <% @order.errors.full_messages.each do |msg| %>
-		        <li><%= msg %></li>
-		      <% end %>
-		      </ul>
-		    </div>
-		  <% end %>
 
 	    <%= f.hidden_field :name %>
 	    <%= f.hidden_field :address %>
@@ -35,7 +42,7 @@
 	    <%= f.hidden_field :pay_type %>
 
 			<div>
-				  <%= f.file_field :document %>
+				<%= f.file_field :document %>
 			</div>
 
       <% @order.exchange_rate = 2 if @order.exchange_rate.nil? %>
@@ -43,12 +50,6 @@
 				Customer PO#:<%= f.text_field :order_number,:size => 20 %>
 				Received date#:<%= DateTime.now.to_date %>
 		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
-        <% if @order.customer.currency == 'USD'%>
-					Exchange rate:
-					<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :id =>'exchange_rate' %>
-				<% else %>
-	    		<%= f.hidden_field :exchange_rate %>
-        <% end %>
 		  </div>
 		</div>
 	</div>

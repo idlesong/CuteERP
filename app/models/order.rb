@@ -14,11 +14,12 @@ class Order < ActiveRecord::Base
     %w(image/jpeg image/jpg image/png application/pdf application/msword
     application/vnd.openxmlformats-officedocument.wordprocessingml.document)}
 
-  validates :name, :address, :pay_type, :presence => true
+  validates :pay_type, :presence => true
   validates :pay_type, :inclusion => PAYMENT_TYPES
   validates :line_items, :presence => true
   validates :customer_id, :presence => true
-  validates :exchange_rate, :presence => true #:if => oversea_customer?
+  validates :exchange_rate, :presence => true
+  # validates :name, :address, :presence => true # can fill when ship
 
 
   def initialize_order_header(new_customer)
@@ -53,12 +54,12 @@ class Order < ActiveRecord::Base
   def cancel
   end
 
-  before_update :besure_not_issued?
-  before_destroy :besure_not_issued?
+  before_update :not_issued?
+  before_destroy :not_issued?
 
  private
   # ensure this order is not issued by any of the sales order
-  def besure_not_issued?
+  def not_issued?
     if line_items.where("quantity_issued > 0").exists?
       errors.add(:base, 'Order has been used by sales orders')
       return false

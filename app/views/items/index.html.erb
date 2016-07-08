@@ -5,6 +5,7 @@
 <table class="table table-striped datatable">
   <thead>
     <tr>
+      <th>-</th>
       <th>ID</th>
       <th><%= model_class.human_attribute_name(:partNo) %></th>
       <th><%= model_class.human_attribute_name(:name) %></th>
@@ -14,12 +15,12 @@
       <th><%= model_class.human_attribute_name(:rmb_tax_rate) %></th>
       <th><%= model_class.human_attribute_name(:usd_tax_rate) %></th>
       <th> MPQ </th>
-      <th> wiki </th>
     </tr>
   </thead>
   <tbody>
     <% @items.each do |item| %>
       <tr>
+        <td>-</td>
         <td><%= item.index %></td>
         <td><%= link_to item.partNo, item_path(item)   %></td>
         <td><%= item.name        %></td>
@@ -29,7 +30,6 @@
         <td><%= item.rmb_tax_rate%></td>
         <td><%= item.usd_tax_rate%></td>
         <td><%= item.mop       %></td>
-        <td><%= link_to('wiki', post_path(item.partNo,:query => "url")) %></td>
       </tr>
     <% end %>
   </tbody>

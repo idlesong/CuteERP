@@ -44,11 +44,7 @@ class OrdersController < ApplicationController
     @main_items = @items - @option_items
     @customers = Customer.all
 
-    # this_month_start = DateTime.now.beginning_of_month()
-    # month_exchange_rate = Setting.where("name = ? AND updated_at > ?", 'exchange rate', this_month_start)
-    # @exchange_rate_setting = Setting.where(:name => 'exchange rate').first
-
-    # switch current customer, clear cart and destroy associated line_items
+    # clear cart and destroy associated line_items, when customer switched
     if (params[:customer_id] && (params[:customer_id] != current_customer.id))
       session[:customer_id] = params[:customer_id]
       current_cart.line_items.clear
@@ -69,8 +65,8 @@ class OrdersController < ApplicationController
 
     respond_to do |format|
       format.html # new.html.erb
-      # format.json { render json: @order }
-      format.js
+      format.json { render json: @order }
+      # format.js
     end
   end
 
@@ -112,9 +108,9 @@ class OrdersController < ApplicationController
   # POST /orders
   # POST /orders.json
   def create
-    @order = Order.new(params[:order]) if @order.nil?
+    @order = Order.new(params[:order])
+
     @order.add_line_items_from_cart(current_cart)
-    @order.customer_id = session[:customer_id]
 
     respond_to do |format|
       if @order.save
@@ -125,8 +121,13 @@ class OrdersController < ApplicationController
         # format.json { render json: @order }
       else
         @items = Item.all
+        @option_items = Item.where(:package => 'software')
+        @main_items = @items - @option_items
+
         @customers = Customer.all
         @cart = current_cart
+
+        # should restore line_items' cart_id or clear cart_id after save
 
         format.html { render action: "new", notice: 'Errors when save order.' }
         format.js

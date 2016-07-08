@@ -44,7 +44,7 @@
   <div class="control-group">
     <%= f.label :price, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :price, :class => 'text_field', :placeholder => '*Reference price' %>
+      <%= f.text_field :price, :class => 'text_field', :step => 0.01 , :placeholder => '*Reference price' %>
     </div>
   </div>
   <div class="control-group">
@@ -79,9 +79,23 @@
   </div>
 
   <div class="control-group">
+    <%= f.label :rmb_tax_rate, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.number_field :rmb_tax_rate, :class => 'number_field', :step => 0.01 %>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <%= f.label :usd_tax_rate, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.number_field :usd_tax_rate, :class => 'number_field', :step => 0.01  %>
+    </div>
+  </div>
+
+  <div class="control-group">
     <%= f.label :assembled, :class => 'control-label' %>
     <div class="controls">
-      <%= f.text_field :assembled, :class => 'text_field' %>
+      <%= f.select(:assembled, [['no'],['yes']]) %>
     </div>
   </div>
 

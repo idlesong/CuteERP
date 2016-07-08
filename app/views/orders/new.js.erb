@@ -1,4 +1,4 @@
 // alert('Hello new order');
 $('#customersModal').modal('hide');
-$('#orderHeaderDiv').html('<%= escape_javascript(render ("orderHeader")) %>');
+$('#orderHeaderDiv').html('<%= escape_javascript(render(partial: 'orderHeader', :locals => { :f => f})) %>');
 $('#cart').html('<%= escape_javascript(render(@cart)) %>');
