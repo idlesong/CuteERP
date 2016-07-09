@@ -127,8 +127,6 @@ class OrdersController < ApplicationController
         @customers = Customer.all
         @cart = current_cart
 
-        # should restore line_items' cart_id or clear cart_id after save
-
         format.html { render action: "new", notice: 'Errors when save order.' }
         format.js
         # format.json { render json: @order }

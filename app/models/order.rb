@@ -14,13 +14,13 @@ class Order < ActiveRecord::Base
     %w(image/jpeg image/jpg image/png application/pdf application/msword
     application/vnd.openxmlformats-officedocument.wordprocessingml.document)}
 
+  validates :order_number, :presence => true
   validates :pay_type, :presence => true
   validates :pay_type, :inclusion => PAYMENT_TYPES
   validates :line_items, :presence => true
   validates :customer_id, :presence => true
   validates :exchange_rate, :presence => true
   # validates :name, :address, :presence => true # can fill when ship
-
 
   def initialize_order_header(new_customer)
     self.customer = new_customer
@@ -57,7 +57,6 @@ class Order < ActiveRecord::Base
   before_update :not_issued?
   before_destroy :not_issued?
 
- private
   # ensure this order is not issued by any of the sales order
   def not_issued?
     if line_items.where("quantity_issued > 0").exists?
@@ -68,6 +67,7 @@ class Order < ActiveRecord::Base
     return true
   end
 
+private
   # ensure not completed: canceled or all items issued
   def besure_not_completed?
   end

@@ -1,17 +1,20 @@
 require 'test_helper'
 
 class OrderTest < ActiveSupport::TestCase
-  test "should not save order without nessary attributes" do
+  test "order should save with nessary attributes" do
+    order = Order.create(order_number: 'PO201601', customer_id: 1, pay_type: 'COD',
+        exchange_rate: 6.5);
+    assert order.valid?, "Order was not valid, when all nessary attributes supplied"
+    assert_equal 'PO201601', order.order_number, 'Order number does not match'
+    assert_equal 1, order.customer.id, 'Order customer_id does not match'
+    assert_equal 'COD', order.pay_type, 'Order pay_type does not match'
+    assert_equal 6.5, order.exchange_rate, 'Order exchange_rate does not match'    
+  end
+  test "order should not save without nessary attributes" do
     # save: create, update; refer to validates
     order = Order.new
-    # assert !order.save
-    assert order.invalid?
-  	assert order.errors[:name].any?, "Order must have contact name!"
-    assert order.errors[:address].any?, "Order must have address!"
-    assert order.errors[:pay_type].any?, "Order must have pay_type!"
-    # assert order.errors[:order_number].any?, "Order must have order_number!"
-    assert order.errors[:customer_id].any?, "Order must belongs_to a customer"
-    assert order.errors[:exchange_rate].any?, "Orders must have exchange_rate for oversea customer"
+    assert_not order.valid?
+    assert_equal [:order_number, :customer_id, :pay_type,:exchange_rate], order.errors.keys
     # Orders must have line_items
   end
 

@@ -6,6 +6,7 @@ class SalesOrder < ActiveRecord::Base
   has_many :line_items, :as => :line
   belongs_to :customer
 
+  validates :serial_number, :presence => true
   validates :bill_address, :bill_contact, :bill_telephone, :ship_contact, :ship_address,
     :ship_telephone, :presence => true
   validates :customer_id, :payment_term, :presence => true

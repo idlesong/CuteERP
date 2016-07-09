@@ -3,7 +3,7 @@
 </div>
 
 <%= render 'shared/delivery_status_modal'%>
-<h3> Customer Orders(Unissued PO in lineitems) </h3>
+<h3> Customer Orders(Unissued PO in lineitems) <small><%= link_to("overview", orders_path) %></small></h3>
 <table class="table">
   <thead>
     <tr>
@@ -57,7 +57,7 @@
 <%= link_to 'New Order', new_order_path, :class=>"btn btn-primary" %>
 
 <!-- Listing sales orders -->
-<h3> Sales Orders(list in lineitems,this year) </h3>
+<h3> Sales Orders(list in lineitems,this year) <small><%= link_to("overview", sales_orders_path) %></small></h3>
 <table class="table">
   <thead>
     <tr>

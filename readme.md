@@ -54,19 +54,21 @@ see issues
  - items: add mpq net_weight gross_weight
 
 1. customers
-  - customer model add consigne(receiver);
-  - customer/show: can assign a contact and consigne, and their address(remove contact address)
   - need to set a default customer?
 
 1. Orders(customer order)
-  - filters for sales order and customer order(big table)
   - forbidden edit issued orders failed when the line not be issued
   - sales order should merge same items line like order does
+  - order can't edit; shows private not_issued?  
+  - should restore line_items' cart_id or clear cart_id after save(or will leave failed line_items)
+  - validate line_items: presence not work
+  - add report of orders and sales_orders for (1month, 3month,6month,1year)
 
 1. Opportunities
   - status mark default uses last status
   - todo status using auto; with label color
   - Opportunities: priority force to integer
+  - project type: default should be DT
 
 1. documents(posts)
   - assign correct subject in customer wiki, product wiki creation
@@ -81,9 +83,4 @@ see issues
  - only admin can add new user, and update the profile
  - user can reset the password  
  - admin can active , inactive user
-
-1. others
-  - cart price with input
-
-1. new customer error(no currency)
-1. project type: default should be DT  
+ - user rights policy
