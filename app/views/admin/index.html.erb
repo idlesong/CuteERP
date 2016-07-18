@@ -1,22 +1,24 @@
 <div class="page-header">
-  <h1>Dashboard  <small>Welcome <%= current_user.name %>!</small></h1>
+  <h1><%= t(:dashboard) %> <small>Welcome <%= current_user.name %>!</small></h1>
 </div>
 
 <%= render 'shared/delivery_status_modal'%>
-<h3> Customer Orders(Unissued PO in lineitems) <small><%= link_to("overview", orders_path) %></small></h3>
+<h3><%= t(:order)%> (<%=t(:unissued)%>) <small><%= link_to("all", orders_path) %></small>
+  <%= link_to t(:new_order), new_order_path, :class=>"btn btn-primary" %>
+</h3>
 <table class="table">
   <thead>
     <tr>
-      <th><h4>#-Customer PO#</h4></th>
-      <th><h4>Customer</h4></th>
-      <th><h4>Date</h4></th>
-      <th><h4>Product name</h4></th>
-      <th><h4>PartNo.</h4></th>
-      <th><h4>Price</h4></th>
-      <th><h4>Qty</h4></th>
-      <th><h4>Qty left</h4></th>
-      <th><h4>Suble Total</h4></th>
-      <th><h4>Action</th></th>
+      <th><h4>#<%=t(:customer_po) %>#</h4></th>
+      <th><h4><%=t(:customer)%></h4></th>
+      <th><h4><%=t(:show_date)%></h4></th>
+      <th><h4><%=t(:product_name)%></h4></th>
+      <th><h4><%=t(:part_number)%></h4></th>
+      <th><h4><%=t(:price)%></h4></th>
+      <th><h4><%=t(:quantity)%></h4></th>
+      <th><h4><%=t(:quantity_left)%></h4></th>
+      <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:actions)%></th></th>
     </tr>
   </thead>
 
@@ -44,7 +46,7 @@
           <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
           <td>
           <% if line_item.quantity > line_item.quantity_issued then %>
-            <%= link_to "issue", new_sales_order_path(:customer_id => order.customer.id) %>
+            <%= link_to t(:issue), new_sales_order_path(:customer_id => order.customer.id) %>
           <% end %>
           </td>
         </tr>
@@ -54,22 +56,23 @@
   <% end %>
 </table>
 
-<%= link_to 'New Order', new_order_path, :class=>"btn btn-primary" %>
-
+</br>
 <!-- Listing sales orders -->
-<h3> Sales Orders(list in lineitems,this year) <small><%= link_to("overview", sales_orders_path) %></small></h3>
+<h3> <%= t(:sales_orders)%>(今年)
+  <small>  <a data-toggle="modal" href="" data-target="#salesOrderReportModal"><%=t(:overview)%> </a></small>
+</h3>
 <table class="table">
   <thead>
     <tr>
-      <th><h4>SO#</h4></th>
-      <th><h4>Customer</h4></th>
-      <th><h4>Refer PO#</h4></th>
-      <th><h4>Product name</h4></th>
-      <th><h4>PartNo.</h4></th>
-      <th><h4>Price</h4></th>
-      <th><h4>Qty</h4></th>
-      <th><h4>Suble Total</h4></th>
-      <th><h4>Ship Date</h4></th>
+      <th><h4><%=t(:sales_orders)%>#</h4></th>
+      <th><h4><%=t(:customer)%></h4></th>
+      <th><h4><%=t(:refer_po)%>#</h4></th>
+      <th><h4><%=t(:product_name)%></h4></th>
+      <th><h4><%=t(:part_number)%></h4></th>
+      <th><h4><%=t(:price)%></h4></th>
+      <th><h4><%=t(:quantity)%></h4></th>
+      <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:ship_date)%></h4></th>
     </tr>
   </thead>
 
@@ -99,11 +102,11 @@
                 <a data-toggle="tooltip" data-placement="top" title=<%= "ship:#{order.delivery_status}" %> >
                   <%= order.delivery_date.to_date%></a>
               <% else %>
-                 <a class="shipLink" data-toggle="modal" data-target="#deliveryStatusModal"
+                 <a class="shipLink" href="" data-toggle="modal" data-target="#deliveryStatusModal"
                  data-id=<%="#{order.id}" %> > <%=order.delivery_date.to_date %> </a>
               <% end %>
             <% else %>
-              <%= link_to('ship now', confirm_sales_order_path(order.id)) %>
+              <%= link_to(t(:ship_now), confirm_sales_order_path(order.id)) %>
             <% end %>
           </td>
         </tr>
@@ -111,5 +114,48 @@
     <% end %>
   <% end %>
 </table>
+</br>
+
+<!-- sales_orders report modal-->
+<div class="modal fade" id="salesOrderReportModal" tabindex="-1" role="dialog" aria-labelledby="salesOrderReportModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><%=t(:sales_orders)%>(<%=t(:overview)%>)</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped">
+          <tr>
+            <th><%=t(:part_number)%>#</th>
+            <th><%=t(:last_month)%></th>
+            <th><%=t(:this_month)%></th>
+            <th><%=t(:this_quarter)%></th>
+            <th><%=t(:last_1_quarter)%></th>
+            <th><%=t(:last_2_quarter)%></th>
+            <th><%=t(:last_3_quarter)%></th>
+            <th><%=t(:last_year)%></th>
+
+            <% @main_items.each do |item| %>
+              <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+                  <td><%= item.partNo %></td>
+                  <td><%= @last_month_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td class="text-primary"><%= @this_month_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td class="text-primary"><%= @this_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td><%= @last_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td><%= @last_2nd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td><%= @last_3rd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td><%= @last_year_line_items.where(item_id: item.id).sum("quantity")%></td>
+              </tr>
+            <% end %>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 </br>

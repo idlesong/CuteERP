@@ -2,13 +2,12 @@ require 'test_helper'
 
 class ItemsControllerTest < ActionController::TestCase
   setup do
-    @item = items(:one)
+    @item = items(:sct3258t)
     @update = {
-      :name => 'Digital WalkieTalkie BB',
+      :name => '数字对讲机系带信号处理芯片',
       :partNo => 'SCT3928',
       :package => 'BGA144',
-      :imageURL => 'rails.png',
-      :price => 118
+      :price => 30
     }
   end
 

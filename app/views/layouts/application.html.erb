@@ -12,16 +12,16 @@
       <li class="nav_left"><a href=<%= settings_path %>><i class="fa fa-suitcase"></i>CuteERP </a></li>
       <% if current_user %>
         <li class="nav_left"> <%= link_to "@#{current_user.name}", '/admin' %> </li>
-        <li class="nav_left"> <%= link_to "Logout", '/logout' %></li>
+        <li class="nav_left"> <%= link_to t(:logout), '/logout' %></li>
       <% else %>
-        <li class="nav_left"><%= link_to 'Login', '/login' %> </li>
-        <li class="nav_left"> <%= link_to 'Signup', '/signup' %> </li>
+        <li class="nav_left"><%= link_to t(:login), '/login' %> </li>
+        <li class="nav_left"> <%= link_to t(:signup), '/signup' %> </li>
       <% end %>
-      <li class="nav_right"><a href=<%= contacts_path %>><i class="fa fa-user"></i>Contacts </a></li>
-      <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i>Docs</a></li>
-      <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-tags"></i>Products </a></li>
-      <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i>Customers</a></li>
-      <li class="nav_right"><a href="#"><i class="fa fa-truck"></i>Suppliers</a></li>
+      <li class="nav_right"><a href=<%= contacts_path %>><i class="fa fa-user"></i><%=t(:contact)%></a></li>
+      <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i><%=t(:document)%></a></li>
+      <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-tags"></i><%=t(:product)%></a></li>
+      <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i><%=t(:customer)%></a></li>
+      <li class="nav_right"><a href="#"><i class="fa fa-truck"></i><%=t(:supplier)%></a></li>
     </ul>
   </div>
 
@@ -29,18 +29,19 @@
     <div class="row">
       <div class="col-md-2">
         <ul class="list-group">
-            <li class="list-group-item disabled">Group Sales</li>
-            <li class="list-group-item"><a href=<%= opportunities_path %>>Opportunities</a></li>
-            <li class="list-group-item"><a href=<%= orders_path %>>Customer Orders</a></li>
-            <li class="list-group-item"><a href=<%= sales_orders_path %>>Sales Orders</a></li>
-            <li class="list-group-item"><a href=<%= prices_path %>>Prices</a></li>
-            <li class="list-group-item disabled">Tools</li>
-            <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-user"></i> New contact</a></li>
-            <li class="list-group-item"><a href=<%= new_customer_path(:simplify => 'yes') %> ><i class="fa fa-user"></i> New customer</a></li>
+            <li class="list-group-item disabled"><%=t(:sales_group)%></li>
+            <li class="list-group-item"><a href=<%= opportunities_path %>><%=t(:opportunities)%></a></li>
+            <li class="list-group-item"><a href=<%= orders_path %>><%=t(:order)%></a></li>
+            <li class="list-group-item"><a href=<%= sales_orders_path %>><%=t(:sales_orders)%></a></li>
+            <li class="list-group-item"><a href=<%= prices_path %>><%=t(:price)%></a></li>
+            <li class="list-group-item disabled"><%=t(:tools)%></li>
+            <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-user"></i> <%=t(:new_contact)%></a></li>
+            <li class="list-group-item"><a href=<%= new_customer_path(:simplify => 'yes') %> ><i class="fa fa-user"></i><%=t(:new_customer)%></a></li>
         </ul>
       </div>
 
       <div class="col-md-10">
+            <!-- <= flash_messages > -->
   			    <%= yield %>
   		</div>
 

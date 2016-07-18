@@ -1,7 +1,7 @@
 <%= form_for @customer, :html => { :class => 'form-horizontal' } do |f| %>
   <% if @customer.errors.any? %>
   <div id="error_explanation" class="alert alert-danger" role="alert">
-    <h2><%= pluralize(@customer.errors.count, "error") %> prohibited this order from being saved:</h2>
+    <h2><%= pluralize(@customer.errors.count, "error") %> <%=t(:prohibited_save)%>:</h2>
 
     <ul>
       <% @customer.errors.full_messages.each do |msg| %>
@@ -14,7 +14,7 @@
   <div class="control-group">
     <div class="row">
       <div class="col-xs-3">
-        <%= f.label :name, :class => 'control-label' %>
+        <%= f.label "#{t(:customer)}#{t(:name)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :name, :class => 'text_field', placeholder:'Company *name*' %>
         </div>
@@ -22,7 +22,7 @@
       <div>
         <div class="col-xs-3">
           <div class="control-group">
-            <%= f.label :since, :class => 'control-label' %>
+            <%= f.label t(:since), :class => 'control-label' %>
             <div class="controls">
               <%= f.date_select :since, :class => 'date_select' %>
             </div>
@@ -35,7 +35,7 @@
   <div class="row">
     <div class="col-xs-2">
       <div class="control-group">
-        <%= f.label :currency, :class => 'control-label' %>
+        <%= f.label t(:currency), :class => 'control-label' %>
         <div class="controls">
           <%= f.select(:currency, Customer::CURRENCY_TYPES) %>
         </div>
@@ -43,7 +43,7 @@
     </div>
     <div class="col-xs-2">
       <div class="control-group">
-        <%= f.label :payment, :class => 'control-label' %>
+        <%= f.label t(:payment_term), :class => 'control-label' %>
         <div class="controls">
           <%= f.select(:payment, Order::PAYMENT_TYPES) %>
         </div>
@@ -51,7 +51,7 @@
     </div>
     <div class="col-xs-3">
       <div class="control-group">
-        <%= f.label :balance, :class => 'control-label' %>
+        <%= f.label t(:balance), :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :balance, :class => 'text_field', :value => 0 %>
         </div>
@@ -63,19 +63,19 @@
   <div class="row">
     <div class="col-xs-6">
       <div class="control-group">
-        <%= f.label 'bill_address', :class => 'control-label'%>
+        <%= f.label "#{t(:bill)}#{t(:address)}", :class => 'control-label'%>
         <div class="controls">
           <%= f.text_area :address, :class => 'text_area',:rows=> 4, placeholder:'Please enter address'  %>
         </div>
       </div>
       <div class="control-group">
-        <%= f.label 'bill_contact', :class => 'control-label' %>
+        <%= f.label "#{t(:bill)}#{t(:contact)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :contact, :class => 'text_field', placeholder:'Please enter contact name' %>
         </div>
       </div>
       <div class="control-group">
-        <%= f.label 'bill_telephone', :class => 'control-label' %>
+        <%= f.label "#{t(:bill)}#{t(:telephone)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :telephone, :class => 'text_field',placeholder:'0510-6682208' %>
         </div>
@@ -84,19 +84,19 @@
 
     <div class="col-xs-6">
       <div class="control-group">
-        <%= f.label 'ship_address', :class => 'control-label'%>
+        <%= f.label "#{t(:ship)}#{t(:address)}", :class => 'control-label'%>
         <div class="controls">
           <%= f.text_area :ship_address, :class => 'text_area',:rows=> 4, placeholder:'Please enter address'  %>
         </div>
       </div>
       <div class="control-group">
-        <%= f.label 'ship_contact', :class => 'control-label' %>
+        <%= f.label "#{t(:ship)}#{t(:contact)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :ship_contact, :class => 'text_field', placeholder:'Please enter contact name' %>
         </div>
       </div>
       <div class="control-group">
-        <%= f.label 'ship_telephone', :class => 'control-label' %>
+        <%= f.label "#{t(:ship)}#{t(:telephone)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :ship_telephone, :class => 'text_field',placeholder:'0510-6682208' %>
         </div>

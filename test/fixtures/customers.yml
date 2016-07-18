@@ -1,17 +1,53 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  name: MyString
-  address: MyText
+asichip:
+  name: Shenzhen_Asichip_Limited
+  currency: RMB
+  payment: COD
   since: 2013-06-25
-  balance: 9.99
-  contact: MyString
-  telephone: MyString
+  balance: 10000
+  contact: Cuijiyong
+  address: Shenzhen
+  telephone: 0755-68888888
+  ship_contact: Ken
+  ship_address: Shenzhen
+  ship_telephone: 0755-68888888
 
-two:
-  name: MyString
-  address: MyText
+hyt:
+  name: Shenzhen_hytera_Group
+  currency: RMB
+  payment: COD
   since: 2013-06-25
-  balance: 9.99
-  contact: MyString
-  telephone: MyString
+  balance: 10000
+  contact: Liujuan
+  address: Shenzhen
+  telephone: 0755-68888888
+  ship_contact: Penxing
+  ship_address: Shenzhen
+  ship_telephone: 0755-68888888
+
+onreal:
+  name: Onreal_Limited
+  currency: RMB
+  payment: COD
+  since: 2013-06-25
+  balance: 10000
+  contact: Tangjianyin
+  address: Shenzhen
+  telephone: 0755-68888888
+  ship_contact: Chen
+  ship_address: Shenzhen
+  ship_telephone: 0755-68888888
+
+celetra:
+  name: Korea *celetra* ltd
+  currency: USD
+  payment: COD
+  since: 2013-06-25
+  balance: 10000
+  contact: Jung
+  address: Korea
+  telephone: 029-68888888
+  ship_contact: Samyung
+  ship_address: Korea
+  ship_telephone: 029-68888888

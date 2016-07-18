@@ -12,63 +12,63 @@
   <% end %>
 
   <div class="control-group">
-    <%= f.label :item_id, :class => 'control-label' %>
+    <%= f.label t(:item), :class => 'control-label' %>
     <div class="controls">
       <%= f.collection_select(:item_id, Item.all, :id, :partNo) %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :customer_id, :class => 'control-label' %>
+    <%= f.label t(:customer), :class => 'control-label' %>
     <div class="controls">
       <%= f.collection_select(:customer_id, Customer.all, :id, :name) %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :price, :class => 'control-label' %>
+    <%= f.label t(:price), :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :price, :class => 'text_field' %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :payment_terms, :class => 'control-label' %>
+    <%= f.label t(:payment_term), :class => 'control-label' %>
     <div class="controls">
       <%= f.select(:payment_terms, Order::PAYMENT_TYPES) %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :condition, :class => 'control-label' %>
+    <%= f.label t(:condition), :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :condition, :class => 'text_field' %>
     </div>
   </div>
 
   <div class="control-group">
-    <%= f.label :sales_suggestion, :class => 'control-label' %>
+    <%= f.label t(:sales_suggestion), :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :sales_suggestion, :class => 'text_field' %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :department_suggestion, :class => 'control-label' %>
+    <%= f.label t(:department_suggestion), :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :department_suggestion, :class => 'text_field' %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :finance_suggestion, :class => 'control-label' %>
+    <%= f.label t(:finance_suggestion), :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :finance_suggestion, :class => 'text_field' %>
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :boss_suggestion, :class => 'control-label' %>
+    <%= f.label t(:boss_suggestion), :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :boss_suggestion, :class => 'text_field' %>
     </div>
   </div>
 
   <div class="control-group">
-    <%= f.label :status, :class => 'control-label' %>
+    <%= f.label t(:status), :class => 'control-label' %>
     <div class="controls">
       <%= f.select(:status, [['request'],['approved']]) %>
     </div>

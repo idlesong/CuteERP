@@ -3,19 +3,19 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">add products to cart: <%= current_customer.name %></h4>
+        <h4 class="modal-title" id="myModalLabel"><%=t(:add_product_to_order)%>:<%= current_customer.name %></h4>
       </div>
       <div class="modal-body">
         <table class="table table-striped">
           <tr>
-            <th>Name</th>
-            <th>PartNo</th>
+            <th><%=t(:product_name)%></th>
+            <th><%=t(:part_number)%></th>
             <th></th>
             <th></th>
-            <th>Package</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Action</th>
+            <th><%=t(:package)%></th>
+            <th><%=t(:price)%></th>
+            <th><%=t(:quantity)%></th>
+            <th><%=t(:actions)%></th>
           </tr>
 
           <% if not @customers.nil? then %>
@@ -29,7 +29,7 @@
                 <td><%= item.package %></td>
                 <td>¥<%= current_customer.get_special_price(item)%></td>
                 <td><%= text_field_tag(:quantity, item.mop, placeholder: item.mop, size:10) %></td>
-                <td><%= submit_tag("add") %></td>
+                <td><%= submit_tag(t(:add), :class=>"btn btn-xs btn-primary") %></td>
               <% end %>
             </tr>
             <% end %>
@@ -37,7 +37,7 @@
         </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"><%=t(:close)%></button>
       </div>
     </div>
   </div>

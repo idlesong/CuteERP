@@ -1,58 +1,55 @@
 require 'test_helper'
 
 class ItemTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
-  test "item attributes must not be empty" do
+
+  test "should not save without nessary attribute" do
   	item = Item.new
-  	assert item.invalid?
-  	assert item.errors[:name].any?
-    assert item.errors[:partNo].any?
-  	# assert item.errors[:package].any?
-  	#assert item.errors[:price].any?
+    assert item.invalid?
+    assert_equal [:name, :partNo, :price], item.errors.keys
   end
 
-  test "item price must be positive" do
-  	item = Item.new(:name => "SRT3241",
-  					:package => "QFN48",
-  					:imageURL => "rails.png")
+  test "should save with nessary attribute" do
+  	item = Item.new(name: "高效率功率放大器", partNo: "SCT3604A", price: 3)
+    assert item.valid?, item.errors.full_messages.to_s
+  end
+
+  test "partNo should be unique" do
+    item = Item.create(name: "功率放大器", partNo: "S3604", price: 5)
+    item = Item.new(name: "功率放大器", partNo: "S3604", price: 5)
+    assert item.invalid?, item.errors.full_messages.to_s
+    assert_equal "has already been taken", item.errors[:partNo].join(';')
+  end
+
+  test "price should greate than or equal to 0" do
+  	item = Item.new(name: "高效率功率放大器", partNo: "SCT3604B")
   	item.price = -1
+
   	assert item.invalid?
-  	assert_equal "must be greater than or equal to 0.01",
-  		item.errors[:price].join(';')
+  	assert_equal "must be greater than or equal to 0", item.errors[:price].join(';')
 
     item.price = 0
-    assert item.invalid?
-    assert_equal "must be greater than or equal to 0.01",
-      item.errors[:price].join(';')
+    assert item.valid?, item.errors.full_messages.to_s
 
   	item.price = 1
-  	assert item.invalid?
+  	assert item.valid?, item.errors.full_messages.to_s
   end
 
-  def new_item(image_URL)
-  	Item.new(:name  => "PA SCT3604",
-  			 :package => "QFN24",
-  			 :price => 4,
-  			 :partNo => "SCT3604",
-  			 :imageURL => image_URL)
-  end
 
-  test "image url" do
-  	ok = %w{fred.gif fred.png FRED.JPG FRED.Jpg
-  			http://a.b.c/x/y/z/fred.gif}
 
-  	bad = %w{ fred.doc fred.gif/more fred.gif.more }
-
-  	ok.each do |name|
-  		assert new_item(name).valid?, "#{name} shouldn't be invalid"
-  	end
-
-  	# bad.each do |name|
-  	# 	assert new_item(name).invalid?, "#{name} shouldn't be valid"
-  	# end
-  end
+  # test "image url" do
+  # 	ok = %w{fred.gif fred.png FRED.JPG FRED.Jpg
+  # 			http://a.b.c/x/y/z/fred.gif}
+  #
+  # 	bad = %w{ fred.doc fred.gif/more fred.gif.more }
+  #
+  # 	ok.each do |name|
+  # 		assert new_item(name).valid?, "#{name} shouldn't be invalid"
+  # 	end
+  #
+  # 	# bad.each do |name|
+  # 	# 	assert new_item(name).invalid?, "#{name} shouldn't be valid"
+  # 	# end
+  # end
 
 
 end

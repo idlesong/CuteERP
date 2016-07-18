@@ -2,7 +2,7 @@
 
   <% if @post.errors.any? %>
   <div id="error_explanation" class="alert alert-danger" role="alert">
-    <h2><%= pluralize(@post.errors.count, "error") %> prohibited this order from being saved:</h2>
+    <h2><%= pluralize(@post.errors.count, "error") %> <%=t(:prohibited_save)%>:</h2>
 
     <ul>
       <% @post.errors.full_messages.each do |msg| %>

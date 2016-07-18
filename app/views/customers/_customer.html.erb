@@ -1,25 +1,31 @@
-<% if notice %>
-  <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
-<% end %>
+<!-- < if notice >
+  <p id="notice" class="alert alert-info" role="alert"><= notice %</p>
+< end > -->
 
-<h5>发票地址:<%= @customer.address %>， 电话：<%= @customer.telephone %>， 联系人：<%= @customer.contact %></h5>
-<h5>仓库地址:<%= @customer.ship_address %>， 仓库电话：<%= @customer.ship_telephone %>， 收货人：<%= @customer.ship_contact %>
-<%= link_to 'edit', edit_customer_path(@customer) %></h5>
+<h5><%=t(:bill)%><%=t(:address)%>:<%= @customer.address %>,
+    <%=t(:bill)%><%=t(:contact)%><%= @customer.contact %>,
+    <%=t(:telephone)%> <%= @customer.telephone %></h5>
+
+<h5><%=t(:ship)%><%=t(:address)%>:<%= @customer.ship_address %>,
+    <%=t(:ship)%><%=t(:contact)%><%= @customer.ship_contact %>
+    <%=t(:ship)%><%=t(:telephone)%>:<%= @customer.ship_telephone %>，
+<%= link_to t('.edit',default: t("helpers.links.edit")), edit_customer_path(@customer) %></h5>
 
 
-<h3> Contacts
-<button type="button" class="btn btn-mini btn-primary ajax-new" data= <%= @customer.id %> id="/contacts">new contact</button>
+<h3> <%=t(:contact)%>
+<button type="button" class="btn btn-mini btn-primary ajax-new"
+  data= <%= @customer.id %> id="/contacts"><%=t(:new_contact)%></button>
 </h3>
 
 <table class="table table-striped table-bordered">
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Title</th>
-      <th>Mobile</th>
-      <th>Telephone</th>
-      <th>Email</th>
-      <th>Note</th>
+      <th><%=t(:name)%></th>
+      <th><%=t(:title)%></th>
+      <th><%=t(:mobile)%></th>
+      <th><%=t(:telephone)%></th>
+      <th><%=t(:email)%></th>
+      <th><%=t(:note)%></th>
     </tr>
   </thead>
 
@@ -37,7 +43,7 @@
 
 <%= render("shared/sales_orders_list") %>
 
-<h3>Opportunities
+<h3><%=t(:opportunities)%>
 <button type="button" class="btn btn-mini btn-primary ajax-new" data= <%= @customer.id %> id="/opportunities">new opportunity</button>
 </h3>
 

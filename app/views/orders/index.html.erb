@@ -1,19 +1,19 @@
-<p id="notice"><%= notice %></p>
+<!-- <p id="notice"><= notice ></p> -->
 
-<h3> Customer Orders(PO in lineitems) </h3>
+<h3> <%=t(:sales_orders)%>(<%=t(:show_as_lines)%>) </h3>
 <table class="table datatable">
   <thead>
     <tr>
-      <th><h4>#-Customer PO#</h4></th>
-      <th><h4>Customer</h4></th>
-      <th><h4>Date</h4></th>
-      <th><h4>Product name</h4></th>
-      <th><h4>PartNo.</h4></th>
-      <th><h4>Price</h4></th>
-      <th><h4>Qty</h4></th>
-      <th><h4>Qty left</h4></th>
-      <th><h4>Suble Total</h4></th>
-      <th><h4>Action</th></th>
+      <th><h4><%=t(:order)%>#</h4></th>
+      <th><h4><%=t(:customer)%></h4></th>
+      <th><h4><%=t(:show_date)%></h4></th>
+      <th><h4><%=t(:product_name)%></h4></th>
+      <th><h4><%=t(:part_number)%></h4></th>
+      <th><h4><%=t(:price)%></h4></th>
+      <th><h4><%=t(:quantity)%></h4></th>
+      <th><h4><%=t(:quantity_left)%></h4></th>
+      <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:actions)%></th></th>
     </tr>
   </thead>
 
@@ -40,7 +40,7 @@
         <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
         <td>
         <% if line_item.quantity > line_item.quantity_issued then %>
-          <%= link_to "issue", new_sales_order_path(:customer_id => order.customer.id) %>
+          <%= link_to t(:issue), new_sales_order_path(:customer_id => order.customer.id) %>
         <% end %>
         </td>
       </tr>

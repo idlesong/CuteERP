@@ -1,0 +1,313 @@
+---
+zh-CN:
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "验证失败: %{errors}"
+        restrict_dependent_destroy:
+          has_one: 由于 %{record} 需要此记录，所以无法移除记录
+          has_many: 由于 %{record} 需要此记录，所以无法移除记录
+  date:
+    abbr_day_names:
+    - 周日
+    - 周一
+    - 周二
+    - 周三
+    - 周四
+    - 周五
+    - 周六
+    abbr_month_names:
+    -
+    - 1月
+    - 2月
+    - 3月
+    - 4月
+    - 5月
+    - 6月
+    - 7月
+    - 8月
+    - 9月
+    - 10月
+    - 11月
+    - 12月
+    day_names:
+    - 星期日
+    - 星期一
+    - 星期二
+    - 星期三
+    - 星期四
+    - 星期五
+    - 星期六
+    formats:
+      default: "%Y-%m-%d"
+      long: "%Y年%b%d日"
+      short: "%b%d日"
+    month_names:
+    -
+    - 一月
+    - 二月
+    - 三月
+    - 四月
+    - 五月
+    - 六月
+    - 七月
+    - 八月
+    - 九月
+    - 十月
+    - 十一月
+    - 十二月
+    order:
+    - :year
+    - :month
+    - :day
+  datetime:
+    distance_in_words:
+      about_x_hours:
+        one: 大约一小时
+        other: 大约 %{count} 小时
+      about_x_months:
+        one: 大约一个月
+        other: 大约 %{count} 个月
+      about_x_years:
+        one: 大约一年
+        other: 大约 %{count} 年
+      almost_x_years:
+        one: 接近一年
+        other: 接近 %{count} 年
+      half_a_minute: 半分钟
+      less_than_x_minutes:
+        one: 不到一分钟
+        other: 不到 %{count} 分钟
+      less_than_x_seconds:
+        one: 不到一秒
+        other: 不到 %{count} 秒
+      over_x_years:
+        one: 一年多
+        other: "%{count} 年多"
+      x_days:
+        one: 一天
+        other: "%{count} 天"
+      x_minutes:
+        one: 一分钟
+        other: "%{count} 分钟"
+      x_months:
+        one: 一个月
+        other: "%{count} 个月"
+      x_seconds:
+        one: 一秒
+        other: "%{count} 秒"
+    prompts:
+      day: 日
+      hour: 时
+      minute: 分
+      month: 月
+      second: 秒
+      year: 年
+  errors:
+    format: "%{attribute}%{message}"
+    messages:
+      accepted: 必须是可被接受的
+      blank: 不能为空字符
+      present: 必须是空白
+      confirmation: 与确认值不匹配
+      empty: 不能留空
+      equal_to: 必须等于 %{count}
+      even: 必须为双数
+      exclusion: 是保留关键字
+      greater_than: 必须大于 %{count}
+      greater_than_or_equal_to: 必须大于或等于 %{count}
+      inclusion: 不包含于列表中
+      invalid: 是无效的
+      less_than: 必须小于 %{count}
+      less_than_or_equal_to: 必须小于或等于 %{count}
+      model_invalid: "验证失败: %{errors}"
+      not_a_number: 不是数字
+      not_an_integer: 必须是整数
+      odd: 必须为单数
+      required: 必须存在
+      taken: 已经被使用
+      too_long:
+        one: 过长（最长为一个字符）
+        other: 过长（最长为 %{count} 个字符）
+      too_short:
+        one: 过短（最短为一个字符）
+        other: 过短（最短为 %{count} 个字符）
+      wrong_length:
+        one: 长度非法（必须为一个字符）
+        other: 长度非法（必须为 %{count} 个字符）
+      other_than: 长度非法（不可为 %{count} 个字符
+    template:
+      body: 如下字段出现错误：
+      header:
+        one: 有 1 个错误发生导致「%{model}」无法被保存。
+        other: 有 %{count} 个错误发生导致「%{model}」无法被保存。
+  helpers:
+    actions: "操作"
+    links:
+      back: "后退"
+      cancel: "取消"
+      confirm: "你确定吗?"
+      destroy: "删除"
+      new: "新建"
+      edit: "编辑"
+    select:
+      prompt: 请选择
+    submit:
+      create: 新增%{model}
+      submit: 储存%{model}
+      update: 更新%{model}
+  number:
+    currency:
+      format:
+        delimiter: ","
+        format: "%u %n"
+        precision: 2
+        separator: "."
+        significant: false
+        strip_insignificant_zeros: false
+        unit: CN¥
+    format:
+      delimiter: ","
+      precision: 3
+      separator: "."
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: "%n %u"
+        units:
+          billion: 十亿
+          million: 百万
+          quadrillion: 千兆
+          thousand: 千
+          trillion: 兆
+          unit: ''
+      format:
+        delimiter: ''
+        precision: 1
+        significant: false
+        strip_insignificant_zeros: false
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one: Byte
+            other: Bytes
+          gb: GB
+          kb: KB
+          mb: MB
+          tb: TB
+    percentage:
+      format:
+        delimiter: ''
+        format: "%n%"
+    precision:
+      format:
+        delimiter: ''
+  support:
+    array:
+      last_word_connector: ", 和 "
+      two_words_connector: " 和 "
+      words_connector: ", "
+  time:
+    am: 上午
+    formats:
+      default: "%Y年%b%d日 %A %H:%M:%S %Z"
+      long: "%Y年%b%d日 %H:%M"
+      short: "%b%d日 %H:%M"
+    pm: 下午
+  confirm_sales_order: "确认销售订单"
+  hello: "你好"
+  signup: "注册"
+  login: "登陆"
+  logout: "退出"
+  supplier: "供应商"
+  product: "产品"
+  document: "文档"
+  contact: "联系人"
+  sales_group: "销售部"
+  opportunities: "机会"
+  order: "客户订单"
+  sales_orders: "销售订单"
+  sales_order: "销售订单"
+  tools: "工具"
+  new_contact: "新建联系人"
+  new_customer: "新建客户"
+  dashboard: "个人中心"
+  unissued_po: "未执行客户订单"
+  customer: "客户"
+  show_date: "日期"
+  product_name: "产品名称"
+  part_number: "型号"
+  price: "价格"
+  quantity: "数量"
+  quantity_left: "剩余数量"
+  quantity_issued: "已用数量"
+  suble_total: "合计"
+  refer_po: "对应订单号"
+  ship_date: "发货日期"
+  new_order: "新增订单"
+  last_month: "上月"
+  this_month: "本月"
+  this_quarter: "本季度"
+  last_1_quarter: "上一个季度"
+  last_2_quarter: "上上个季度"
+  last_3_quarter: "再上上个季度"
+  last_year: "去年"
+  overview: "概览"
+  payment_term: "付款方式"
+  change_customer: "切换客户"
+  customer_name: "客户名称"
+  balance: "应收款"
+  select: "选择"
+  bill_to: "发票寄到"
+  ship_to: "货物寄到"
+  address: "地址"
+  telephone: "电话"
+  order_cart_lineitems: "订单明细"
+  order_details: "订单明细"
+  add_product_to_order: "添加产品到订单"
+  package: "封装"
+  remark: "备注"
+  order_number: "客户订单号"
+  received_date: "接收日期"
+  submit_order: "提交订单"
+  issue_sales_order: "生成销售订单"
+  show_as_lines: "按行显示"
+  quotation: "报价单"
+  issue: "执行"
+  issue_to_cart: "加入销售订单"
+  unissued: "未执行"
+  ship_now: "现在发货"
+  sales_order_number: "销售订单号"
+  invocie: "invoice"
+  packing_list: "装箱单"
+  ship_status: "发货状态"
+  add_ship_status: "输入发货信息"
+  confirm_and_place_order: "确认发票和发货信息无误，提交订单"
+  actions: "操作"
+  default_price: "默认价格"
+  condition: "条件"
+  status: "状态"
+  created_at: "创建日期"
+  description: "描述"
+  tax_rate: "税率"
+  mpq: "最小包装"
+  name: "名称"
+  currency: "币种"
+  since: "始于"
+  title: "头衔"
+  mobile: "移动电话"
+  email: "电子邮件"
+  note: "备注"
+  bill: "发票"
+  ship: "收货"
+  add: "添加"
+  prohibited_save: "导致「%{model}」无法被保存"
+  place_sales_order: "提交销售订单"
+  new_price: "新审价单"
+  sales_suggestion: "销售建议"
+  department_suggestion: "部门主管建议"
+  finance_suggestion: "财务建议"
+  boss_suggestion: "总经理建议"
+  item: "产品"

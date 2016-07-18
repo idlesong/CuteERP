@@ -1,20 +1,20 @@
 <%- model_class = Item -%>
 <div class="page-header">
-  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+  <h1><%=t(:product) %></h1>
 </div>
 <table class="table table-striped datatable">
   <thead>
     <tr>
       <th>-</th>
       <th>ID</th>
-      <th><%= model_class.human_attribute_name(:partNo) %></th>
-      <th><%= model_class.human_attribute_name(:name) %></th>
-      <th><%= model_class.human_attribute_name(:description) %></th>
-      <th><%= model_class.human_attribute_name(:package) %></th>
-      <th><%= model_class.human_attribute_name(:price) %></th>
-      <th><%= model_class.human_attribute_name(:rmb_tax_rate) %></th>
-      <th><%= model_class.human_attribute_name(:usd_tax_rate) %></th>
-      <th> MPQ </th>
+      <th><%=t(:part_number) %></th>
+      <th><%=t(:product_name) %></th>
+      <th><%=t(:description) %></th>
+      <th><%=t(:package) %></th>
+      <th><%=t(:price) %></th>
+      <th>RMB<%=t(:tax_rate) %></th>
+      <th>USD<%=t(:tax_rate) %></th>
+      <th><%=t(:mpq)%> </th>
     </tr>
   </thead>
   <tbody>
@@ -35,14 +35,14 @@
   </tbody>
 </table>
 
-
-<p>
+<%= link_to 'New Item', new_item_path, :class=>"btn btn-primary" %>
+<!-- <p>
   More:
-  <%= link_to("NEW", new_item_path) %>
+  <= link_to("NEW", new_item_path) >
   Download:
-  <%= link_to "CSV", items_path(format: "csv") %> |
-  <%= link_to "Excel", items_path(format: "xls") %>
-</p>
+  <= link_to "CSV", items_path(format: "csv") > |
+  <= link_to "Excel", items_path(format: "xls") >
+</p> -->
 
 <!-- <p>Import Products</p> -->
 <% if false %>

@@ -1,7 +1,7 @@
 <%= render 'shared/delivery_status_modal'%>
 
-<p id="notice"><%= notice %></p>
-<h1>Sales Order</h1>
+<!-- <p id="notice"><= notice ></p> -->
+<h1><%=t(:sales_order)%></h1>
 
 <div class="panel panel-default">
   <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
@@ -19,30 +19,30 @@
             <h5>Tel:051066682208 Fax: 051066682208</h5>
           </td>
           <td>
-            <h4 class="text-right"> Order Date: <%= @sales_order.created_at.to_date %></h4>
-            <h4 class="text-right"> SO#:<%= @sales_order.serial_number %></h4>
-            <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
-            <h4 class="text-right"> Ship Date:
+            <h4 class="text-right"><%=t(:show_date)%>:<%= @sales_order.created_at.to_date %></h4>
+            <h4 class="text-right"><%=t(:sales_order_number)%>#:<%= @sales_order.serial_number %></h4>
+            <h4 class="text-right"><%=t(:payment_term)%>:<%= @sales_order.payment_term %></h4>
+            <h4 class="text-right"><%=t(:ship_date)%>:
               <% if @sales_order.delivery_date %>
                 <%= @sales_order.delivery_date.to_date %>
               <% else %>
-                <%= link_to('ship now', confirm_sales_order_path(@sales_order)) %>
+                <%= link_to(t(:ship_now), confirm_sales_order_path(@sales_order)) %>
               <% end %>
             </h4>
           </td>
         </tr>
       </thead>
-      <tr><td colspan = "2"><h3 class="text-center"> Sales Order</h3></td></tr>
-      <tr><td><h4>Bill to: <%= @sales_order.customer.name %></h4></td>
-          <td><h4> Ship to: <%= @sales_order.customer.name %></h4></td></tr>
+      <tr><td colspan = "2"><h3 class="text-center"><%=t(:sales_order)%></h3></td></tr>
+      <tr><td><h4><%=t(:bill_to)%>: <%= @sales_order.customer.name %></h4></td>
+          <td><h4><%=t(:ship_to)%>: <%= @sales_order.customer.name %></h4></td></tr>
 
       </tr>
-      <tr><td><strong>Contact:</strong><%= @sales_order.bill_contact %></td>
-          <td><strong>Contact:</strong><%= @sales_order.ship_contact %></td></tr>
-      <tr><td><strong>Address:</strong><%= @sales_order.bill_address %></td>
-          <td><strong>Address:</strong><%= @sales_order.ship_address %></td></tr>
-      <tr><td><strong>Tel:  </strong><%= @sales_order.bill_telephone %></td>
-          <td><strong>Tel:  </strong><%= @sales_order.ship_telephone %></td></tr>
+      <tr><td><strong><%=t(:contact)%>:</strong><%= @sales_order.bill_contact %></td>
+          <td><strong><%=t(:contact)%>:</strong><%= @sales_order.ship_contact %></td></tr>
+      <tr><td><strong><%=t(:address)%>:</strong><%= @sales_order.bill_address %></td>
+          <td><strong><%=t(:address)%>:</strong><%= @sales_order.ship_address %></td></tr>
+      <tr><td><strong><%=t(:telephone)%>:</strong><%= @sales_order.bill_telephone %></td>
+          <td><strong><%=t(:telephone)%>:</strong><%= @sales_order.ship_telephone %></td></tr>
     </table>
 
   </div>
@@ -51,17 +51,17 @@
 <div class="panel panel-default">
   <!-- <div class="panel-heading"><h5>Order Details<h5></div> -->
   <div class="panel-body">
-    <h5> Order details </h5>
+    <h5><%=t(:order_details)%> </h5>
     <table class="table">
     	<thead>
     		<tr>
     			<th><h4>#</h4></th>
-    			<th><h4>Product name</h4></th>
-    			<th><h4>PartNo.</h4></th>
-    			<th><h4>Qty</h4></th>
-    			<th><h4>Price</h4></th>
-    			<th><h4>Suble Total</h4></th>
-    			<th><h4>Remark</h4></th>
+    			<th><h4><%=t(:product_name)%></h4></th>
+    			<th><h4><%=t(:part_number)%></h4></th>
+    			<th><h4><%=t(:quantity)%></h4></th>
+    			<th><h4><%=t(:price)%></h4></th>
+    			<th><h4><%=t(:suble_total)%></h4></th>
+    			<th><h4><%=t(:remark)%></h4></th>
     		</tr>
     	</thead>
       <% if @sales_order.customer.currency == 'RMB'
@@ -90,7 +90,7 @@
     		</tr>
     	<% end %>
 
-	    <tr><td colspan="7"> <strong>Remarks:</strong>
+	    <tr><td colspan="7"> <strong><%=t(:remark)%>:</strong>
          <% if currency_unit == '$' %>
            Exchange rate:<%= @sales_order.exchange_rate %>
          <% end %>
@@ -100,14 +100,14 @@
 
   <div class="panel-footer">
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-invoice-modal-lg">Invoice</button> |
+      data-target=".bs-invoice-modal-lg"><%=t(:invoice)%></button> |
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-      data-target=".bs-packing-modal-lg">Packing List</button> |
+      data-target=".bs-packing-modal-lg"><%=t(:packing_list)%></button> |
     <% if @sales_order.delivery_status %>
       <%= "ship:#{@sales_order.delivery_status}" %>
     <% else %>
-      <a class="shipLink" data-toggle="modal" data-target="#deliveryStatusModal"
-      data-id=<%="#{@sales_order.id}" %> > Ship Status </a>
+      <a class="shipLink" href="" data-toggle="modal" data-target="#deliveryStatusModal"
+      data-id=<%="#{@sales_order.id}" %> > <%=t(:ship_status)%> </a>
     <% end %>
   </div>
 </div>

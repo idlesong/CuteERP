@@ -1,19 +1,19 @@
 <%- model_class = Contact -%>
 <div class="page-header">
-  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+  <h1><%=t(:contact) %></h1>
 </div>
 <table class="table table-striped datatable">
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%= model_class.human_attribute_name(:name) %></th>
-      <th><%= model_class.human_attribute_name(:customer_id) %></th>
-      <th><%= model_class.human_attribute_name(:title) %></th>
-      <th><%= model_class.human_attribute_name(:mobile) %></th>
-      <th><%= model_class.human_attribute_name(:telephone) %></th>
-      <th><%= model_class.human_attribute_name(:email) %></th>
-      <th><%= model_class.human_attribute_name(:address) %></th>
-      <th><%= model_class.human_attribute_name(:note) %></th>
+      <th><%= t(:name) %></th>
+      <th><%= t(:customer) %></th>
+      <th><%= t(:title) %></th>
+      <th><%= t(:mobile) %></th>
+      <th><%= t(:telephone) %></th>
+      <th><%= t(:email) %></th>
+      <th><%= t(:address) %></th>
+      <th><%= t(:note) %></th>
     </tr>
   </thead>
   <tbody>

@@ -9,22 +9,22 @@
               <h3><%= @order.customer.name %> </h3>
             </td>
             <td>
-              <h4 class="text-right"> Date: <%= DateTime.now.to_date %></h4>
-              <h4 class="text-right"> Payment:<%= @order.pay_type%></h4>
+              <h4 class="text-right"><%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
+              <h4 class="text-right"><%=t(:payment_term)%>:<%= @order.pay_type%></h4>
             </td>
           </tr>
         </thead>
-        <tr><td colspan = "2"><h3 class="text-center"> Customer Order</h3></td></tr>
-        <tr><td><h4>Bill to: <%= @order.customer.name %>
+        <tr><td colspan = "2"><h3 class="text-center"><%=t(:order)%></h3></td></tr>
+        <tr><td><h4><%=t(:bill_to)%>:<%= @order.customer.name %>
           <a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
           data-target="#customersModal">
-            ChangeCustomer
+            <%=t(:change_customer)%>
           </a>  </h4>
-        </td>  <td><h4> Ship to:<%= @order.customer.name %></h4></td></tr>
+        </td>  <td><h4><%=t(:ship_to)%>:<%= @order.customer.name %></h4></td></tr>
 
-        <tr><td>Address:<%= @order.address %></td> <td>Address:<%= @order.ship_address %></td></tr>
-        <tr><td>Contact:<%= @order.name %></td> <td>Contact:<%= @order.ship_contact %></td></tr>
-        <tr><td>TEL:<%= @order.telephone %></td> <td>TEL:<%= @order.ship_telephone %></td></tr>
+        <tr><td><%=t(:address)%>:<%= @order.address %></td> <td><%=t(:address)%>:<%= @order.ship_address %></td></tr>
+        <tr><td><%=t(:contact)%>:<%= @order.name %></td> <td><%=t(:contact)%>:<%= @order.ship_contact %></td></tr>
+        <tr><td><%=t(:telephone)%>:<%= @order.telephone %></td> <td><%=t(:telephone)%>:<%= @order.ship_telephone %></td></tr>
       </table>
 
 			<%= f.hidden_field :customer_id, :value => @order.customer.id %>

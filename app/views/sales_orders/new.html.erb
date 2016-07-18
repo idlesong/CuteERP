@@ -14,18 +14,18 @@
               <h5>Tel:051066682208 Fax: 051066682208</h5>
             </td>
             <td>
-              <h4 class="text-right"> Date: <%= DateTime.now.to_date %></h4>
-              <h4 class="text-right"> SO#:<%= @sales_order.serial_number %></h4>
-              <h4 class="text-right"> Payment:<%= @sales_order.payment_term %></h4>
+              <h4 class="text-right"><%=t(:show_date)%>: <%= DateTime.now.to_date %></h4>
+              <h4 class="text-right"><%=t(:sales_order)%>#:<%= @sales_order.serial_number %></h4>
+              <h4 class="text-right"><%=t(:payment_term)%>:<%= @sales_order.payment_term %></h4>
             </td>
           </tr>
         </thead>
-        <tr><td colspan = "2"><h3 class="text-center"> Sales Order</h3></td></tr>
-        <tr><td><h4>Bill to:<%= @sales_order.customer.name%></h4></td>  <td><h4> Ship to:</h4></td></tr>
+        <tr><td colspan = "2"><h3 class="text-center"><%=t(:sales_order)%></h3></td></tr>
+        <tr><td><h4><%=t(:bill_to)%>:<%= @sales_order.customer.name%></h4></td>  <td><h4><%=t(:ship_to)%>:</h4></td></tr>
 
-        <tr><td>Address:<%= @sales_order.bill_address %></td> <td>Address:<%= @sales_order.ship_address %></td></tr>
-        <tr><td>Contact:<%= @sales_order.bill_contact %></td> <td>Contact:<%= @sales_order.ship_contact %></td></tr>
-        <tr><td>TEL:<%= @sales_order.bill_telephone %></td> <td>TEL:<%= @sales_order.ship_telephone %></td></tr>
+        <tr><td><%=t(:address)%>:<%= @sales_order.bill_address %></td> <td><%=t(:address)%>:<%= @sales_order.ship_address %></td></tr>
+        <tr><td><%=t(:contact)%>:<%= @sales_order.bill_contact %></td> <td><%=t(:contact)%>:<%= @sales_order.ship_contact %></td></tr>
+        <tr><td><%=t(:telephone)%>:<%= @sales_order.bill_telephone %></td> <td><%=t(:telephone)%>:<%= @sales_order.ship_telephone %></td></tr>
       </table>
 
     </div>
@@ -33,19 +33,19 @@
 
 <div class="panel panel-default">
 	<div class="panel-body">
-<h3> Customer Orders(PO in lineitems) </h3>
+<h3> <%=t(:unissued_po)%>(<%=t(:show_as_lines)%>) </h3>
 <table class="table">
   <thead>
     <tr>
       <th><h4>#</h4></th>
-      <th><h4>Customer</h4></th>
-      <th><h4>Date</h4></th>
-      <th><h4>Product name</h4></th>
-      <th><h4>PartNo.</h4></th>
-      <th><h4>Price</h4></th>
-      <th><h4>Qty</h4></th>
-      <th><h4>Qty issued</h4></th>
-      <th><h4>Suble Total</h4></th>
+      <th><h4><%=t(:customer)%></h4></th>
+      <th><h4><%=t(:show_date)%></h4></th>
+      <th><h4><%=t(:product_name)%></h4></th>
+      <th><h4><%=t(:part_number)%></h4></th>
+      <th><h4><%=t(:price)%></h4></th>
+      <th><h4><%=t(:quantity)%></h4></th>
+      <th><h4><%=t(:quantity_issued)%></h4></th>
+      <th><h4><%=t(:suble_total)%></h4></th>
       <th></th>
     </tr>
   </thead>
@@ -67,7 +67,7 @@
 
           <%= form_tag(line_items_path(:line_id => line_item.id), remote: true) do %>
           <td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
-          <td><%= submit_tag("Issue PO Line") %></td>
+          <td><%= submit_tag(t(:issue_to_cart), :class=>"btn btn-xs btn-primary") %></td>
           <% end %>
           <!-- <td>< button_to 'issue to Cart', line_items_path(:line_id => line_item.id, ) , :remote => true ></td> -->
         </tr>
@@ -107,7 +107,7 @@
       <%= f.hidden_field :serial_number %>
 
       <% @sales_order.exchange_rate = monthly_exchange_rate if @sales_order.exchange_rate.nil? %>
-      
+
       <% if @sales_order.customer.currency == "USD" %>
         <%= f.label :exchange_rate %>
         <%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :placeholder => 6.5 %>
@@ -115,7 +115,7 @@
         <%= f.hidden_field :exchange_rate %>
       <% end %>
 
-      <p class="text-center"> <%= f.submit "Place Sales Order", :class=>"btn btn-primary" %> </p>
+      <p class="text-center"> <%= f.submit t(:place_sales_order), :class=>"btn btn-primary" %> </p>
     <% end %>
 	</div>
 </div>

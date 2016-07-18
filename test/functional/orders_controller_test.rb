@@ -21,8 +21,12 @@ class OrdersControllerTest < ActionController::TestCase
   end
 
   test "should create order" do
+    item1 = Item.create({name: 'Analog WalkieTalkie BB',	description: '模拟对讲机基带',
+    	partNo: 'SRT3210', package: 'LQFP100', price: 12.0, mop: 490})
+
     assert_difference('Order.count') do
-      post :create, order: { address: @order.address, email: @order.email, name: @order.name, pay_type: @order.pay_type }
+      post :create, order: { order_number: 'test201601', pay_type: 'COD',
+        exchange_rate: 6.5}
     end
 
     assert_redirected_to inventory_path
@@ -50,8 +54,5 @@ class OrdersControllerTest < ActionController::TestCase
 
     assert_redirected_to orders_path
   end
-
-
-
 
 end

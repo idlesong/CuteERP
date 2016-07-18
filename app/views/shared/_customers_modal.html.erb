@@ -3,18 +3,18 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Change customer</h4>
+        <h4 class="modal-title" id="myModalLabel"><%=t(:change_customer)%></h4>
       </div>
       <div class="modal-body">
         <table class="table table-striped datatable">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Contact</th>
-              <th>Telephone</th>
-              <th>Balance</th>
+              <th><%=t(:customer_name)%></th>
+              <th><%=t(:contact)%></th>
+              <th><%=t(:telephone)%></th>
+              <th><%=t(:balance)%></th>
               <th>$/¥</th>
-              <th>Select</th>
+              <th><%=t(:select)%></th>
             </tr>
           </thead>
           <% if not @customers.nil? then %>
@@ -25,7 +25,8 @@
                 <td><%= customer.telephone %></td>
                 <td><%= customer.balance %></td>
                 <td><%= customer.currency %></td>
-                <td><%= link_to 'Select', {:controller =>'orders',:action => 'new',:customer_id =>customer.id}%></td>
+                <td><%= link_to( t(:select), {:controller =>'orders',:action => 'new',
+                  :customer_id =>customer.id}, :class=>"btn btn-xs btn-primary")%></td>
               </tr>
               <% end %>
           <% end %>

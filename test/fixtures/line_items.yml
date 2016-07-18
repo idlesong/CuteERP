@@ -1,8 +1,24 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
-one:
-  item: ruby
-
-two:
-  item: ruby
+line1_sct3258t:
   cart: one
+  item: sct3258t
+  quantity: 1000
+  quantity_issued: 0
+  price: 48
+
+
+line2_sct3700:
+  cart: one
+  item: sct3700
+  quantity: 1000
+  quantity_issued: 0
+  price: 18
+
+
+line3_sct3604:
+  cart: one
+  item: sct3604
+  quantity: 1000
+  quantity_issued: 0
+  price: 3

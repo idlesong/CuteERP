@@ -1,7 +1,7 @@
 <%= form_for(@order, html: { multipart: true }) do |f| %>
 	<% if @order.errors.any? %>
 		<div id="error_explanation" class="alert alert-danger" role="alert">
-			<h2><%= pluralize(@order.errors.count, "error") %> prohibited this order from being saved:</h2>
+			<h2><%= pluralize(@order.errors.count, "error") %> <%=t(:prohibited_save)%>:</h2>
 
 			<ul>
 			<% @order.errors.full_messages.each do |msg| %>
@@ -16,7 +16,14 @@
 	</div>
 
 	<div class="panel panel-default">
-		<div class="panel-heading"> <h3 class="panel-title">Order cart lineitems</h3></div>
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<%=t(:order_cart_lineitems)%>
+				<small><%=t(:order_number)%>#:<%= f.text_field :order_number,:size => 20 %>
+							 <%=t(:received_date)%>#:<%= DateTime.now.to_date %>
+							 <%= f.file_field :document %>
+				</small>
+			</h3></div>
 		<div class="panel-body">
 			<div id="cart">
 				<%= render(@cart, :exchange_rate => @order.exchange_rate) %>
@@ -40,17 +47,9 @@
 	    <%= f.hidden_field :ship_address %>
 	    <%= f.hidden_field :ship_telephone %>
 	    <%= f.hidden_field :pay_type %>
-
-			<div>
-				<%= f.file_field :document %>
+		  <div class="text-center">
+				<%= f.submit t(:submit_order), :class=>"btn btn-primary" %>
 			</div>
-
-      <% @order.exchange_rate = 2 if @order.exchange_rate.nil? %>
-			<div class="actions">
-				Customer PO#:<%= f.text_field :order_number,:size => 20 %>
-				Received date#:<%= DateTime.now.to_date %>
-		    <%= f.submit 'Place Customer Order', :class=>"btn btn-primary" %>
-		  </div>
 		</div>
 	</div>
 <% end %>

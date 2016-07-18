@@ -1,5 +1,5 @@
-<p id="notice"><%= notice %></p>
-<h1>Customer Order</h1>
+<!-- <p id="notice"><= notice ></p> -->
+<h1><%=t(:order)%></h1>
 
 <div class="panel panel-default">
   <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
@@ -14,8 +14,8 @@
           <td>
           </td>
           <td>
-            <h4 class="text-right"> Date: <%= @order.created_at.to_date %></h4>
-            <h4 class="text-right"> PO#:
+            <h4 class="text-right"> <%=t(:show_date)%>: <%= @order.created_at.to_date %></h4>
+            <h4 class="text-right"> <%=t(:order_number)%>#:
               <% if @order.document_file_size %>
                 <%= link_to(@order.order_number, @order.document.url, target: "_blank")%>
               <% else %>
@@ -23,18 +23,18 @@
               <% end %>
 
             </h4>
-            <h4 class="text-right"> Payment:<%= @order.pay_type %></h4>
+            <h4 class="text-right"><%=t(:payment_term)%>:<%= @order.pay_type %></h4>
           </td>
         </tr>
       </thead>
-      <tr><td colspan = "2"><h3 class="text-center"> Customer Order</h3></td></tr>
-      <tr><td><h4>Bill to: <%= @order.customer.name %></h4></td>
-          <td><h4> Ship to: <%= @order.customer.name %></h4></td></tr>
+      <tr><td colspan = "2"><h3 class="text-center"><%=t(:order)%></h3></td></tr>
+      <tr><td><h4><%=t(:bill_to)%>: <%= @order.customer.name %></h4></td>
+          <td><h4><%=t(:ship_to)%>: <%= @order.customer.name %></h4></td></tr>
 
       </tr>
-      <tr><td>Contact:<%= @order.name %></td> <td>Contact:<%= @order.ship_contact %></td></tr>
-      <tr><td>Address:<%= @order.address %></td><td>Address:<%= @order.ship_address %></td></tr>
-      <tr><td>Tel:<%= @order.telephone %></td><td>Tel:<%= @order.ship_telephone %></td></tr>
+      <tr><td><%=t(:contact)%>:<%= @order.name %></td> <td><%=t(:contact)%>:<%= @order.ship_contact %></td></tr>
+      <tr><td><%=t(:address)%>:<%= @order.address %></td><td><%=t(:address)%>:<%= @order.ship_address %></td></tr>
+      <tr><td><%=t(:telephone)%>:<%= @order.telephone %></td><td><%=t(:telephone)%>:<%= @order.ship_telephone %></td></tr>
       <!-- <tr>
         <td>Payment:<%= @order.customer.payment %></td>
         <td>Date: 20140501</td>
@@ -51,7 +51,7 @@
   </div>
 
   <div class="panel-footer">
-    <%= link_to 'Edit', edit_order_path(@order) %>
+    <%= link_to t('.edit', :default => t("helpers.links.edit")), edit_order_path(@order) %>
 
     <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
                 order_path(@order),
@@ -60,9 +60,9 @@
                 :class => 'btn btn-mini btn-danger' %>
 
   <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-    data-target=".bs-quotation-modal-lg">Quotation</button> |
+    data-target=".bs-quotation-modal-lg"><%=t(:quotation)%></button>
 
-   <%= link_to "Issue sales order", new_sales_order_path(:customer_id => @order.customer.id) %>
+   <%= link_to t(:issue_sales_order), new_sales_order_path(:customer_id => @order.customer.id) %>
   </div>
 </div>
 

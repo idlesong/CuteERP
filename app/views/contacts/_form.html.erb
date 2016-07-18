@@ -1,7 +1,7 @@
 <%= form_for @contact, :html => { :class => 'form-horizontal' } do |f| %>
   <% if @contact.errors.any? %>
   <div id="error_explanation" class="alert alert-danger" role="alert">
-    <h2><%= pluralize(@contact.errors.count, "error") %> prohibited this order from being saved:</h2>
+    <h2><%= pluralize(@contact.errors.count, "error") %> <%=t(:prohibited_save)%>:</h2>
 
     <ul>
       <% @contact.errors.full_messages.each do |msg| %>
