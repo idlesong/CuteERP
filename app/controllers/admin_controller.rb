@@ -20,27 +20,27 @@ class AdminController < ApplicationController
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_month} )
 
-    @this_month_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @this_month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: this_month} )
 
-    @this_quarter_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @this_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: this_quarter} )
 
-    @last_quarter_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @last_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_quarter} )
 
-    @last_2nd_quarter_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @last_2nd_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_2nd_quarter} )
 
-    @last_3rd_quarter_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @last_3rd_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_3rd_quarter} )
 
-    @last_year_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @last_year_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_year} )
 
