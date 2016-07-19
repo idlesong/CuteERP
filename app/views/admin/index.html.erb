@@ -3,7 +3,7 @@
 </div>
 
 <%= render 'shared/delivery_status_modal'%>
-<h3><%= t(:order)%> (<%=t(:unissued)%>) <small><%= link_to("all", orders_path) %></small>
+<h3><%= t(:order)%> (<%=t(:unissued)%>) <small><%= link_to(t(:more), orders_path) %></small>
   <%= link_to t(:new_order), new_order_path, :class=>"btn btn-primary" %>
 </h3>
 <table class="table">

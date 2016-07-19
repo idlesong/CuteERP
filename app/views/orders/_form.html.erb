@@ -20,8 +20,8 @@
 			<h3 class="panel-title">
 				<%=t(:order_cart_lineitems)%>
 				<small><%=t(:order_number)%>#:<%= f.text_field :order_number,:size => 20 %>
-							 <%=t(:received_date)%>#:<%= DateTime.now.to_date %>
-							 <%= f.file_field :document %>
+							 <%=t(:received_date)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
+							 <!-- <= f.file_field :document > -->
 				</small>
 			</h3></div>
 		<div class="panel-body">

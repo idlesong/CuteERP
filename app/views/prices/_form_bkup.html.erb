@@ -1,0 +1,84 @@
+<%= form_for @price, :html => { :class => 'form-horizontal' } do |f| %>
+  <% if @price.errors.any? %>
+  <div id="error_explanation" class="alert alert-danger" role="alert">
+    <h2><%= pluralize(@price.errors.count, "error") %> prohibited this price from being saved:</h2>
+
+    <ul>
+      <% @price.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+  <% end %>
+
+  <div class="control-group">
+    <%= f.label t(:item), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.collection_select(:item_id, Item.all, :id, :partNo) %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:customer), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.collection_select(:customer_id, Customer.all, :id, :name) %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:price), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :price, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:payment_term), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.select(:payment_terms, Order::PAYMENT_TYPES) %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:condition), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :condition, :class => 'text_field' %>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <%= f.label t(:sales_suggestion), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :sales_suggestion, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:department_suggestion), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :department_suggestion, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:finance_suggestion), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :finance_suggestion, :class => 'text_field' %>
+    </div>
+  </div>
+  <div class="control-group">
+    <%= f.label t(:boss_suggestion), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :boss_suggestion, :class => 'text_field' %>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <%= f.label t(:status), :class => 'control-label' %>
+    <div class="controls">
+      <%= f.select(:status, [['request'],['approved']]) %>
+    </div>
+  </div>
+
+  </br>
+
+  <div class="form-actions">
+    <%= f.submit nil, :class => 'btn btn-primary' %>
+    <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+                prices_path, :class => 'btn' %>
+  </div>
+<% end %>

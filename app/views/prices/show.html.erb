@@ -6,25 +6,24 @@
 <div class="panel panel-default">
   <div class="panel-body">
     <table class="table table-bordered">
-      <tr><td colspan="4"><h2 class="text-center">Price Request </h2>
- </td></tr>
-      <tr><td class="active">Customr Name</td><td><%= @price.customer.name %></td>
-          <td class="active">Request Date</td><td><%= @price.created_at.to_date %></td></tr>
-      <tr><td class="active">Product </td><td><%= @price.item.name %><%= @price.item.partNo %></td>
-          <td class="active">payment term</td><td><%= @price.customer.payment %></td></tr>
-      <tr><td class="active">Default Price</td><td>¥<%= @price.item.price %></td>
-          <td class="active">Last price</td><td>¥</td></tr>
-      <tr><td class="active">Request Price</td><td class="danger">¥<%= @price.price %></td>
-          <td class="active">Forecast/y,condition</td><td class="danger"><%= @price.condition %></td></tr>
-      <tr><td class="active">Sales suggestion</td><td colspan="3"><%= @price.sales_suggestion %></td></tr>
-      <tr><td class="active">Department suggestion</td><td colspan="3"><%= @price.department_suggestion %></td></tr>
-      <tr><td class="active">finance suggestion</td><td colspan="3"><%= @price.finance_suggestion %></td></tr>
-      <tr><td class="active">Boss suggestion</td><td colspan="3"><%= @price.boss_suggestion %></td></tr>
+      <tr><td colspan="4"><h2 class="text-center"><%=t(:price_request)%></h2></td></tr>
+      <tr><td class="active"><%=t(:customer_name)%></td><td><%= @price.customer.name %></td>
+          <td class="active"><%=t(:request_date)%></td><td><%= @price.created_at.to_date %></td></tr>
+      <tr><td class="active"><%=t(:product)%></td><td><%= @price.item.name %>:<%= @price.item.partNo %></td>
+          <td class="active"><%=t(:payment_term)%></td><td><%= @price.customer.payment %></td></tr>
+      <tr><td class="active"><%=t(:default_price)%></td><td>¥<%= @price.item.price %></td>
+          <td class="active"><%=t(:last_price)%></td><td>¥</td></tr>
+      <tr><td class="active"><%=t(:request_price)%></td><td class="danger">¥<%= @price.price %></td>
+          <td class="active"><%=t(:forecast_condition)%></td><td class="danger"><%= @price.condition %></td></tr>
+      <tr><td class="active"><%=t(:sales_suggestion)%></td><td colspan="3"><%= @price.sales_suggestion %></td></tr>
+      <tr><td class="active"><%=t(:department_suggestion)%></td><td colspan="3"><%= @price.department_suggestion %></td></tr>
+      <tr><td class="active"><%=t(:finance_suggestion)%></td><td colspan="3"><%= @price.finance_suggestion %></td></tr>
+      <tr><td class="active"><%=t(:boss_suggestion)%><td colspan="3"><%= @price.boss_suggestion %></td></tr>
       <tr><td colspan="4"><p class="text-center">
         <% if @price.status != 'approved' %>
           <%= link_to("approve", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %>
         <% else %>
-          <%= @price.status %>
+          <%= @price.status %> √
         <% end %>
       </p></td></tr>
     </table>

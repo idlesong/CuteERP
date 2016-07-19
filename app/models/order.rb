@@ -1,12 +1,12 @@
 class Order < ActiveRecord::Base
   attr_accessible :customer_id, :amount, :order_number, :name, :address,
     :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type,
-    :exchange_rate, :remark, :document
+    :exchange_rate, :remark, :document, :created_at
 
   has_many :line_items, as: :line,  :dependent => :destroy
   belongs_to :customer
 
-  PAYMENT_TYPES = ["T.T in advance", "COD", "T.T 30days",'T.T 60days']
+  PAYMENT_TYPES = ["款到发货","T.T in advance", "COD", "T.T 30days"]
 
   has_attached_file :document
 
@@ -16,7 +16,7 @@ class Order < ActiveRecord::Base
 
   validates :order_number, :presence => true
   validates :pay_type, :presence => true
-  validates :pay_type, :inclusion => PAYMENT_TYPES
+  # validates :pay_type, :inclusion => PAYMENT_TYPES
   validates :line_items, :presence => true
   validates :customer_id, :presence => true
   validates :exchange_rate, :presence => true

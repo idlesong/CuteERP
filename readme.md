@@ -9,17 +9,26 @@ A cute online ERP, with order system, simple CRM, documents system.
 1. wiki,related marketing report
 
 ### customers management
-1. customer: name(nick name), full_name, has_many contacts, has_many deliver_info(address,contact), balance, payment_term
-1. contacts
-1. delivery_info: contact, address, email, telephone, customer_id, default
-1. wiki
+1. customer
+ - multipart currencies(now RMB and USD) support
+ - overview of basic info & contacts & orders & opportunities & wiki
+ - quick creation support
+ - ship_to bill_to
 
 ### orders system(price, customer order, sales order, invoice, packing list)
-1. customer order: customer_id, has_many line_items, received_date, total_amount, request_date, po_number, attachment(pdf po)
-1. sales order: order_number, customer_id, line_items(with po number), total_amount, delivery_info_id,
-1. price: price, customer_id, item_id
-1. invoice
-1. packing list
+1. order
+ - documents creation(price_request, quotation, invoice, packing_list)
+ - monthly exchange_rate support
+ - quick exchange_rate input
+1. customer order
+ - upload original po.pdf support
+1. sales order:
+ - issue sales order from customer order
+ - overview report
+ - ship confirmation
+ - ship status input
+1. price:
+
 
 ### payment & receivable
 1. payment
@@ -63,6 +72,7 @@ see issues
   - should restore line_items' cart_id or clear cart_id after save(or will leave failed line_items)
   - validate line_items: presence not work
   - add report of orders and sales_orders for (1month, 3month,6month,1year)
+  - show warning when create order without monthly exchange rate(stamp:EX201606)
 
 1. Opportunities
   - status mark default uses last status
