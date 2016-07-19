@@ -16,7 +16,7 @@ class AdminController < ApplicationController
     last_3rd_quarter = ((last_quarter_begin - 1.day).beginning_of_quarter - 1.day).beginning_of_quarter .. (last_quarter_begin-1.day).beginning_of_quarter
     last_year = (Time.now.beginning_of_year - 1.day).beginning_of_year .. Time.now.beginning_of_year
 
-    @last_month_line_items = LineItem.joins("INNER JOIN 'sales_orders' ON 'line_items'.'line_id' = 'sales_orders'.'id' ")
+    @last_month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_month} )
 
