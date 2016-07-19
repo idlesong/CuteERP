@@ -39,9 +39,10 @@ class OrdersController < ApplicationController
   # GET /orders/new
   # GET /orders/new.json
   def new
-    @items = Item.all
-    @option_items = Item.where(:package => 'software')
-    @main_items = @items - @option_items
+    # @items = Item.all
+    @main_items = Item.where(assembled: ['no','yes'])
+    @option_items = Item.where(assembled: 'addition')
+    # @main_items = @items - @option_items
     @customers = Customer.all
 
     # clear cart and destroy associated line_items, when customer switched
@@ -75,9 +76,11 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:id])
 
     if @order.not_issued?
-      @items = Item.all
-      @option_items = Item.where(:package => 'software')
-      @main_items = @items - @option_items
+      # @items = Item.all
+      # @option_items = Item.where(:package => 'software')
+      # @main_items = @items - @option_items
+      @main_items = Item.where(assembled: ['no','yes'])
+      @option_items = Item.where(assembled: 'addition')
       @customers = Customer.all
 
       @cart = current_cart
@@ -120,9 +123,11 @@ class OrdersController < ApplicationController
         format.js
         # format.json { render json: @order }
       else
-        @items = Item.all
-        @option_items = Item.where(:package => 'software')
-        @main_items = @items - @option_items
+        # @items = Item.all
+        # @option_items = Item.where(:package => 'software')
+        # @main_items = @items - @option_items
+        @main_items = Item.where(assembled: ['no','yes'])
+        @option_items = Item.where(assembled: 'addition')
 
         @customers = Customer.all
         @cart = current_cart

@@ -45,8 +45,10 @@ class AdminController < ApplicationController
                                 .where(sales_orders: {delivery_date: last_year} )
 
 
-    @items = Item.all
-    @option_items = Item.where(:package => 'software')
-    @main_items = @items - @option_items
+    # @items = Item.all
+    # @option_items = Item.where(:package => 'software')
+    # @main_items = @items - @option_items
+    @main_items = Item.where(assembled: ['no','yes'])
+    @option_items = Item.where(assembled: 'addition')
   end
 end
