@@ -9,8 +9,8 @@ gem 'rails', '3.2.13'
 
 gem 'rails_12factor', group: :production
 
-gem 'sqlite3'
-# gem 'pg'
+# gem 'sqlite3'
+gem 'pg'
 
 gem 'best_in_place', '~> 2.1.0'
 
@@ -45,7 +45,7 @@ gem "paperclip", "~> 4.2"
 gem "iconv", "~> 1.0.3"
 
 gem 'wicked_pdf'
-gem 'wkhtmltopdf_binary', "~> 0.12.3.2"
+gem 'wkhtmltopdf-binary'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
