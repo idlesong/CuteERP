@@ -6,7 +6,7 @@ class Price < ActiveRecord::Base
   belongs_to :item
   belongs_to :customer
 
-  validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0.01}
+  validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
   validates :item_id, :presence => true
 
   before_update :price_request_approved?

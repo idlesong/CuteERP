@@ -2,19 +2,19 @@ class Cart < ActiveRecord::Base
   # has_many :line_items, :as => :line
   has_many :line_items
 
-  def add_item(item_id, item_addition_id, item_suffix, item_quantity, price)
+  def add_item(item_id, item_addition_id, item_suffix, item_quantity, core_price, addition_price)
     item = Item.find(item_id)
     if item_addition_id.nil?
       full_part_number = item.partNo
       full_name = item.name
-      price = item.price
+      price = core_price
     else
       addition = Item.find(item_addition_id)
       item_suffix = '' if item_suffix == '-' or item_suffix.nil?
       full_part_number = item.partNo + addition.partNo + item_suffix
       full_part_number[0, 1]='' if addition.partNo == 'D'
       full_name = item.name + ':' + item.description + ',' + addition.name
-      price = price + addition.price
+      price = core_price + addition_price
     end
 
   	current_item = line_items.where(:full_part_number => full_part_number).first
