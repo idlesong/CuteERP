@@ -139,6 +139,7 @@
             <% @main_items.each do |item| %>
               <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
                   <td><%= item.partNo %></td>
+                  <% if false %>
                   <td><%= @last_month_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td class="text-primary"><%= @this_month_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td class="text-primary"><%= @this_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
@@ -146,6 +147,7 @@
                   <td><%= @last_2nd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td><%= @last_3rd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td><%= @last_year_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <% end %>
               </tr>
             <% end %>
 
