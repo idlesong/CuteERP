@@ -18,7 +18,7 @@
         <td><%= f.collection_select(:customer_id, Customer.all, :id, :short_name) %></td>
         <td class="active"><%=t(:request_date)%></td><td><%= f.date_select :created_at,:class => 'date_select'%></td></tr>
     <tr><td class="active"><%=t(:product)%> </td><td><%= f.collection_select(:item_id, Item.all, :id, :partNo) %></td>
-        <td class="active"><%=t(:payment_term)%></td><td></td></tr>
+        <td class="active"><%=t(:payment_term)%></td><td><%= f.select(:payment_terms, Order::PAYMENT_TYPES) %></td></tr>
     <tr><td class="active"><%=t(:default_price)%></td><td>¥</td>
         <td class="active"><%=t(:last_price)%></td><td>¥</td></tr>
     <tr><td class="active"><%=t(:request_price)%></td><td class="danger">¥<%= f.text_field :price, :class => 'text_field' %></td>

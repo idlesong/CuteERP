@@ -19,8 +19,17 @@
   </thead>
   <tbody>
     <% @items.each do |item| %>
+      <%
+        if item.assembled == 'yes'
+          flag = 'c'
+        elsif item.assembled == 'addition'
+          flag = '+'
+        else
+          flag = 'x'
+        end
+      %>
       <tr>
-        <td>-</td>
+        <td><%= flag %></td>
         <td><%= item.index %></td>
         <td><%= link_to item.partNo, item_path(item)   %></td>
         <td><%= item.name        %></td>

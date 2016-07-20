@@ -12,8 +12,8 @@
       <th><%=t(:default_price)%></th>
       <th><%=t(:price)%></th>
       <th><%=t(:condition)%></th>
-      <th><%=t(:status)%> </th>
       <th><%=t(:created_at) %></th>
+      <th><%=t(:status)%> </th>
     </tr>
   </thead>
   <tbody>
@@ -26,8 +26,8 @@
         <td>¥<%= price.item.price %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
-        <td><%= price.status %></td>
         <td><%= price.created_at.strftime("%F") %></td>
+        <td><%= price.status %></td>
       </tr>
     <% end %>
   </tbody>
