@@ -15,7 +15,7 @@
   <table class="table table-bordered">
     <tr><td colspan="4"><h2 class="text-center"><%=t(:price_request)%></h2></td></tr>
     <tr><td class="active"><%=t(:customer_name)%></td>
-        <td><%= f.collection_select(:customer_id, Customer.all, :id, :short_name) %></td>
+        <td><%= f.collection_select(:customer_id, @customers, :id, :short_name) %></td>
         <td class="active"><%=t(:request_date)%></td><td><%= f.date_select :created_at,:class => 'date_select'%></td></tr>
     <tr><td class="active"><%=t(:product)%> </td><td><%= f.collection_select(:item_id, Item.all, :id, :partNo) %></td>
         <td class="active"><%=t(:payment_term)%></td><td><%= f.select(:payment_terms, Order::PAYMENT_TYPES) %></td></tr>

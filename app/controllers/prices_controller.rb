@@ -38,6 +38,7 @@ class PricesController < ApplicationController
   # GET /prices/new.json
   def new
     @price = Price.new
+    @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
     respond_to do |format|
       format.html # new.html.erb
@@ -48,6 +49,7 @@ class PricesController < ApplicationController
   # GET /prices/1/edit
   def edit
     @price = Price.find(params[:id])
+    @customers = Customer.order("credit DESC").where("credit > ?", 0)    
   end
 
   # POST /prices

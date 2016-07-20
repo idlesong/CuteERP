@@ -5,8 +5,8 @@
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th><%= t(:credit) %></th>
       <th><%= t(:name) %></th>
+      <th><%= t(:credit) %></th>
       <th><%= t(:address) %></th>
       <th><%= t(:telephone) %></th>
       <th><%= t(:contact) %></th>
@@ -18,8 +18,8 @@
   <tbody>
     <% @customers.each do |customer| %>
       <tr>
-        <td><%= customer.credit.to_i %></td>
         <td><%= link_to customer.name, customer_path(customer) %></td>
+        <td><%= customer.credit.to_i %></td>
         <td><%= customer.address %></td>
         <td><%= customer.telephone %></td>
         <td><%= customer.contact %></td>
