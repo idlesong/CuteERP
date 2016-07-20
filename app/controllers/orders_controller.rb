@@ -43,7 +43,7 @@ class OrdersController < ApplicationController
     @main_items = Item.where(assembled: ['no','yes'])
     @option_items = Item.where(assembled: 'addition')
     # @main_items = @items - @option_items
-    @customers = Customer.all
+    @customers = Customer.where("credit > ?", 0)
 
     # clear cart and destroy associated line_items, when customer switched
     if (params[:customer_id] && (params[:customer_id] != current_customer.id))
@@ -81,7 +81,7 @@ class OrdersController < ApplicationController
       # @main_items = @items - @option_items
       @main_items = Item.where(assembled: ['no','yes'])
       @option_items = Item.where(assembled: 'addition')
-      @customers = Customer.all
+      @customers = Customer.where("credit > ?", 0)
 
       @cart = current_cart
       # @cart.line_items = @order.line_items

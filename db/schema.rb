@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20160706073419) do
+ActiveRecord::Schema.define(:version => 20160720042000) do
 
   create_table "attachments", :force => true do |t|
     t.string   "name"
@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(:version => 20160706073419) do
     t.string   "ship_contact"
     t.text     "ship_address"
     t.string   "ship_telephone"
+    t.decimal  "credit"
   end
 
   create_table "items", :force => true do |t|

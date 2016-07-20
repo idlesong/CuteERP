@@ -10,6 +10,7 @@
           <thead>
             <tr>
               <th><%=t(:customer_name)%></th>
+              <th><%=t(:credit)%></th>
               <th><%=t(:contact)%></th>
               <th><%=t(:telephone)%></th>
               <th><%=t(:balance)%></th>
@@ -21,6 +22,7 @@
               <% @customers.each do |customer| %>
               <tr>
                 <td><strong><%= customer.short_name %></strong></td>
+                <td><%= customer.credit %></td>
                 <td><%= customer.contact %></td>
                 <td><%= customer.telephone %></td>
                 <td><%= customer.balance %></td>

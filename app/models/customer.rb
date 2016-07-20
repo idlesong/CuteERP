@@ -1,6 +1,7 @@
 class Customer < ActiveRecord::Base
   attr_accessible :address, :balance, :contact, :name, :since, :telephone,
-                  :payment ,:currency, :ship_contact, :ship_address, :ship_telephone
+                  :payment ,:currency, :ship_contact, :ship_address, :ship_telephone,
+                  :credit
 
   CURRENCY_TYPES = ['RMB', 'USD']
 
