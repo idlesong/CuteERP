@@ -39,8 +39,8 @@ class LineItemsController < ApplicationController
     @line_item = LineItem.find(params[:id])
   end
 
-  # POST /line_items
-  # POST /line_items.json
+  # POST /line_items?item_id=3  ;create order
+  # POST /line_items?line_id=3  ;issue order
   def create
 
     if(params[:line_id])
@@ -57,7 +57,7 @@ class LineItemsController < ApplicationController
       addition = Item.find(params[:addition])
       # logger.debug "=====quantity== #{params[:quantity]}"
       price = current_customer.get_special_price(item)
-      addition_price = current_customer.get_special_price(addition)
+      addition_price = current_customer.get_special_price(addition) if addition != nil
       # @line_item = @cart.add_item(item.id, params[:quantity].to_i, price)
       @line_item = @cart.add_item(item.id, params[:addition], params[:suffix],params[:quantity].to_i, price, addition_price)
     end
