@@ -94,3 +94,7 @@ see issues
  - user can reset the password  
  - admin can active , inactive user
  - user rights policy
+
+1. admin
+ - sales orders overview, sort with item index
+ - overview filter for choosen customer  
