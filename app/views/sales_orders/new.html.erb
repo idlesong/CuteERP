@@ -39,6 +39,7 @@
     <tr>
       <th><h4>#</h4></th>
       <th><h4><%=t(:customer)%></h4></th>
+      <th><h4><%=t(:order_number)%></h4></th>
       <th><h4><%=t(:show_date)%></h4></th>
       <th><h4><%=t(:product_name)%></h4></th>
       <th><h4><%=t(:part_number)%></h4></th>
@@ -58,7 +59,8 @@
         <tr>
           <td>#<%= link_to(order.id,order_path(order.id)) %></td>
           <td><%= order.customer.short_name %></td>
-          <td><%=order.order_number%>@<%= order.created_at.strftime("%m-%d") %>
+          <td><%=order.order_number%></td>
+          <td><%= order.created_at.strftime("%m-%d") %></td>
           <td><%= line_item.full_name %> </td>
           <td><%= line_item.full_part_number %> </td>
           <td>¥<%= line_item.price %> </td>
