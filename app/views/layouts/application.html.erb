@@ -26,8 +26,9 @@
 
   <div class = "container-fluid">
     <div class="row">
-      <div class="col-md-2">
-        <ul class="list-group">
+      <div class="col-md-1">
+        <h1></h1></br>
+        <ul id="side-nav" class="list-group">
             <li class="list-group-item disabled"><%=t(:sales_group)%></li>
             <li class="list-group-item"><a href=<%= opportunities_path %>><%=t(:opportunities)%></a></li>
             <li class="list-group-item"><a href=<%= orders_path %>><%=t(:order)%></a></li>
@@ -41,7 +42,7 @@
         </ul>
       </div>
 
-      <div class="col-md-10">
+      <div class="col-md-11">
             <!-- <= flash_messages > -->
   			    <%= yield %>
   		</div>

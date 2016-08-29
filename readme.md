@@ -80,6 +80,10 @@ see issues
   - Opportunities: priority force to integer
   - project type: default should be DT
 
+1. price
+  - show approved price(show approved latest), requesting price
+  - finance confirmed price: mark 1640  
+
 1. documents(posts)
   - assign correct subject in customer wiki, product wiki creation
   - default wiki templates for customer wiki, products wiki, markets wiki

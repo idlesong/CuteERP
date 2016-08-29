@@ -133,7 +133,7 @@
             <th><%=t(:this_quarter)%></th>
             <th><%=t(:last_1_quarter)%></th>
             <th><%=t(:last_2_quarter)%></th>
-            <th><%=t(:last_3_quarter)%></th>
+            <th><%=t(:this_year)%></th>
             <th><%=t(:last_year)%></th>
 
             <% @main_items.each do |item| %>
@@ -144,7 +144,7 @@
                   <td class="text-primary"><%= @this_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td><%= @last_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td><%= @last_2nd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td><%= @last_3rd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
+                  <td><%= @this_year_line_items.where(item_id: item.id).sum("quantity")%></td>
                   <td><%= @last_year_line_items.where(item_id: item.id).sum("quantity")%></td>
               </tr>
             <% end %>
