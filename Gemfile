@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 # source 'https://gems.ruby-china.org/'
-ruby '2.0.0'
+ruby '2.5.0'
 
-gem 'rails', '3.2.13'
+gem 'rails', '4.2.1'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -12,15 +12,15 @@ gem 'rails_12factor', group: :production
 # gem 'sqlite3'
 gem 'pg'
 
-gem 'best_in_place', '~> 2.1.0'
+gem 'best_in_place', '3.1.1'
 
 gem 'sass', '3.2.9'
 
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
-  gem 'sass-rails',   '~> 3.2.3'
-  gem 'coffee-rails', '~> 3.2.1'
+  gem 'sass-rails',   '5.0.0'
+  gem 'coffee-rails', '4.2.2'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
   gem 'therubyracer', :platforms => :ruby
@@ -31,18 +31,18 @@ end
 gem 'jquery-rails'
 
 #gem 'jquery-datatables-rails', github: 'rweng/jquery-datatables-rails'
-gem 'jquery-datatables-rails', '~> 3.1.1'
+gem 'jquery-datatables-rails', '>= 3.4.0'
 
 # gem "therubyracer"
 # gem "less-rails"
-gem "twitter-bootstrap-rails", :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
-# gem "twitter-bootstrap-rails", '~> 2.2.8'
+# gem "twitter-bootstrap-rails", :git => 'git://github.com/seyhunak/twitter-bootstrap-rails.git'
+gem "twitter-bootstrap-rails", '3.2.2'
 # gem "twitter-bootstrap-rails"
 gem 'redcarpet'
 
-gem "paperclip", "~> 4.2"
+gem "paperclip", "6.1.0"
 
-gem "iconv", "~> 1.0.3"
+gem "iconv", "1.0.8"
 
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'

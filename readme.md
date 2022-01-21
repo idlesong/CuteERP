@@ -67,10 +67,10 @@ see issues, focus on core features
 
 ### bugs and small Feature points
 1. items
- - items: add mpq net_weight gross_weight
+   - items: add mpq net_weight gross_weight
 
 1. customers
-  - need to set a default customer?
+   - need to set a default customer?
 
 1. Orders(customer order)
    - forbidden edit issued orders failed when the line not be issued
