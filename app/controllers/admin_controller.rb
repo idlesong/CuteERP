@@ -50,7 +50,13 @@ class AdminController < ApplicationController
     # @items = Item.all
     # @option_items = Item.where(:package => 'software')
     # @main_items = @items - @option_items
-    @main_items = Item.where(assembled: ['no','yes']).order("partNo ASC")
+    #
+    # Item default_scope { where order: 'name'}
+
+    # @main_items = Item.where(assembled: ['no','yes']).order("partNo ASC")
+    @main_items = Item.order('name').where(assembled: ['no','yes'])
+    #  @option_items = Item.where(assembled: 'addition').order("partNo ASC")
     @option_items = Item.where(assembled: 'addition').order("partNo ASC")
+
   end
 end

@@ -34,7 +34,7 @@ RorWebERP::Application.routes.draw do
   #  resources :contacts
   #end
 
-  get 'admin/index', :as => 'admin'
+#  get 'admin/index', :as => 'admin'
   #get 'admin' => 'admin/index'
 
   controller :sessions do

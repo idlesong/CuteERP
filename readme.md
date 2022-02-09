@@ -1,5 +1,16 @@
 # Cute ERP
-A cute online ERP, with order system, simple CRM, documents system; use rubyonrail inspired by webERP.
+A cute online ERP, with order system, simple CRM, documents system; use ruby on rails inspired by webERP.
+
+## Build
+1. install ruby on rails(rvm)
+1. update & install gems
+   - bundle update
+   - bundle install
+1. install nodejs(or rubyracer)   
+1. install postgreSQL(and create user rorcuteerp, rorcuteerp)
+1. initialize database: rake db:setup
+1. rails server -e development
+1. login cuteerp with user name and password in db/seeds.rb
 
 ## Features
 ### products management
@@ -109,3 +120,14 @@ see issues, focus on core features
 1. admin
    - sales orders overview, sort with item index
    - overview filter for choosen customer  
+
+
+## upgrade 3.2 to 4.2 tips
+1. [upgrade guide](https://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html)
+1. [upgrade tips](https://ruby-china.org/topics/22280?locale=en)
+1. Change logs:
+   - Gemfile update to 4.xx
+   - whitelist_attribute
+   - mass_assignment_san...
+   - group assets
+   
