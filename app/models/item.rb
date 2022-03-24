@@ -10,6 +10,7 @@ class Item < ActiveRecord::Base
   has_many :line_items
   has_many :orders, :through => :line_items
   has_many :prices
+  has_many :set_prices
 
   validates :name, :partNo, :presence => true
   validates :partNo, :uniqueness => true

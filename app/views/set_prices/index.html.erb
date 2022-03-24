@@ -1,0 +1,81 @@
+<%- model_class = SetPrice -%>
+<div class="page-header">
+  <h1><%=t(:set_price) %></h1>
+</div>
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%=t(:part_number)%></th>
+      <th><%=t(:price)%></th>
+      <th><%=t(:order_quantity)%></th>  
+      <th><%=t(:sell_by)%></th>          
+      <th><%=t(:released_at)%> </th>
+      <th><%=t(:created_at) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @set_prices.each do |set_price| %>
+      <tr>
+        <td><%= link_to set_price.id, set_price_path(set_price) %></td>
+        <td><%= set_price.item.partNo %></td> 
+        <td><strong>¥<%= set_price.price %></strong></td>
+        <td><%= set_price.order_quantity %></td>  
+        <td><%= set_price.sell_by %></td> 
+        <td><%= set_price.released_at.strftime("%F") %></td>
+        <td><%= set_price.created_at.strftime("%F") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_set_price_path,
+            :class => 'btn btn-primary' %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%=t(:part_number)%></th>
+      <th><%=t(:price)%></th>
+      <th><%=t(:order_quantity)%></th>  
+      <th><%=t(:sell_by)%></th>          
+      <th><%=t(:released_at)%> </th>
+      <th><%=t(:created_at) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @latest_set_prices.each do |set_price| %>
+      <tr>
+        <td><%= link_to set_price.id, set_price_path(set_price) %></td>
+        <td><%= set_price.item.partNo %></td> 
+        <td><strong>¥<%= set_price.price %></strong></td>
+        <td><%= set_price.order_quantity %></td>  
+        <td><%= set_price.sell_by %></td> 
+        <td><%= set_price.released_at.strftime("%F") %></td>
+        <td><%= set_price.created_at.strftime("%F") %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>1000</th>
+      <th>2500</th>
+      <th>5000</th>
+      <th>10000</th>
+      <th>50000</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @price_by_items.each do |price| %>
+      <td><%= price %></td>
+    <% end  %>
+  </tbody>
+</table>
+
+
+

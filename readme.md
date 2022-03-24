@@ -1,5 +1,8 @@
 # Cute ERP
-A cute online ERP, with order system, simple CRM, documents system; use ruby on rails inspired by webERP.
+A cute online ERP, with order system, simple CRM, documents system; Cute: easy to use, robust, modulate;
+use ruby on rails inspired by webERP.
+
+CuteERP: Focus on my needs first， new market development & lean startup in mind sales.
 
 ## Build
 1. install ruby on rails(rvm)
@@ -13,6 +16,11 @@ A cute online ERP, with order system, simple CRM, documents system; use ruby on 
 1. login cuteerp with user name and password in db/seeds.rb
 
 ## Features
+### marketing
+   - Intuition wiki/markdown for marketing(marketing thoughts)
+   - business opportunities management(no need of sales lead)
+   - activities management 
+
 ### products management
 1. products/items
 1. net weight, gross weight
@@ -23,7 +31,7 @@ A cute online ERP, with order system, simple CRM, documents system; use ruby on 
    - overview 
      - basic info: contacts & orders & opportunities & wiki
    - multiply currencies(now RMB and USD) support
-   - ship_to bill_to can different
+   - ship_to bill_to can different(clone when not supplied)
    - new customer quick creation support
 
 ### orders system(price, customer order, sales order, invoice, packing list)
@@ -40,15 +48,24 @@ A cute online ERP, with order system, simple CRM, documents system; use ruby on 
    - ship confirmation
    - ship status input
 1. price
-   - price list
+   - customer_price
+   - export quotation
+   - base price list support
+     - released date; status: inactive old price when new price inputed. 
+   - quotation
+     - set price check.
 
 ### payment & receivable
 1. payment
 1. receivable account
 1. balance
 
-### opportunities management(customer project status)
+### business opportunities management(customer project status)
 1. index(show opportunities in catalog)
+
+### activities(tasks) management
+1. related to customer.[todo]
+1. related to opportunities
 
 ### user management
 1. administrator interface(Overview based on user role)
@@ -64,24 +81,82 @@ A cute online ERP, with order system, simple CRM, documents system; use ruby on 
 
 ### documents system(markdown, like wiki)
 1. customers wiki
-1. products(datasheet, FAE, basic tools)
-1. marketing
+1. products wiki
+1. marketing wiki
 
 ### settings
 1. configuration
    - documents system, payment, opportunities can hide
 
 
+## upgrade rails from 3.2 to 4.2 tips
+1. [upgrade guide](https://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html)
+1. [upgrade tips](https://ruby-china.org/topics/22280?locale=en)
+1. Change logs:
+   - Gemfile update to 4.xx
+   - whitelist_attribute
+   - mass_assignment_san...
+   - group assets
+   
+
 ## bugs and feature request
 ### Feature request
 see issues, focus on core features
+1. prices
+   - set_price: (part_number /quantity /price / dist_customer / released_at(key))
+     - batch view (like price list excel)
+       - batch view all the same released date(default: latest)
+       - show/input/update set_price in step quantities
+       - step order quantity set in settings
+         - setting: name: order_quantity_OEM1, value: 1000, note: released_date
+       - item.set_price(quantity)   
+   - prices(customer prices)
+     - released_at(confirmed)
+     - order_quantity
+     - condition(remarks for quotation?)
+     - status(approved/outdated)
+   - price request
+     - auto fillin related set_price according to sales_channel(customer) & order_quantity
+     - special price need approved
+     - when approved, price status set approved, and inactive old price [todo]
+     - show active prices only by default     
+   - quotation
+     - has many customer prices (with codition & remarks)
+     - quotation remarks(can modify freely)
+     - quotation number  
+1. customer orders / Year view of booking 
+   - remain booking, allocate orders   
+1. sales orders /  六联单
+   - issue from sales orders
+1. forecast orders = ship shedule
+   - (list view) re-schedule easily: 
+     - add new line(in current view), delete line, change quantity 
+   - auto clear forecast orders, when issue sales orders (first in, first out)
+   - manually adjustment forecast quantity & auto re-schedule outdated forecast schedule(in forecast view) 
+1. Sales Rolling Forecast view is *Main View*(admin)
+   - put open orders and forecast orders together in year view
+   - as easy as excel, or better
+     - fill the table with forecast-orders
+     - change forecast quantity and auto update ship_shedule?
+   - filter by: product number/ product family / product type/ Territory / customer/
+   - default:  product type/ territory /       
+
+
+PartNo. | Plan | billing | forecast | price | price VAT | Apr | May | Jun |July|...|customer
+---|---|---|---|---|---|---|---|---|---|---|---
+SCT3288TN | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| Abell
+
+
+PartNo. | remain booking | Apr | May | June | July | Aug| Sep| Oct| Nov| Dec| total booking | Open Orders | customer
+---|---|---|---|---|---|---|---|---|---|---|---|---|---
+SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
 
 ### bugs and small Feature points
 1. items
- - items: add mpq net_weight gross_weight
 
 1. customers
   - need to set a default customer?
+  - sales type: customer or distributor 
 
 1. Orders(customer order)
    - forbidden edit issued orders failed when the line not be issued
@@ -121,13 +196,3 @@ see issues, focus on core features
    - sales orders overview, sort with item index
    - overview filter for choosen customer  
 
-
-## upgrade 3.2 to 4.2 tips
-1. [upgrade guide](https://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html)
-1. [upgrade tips](https://ruby-china.org/topics/22280?locale=en)
-1. Change logs:
-   - Gemfile update to 4.xx
-   - whitelist_attribute
-   - mass_assignment_san...
-   - group assets
-   

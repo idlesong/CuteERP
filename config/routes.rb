@@ -1,6 +1,7 @@
 RorWebERP::Application.routes.draw do
   resources :settings
 
+  resources :set_prices
 
   resources :sales_orders do
     member do

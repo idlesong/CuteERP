@@ -3,12 +3,14 @@
   <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
 </div>
 
-<h4><span class="label label-primary">==<%= @opportunity.customer.name %> ==</span>|
+
+<div class="alert alert-info" role="alert">
+  <span class="label label-primary">==<%= @opportunity.customer.name %> ==</span>|
   ==<%= link_to(@opportunity.project_type, post_path(@opportunity.project_type,:query => "subject")) %> ==|
   solution:<%= @opportunity.solution %> |
   note:<%= @opportunity.note %> |
   priority:<%= @opportunity.priority %>
-</h4>
+</div>
 
 <div class="form-actions">
   <%= link_to t('.back', :default => t("helpers.links.back")),

@@ -1,17 +1,17 @@
 <%- model_class = Price -%>
 <div class="page-header">
-  <h1><%=t(:price) %></h1>
+  <h1><%=t(:price) %></h1> <%= link_to("set price", set_prices_url)%>
 </div>
 <table class="table table-striped datatable">
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%=t(:customer)%></th>
-      <th><%=t(:payment_term)%></th>
       <th><%=t(:part_number)%></th>
-      <th><%=t(:default_price)%></th>
       <th><%=t(:price)%></th>
       <th><%=t(:condition)%></th>
+      <th><%=t(:default_price)%></th>
+      <th><%=t(:payment_term)%></th>
       <th><%=t(:created_at) %></th>
       <th><%=t(:status)%> </th>
     </tr>
@@ -21,11 +21,11 @@
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
         <td><%= price.customer.short_name %></td>
-        <td><%= price.payment_terms %></td>
         <td><%= price.item.partNo %></td>
-        <td>¥<%= price.item.price %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
+        <td>¥<%= price.get_set_price(price.item_id, price.condition) %></td>
+        <td><%= price.payment_terms %></td>        
         <td><%= price.created_at.strftime("%F") %></td>
         <td><%= price.status %></td>
       </tr>

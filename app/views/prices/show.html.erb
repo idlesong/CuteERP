@@ -11,7 +11,7 @@
           <td class="active"><%=t(:request_date)%></td><td><%= @price.created_at.to_date %></td></tr>
       <tr><td class="active"><%=t(:product)%></td><td><%= @price.item.name %>:<%= @price.item.partNo %></td>
           <td class="active"><%=t(:payment_term)%></td><td><%= @price.customer.payment %></td></tr>
-      <tr><td class="active"><%=t(:default_price)%></td><td>¥<%= @price.item.price %></td>
+      <tr><td class="active"><%=t(:default_price)%></td><td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %></td>
           <td class="active"><%=t(:last_price)%></td><td>¥</td></tr>
       <tr><td class="active"><%=t(:request_price)%></td><td class="danger">¥<%= @price.price %></td>
           <td class="active"><%=t(:forecast_condition)%></td><td class="danger"><%= @price.condition %></td></tr>
@@ -20,11 +20,10 @@
       <tr><td class="active"><%=t(:finance_suggestion)%></td><td colspan="3"><%= @price.finance_suggestion %></td></tr>
       <tr><td class="active"><%=t(:boss_suggestion)%><td colspan="3"><%= @price.boss_suggestion %></td></tr>
       <tr><td colspan="4"><p class="text-center">
-        <% if @price.status != 'approved' %>
+          (<%= @price.status %>) 
           <%= link_to("approve", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %>
-        <% else %>
-          <%= @price.status %> √
-        <% end %>
+          <%= link_to("achive", price_path("price[status]" => 'achived'), :method => :put, :confirm => "Sure?") %>
+          <%= link_to("star", price_path("price[status]" => 'stared'), :method => :put, :confirm => "Sure?") %>
       </p></td></tr>
     </table>
 

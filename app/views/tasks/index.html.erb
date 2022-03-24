@@ -1,3 +1,37 @@
+<%- model_class = Task -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => "Activities".pluralize.titleize %>
+
+  </h1>
+</div>
+
+
+<table id="tasks-table" class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:description) %></th>
+      <th><%= model_class.human_attribute_name(:status) %></th>
+      <th><%= model_class.human_attribute_name(:customer) %></th>
+      <th>opportunity</th>
+      <th>created_at</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @tasks.each do |task| %>
+<tr>
+    <td><%= task.id %></td>
+    <td><%= task.description %></td>
+    <td><%= task.status %></td>
+    <td><%= best_in_place task, :oppostatus_id, :type => :input %></td>
+    <td><%= link_to 'Show', task %></td>
+    <td><%= task.created_at.strftime("%Y/%m/%d") %></td>
+</tr>
+    <% end %>
+  </tbody>
+</table>
+
+
 <h1>Listing tasks</h1>
 
 <table class="pure-table">

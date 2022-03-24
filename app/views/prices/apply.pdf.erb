@@ -5,7 +5,7 @@
       <td class="active">Request Date</td><td><%= @price.created_at.to_date %></td></tr>
   <tr><td class="active">Product </td><td><%= @price.item.name %><%= @price.item.partNo %></td>
       <td class="active">payment term</td><td><%= @price.customer.payment %></td></tr>
-  <tr><td class="active">Default Price</td><td>¥<%= @price.item.price %></td>
+  <tr><td class="active">Set Price</td><td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %></td>
       <td class="active">Last price</td><td>¥</td></tr>
   <tr><td class="active">Request Price</td><td class="danger">¥<%= @price.price %></td>
       <td class="active">Forecast/y,condition</td><td class="danger"><%= @price.condition %></td></tr>

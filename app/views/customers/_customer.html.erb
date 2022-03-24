@@ -46,6 +46,42 @@
   <% end %>
 </table>
 
+<h3> <%=t(:price)%>
+<button type="button" class="btn btn-mini btn-primary ajax-new"
+  data= <%= @customer.id %> id="/prices"><%=t(:new_price)%></button>
+</h3>
+
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th> id </th>
+      <th> customer </th>
+      <th> part_number </th>
+      <th> price </th>
+      <th> condition </th>
+      <th> set_price </th>
+      <th> payment_term </th>
+      <th> created_at </th>
+      <th> status </th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @prices.each do |price| %>
+      <tr>
+        <td><%= link_to price.id, price_path(price) %></td>
+        <td><%= price.customer.short_name %></td>
+        <td><%= price.item.partNo %></td>
+        <td><strong>¥<%= price.price %></strong></td>
+        <td><%= price.condition %> </td>
+        <td>¥<%= price.get_set_price(price.item_id, price.condition) %></td>
+        <td><%= price.payment_terms %></td>
+        <td><%= price.created_at.strftime("%F") %></td>
+        <td><%= price.status %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
 <%= render("shared/sales_orders_list") %>
 
 <h3><%=t(:opportunities)%>
