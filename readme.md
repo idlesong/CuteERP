@@ -13,7 +13,7 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
 1. install postgreSQL(and create user rorcuteerp, rorcuteerp)
 1. initialize database: rake db:setup
 1. rails server -e development
-1. login cuteerp with user name and password in db/seeds.rb
+1. login cuteerp with user name and password in : db/seeds.rb
 
 ## Features
 ### marketing
@@ -110,6 +110,7 @@ see issues, focus on core features
        - step order quantity set in settings
          - setting: name: order_quantity_OEM1, value: 1000, note: released_date
        - item.set_price(quantity)   
+       - batch input; batch achieve
    - prices(customer prices)
      - released_at(confirmed)
      - order_quantity
@@ -119,22 +120,35 @@ see issues, focus on core features
      - auto fillin related set_price according to sales_channel(customer) & order_quantity
      - special price need approved
      - when approved, price status set approved, and inactive old price [todo]
-     - show active prices only by default     
+     - status: approved, stared, achived; hide achived prices     
    - quotation
      - has many customer prices (with codition & remarks)
+       - selected
      - quotation remarks(can modify freely)
      - quotation number  
 1. customer orders / Year view of booking 
    - remain booking, allocate orders   
 1. sales orders /  六联单
    - issue from sales orders
-1. forecast orders = ship shedule
+1. forecast orders = ship shedule(include allocation open orders)
    - (list view) re-schedule easily: 
      - add new line(in current view), delete line, change quantity 
    - auto clear forecast orders, when issue sales orders (first in, first out)
    - manually adjustment forecast quantity & auto re-schedule outdated forecast schedule(in forecast view) 
+   - copy sales orders
 1. Sales Rolling Forecast view is *Main View*(admin)
    - put open orders and forecast orders together in year view
+     - Customers view, sort by:
+       - sales type: ODM, OEM, Re-sell
+       - product group: Digital_baseband, RF, PA, Vocoder, 
+       - territoreis: KR, ExFJ, FJ
+       - customers
+       - part_numbers
+       - prices
+     - Products view, sort by:
+       - sales type
+       - product group
+       - product family(SCT3258, SCT3604, SCT3600)
    - as easy as excel, or better
      - fill the table with forecast-orders
      - change forecast quantity and auto update ship_shedule?
@@ -153,6 +167,13 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
 
 ### bugs and small Feature points
 1. items
+   - part number
+   - product group
+   - product family
+   - assembled: no, main, addition1, addtion2(mark), assembled(main + addition1)
+     - price: addition1 price(vocoder price)
+   - import, todo: new forbidden same part number; disable all old items that not need to update.
+     - index: use as o: inactive, index: 0,1,2,3 
 
 1. customers
   - need to set a default customer?

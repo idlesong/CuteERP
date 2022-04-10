@@ -1,6 +1,7 @@
 class Item < ActiveRecord::Base
   attr_accessible :imageURL, :name, :package, :partNo, :price, :description,
-    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate, :assembled, :index
+    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate, :assembled, :index, 
+    :group, :family
 
   # default_scope :order => 'name'
   # default_scope { where order: 'name'}
@@ -30,11 +31,19 @@ class Item < ActiveRecord::Base
   def self.import(file)
     spreadsheet = open_spreadsheet(file)
 
+    # inactive all items
+    Item.all.each do |item|
+      item.index = 0
+      item.save
+    end
+
     header = spreadsheet.row(1)
     (2..spreadsheet.last_row).each do |i|
       row = Hash[[header, spreadsheet.row(i)].transpose]
-      product = find_by_id(row["id"]) || new
+      product = find_by_partNo(row["partNo"])  || new      
       product.attributes = row.to_hash.slice(*accessible_attributes)
+
+      product.index = 1        
       product.save!
     end
   end

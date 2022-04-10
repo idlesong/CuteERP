@@ -10,8 +10,8 @@ class ItemsController < ApplicationController
       format.json { render json: ItemsDatatable.new(view_context) }
       #format.json { render json: @items }
 
-      format.csv { send_data @items.to_csv }
-      format.xls # { send_data @products.to_csv(col_sep: "\t") }
+      format.csv { send_data @items.export_to_csv }
+      format.xls { send_data @items.export_to_csv(col_sep: "\t") }
     end
   end
 
@@ -101,8 +101,8 @@ class ItemsController < ApplicationController
   end
 
   def import
-    Item.imprt(params[:file])
-    redirect_to root_url, notice: "Products imported."
+    Item.import(params[:file])
+    redirect_to items_url, notice: "Products imported."
   end
 
 end

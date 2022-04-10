@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20220319062932) do
+ActiveRecord::Schema.define(version: 20220410090647) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -83,6 +83,8 @@ ActiveRecord::Schema.define(version: 20220319062932) do
     t.decimal  "usd_tax_rate", precision: 8, scale: 2, default: 0.0
     t.string   "assembled"
     t.integer  "index"
+    t.string   "group"
+    t.string   "family"
   end
 
   create_table "line_items", force: :cascade do |t|

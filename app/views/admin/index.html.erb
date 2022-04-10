@@ -116,6 +116,46 @@
 </table>
 </br>
 
+<h3> <%= t(:sales_rolling_forecast)%>(FYF23) </h3>
+
+<table class="table table-striped">
+  <tr>
+    <th><%=t(:part_number)%>#</th>
+    <th><%=t(:Plan)%></th>
+    <th><%=t(:Plan)%></th>   
+    <th><%=t(:FCST)%></th>
+    <th><%=t(:FCST)%></th>
+    <th><%=t(:price)%></th>
+    <th><%=t(:price)%></th>   
+    <th><%=t(:Apr)%></th>
+    <th><%=t(:May)%></th>
+    <th><%=t(:Jun)%></th>
+    <th><%=t(:Jul)%></th>
+    <th><%=t(:Aug)%></th>
+    <th><%=t(:Sep)%></th>
+    <th><%=t(:Oct)%></th>
+    <th><%=t(:Nov)%></th>
+    <th><%=t(:Dec)%></th>
+    <th><%=t(:Customer)%></th>
+    <th><%=t(:Open_orders)%></th>
+  </tr>  
+
+  <% @this_year_open_order_line_items.each do |line| %>
+    <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+        <td><%= line.full_part_number %></td>    
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><%= line.price %></td>
+        <td><%= line.quantity %></td>
+    </tr>
+  <% end %>
+
+</table>
+
+
 <!-- sales_orders report modal-->
 <div class="modal fade" id="salesOrderReportModal" tabindex="-1" role="dialog" aria-labelledby="salesOrderReportModal" aria-hidden="true">
   <div class="modal-dialog modal-lg">

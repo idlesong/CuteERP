@@ -5,40 +5,35 @@
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th>-</th>
-      <th>ID</th>
+      <th>id</th>    
       <th><%=t(:part_number) %></th>
+      <th>Product Group</th>   
+      <th><%=t(:family) %></th>   
       <th><%=t(:product_name) %></th>
       <th><%=t(:description) %></th>
       <th><%=t(:package) %></th>
       <th><%=t(:price) %></th>
       <th>RMB<%=t(:tax_rate) %></th>
-      <th>USD<%=t(:tax_rate) %></th>
       <th><%=t(:mpq)%> </th>
+      <th><%=t(:assembled)%> </th>
+      <th>active</th>
     </tr>
   </thead>
   <tbody>
     <% @items.each do |item| %>
-      <%
-        if item.assembled == 'yes'
-          flag = 'c'
-        elsif item.assembled == 'addition'
-          flag = '+'
-        else
-          flag = 'x'
-        end
-      %>
       <tr>
-        <td><%= flag %></td>
-        <td><%= item.index %></td>
+        <td><%= item.id %></td>
         <td><%= link_to item.partNo, item_path(item)   %></td>
+        <td><%= item.group %></td>
+        <td><%= item.family %></td>
         <td><%= item.name        %></td>
         <td><%= item.description %></td>
         <td><%= item.package     %></td>
         <td><%= item.price       %></td>
         <td><%= item.rmb_tax_rate%></td>
-        <td><%= item.usd_tax_rate%></td>
         <td><%= item.mop       %></td>
+        <td><%= item.assembled %></td>
+        <td><%= item.index %></td>
       </tr>
     <% end %>
   </tbody>
@@ -56,6 +51,8 @@
 <% if true %>
   <%= form_tag import_items_path, multipart: true do %>
     <%= file_field_tag :file %>
-    <%= submit_tag "Import" %>
+    <%= submit_tag "Import",  :class=>"btn btn-primary"%>
   <% end %>
 <% end %>
+
+</br>

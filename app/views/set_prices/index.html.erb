@@ -63,19 +63,40 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>1000</th>
+      <th>PartNo</th>
+      <th>OEM 1000</th>
       <th>2500</th>
       <th>5000</th>
       <th>10000</th>
       <th>50000</th>
+      <th>ODM 1000</th>
+      <th>2500</th>
+      <th>5000</th>
+      <th>10000</th>
+      <th>50000</th>      
     </tr>
   </thead>
   <tbody>
-    <% @price_by_items.each do |price| %>
-      <td><%= price %></td>
+    <% @price_list.each do |line| %>
+      <tr>
+      <% line.each do |price| %>      
+        <td><%= price %></td>
+      <% end  %>
+      </tr>
     <% end  %>
   </tbody>
 </table>
 
+<p>
+  Export Set Price:
+  <%= link_to "CSV", set_prices_path(format: "csv") %> |
+  <%= link_to "Excel", set_prices_path(format: "xls") %>
+</p>
 
+</br>
 
+<p>Import Set Price</p>
+  <%= form_tag import_set_prices_path, multipart: true do %>
+    <%= file_field_tag :file %>
+    <%= submit_tag "Import" %>
+<% end %>
