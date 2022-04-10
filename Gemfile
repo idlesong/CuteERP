@@ -49,6 +49,8 @@ gem "iconv", "~> 1.0.3"
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 
+gem "roo", "~> 2.8.0"
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 

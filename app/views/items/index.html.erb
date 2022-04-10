@@ -45,16 +45,15 @@
 </table>
 
 <%= link_to 'New Item', new_item_path, :class=>"btn btn-primary" %>
-<!-- <p>
-  More:
-  <= link_to("NEW", new_item_path) >
-  Download:
-  <= link_to "CSV", items_path(format: "csv") > |
-  <= link_to "Excel", items_path(format: "xls") >
-</p> -->
 
-<!-- <p>Import Products</p> -->
-<% if false %>
+<p>
+  Export Produts:
+  <%= link_to "CSV", items_path(format: "csv") %> |
+  <%= link_to "Excel", items_path(format: "xls") %>
+</p>
+
+<p>Import Products</p>
+<% if true %>
   <%= form_tag import_items_path, multipart: true do %>
     <%= file_field_tag :file %>
     <%= submit_tag "Import" %>
