@@ -6,6 +6,7 @@
   <thead>
     <tr>
       <th><%= t(:name) %></th>
+      <th><%= t(:full_name) %></th>     
       <th><%= t(:credit) %></th>
       <th><%= t(:address) %></th>
       <th><%= t(:telephone) %></th>
@@ -19,6 +20,7 @@
     <% @customers.each do |customer| %>
       <tr>
         <td><%= link_to customer.name, customer_path(customer) %></td>
+        <td><%= customer.full_name %></td>
         <td><%= customer.credit.to_i %></td>
         <td><%= customer.address %></td>
         <td><%= customer.telephone %></td>
@@ -33,3 +35,19 @@
 
 <%= link_to 'new customer', new_customer_path,:class => "btn btn-primary" %>
 <!-- <button type="button" class="btn btn-primary ajax-new" id="/customers">new customer</button> -->
+
+<p>
+  Export Customers:
+  <%= link_to "CSV", customers_path(format: "csv") %> |
+  <%= link_to "Excel", customers_path(format: "xls") %>
+</p>
+
+<p>Import Customers</p>
+<% if true %>
+  <%= form_tag import_customers_path, multipart: true do %>
+    <%= file_field_tag :file %>
+    <%= submit_tag "Import",  :class=>"btn btn-primary"%>
+  <% end %>
+<% end %>
+
+</br>

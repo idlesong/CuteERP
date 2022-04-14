@@ -19,6 +19,12 @@
           <%= f.text_field :name, :class => 'text_field', placeholder:'Company *name*' %>
         </div>
       </div>
+      <div class="col-xs-3">
+        <%= f.label "#{t(:customer)}#{t(:full_name)}", :class => 'control-label' %>
+        <div class="controls">
+          <%= f.text_field :full_name, :class => 'text_field', placeholder:'Company full name' %>
+        </div>
+      </div>      
       <div>
         <div class="col-xs-3">
           <div class="control-group">

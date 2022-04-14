@@ -1,6 +1,7 @@
 <!-- < if notice >
   <p id="notice" class="alert alert-info" role="alert"><= notice %</p>
 < end > -->
+<h4> <%=@customer.full_name%> </h4>
 <ul class="list-inline">
   <li><%=t(:since)%>:<%=@customer.since%></li>
   <li><%=t(:currency)%>:<%= @customer.currency %></li>
@@ -14,8 +15,13 @@
 <h5><%=t(:ship)%><%=t(:address)%>:<small><%= @customer.ship_address %></small>,
     <%=t(:ship)%><%=t(:contact)%>:<small><%= @customer.ship_contact %></small>,
     <%=t(:ship)%><%=t(:telephone)%>:<small><%= @customer.ship_telephone %></small>
-<%= link_to t('.edit',default: t("helpers.links.edit")), edit_customer_path(@customer) %></h5>
+<%= link_to t('.edit',default: t("helpers.links.edit")), edit_customer_path(@customer) %>
 
+<%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+customer_path(@customer),
+:method => 'delete',
+:data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+:class => 'btn btn-danger' %></h5>
 
 <h3> <%=t(:contact)%>
 <button type="button" class="btn btn-mini btn-primary ajax-new"

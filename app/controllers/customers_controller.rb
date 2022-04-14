@@ -8,6 +8,9 @@ class CustomersController < ApplicationController
       format.html # index.html.erb
       #format.json { render json: @customers }
       format.json { render json: CustomersDatatable.new(view_context) }
+
+      format.csv { send_data @customers.export_to_csv }
+      format.xls { send_data @customers.export_to_csv(col_sep: "\t") }
     end
   end
 
@@ -97,4 +100,9 @@ class CustomersController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def import
+    Customer.import(params[:file])
+    redirect_to customers_url, notice: "Customers imported."
+  end  
 end
