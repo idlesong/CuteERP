@@ -41,18 +41,16 @@
 
 <%= link_to 'New Item', new_item_path, :class=>"btn btn-primary" %>
 
-<p>
-  Export Produts:
-  <%= link_to "CSV", items_path(format: "csv") %> |
-  <%= link_to "Excel", items_path(format: "xls") %>
-</p>
 
-<p>Import Products</p>
-<% if true %>
-  <%= form_tag import_items_path, multipart: true do %>
-    <%= file_field_tag :file %>
-    <%= submit_tag "Import",  :class=>"btn btn-primary"%>
-  <% end %>
+<h4>Export Produts:</h4>
+<%= link_to "Export CSV", items_path(format: "csv"),:class => "btn btn-primary" %> |
+<%= link_to "Export Excel", items_path(format: "xls"),:class => "btn btn-primary" %>
+
+
+<h4>Import Products</h4>
+<%= form_tag import_items_path, multipart: true do %>
+  <%= file_field_tag :file %>
+  <%= submit_tag "Import",  :class=>"btn btn-primary"%>
 <% end %>
 
 </br>

@@ -24,8 +24,7 @@
               <%= form_tag(line_items_path(:item_id => item), remote: true) do %>
                 <td><%= item.name %></td>
                 <td><strong><%= item.partNo %></strong></td>
-                <td><%= select_tag("addition", options_from_collection_for_select(@option_items, "id","partNo")) if item.assembled == 'yes'%></td>
-                <td><%= select_tag("suffix", options_for_select(Item::FW_MARK_TYPES)) if item.assembled == 'yes'%></td>
+                <td><%= select_tag("suffix", options_for_select(Item::FW_MARK_TYPES)) if item.assembled == 'main'%></td>
                 <td><%= item.package %></td>
                 <td>¥<%= current_customer.get_special_price(item)%></td>
                 <td><%= text_field_tag(:quantity, item.mop, placeholder: item.mop, size:10) %></td>

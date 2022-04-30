@@ -36,18 +36,15 @@
 <%= link_to 'new customer', new_customer_path,:class => "btn btn-primary" %>
 <!-- <button type="button" class="btn btn-primary ajax-new" id="/customers">new customer</button> -->
 
-<p>
-  Export Customers:
-  <%= link_to "CSV", customers_path(format: "csv") %> |
-  <%= link_to "Excel", customers_path(format: "xls") %>
-</p>
 
-<p>Import Customers</p>
-<% if true %>
-  <%= form_tag import_customers_path, multipart: true do %>
-    <%= file_field_tag :file %>
-    <%= submit_tag "Import",  :class=>"btn btn-primary"%>
-  <% end %>
+<h4>Export Customers:</h4>
+<%= link_to "export csv", customers_path(format: "csv"),:class => "btn btn-primary" %>|
+<%= link_to "export Excel", customers_path(format: "xls"),:class => "btn btn-primary" %>
+
+<h4>Import Customers </h4>
+<%= form_tag import_customers_path, multipart: true do %>
+  <%= file_field_tag :file %>
+  <%= submit_tag "Import customers",  :class=>"btn btn-primary"%>
 <% end %>
-
 </br>
+

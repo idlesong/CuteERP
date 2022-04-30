@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
   # GET /items.json
   def index
     # @items = Item.all
-    @items = Item.order(:id)
+    @items = Item.order(:id).where.not(index: 0)
 
     respond_to do |format|
       format.html # index.html.erb
