@@ -1,0 +1,58 @@
+<p id="notice"><%= notice %></p>
+
+<!-- Quotation header -->
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2>
+        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5>Wuxi Sicomm Communication Tech</h5>
+              <h5>Address: B building #21 road, Wuxi </h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"> Date: <%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
+              <h4 class="text-right"> Quotation#:<%= @quotation.quotation_number %></h4>
+              <h4 class="text-right"> Payment:<%= @quotation.customer_id %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> Quotation</h3></td></tr>
+        <tr><td> <h4>ATTN: <%=t(:bill_to)%>:<%= @quotation.customer.name %>  </h4> </td>
+            <td><h4>From: 无锡士康通讯技术有线公司</h4></td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+
+<!-- Quotation price list -->
+<div class="panel panel-default">
+  <div class="panel-body">
+    <table class="table">
+      <thead> <tr> 
+      <td> id </td>
+      <td> part number</td>
+      <td> product name</td>
+      <td> unit price </td>
+      <td> order_quantity </td>
+      <td> note </td> 
+      </tr> </thead>
+      <% @quotation.prices.each_with_index do |price, index| %>
+        <tr>
+        <td><%= index+1 %></td>     
+        <td><%= price.item.partNo %></td>
+        <td><%= price.item.name %></td>
+        <td>RMB <%= price.price %></td>
+        <td><%= price.condition %> pcs</td>
+        <td></td>
+        </tr>
+      <% end %>
+      <tr><td>remark</td><td colspan="5"><%= @quotation.remark %></td></tr>
+    </table>
+  </div>  
+</div>

@@ -1,0 +1,84 @@
+<%= form_for(@quotation) do |f| %>
+  <% if @quotation.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@quotation.errors.count, "error") %> prohibited this quotation from being saved:</h2>
+
+      <ul>
+      <% @quotation.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <!-- Quotation header -->
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h2>
+          <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+        </h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <td>
+                <h5>Wuxi Sicomm Communication Tech</h5>
+                <h5>Address: B building #21 road, Wuxi </h5>
+                <h5>Tel:051066682208 Fax: 051066682208</h5>
+              </td>
+              <td>
+                <h4 class="text-right"> Date: <%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
+                <h4 class="text-right"> Quotation#:Q<%= DateTime.now.to_date %></h4>
+                <h4 class="text-right"> Payment:<%= @quotation.customer.payment %></h4>
+              </td>
+            </tr>
+          </thead>
+          <tr><td colspan = "2"><h3 class="text-center"> Quotation</h3></td></tr>
+          <tr><td> <h4>ATTN: <%=t(:bill_to)%>:<%= @quotation.customer.name %>
+          <a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          data-target="#customersSelection">
+            <%=t(:change_customer)%>
+          </a>  </h4> </td>
+              <td><h4>From: 无锡士康通讯技术有线公司</h4></td>
+          </tr>
+  
+        </table>
+        <%= f.hidden_field :customer_id, :value => @quotation.customer_id %>
+        <%= f.hidden_field :quotation_number, :value => @quotation.generate_quotation_number %>
+
+      </div>
+    </div>
+
+  <!-- Quotation price list -->
+  <div class="panel panel-default">
+    <!-- <div class="panel-heading"><h2>Quotation Details<h2></div> -->
+    <div class="panel-body">
+    <h5>Quotation details</h5>     
+    <table class="table">
+    <thead> <tr> 
+    <td> part number</td>
+    <td> price </td>
+    <td> condition </td>
+    <td> action</td> 
+    </tr> </thead>
+ 
+    <% @unquotated_prices.each_with_index do |price, index| %>
+      <tr>
+      <td><%= price.item.partNo %></td>
+      <td><%= price.price %></td>
+      <td><%= price.condition %></td>
+      <td><%= f.check_box(:prices, {:multiple => true}, price.id, nil) %></td>
+      </tr>
+    <% end %>
+
+    <tr><td>    <%= f.label :remark %>
+    <%= f.text_field :remark %></td></tr>
+    </table>
+  </div>
+
+  <div class="panel-footer">
+   <%= f.submit %>
+  </div>
+</div>
+
+<% end %>

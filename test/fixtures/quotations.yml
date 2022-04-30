@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  quotation_number: MyString
+  remark: MyString
+  price_id: 1
+
+two:
+  quotation_number: MyString
+  remark: MyString
+  price_id: 1
