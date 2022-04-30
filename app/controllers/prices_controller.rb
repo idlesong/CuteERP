@@ -2,11 +2,19 @@ class PricesController < ApplicationController
   # GET /prices
   # GET /prices.json
   def index
-    @prices = Price.all
+    # @prices = Price.all
+    if(params[:status])
+      @prices = Price.where("status = ?", params[:status]).order("created_at asc")
+    else
+      @prices = Price.order("created_at asc").all
+    end
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @prices }
+
+      format.csv { send_data @prices.export_to_csv }
+      format.xls { send_data @prices.export_to_csv(col_sep: "\t") }      
     end
   end
 
@@ -40,6 +48,18 @@ class PricesController < ApplicationController
     @price = Price.new
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
+    @latest_release_set_price = SetPrice.order(released_at: :asc).last
+    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
+
+    @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @price_list = @latest_release_set_price.get_price_list(@step_quantities)
+
+    if (params[:item_id] && params[:price] && params[:condition])
+      @price.item_id = Item.find_by(partNo: params[:item_id]).id
+      @price.price = params[:price]
+      @price.condition = params[:condition]
+    end
+
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @price }
@@ -50,12 +70,19 @@ class PricesController < ApplicationController
   def edit
     @price = Price.find(params[:id])
     @customers = Customer.order("credit DESC").where("credit > ?", 0)    
+    @latest_release_set_price = SetPrice.order(released_at: :asc).last
+
+    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
+
+    @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @price_list = @latest_release_set_price.get_price_list(@step_quantities)
   end
 
   # POST /prices
   # POST /prices.json
   def create
     @price = Price.new(params[:price])
+    @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
     respond_to do |format|
       if @price.save
@@ -73,16 +100,27 @@ class PricesController < ApplicationController
   def update
     @price = Price.find(params[:id])
 
+    @price.status = params[:status] if params[:status]
+
     respond_to do |format|
       if @price.update_attributes(params[:price])
+        if params[:status]
+          format.html { redirect_to prices_url }
+        else
         format.html { redirect_to @price, notice: 'Price was successfully updated.' }
         format.json { head :no_content }
+        end
       else
         format.html { render action: "edit" }
         format.json { render json: @price.errors, status: :unprocessable_entity }
       end
     end
   end
+
+  def import
+    Price.import(params[:file])
+    redirect_to prices_url, notice: "Prices imported."
+  end  
 
   # DELETE /prices/1
   # DELETE /prices/1.json
@@ -94,5 +132,5 @@ class PricesController < ApplicationController
       format.html { redirect_to prices_url }
       format.json { head :no_content }
     end
-  end
+  end      
 end

@@ -11,25 +11,31 @@
   </div>
   <% end %>
 
-
   <table class="table table-bordered">
     <tr><td colspan="4"><h2 class="text-center"><%=t(:price_request)%></h2></td></tr>
     <tr><td class="active"><%=t(:customer_name)%></td>
-        <td><%= f.collection_select(:customer_id, @customers, :id, :short_name) %></td>
+        <td><%= f.collection_select(:customer_id, @customers, :id, :short_name,{:class=>"customer_selection"}) %></td>
         <td class="active"><%=t(:request_date)%></td><td><%= f.date_select :created_at,:class => 'date_select'%></td></tr>
-    <tr><td class="active"><%=t(:product)%> </td><td><%= f.collection_select(:item_id, Item.all, :id, :partNo) %></td>
+    <tr><td class="active"><%=t(:product)%> </td><td>
+    <a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+    data-target="#setPricesModal">
+      <%=t(:select_set_price)%>
+    </a>
+    <%= @price.item.partNo if not @price.item.nil? %></td>
         <td class="active"><%=t(:payment_term)%></td><td><%= f.select(:payment_terms, Order::PAYMENT_TYPES) %></td></tr>
-    <tr><td class="active"><%=t(:default_price)%></td><td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %></td>
+    <tr><td class="active"><%=t(:default_price)%>/<%=t(:order_volume)%></td><td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %> @<%= @price.condition%>pcs</td>
         <td class="active"><%=t(:last_price)%></td><td>¥</td></tr>
-    <tr><td class="active"><%=t(:request_price)%></td><td class="danger">¥<%= f.text_field :price, :class => 'text_field' %></td>
-        <td class="active"><%=t(:forecast_condition)%></td><td class="danger"><%= f.text_field :condition, :class => 'text_field' %></td></tr>
+    <tr><td class="active"><%=t(:request_price)%>/<%=t(:order_volume)%></td><td class="danger">¥<%= f.text_field :price, :class => 'text_field' %>
+    @<%= f.text_field :condition, :class => 'text_field' %>pcs </td><td class="danger"><%=t(:forecast_condition)%></td>
+        <td class="active"></td></tr>
     <tr><td class="active"><%=t(:sales_suggestion)%></td><td colspan="3"><%= f.text_field :sales_suggestion, :class => 'text_field' %></td></tr>
     <tr><td class="active"><%=t(:department_suggestion)%></td><td colspan="3"><%= f.text_field :department_suggestion, :class => 'text_field' %></td></tr>
     <tr><td class="active"><%=t(:finance_suggestion)%></td><td colspan="3"><%= f.text_field :finance_suggestion, :class => 'text_field' %></td></tr>
     <tr><td class="active"><%=t(:boss_suggestion)%></td><td colspan="3"><%= f.text_field :boss_suggestion, :class => 'text_field' %></td></tr>
-    <tr><td colspan="4"><p class="text-center"><%= f.select(:status, [['request'],['approved']]) %></p></td></tr>
+    <tr><td colspan="4"><p class="text-center"><%= f.select(:status, [['requested'],['approved']]) %></p></td></tr>
   </table>
 
+  <%= f.hidden_field :item_id, :value => @price.item_id %>
   </br>
 
   <div class="form-actions">

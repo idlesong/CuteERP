@@ -1,0 +1,52 @@
+<div class="modal fade" id="setPricesModal" tabindex="-1" role="dialog" aria-labelledby="setPriceModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><%=t(:select_set_price)%></h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped">
+        <thead>
+        <tr>
+          <th></th>
+          <th colspan="5">OEM</th>
+          <th colspan="5">ODM</th>
+        </tr>
+        <tr>
+          <th>PartNo</th>
+          <% @step_quantities.each do |volume| %>
+            <th><%= volume %></th>
+          <% end %>  
+          <% @step_quantities.each do |volume| %>
+            <th><%= volume %></th>
+          <% end %>             
+        </tr>
+      </thead>
+      <tbody>
+        <% if not @price_list.nil? %>
+        <% @price_list.each do |line| %>
+          <tr>
+          <% line.each_with_index do |price, index| %>      
+            <% if index == 0 %>
+              <td><%= @part_number = price %></td>
+            <% elsif index <= @step_quantities.length %>
+              <td><%= link_to(price, {:controller =>'prices',:action => 'new', 
+                                      :item_id => @part_number , :price => price, 
+                                      :condition => @step_quantities[index-1]}, :class=>"link")%></td>
+            <% else %>
+              <td><%= price %></td>
+            <% end %>
+          <% end  %>
+          </tr>
+        <% end  %>
+        <% end %>
+      </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><%=t(:close)%></button>
+      </div>
+    </div>
+  </div>
+</div>

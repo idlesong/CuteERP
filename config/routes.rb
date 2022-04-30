@@ -1,4 +1,5 @@
 RorWebERP::Application.routes.draw do
+  resources :quotations
   resources :settings
 
   resources :set_prices
@@ -18,6 +19,7 @@ RorWebERP::Application.routes.draw do
     member do
       get 'apply'
     end
+    collection { post :import}
   end
 
   resources :posts
@@ -29,7 +31,9 @@ RorWebERP::Application.routes.draw do
   resources :opportunities
 
   resources :contacts
-  resources :customers
+  resources :customers do
+    collection { post :import}
+  end
 
   #resources :customers, shallow: true do
   #  resources :contacts
@@ -60,14 +64,17 @@ RorWebERP::Application.routes.draw do
 
   resources :line_items
 
-
   resources :carts
-
 
   resources :items do
     get :who_bought, :on => :member
     collection { post :import}
   end
+
+  resources :set_prices do
+    collection { post :import}
+    collection { get :quotate}
+  end  
 
   get "inventory/index"
 

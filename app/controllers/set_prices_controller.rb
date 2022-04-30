@@ -5,26 +5,21 @@ class SetPricesController < ApplicationController
     @set_prices = SetPrice.all
 
     @latest_release_set_price = SetPrice.order(released_at: :asc).last
-    @latest_set_prices = SetPrice.order("item_id ASC").order("order_quantity::integer ASC").where("released_at" => @latest_release_set_price.released_at )
+    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    @uniq_items = SetPrice.where("released_at" => @latest_release_set_price.released_at ).select(:item_id).uniq
-   
-    step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    # @uniq_items = SetPrice.where("released_at" => @latest_release_set_price.released_at ).select(:item_id).uniq
 
-    @price_by_items = Array.new
-    @uniq_items.each do |item|  
-      step_quantities.each do |quantity, q|
-        if  @latest_set_prices.where(item_id: item.item_id, order_quantity: quantity).first.nil? 
-          @price_by_items << 0
-        else
-          @price_by_items << @latest_set_prices.where(item_id: item.item_id, order_quantity: quantity).first.price
-        end  
-      end
-    end   
+    @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @price_list = @latest_release_set_price.get_price_list(@step_quantities)
+
+    @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", @step_quantities)
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @set_prices }
+
+      format.csv { send_data @set_prices.to_csv }
+      format.xls { send_data @set_prices.to_csv(col_sep: "\t") }
     end
   end
 
@@ -39,18 +34,18 @@ class SetPricesController < ApplicationController
     end
   end
 
-#   # GET /set_prices/1/apply
-#   def apply
-#     @set_price = SetPrice.find(params[:id])
+  def import
+    SetPrice.import(params[:file])
+    redirect_to set_prices_url, notice: "SetPrice imported."
+  end
 
-#     respond_to do |format|
-#       format.html # show.html.erb
-#       format.pdf  do
-#         render pdf: "file_name",
-#         layout:      "/layouts/pdf.html.erb"
-#       end
-#     end
-#   end
+  def quotate
+    @latest_release_set_price = SetPrice.order(released_at: :asc).last
+    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
+
+    step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", step_quantities)
+  end
 
   # GET /set_prices/new
   # GET /set_prices/new.json

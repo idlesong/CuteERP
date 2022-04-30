@@ -1,6 +1,13 @@
 <%- model_class = Price -%>
 <div class="page-header">
-  <h1><%=t(:price) %></h1> <%= link_to("set price", set_prices_url)%>
+  <h1><%=t(:price) %> - <%= link_to("set price", set_prices_url)%></h1> 
+  <div class="btn-group" role="group" aria-label="...">
+  <a role="button" class="btn btn-default" href= <%= prices_path(:status => "active" ) %> >active  </a>  
+  <a role="button" class="btn btn-default" href= <%= prices_path(:status => "approved" ) %> >approved</a>
+  <a role="button" class="btn btn-default" href= <%= prices_path(:status => "requested" ) %> >requested </a>
+  <a role="button" class="btn btn-default" href= <%= prices_path %> > all</a>
+</div>
+
 </div>
 <table class="table table-striped datatable">
   <thead>
@@ -13,6 +20,7 @@
       <th><%=t(:default_price)%></th>
       <th><%=t(:payment_term)%></th>
       <th><%=t(:created_at) %></th>
+      <th><%=t(:quotation)%></th>  
       <th><%=t(:status)%> </th>
     </tr>
   </thead>
@@ -20,14 +28,20 @@
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= price.customer.short_name %></td>
+        <td><%= price.customer.name if price.customer != nil %></td>        
         <td><%= price.item.partNo %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
         <td>¥<%= price.get_set_price(price.item_id, price.condition) %></td>
         <td><%= price.payment_terms %></td>        
         <td><%= price.created_at.strftime("%F") %></td>
-        <td><%= price.status %></td>
+        <td><%= price.quotation.id if price.quotation != nil %></td>        
+        <td><%= price.status %>   
+        <td>
+        <% if price.status == 'approved' %>
+          <%= button_to 'activate', price, method: :put, params: { status: "active" }%>
+        <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>
@@ -36,3 +50,14 @@
 <%= link_to t('.new', :default => t("helpers.links.new")),
             new_price_path,
             :class => 'btn btn-primary' %>
+
+<h4>Export Customers:</h4>
+<%= link_to "export csv", prices_path(format: "csv"),:class => "btn btn-primary" %>|
+<%= link_to "export Excel", prices_path(format: "xls"),:class => "btn btn-primary" %>
+
+<h4>Import Customers </h4>
+<%= form_tag import_prices_path, multipart: true do %>
+  <%= file_field_tag :file %>
+  <%= submit_tag "Import prices",  :class=>"btn btn-primary"%>
+<% end %>
+</br>            
