@@ -10,6 +10,7 @@ class Customer < ActiveRecord::Base
   has_many :contacts
   has_many :opportunities
   has_many :prices
+  has_many :quotation
   validates :name, :presence => true, :uniqueness => true
   validates :payment, :presence => true
   validates :currency, :presence => true

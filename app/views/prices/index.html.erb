@@ -22,13 +22,16 @@
       <th><%=t(:created_at) %></th>
       <th><%=t(:quotation)%></th>  
       <th><%=t(:status)%> </th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= price.customer.name if price.customer != nil %></td>        
+        <td><% if price.customer != nil %>
+          <%= link_to price.customer.name, price.customer %>
+        <% end %></td>        
         <td><%= price.item.partNo %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
