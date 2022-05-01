@@ -1,6 +1,5 @@
 RorWebERP::Application.routes.draw do
   resources :quotations
-  resources :settings
 
   resources :set_prices
 

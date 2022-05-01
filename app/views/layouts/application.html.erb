@@ -9,7 +9,7 @@
 <body>
   <div id = "menu">
     <ul>
-      <li class="nav_left"><a href=<%= settings_path %>><i class="fa fa-suitcase"></i>CuteERP </a></li>
+      <li class="nav_left"><a href=<%= %>><i class="fa fa-suitcase"></i>CuteERP </a></li>
       <% if current_user %>
         <li class="nav_left"> <%= link_to "@#{current_user.name}", '/admin' %> </li>
         <li class="nav_left"> <%= link_to t(:logout), '/logout' %></li>
@@ -39,7 +39,7 @@
             <li class="list-group-item"><a href=<%= contacts_path %>><i class="fa fa-user"></i><%=t(:contact)%></a></li>
             <li class="list-group-item"><a href=<%= new_contact_path %> ><i class="fa fa-user"></i> <%=t(:new_contact)%></a></li>
             <li class="list-group-item"><a href=<%= new_customer_path %> ><i class="fa fa-user"></i><%=t(:new_customer)%></a></li>
-            <li class="list-group-item"><a href=<%= settings_path %>><%=t(:settings)%></a></li>
+            <li class="list-group-item"><a href=<%= %>><%=t(:settings)%></a></li>
         </ul>
       </div>
 

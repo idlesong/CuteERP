@@ -4,32 +4,32 @@
   <div class="panel panel-default">
     <div class="panel-body">
       <h2>
-        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+        <%=image_tag('sicomm_logo.jpg') %><%= current_user.settings(:company).name_zh %>
       </h2>
       <table class="table">
         <thead>
           <tr>
             <td>
-              <h5>Wuxi Sicomm Communication Tech</h5>
-              <h5>Address: B building #21 road, Wuxi </h5>
+              <h5><%= current_user.settings(:company).name_zh %></h5>
+              <h5><%= current_user.settings(:company).address_zh %></h5>
               <h5>Tel:051066682208 Fax: 051066682208</h5>
             </td>
             <td>
-              <h4 class="text-right"> Date: <%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
-              <h4 class="text-right"> Quotation#:<%= @quotation.quotation_number %></h4>
-              <h4 class="text-right"> Payment:<%= @quotation.customer.payment %></h4>
+              <h4 class="text-right"> <%=t(:show_date)%>:<%= @quotation.created_at.strftime("%F") %></h4>
+              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%= @quotation.quotation_number %></h4>
+              <h4 class="text-right"> <%= t(:payment_term) %> :<%= @quotation.customer.payment %></h4>
             </td>
           </tr>
         </thead>
-        <tr><td colspan = "2"><h3 class="text-center"> Quotation</h3></td></tr>
-        <tr><td> <h4>ATTN: <%=t(:bill_to)%>:
+        <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> </h3></td></tr>
+        <tr><td> <h4>To:
         <% if @quotation.customer.full_name.nil? %>
           <%= @quotation.customer.name %>  
         <% else %>
           <%= @quotation.customer.full_name %>         
         <% end %>
         </h4> </td>
-            <td><h4>From: 无锡士康通讯技术有线公司</h4></td>
+            <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
         </tr>
       </table>
 
@@ -42,11 +42,11 @@
     <table class="table">
       <thead> <tr> 
       <td> id </td>
-      <td> part number</td>
-      <td> product name</td>
-      <td> unit price </td>
-      <td> order_quantity </td>
-      <td> note </td> 
+      <td> <%= t(:part_number) %></td>
+      <td> <%= t(:product_name) %></td>
+      <td> <%= t(:unit_price_with_VAT) %> </td>
+      <td> <%= t(:order_quantity) %> </td>
+      <td> <%= t(:remark) %> </td> 
       </tr> </thead>
       <% @quotation.prices.each_with_index do |price, index| %>
         <tr>
@@ -58,7 +58,7 @@
         <td></td>
         </tr>
       <% end %>
-      <tr><td>remark</td><td colspan="5"><%= @quotation.remark %></td></tr>
+      <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= @quotation.remark %></td></tr>
     </table>
   </div>
 
@@ -67,9 +67,7 @@
     <%= link_to 'Destroy', @quotation, method: :delete, data: { confirm: 'Are you sure?' } %> |
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
     data-target=".bs-quotation-modal-lg"><%=t(:quotation)%></button>
-  </div>  
- 
-
+  </div> 
 </div>
 
 

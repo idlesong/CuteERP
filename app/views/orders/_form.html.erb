@@ -28,7 +28,7 @@
 			<div id="cart">
 				<%= render(@cart, :exchange_rate => @order.exchange_rate) %>
 			</div>
-			<strong>Remark:<%= f.text_field :remark, :value => '以上包含17%增值税',:size => 60 %>
+			<strong>Remark:<%= f.text_field :remark, :value => current_user.settings(:remark).order_remark_zh,:size => 60 %>
 				<%= "Exchange rate: #{@order.exchange_rate}" if @order.customer.currency == 'usd' %>
 			</strong>
 			<% if @order.customer.currency == 'USD'%>

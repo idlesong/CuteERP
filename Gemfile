@@ -51,6 +51,8 @@ gem 'wkhtmltopdf-binary'
 
 gem "roo", "~> 2.8.0"
 
+gem 'ledermann-rails-settings'
+
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'
 

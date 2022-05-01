@@ -12,6 +12,20 @@ class User < ActiveRecord::Base
 
   has_many :oppostatus
 
+  has_settings do |s|
+    s.key :company, :defaults => { :name_en => "Wuxi Sicomm Communication Technologies, Inc.",
+                                   :name_zh => "无锡士康通讯技术有限公司",
+                                   :address_en => "F2, Building B, Changjiang Road, Wuxi, Jiangsu, China",
+                                   :address_zh => "无锡市新吴区长江路21号B栋2楼",
+                                   :telephone => "0510-66682208" }
+    s.key :exchange_rate, :defaults => { :current_month => "6.3" }   
+    s.key :remark, :defaults => { :order_remark_en => "Unit price includes 13% VAT;",
+                                  :order_remark_zh => "此价格包含13%增值税",
+                                  :quotation_remark_en => "Unit price includes 13% VAT; Forbidden to re-sell;",
+                                  :quotation_remark_zh => "单价包含13%增值税；禁止转卖，否则本公司有权取消特价",
+   }                           
+  end
+
   def User.encrypt_password(password, salt)
   	Digest::SHA2.hexdigest(password + "wibble" + salt)
   end

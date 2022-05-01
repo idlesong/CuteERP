@@ -26,8 +26,9 @@ class ApplicationController < ActionController::Base
 
     def monthly_exchange_rate
       this_month_start = DateTime.now.beginning_of_month()
-      @exchange_rate_setting = Setting.where("name = ? AND updated_at > ?", 'exchange rate', this_month_start).first
+      # @exchange_rate_setting = Setting.where("name = ? AND updated_at > ?", 'exchange rate', this_month_start).first
       # @exchange_rate_setting = Setting.where(:name => 'exchange rate').first
+      @exchange_rate_setting = current_user.settings(:exchange_rate).name_zh
 
       if not @exchange_rate_setting.nil?
         if @exchange_rate_setting.value.to_f > 0

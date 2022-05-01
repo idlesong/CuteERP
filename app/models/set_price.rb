@@ -1,6 +1,11 @@
 class SetPrice < ActiveRecord::Base
     attr_accessible :order_quantity, :price, :sell_by, :item_id, :released_at, :created_at
-  
+ 
+    has_settings do |s|
+        s.key :order_quantities, :defaults => { :quantities => ["1000", "2500", "5000", "10000", "50000"] }
+        s.key :sell_by, :defaults => { :sell_by => ["OEM", "ODM"] }
+    end    
+
     belongs_to :item
   
     validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
