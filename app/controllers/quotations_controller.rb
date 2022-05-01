@@ -50,7 +50,8 @@ class QuotationsController < ApplicationController
   def create
     @quotation = Quotation.new(customer_id: quotation_params['customer_id'])
     @quotation.quotation_number = quotation_params['quotation_number']
-    # logger.debug "=====quotation.number== #{@quotation.quotation_number}"    
+    # logger.debug "=====quotation.number== #{@quotation.quotation_number}"  
+    @quotation.remark = quotation_params['remark']  
 
     if @quotation.save
       #  @prices = Price.where("id = ?", quotation_params[:prices]) #Not work:?
@@ -65,8 +66,10 @@ class QuotationsController < ApplicationController
 
   # PATCH/PUT /quotations/1
   def update
-    @quotation = Quotation.new(customer_id: quotation_params['customer_id'])
+    @quotation = Quotation.find(params[:id])
+    @quotation.customer_id = quotation_params['customer_id']
     @quotation.quotation_number = quotation_params['quotation_number']
+    @quotation.remark = quotation_params['remark']
 
     if @quotation.save
       @prices = Price.where(id: quotation_params[:prices])
