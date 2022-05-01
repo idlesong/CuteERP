@@ -5,14 +5,15 @@ class SetPricesController < ApplicationController
     @set_prices = SetPrice.all
 
     @latest_release_set_price = SetPrice.order(released_at: :asc).last
-    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
+    
+    # @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @step_quantities = @latest_release_set_price.settings(:order_quantities).quantities
+    if @latest_release_set_price 
+      @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    # @uniq_items = SetPrice.where("released_at" => @latest_release_set_price.released_at ).select(:item_id).uniq
-
-    @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @price_list = @latest_release_set_price.get_price_list(@step_quantities)
-
-    @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", @step_quantities)
+      @price_list = @latest_release_set_price.get_price_list(@step_quantities)
+      # @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", @step_quantities)
+    end  
 
     respond_to do |format|
       format.html # index.html.erb

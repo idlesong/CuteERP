@@ -12,13 +12,16 @@ class Price < ActiveRecord::Base
   validates :customer_id, :presence => true
 
   def get_set_price(item_id, order_quantity)
-    @latest_release_set_price = SetPrice.order(released_at: :asc).last
-    @latest_set_prices = SetPrice.order("item_id ASC").order("order_quantity::integer ASC").where("released_at" => @latest_release_set_price.released_at )
-    if @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity).first.nil?
-      return 0
-    else
-      return @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity).first.price
-    end
+    last_set_price = SetPrice.order(released_at: :asc).last
+    if last_set_price  
+      @latest_set_prices = SetPrice.order("item_id ASC").order("order_quantity::integer ASC")
+                                   .where("released_at" => last_set_price.released_at )
+      if @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity).first.nil?
+        return 0
+      else
+        return @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity).first.price
+      end
+    end  
   end
 
   def self.export_to_csv(options = {})

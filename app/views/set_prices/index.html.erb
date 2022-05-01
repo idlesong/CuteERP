@@ -20,6 +20,7 @@
     </tr>
   </thead>
   <tbody>
+  <% if @price_list %>
     <% @price_list.each do |line| %>
       <tr>
       <% line.each do |price| %>      
@@ -27,6 +28,7 @@
       <% end  %>
       </tr>
     <% end  %>
+  <% end %>  
   </tbody>
 </table>
 
