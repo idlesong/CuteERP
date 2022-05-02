@@ -20,7 +20,7 @@ gem 'protected_attributes'
 
 # Gems used only for assets and not required
 # in production environments by default.
-# group :assets do
+group :assets do
   gem 'sass-rails',   '~> 4.0.5'
   gem 'coffee-rails', '~> 4.2.0'
 
@@ -28,7 +28,7 @@ gem 'protected_attributes'
   gem 'therubyracer', :platforms => :ruby
 
   gem 'uglifier', '>= 1.0.3'
-# end
+end
 
 gem 'jquery-rails'
 
