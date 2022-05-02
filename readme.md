@@ -33,6 +33,7 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
    - multiply currencies(now RMB and USD) support
    - ship_to bill_to can different(clone when not supplied)
    - new customer quick creation support
+   - export customers list need to support Chinese
 
 ### orders system(price, customer order, sales order, invoice, packing list)
 1. customer order
@@ -86,7 +87,15 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
 
 ### settings
 1. configuration
-   - documents system, payment, opportunities can hide
+   - documents system, 
+   - payment term: COD, T.T in advance
+   - set_price: order quantities
+   - company information: name, address,  
+   - opportunities can hide
+   
+
+   gem for setting models
+   https://github.com/ledermann/rails-settings
 
 
 ## upgrade rails from 3.2 to 4.2 tips
@@ -167,16 +176,17 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
 
 ### bugs and small Feature points
 1. items
-   - part number
-   - product group
-   - product family
+   - [x] part number
+   - [x] product group
+   - [x] product family
    - assembled: no, main, addition1, addtion2(mark), assembled(main + addition1)
      - price: addition1 price(vocoder price)
-   - import, todo: new forbidden same part number; disable all old items that not need to update.
+   - import, todo: new forbidden same part number; 
+   - [x] import, disable all old items that not need to update.
      - index: use as o: inactive, index: 0,1,2,3 
 
 1. customers
-  - need to set a default customer?
+  - [x] need to set a default customer?
   - sales type: customer or distributor 
 
 1. Orders(customer order)
@@ -194,9 +204,20 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
    - Opportunities: priority force to integer
    - project type: default should be DT
 
-1. price
-   - show approved price(show approved latest), requesting price
+1. price / quotation -> simple order
+   - [ ] show by catalogs: active(current stared price, requested price), all(approved, requested) 
    - finance confirmed price: mark 1640  
+
+   - quotation has many prices; prices has many quotations.
+   - g scaffold quotation quotation_number:string remark:string price_id:integer
+
+    t.string   "name"
+    t.text     "address"
+    t.string   "email"
+    t.string   "pay_type"
+    t.integer  "customer_id"
+    t.string   "order_number"
+    t.string   "remark"
 
 1. documents(posts)
    - assign correct subject in customer wiki, product wiki creation

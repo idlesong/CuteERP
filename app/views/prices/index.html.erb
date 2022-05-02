@@ -3,7 +3,7 @@
   <h1><%=t(:price) %> - <%= link_to("set price", set_prices_url)%></h1> 
   <div class="btn-group" role="group" aria-label="...">
   <a role="button" class="btn btn-default" href= <%= prices_path(:status => "active" ) %> >active  </a>  
-  <a role="button" class="btn btn-default" href= <%= prices_path(:status => "approved" ) %> >approved</a>
+  <a role="button" class="btn btn-default" href= <%= prices_path(:status => "effective" ) %> >active & approved</a>
   <a role="button" class="btn btn-default" href= <%= prices_path(:status => "requested" ) %> >requested </a>
   <a role="button" class="btn btn-default" href= <%= prices_path %> > all</a>
 </div>
@@ -13,15 +13,16 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%=t(:created_at) %></th>
       <th><%=t(:customer)%></th>
       <th><%=t(:part_number)%></th>
       <th><%=t(:price)%></th>
       <th><%=t(:condition)%></th>
       <th><%=t(:default_price)%></th>
       <th><%=t(:payment_term)%></th>
-      <th><%=t(:created_at) %></th>
       <th><%=t(:quotation)%></th>  
       <th><%=t(:status)%> </th>
+      <th></th>
       <th></th>
     </tr>
   </thead>
@@ -29,6 +30,7 @@
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
+        <td><%= price.created_at.strftime("%F,%H:%M") %></td>
         <td><% if price.customer != nil %>
           <%= link_to price.customer.name, price.customer %>
         <% end %></td>        
@@ -37,12 +39,22 @@
         <td><%= price.condition %> </td>
         <td>¥<%= price.get_set_price(price.item_id, price.condition) %></td>
         <td><%= price.payment_terms %></td>        
-        <td><%= price.created_at.strftime("%F") %></td>
         <td><%= price.quotation.id if price.quotation != nil %></td>        
-        <td><%= price.status %>   
+        <td>
+        <% if price.status == "achived" %>
+          <del>  <%= price.status %> </del>
+        <% else %>
+          <%= price.status %>
+        <% end %>
+        </td>   
         <td>
         <% if price.status == 'approved' %>
-          <%= button_to 'activate', price, method: :put, params: { status: "active" }%>
+          <%= button_to 'activate', price, method: :put, params: { status: "active" }, :class=>'btn-link' %> 
+        <% end %>
+        </td>
+        <td>
+        <% if price.status != 'achived' %>
+          <%= button_to 'achive', price, method: :put, params: { status: "achived" }, :class=>'btn-link'%>
         <% end %>
         </td>
       </tr>

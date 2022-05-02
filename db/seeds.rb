@@ -9,10 +9,10 @@
 # users
 User.delete_all
 user1 = User.create(:name => 'admin',
-	:password => 'rorweberp'
+	:password => 'cuteerp'
 	)
 idlesong = User.create(:name => 'idlesong',
-	:password => 'rorweberp'
+	:password => 'cuteerp'
 	)
 
 # items(products)

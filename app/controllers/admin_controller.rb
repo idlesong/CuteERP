@@ -3,7 +3,7 @@ class AdminController < ApplicationController
   	@total_orders = Order.count
 
     this_year = Time.now.beginning_of_year..Time.now
-    @orders = Order.where(created_at: this_year)
+    @orders = Order.order(:name).where(created_at: this_year)
     @sales_orders = SalesOrder.where(created_at: this_year).order("delivery_date IS NULL, delivery_date ASC")
 
     this_month = Time.now.beginning_of_month..Time.now
@@ -14,6 +14,16 @@ class AdminController < ApplicationController
     last_2nd_quarter = (last_quarter_begin - 1.day).beginning_of_quarter .. last_quarter_begin
     last_3rd_quarter = ((last_quarter_begin - 1.day).beginning_of_quarter - 1.day).beginning_of_quarter .. (last_quarter_begin-1.day).beginning_of_quarter
     last_year = (Time.now.beginning_of_year - 1.day).beginning_of_year .. Time.now.beginning_of_year
+
+    this_finacial_year_begin = Time.now.beginning_of_year.at_end_of_quarter + 1.day
+    april_begin = this_finacial_year_begin
+    may_begin = april_begin.at_end_of_month + 1.day
+    june_begin = may_begin.at_end_of_month + 1.day
+
+
+    @this_year_open_order_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+                                     .where(line_items: {line_type: 'SalesOrder'})
+                                     .where(sales_orders: {delivery_date: this_year} )
 
     @last_month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
@@ -46,6 +56,7 @@ class AdminController < ApplicationController
     @last_year_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                 .where(line_items: {line_type: 'SalesOrder'})
                                 .where(sales_orders: {delivery_date: last_year} )
+                                                      
 
     # @items = Item.all
     # @option_items = Item.where(:package => 'software')
@@ -53,8 +64,8 @@ class AdminController < ApplicationController
     #
     # Item default_scope { where order: 'name'}
 
-    # @main_items = Item.where(assembled: ['no','yes']).order("partNo ASC")
-    @main_items = Item.order('name').where(assembled: ['no','yes'])
+    # @main_items = Item.where(assembled: ['no','main', assembled]).order("partNo ASC")
+    @main_items = Item.order('name').where(assembled: ['no','main', 'assembled'])
     #  @option_items = Item.where(assembled: 'addition').order("partNo ASC")
     @option_items = Item.where(assembled: 'addition').order("partNo ASC")
 

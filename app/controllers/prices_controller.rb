@@ -4,7 +4,12 @@ class PricesController < ApplicationController
   def index
     # @prices = Price.all
     if(params[:status])
-      @prices = Price.where("status = ?", params[:status]).order("created_at asc")
+      if(params[:status] == "effective")
+        effective = ["active", "approved"]
+        @prices = Price.where(status: effective).order("created_at asc")
+      else
+        @prices = Price.where(status: params[:status]).order("created_at asc")
+      end
     else
       @prices = Price.order("created_at asc").all
     end
@@ -100,7 +105,15 @@ class PricesController < ApplicationController
   def update
     @price = Price.find(params[:id])
 
-    @price.status = params[:status] if params[:status]
+    if params[:status]
+      @price.status = params[:status] 
+
+      # auto achive old price, when active old price
+      # if params[:status] == 'active'
+      #   @prices = Price.where(item_id: @price.item_id, condition: @price.condition)
+      #   @prices.update_all(status: "achived")   
+      # end
+    end
 
     respond_to do |format|
       if @price.update_attributes(params[:price])

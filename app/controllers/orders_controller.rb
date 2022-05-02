@@ -40,7 +40,7 @@ class OrdersController < ApplicationController
   # GET /orders/new.json
   def new
     # @items = Item.all
-    @main_items = Item.where(assembled: ['no','yes'])
+    @main_items = Item.where(assembled: ['no','main','assembled'])
     @option_items = Item.where(assembled: 'addition')
     # @main_items = @items - @option_items
     @customers = Customer.where("credit > ?", 0)
