@@ -3,95 +3,121 @@
   <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
 </div>
 
+<!-- Quotation header -->
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2>
+        <%=image_tag('sicomm_logo.jpg') %><%= current_user.settings(:company).name_zh %>
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5><%= current_user.settings(:company).name_zh %></h5>
+              <h5><%= current_user.settings(:company).address_zh %></h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"> <%=t(:show_date)%>:<%= @price.created_at.strftime("%F") %></h4>
+              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%=  %></h4>
+              <h4 class="text-right"> <%= t(:payment_term) %> :<%= @price.customer.payment %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> <%= @price.status %> </h3></td></tr>
+        <tr><td> 
+        <h4>To:
+        <% if @price.customer.full_name.nil? %>
+          <%= @price.customer.name %>  
+        <% else %>
+          <%= @price.customer.full_name %>         
+        <% end %>
+        </h4> </td>
+        <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+
+<!-- Quotation price list -->
 <div class="panel panel-default">
   <div class="panel-body">
-    <table class="table table-bordered">
-      <tr><td colspan="4"><h2 class="text-center"><%=t(:price_request)%></h2></td></tr>
-      <tr><td class="active"><%=t(:customer_name)%></td><td><%= @price.customer.name %>-<%= @price.customer.full_name %></td>
-          <td class="active"><%=t(:request_date)%></td><td><%= @price.created_at.to_date %></td></tr>
-      <tr><td class="active"><%=t(:product)%></td><td><%= @price.item.partNo %> - <%= @price.item.name %></td>
-          <td class="active"><%=t(:payment_term)%></td><td><%= @price.customer.payment %></td></tr>
-      <tr><td class="active"><%=t(:default_price)%>/<%=t(:order_volume)%></td><td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %></td>
-          <td class="active"><%=t(:last_price)%></td><td>¥</td></tr>
-      <tr><td class="active"><%=t(:request_price)%>/<%=t(:order_volume)%></td><td class="danger">¥<%= @price.price %>   @<%= @price.condition %> pcs</td>
-          <td class="active"><%=t(:forecast_condition)%></td><td class="danger"></td></tr>
-      <tr><td class="active"><%=t(:sales_suggestion)%></td><td colspan="3"><%= @price.sales_suggestion %></td></tr>
-      <tr><td class="active"><%=t(:department_suggestion)%></td><td colspan="3"><%= @price.department_suggestion %></td></tr>
-      <tr><td class="active"><%=t(:finance_suggestion)%></td><td colspan="3"><%= @price.finance_suggestion %></td></tr>
-      <tr><td class="active"><%=t(:boss_suggestion)%><td colspan="3"><%= @price.boss_suggestion %></td></tr>
-      <tr><td colspan="4"><p class="text-center">
-          (<%= @price.status %>) 
-          <% if @price.status == 'approved' %>
-          <%= link_to("activate", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %> 
-          <% elsif @price.status == 'active'%>
-          <% else %>
+    <table class="table">
+      <thead> 
+      <tr> 
+        <td> id </td>
+        <td> <%= t(:part_number) %></td>
+        <td> <%= t(:product_name) %></td>
+        <td> <%= t(:unit_price_with_VAT) %> </td>
+        <td> <%= t(:order_quantity) %> </td>
+        <td> <%= t(:remark) %> </td> 
+      </tr> 
+      </thead>
+      <tr>
+        <td><%= 1 %></td>     
+        <td><%= @price.item.partNo %></td>
+        <td><%= @price.item.name %></td>
+        <td>RMB <%= @price.price %></td>
+        <td><%= @price.condition %> pcs</td>
+        <td><%= @price.remark %> </td>
+      </tr>
+      <tr>
+        <td></td>     
+        <td></td>
+        <td></td>
+        <td>RMB <%= @price.get_set_price(@price.item_id, @price.condition) %> </td> 
+        <td><%= @price.condition %> pcs</td>
+        <td>公司默认参考价格，报价单不显示（保密）</td>
+      </tr>
+      <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
+    
+      <tr><td colspan = "6">
+        <h4 class="text-center"> 
+        (<%= @price.status %>) 
+        <% if (@price.status == 'requested') %>
           <%= link_to("approve", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %>
+        <% else %>
           <%= link_to("activate", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %> 
-          <% end %>         
-      </p></td></tr>
-    </table>
+          <%= link_to("achive", price_path("price[status]" => 'achived'), :method => :put, :confirm => "Sure?") %>    
+        <% end %>
+        </h4>
+        </td></tr>
+      </table>
+  </div>  
+</div>
 
-    <div >
-      <a href= <%="#{apply_price_path(@price)}.pdf"%> class="btn btn-primary" target="_blank">Print</a>
-      <% if @price.status != 'approved' %>
-        <%= link_to t('.edit', :default => t("helpers.links.edit")),
-                    edit_price_path(@price), :class => 'btn' %>
-        <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-                    price_path(@price),
-                    :method => 'delete',
-                    :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-                    :class => 'btn btn-danger' %>
-      <% end %>
-      <%= link_to("achive", price_path("price[status]" => 'achived'), :method => :put, :confirm => "Sure?") %>
+<div >
+  <button type="button" class="btn btn-primary" data-toggle="modal"
+  data-target=".bs-quotation-modal-lg"><%=t(:quotation_preview)%></button>
+
+  <% if @price.status != 'approved' %>
+    <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                edit_price_path(@price), :class => 'btn' %>
+
+    <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                price_path(@price),
+                :method => 'delete',
+                :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                :class => 'btn btn-danger' %>
+  <% end %>
+</div>
+
+</br>
+</br>
+</br>
+
+<!-- Large modal Quotation-->
+<div class="modal fade bs-quotation-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <%= render("quotation")%>
       </div>
-
+      <div class="modal-footer">
+        <a href= <%="#{apply_price_path(@price)}.pdf"%> class="btn btn-primary" target="_blank">Print Quotation</a>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
 </div>
-
-
-
-</br>
-</br>
-<% if false %>
-<h1> Price in traditional form </h1>
-
-<dl class="dl-horizontal">
-  <dt><strong><%= model_class.human_attribute_name(:item_id) %>:</strong></dt>
-  <dd><%= @price.item.name %> - <%= @price.item.partNo %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:customer_id) %>:</strong></dt>
-  <dd><%= @price.customer.name %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:price) %>:</strong></dt>
-  <dd><%= @price.price %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:payment_terms) %>:</strong></dt>
-  <dd><%= @price.payment_terms %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:condition) %>:</strong></dt>
-  <dd><%= @price.condition %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:sales_suggestion) %>:</strong></dt>
-  <dd><%= @price.sales_suggestion %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:department_suggestion) %>:</strong></dt>
-  <dd><%= @price.department_suggestion %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:finance_suggestion) %>:</strong></dt>
-  <dd><%= @price.finance_suggestion %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:boss_suggestion) %>:</strong></dt>
-  <dd><%= @price.boss_suggestion %></dd>
-  <dt><strong><%= model_class.human_attribute_name(:status) %>:</strong></dt>
-  <dd><%= @price.status %></dd>
-</dl>
-
-
-
-<div class="form-actions">
-  <%= link_to t('.print requst'), prices_path, :class => 'btn btn-primary'  %>
-
-  <%= link_to t('.back', :default => t("helpers.links.back")),
-              prices_path, :class => 'btn'  %>
-  <%= link_to t('.edit', :default => t("helpers.links.edit")),
-              edit_price_path(@price), :class => 'btn' %>
-  <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
-              price_path(@price),
-              :method => 'delete',
-              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
-              :class => 'btn btn-danger' %>
-</div>
-<% end %>
-</br>

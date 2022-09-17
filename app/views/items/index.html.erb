@@ -7,8 +7,8 @@
     <tr>
       <th>id</th>    
       <th><%=t(:part_number) %></th>
-      <th>Product Group</th>   
-      <th><%=t(:family) %></th>   
+      <th><%=t(:product_group) %></th>   
+      <th><%=t(:product_family) %></th>   
       <th><%=t(:product_name) %></th>
       <th><%=t(:description) %></th>
       <th><%=t(:package) %></th>
@@ -41,16 +41,25 @@
 
 <%= link_to 'New Item', new_item_path, :class=>"btn btn-primary" %>
 
-
-<h4>Export Produts:</h4>
-<%= link_to "Export CSV", items_path(format: "csv"),:class => "btn btn-primary" %> |
-<%= link_to "Export Excel", items_path(format: "xls"),:class => "btn btn-primary" %>
-
-
-<h4>Import Products</h4>
-<%= form_tag import_items_path, multipart: true do %>
-  <%= file_field_tag :file %>
-  <%= submit_tag "Import",  :class=>"btn btn-primary"%>
-<% end %>
-
+<p>
+</br>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import products
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Produts:</h4>
+    <%= link_to "Export CSV", items_path(format: "csv"),:class => "btn btn-primary" %> |
+    <%= link_to "Export Excel", items_path(format: "xls"),:class => "btn btn-primary" %>
+    
+    
+    <h4>Import Products</h4>
+    <%= form_tag import_items_path, multipart: true do %>
+      <%= file_field_tag :file %>
+      <%= submit_tag "Import",  :class=>"btn btn-primary"%>
+    <% end %>
+  </div>
+</div>
+</br>
 </br>

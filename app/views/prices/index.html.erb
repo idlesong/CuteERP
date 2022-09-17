@@ -19,18 +19,18 @@
       <th><%=t(:price)%></th>
       <th><%=t(:condition)%></th>
       <th><%=t(:default_price)%></th>
+      <th><%=t(:remark)%></th>      
       <th><%=t(:payment_term)%></th>
-      <th><%=t(:quotation)%></th>  
       <th><%=t(:status)%> </th>
-      <th></th>
-      <th></th>
+      <th><%=t(:activate)%> </th>
+      <th><%=t(:archive)%> </th>
     </tr>
   </thead>
   <tbody>
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= price.created_at.strftime("%F,%H:%M") %></td>
+        <td><%= link_to 'QO-'+price.created_at.strftime("%F"), price_path(price) %></td>        
         <td><% if price.customer != nil %>
           <%= link_to price.customer.name, price.customer %>
         <% end %></td>        
@@ -38,24 +38,24 @@
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
         <td>¥<%= price.get_set_price(price.item_id, price.condition) %></td>
-        <td><%= price.payment_terms %></td>        
-        <td><%= price.quotation.id if price.quotation != nil %></td>        
+        <td><%= price.remark %> </td>        
+        <td><%= price.payment_terms %></td>            
         <td>
-        <% if price.status == "achived" %>
-          <del>  <%= price.status %> </del>
-        <% else %>
-          <%= price.status %>
-        <% end %>
+          <% if price.status == "achived" %>
+            <del>  <%= price.status %> </del>
+          <% else %>
+            <%= price.status %>
+          <% end %>
         </td>   
         <td>
-        <% if price.status == 'approved' %>
-          <%= button_to 'activate', price, method: :put, params: { status: "active" }, :class=>'btn-link' %> 
-        <% end %>
+          <% if price.status == 'approved' %>
+            <%= button_to 'activate', price, method: :put, params: { status: "active" }, :class=>'btn-link' %> 
+          <% end %>
         </td>
         <td>
-        <% if price.status != 'achived' %>
-          <%= button_to 'achive', price, method: :put, params: { status: "achived" }, :class=>'btn-link'%>
-        <% end %>
+          <% if price.status == 'approved' || price.status == 'active' %>
+            <%= button_to 'archive', price, method: :put, params: { status: "achived" }, :class=>'btn-link'%>
+          <% end %>
         </td>
       </tr>
     <% end %>
@@ -66,13 +66,26 @@
             new_price_path,
             :class => 'btn btn-primary' %>
 
-<h4>Export Customers:</h4>
-<%= link_to "export csv", prices_path(format: "csv"),:class => "btn btn-primary" %>|
-<%= link_to "export Excel", prices_path(format: "xls"),:class => "btn btn-primary" %>
+          
 
-<h4>Import Customers </h4>
-<%= form_tag import_prices_path, multipart: true do %>
-  <%= file_field_tag :file %>
-  <%= submit_tag "Import prices",  :class=>"btn btn-primary"%>
-<% end %>
-</br>            
+<p>
+</br>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import set prices
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Customers:</h4>
+    <%= link_to "export csv", prices_path(format: "csv"),:class => "btn btn-primary" %>|
+    <%= link_to "export Excel", prices_path(format: "xls"),:class => "btn btn-primary" %>
+    
+    <h4>Import Customers </h4>
+    <%= form_tag import_prices_path, multipart: true do %>
+      <%= file_field_tag :file %>
+      <%= submit_tag "Import prices",  :class=>"btn btn-primary"%>
+    <% end %>
+    </br>  
+  </div>
+</div>
+</br>

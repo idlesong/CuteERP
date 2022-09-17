@@ -37,14 +37,24 @@
 <!-- <button type="button" class="btn btn-primary ajax-new" id="/customers">new customer</button> -->
 
 
-<h4>Export Customers:</h4>
-<%= link_to "export csv", customers_path(format: "csv"),:class => "btn btn-primary" %>|
-<%= link_to "export Excel", customers_path(format: "xls"),:class => "btn btn-primary" %>
 
-<h4>Import Customers </h4>
-<%= form_tag import_customers_path, multipart: true do %>
-  <%= file_field_tag :file %>
-  <%= submit_tag "Import customers",  :class=>"btn btn-primary"%>
-<% end %>
+<p>
 </br>
-
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import customers
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Customers:</h4>
+    <%= link_to "export csv", customers_path(format: "csv"),:class => "btn btn-primary" %>|
+    <%= link_to "export Excel", customers_path(format: "xls"),:class => "btn btn-primary" %>
+    
+    <h4>Import Customers </h4>
+    <%= form_tag import_customers_path, multipart: true do %>
+      <%= file_field_tag :file %>
+      <%= submit_tag "Import customers",  :class=>"btn btn-primary"%>
+    <% end %>  
+  </div>
+</div>
+</br>
