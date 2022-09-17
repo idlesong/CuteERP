@@ -1,4 +1,4 @@
-<%= form_for @price, :html => { :class => 'form-horizontal' } do |f| %>
+<%= form_for(@price) do |f| %>
   <% if @price.errors.any? %>
   <div id="error_explanation" class="alert alert-danger" role="alert">
     <h2><%= pluralize(@price.errors.count, "error") %> prohibited this price from being saved:</h2>
@@ -11,29 +11,76 @@
   </div>
   <% end %>
 
-  <table class="table table-bordered">
-    <tr><td colspan="4"><h2 class="text-center"><%=t(:price_request)%></h2></td></tr>
-    <tr><td class="active"><%=t(:customer_name)%></td>
-        <td><%= f.collection_select(:customer_id, @customers, :id, :short_name,{:class=>"customer_selection"}) %></td>
-        <td class="active"><%=t(:request_date)%></td><td><%= f.date_select :created_at,:class => 'date_select'%></td></tr>
-    <tr><td class="active"><%=t(:product)%> </td><td>
-    <a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-    data-target="#setPricesModal">
-      <%=t(:select_set_price)%>
-    </a>
-    <%= @price.item.partNo if not @price.item.nil? %></td>
-        <td class="active"><%=t(:payment_term)%></td><td><%= f.select(:payment_terms, Order::PAYMENT_TYPES) %></td></tr>
-    <tr><td class="active"><%=t(:default_price)%>/<%=t(:order_volume)%></td><td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %> @<%= @price.condition%>pcs</td>
-        <td class="active"><%=t(:last_price)%></td><td>¥</td></tr>
-    <tr><td class="active"><%=t(:request_price)%>/<%=t(:order_volume)%></td><td class="danger">¥<%= f.text_field :price, :class => 'text_field' %>
-    @<%= f.text_field :condition, :class => 'text_field' %>pcs </td><td class="danger"><%=t(:forecast_condition)%></td>
-        <td class="active"></td></tr>
-    <tr><td class="active"><%=t(:sales_suggestion)%></td><td colspan="3"><%= f.text_field :sales_suggestion, :class => 'text_field' %></td></tr>
-    <tr><td class="active"><%=t(:department_suggestion)%></td><td colspan="3"><%= f.text_field :department_suggestion, :class => 'text_field' %></td></tr>
-    <tr><td class="active"><%=t(:finance_suggestion)%></td><td colspan="3"><%= f.text_field :finance_suggestion, :class => 'text_field' %></td></tr>
-    <tr><td class="active"><%=t(:boss_suggestion)%></td><td colspan="3"><%= f.text_field :boss_suggestion, :class => 'text_field' %></td></tr>
-    <tr><td colspan="4"><p class="text-center"><%= f.select(:status, [['requested'],['approved']]) %></p></td></tr>
-  </table>
+  <!-- Quotation header -->
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2>
+        <%=image_tag('sicomm_logo.jpg') %><%= current_user.settings(:company).name_zh %>
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5><%= current_user.settings(:company).name_zh %></h5>
+              <h5><%= current_user.settings(:company).address_zh %></h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h5 class="text-right"><%=t(:request_date)%><%= f.date_select :created_at,:class => 'date_select'%></h5>
+              <h5 class="text-right"> <%=t(:sheet_number)%>#:<%=  %></h5>
+              <h5 class="text-right"> <%= t(:payment_term) %> :<%= f.select(:payment_terms, Order::PAYMENT_TYPES) %></h5>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> <%= @price.status %> </h3></td></tr>
+        <tr><td> <h4>To:
+          <%= f.collection_select(:customer_id, @customers, :id, :short_name,{:class=>"customer_selection"}) %>who credit > 0</td>
+        </h4> </td>
+            <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+
+<!-- Quotation price list -->
+<div class="panel panel-default">
+  <div class="panel-body">
+    <table class="table">
+      <thead> 
+      <tr> 
+        <td> id </td>
+        <td> <%= t(:part_number) %></td>
+        <td> <%= t(:product_name) %></td>
+        <td> <%= t(:unit_price_with_VAT) %> </td>
+        <td> <%= t(:order_quantity) %> </td>
+        <td> <%= t(:remark) %> </td> 
+      </tr> 
+      </thead>
+      <tr>
+        <td><%= 1 %></td>     
+        <td>
+          <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#setPricesModal">
+            <%=t(:select_set_price)%></a>
+          <%= @price.item.partNo if not @price.item.nil? %></td>
+        <td><%= @price.item.name if not @price.item.nil? %></td>
+        <td>¥<%= f.text_field :price, :class => 'text_field' %>
+        <td><%= f.text_field :condition, :class => 'text_field' %> pcs</td>
+        <td><%= f.text_field :remark, :class => 'text_field' %> </td>
+      </tr>   
+      <tr>
+        <td></td>     
+        <td></td>
+        <td></td>
+        <td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %> </td>        
+        <td><%= @price.condition %> pcs</td>
+        <td> （保密）公司默认参考价格，报价单不显示 </td>
+      </tr>        
+      <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
+      <tr><td colspan="6"><p class="text-center"><%= f.select(:status, [['requested'],['approved']]) %></p></td></tr>
+      </table>
+  </div>  
+</div>
 
   <%= f.hidden_field :item_id, :value => @price.item_id %>
   </br>
@@ -44,3 +91,6 @@
                 prices_path, :class => 'btn' %>
   </div>
 <% end %>
+
+</br>
+</br>

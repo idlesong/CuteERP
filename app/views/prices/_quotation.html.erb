@@ -1,0 +1,64 @@
+<p id="notice"><%= notice %></p>
+
+<!-- Quotation header -->
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <h2>
+        <%=image_tag('sicomm_logo.jpg') %><%= current_user.settings(:company).name_zh %>
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5><%= current_user.settings(:company).name_zh %></h5>
+              <h5><%= current_user.settings(:company).address_zh %></h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"> <%=t(:show_date)%>:<%= @price.created_at.strftime("%F") %></h4>
+              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%=  %></h4>
+              <h4 class="text-right"> <%= t(:payment_term) %> :<%= @price.customer.payment %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> </h3></td></tr>
+        <tr><td> <h4>To:
+        <% if @price.customer.full_name.nil? %>
+          <%= @price.customer.name %>  
+        <% else %>
+          <%= @price.customer.full_name %>         
+        <% end %>
+        </h4> </td>
+            <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+
+<!-- Quotation price list -->
+<div class="panel panel-default">
+  <div class="panel-body">
+    <table class="table">
+      <thead> 
+      <tr> 
+        <td> id </td>
+        <td> <%= t(:part_number) %></td>
+        <td> <%= t(:product_name) %></td>
+        <td> <%= t(:unit_price_with_VAT) %> </td>
+        <td> <%= t(:order_quantity) %> </td>
+        <td> <%= t(:remark) %> </td> 
+      </tr> 
+      </thead>
+      <tr>
+        <td><%= 1 %></td>     
+        <td><%= @price.item.partNo %></td>
+        <td><%= @price.item.name %></td>
+        <td>RMB <%= @price.price %></td>
+        <td><%= @price.condition %> pcs</td>
+        <td><%= @price.remark %> </td>
+      </tr>
+      <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
+    </table>
+  </div>
+</div>

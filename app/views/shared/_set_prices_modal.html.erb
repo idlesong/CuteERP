@@ -31,7 +31,7 @@
             <% if index == 0 %>
               <td><%= @part_number = price %></td>
             <% elsif index <= @step_quantities.length %>
-              <td><%= link_to(price, {:controller =>'prices',:action => 'new', 
+              <td><%= link_to(price, {:controller =>'prices',:action => current_path_action, 
                                       :item_id => @part_number , :price => price, 
                                       :condition => @step_quantities[index-1]}, :class=>"link")%></td>
             <% else %>

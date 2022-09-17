@@ -65,6 +65,8 @@ class PricesController < ApplicationController
       @price.condition = params[:condition]
     end
 
+    session[:current_path_action] = 'new'    
+
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @price }
@@ -77,10 +79,30 @@ class PricesController < ApplicationController
     @customers = Customer.order("credit DESC").where("credit > ?", 0)    
     @latest_release_set_price = SetPrice.order(released_at: :asc).last
 
+    @customer = current_customer
+
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
     @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
     @price_list = @latest_release_set_price.get_price_list(@step_quantities)
+
+    if (params[:item_id] && params[:price] && params[:condition])
+      @price.item_id = Item.find_by(partNo: params[:item_id]).id
+      @price.price = params[:price]
+      @price.condition = params[:condition]
+    end
+
+    session[:current_path_action] = 'edit'
+
+  end
+
+  # GET /prices/lookup_set_price
+  def lookup_set_price
+    if (params[:item_id] && params[:price] && params[:condition])
+      @price.item_id = Item.find_by(partNo: params[:item_id]).id
+      @price.price = params[:price]
+      @price.condition = params[:condition]
+    end    
   end
 
   # POST /prices

@@ -61,10 +61,16 @@ class ApplicationController < ActionController::Base
       @current_user ||= User.find(session[:user_id]) if session[:user_id]
     end
 
+    def current_path_action
+      session[:current_path_action] = 'new' if session[:current_path_action].nil?
+      session[:current_path_action]
+    end
+
     helper_method :current_cart_currency
     helper_method :monthly_exchange_rate
     helper_method :current_customer
     helper_method :current_user
+    helper_method :current_path_action
 
   protected
     def authorize
