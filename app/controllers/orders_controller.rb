@@ -58,7 +58,7 @@ class OrdersController < ApplicationController
     @order.exchange_rate = monthly_exchange_rate
 
     @cart = current_cart
-
+    @cart.line_items.clear
     # @order.exchange_rate = @exchange_rate_setting.value.to_i if @exchange_rate_setting.value.to_f > 0
     session[:cart_order_type] = "Order"
     session[:cart_currency] = @order.customer.currency
@@ -74,6 +74,7 @@ class OrdersController < ApplicationController
   # GET /orders/1/edit
   def edit
     @order = Order.find(params[:id])
+    @customer = current_customer
 
     if @order.not_issued?
       # @items = Item.all

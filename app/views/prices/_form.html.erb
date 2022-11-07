@@ -11,7 +11,7 @@
   </div>
   <% end %>
 
-  <!-- Quotation header -->
+  <!-- Price header -->
   <div class="panel panel-default">
     <div class="panel-body">
       <h2>
@@ -33,56 +33,63 @@
           </tr>
         </thead>
         <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> <%= @price.status %> </h3></td></tr>
-        <tr><td> <h4>To:
-          <%= f.collection_select(:customer_id, @customers, :id, :short_name,{:class=>"customer_selection"}) %>who credit > 0</td>
-        </h4> </td>
-            <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+        <tr><td> 
+        <h4>To:<%= @price.customer.name %>
+          <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#customersModal">
+            <%=t(:change_customer)%>
+          </a></h4></td>
+          <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
         </tr>
       </table>
 
     </div>
   </div>
 
-<!-- Quotation price list -->
-<div class="panel panel-default">
-  <div class="panel-body">
-    <table class="table">
-      <thead> 
-      <tr> 
-        <td> id </td>
-        <td> <%= t(:part_number) %></td>
-        <td> <%= t(:product_name) %></td>
-        <td> <%= t(:unit_price_with_VAT) %> </td>
-        <td> <%= t(:order_quantity) %> </td>
-        <td> <%= t(:remark) %> </td> 
-      </tr> 
-      </thead>
-      <tr>
-        <td><%= 1 %></td>     
-        <td>
-          <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#setPricesModal">
-            <%=t(:select_set_price)%></a>
-          <%= @price.item.partNo if not @price.item.nil? %></td>
-        <td><%= @price.item.name if not @price.item.nil? %></td>
-        <td>¥<%= f.text_field :price, :class => 'text_field' %>
-        <td><%= f.text_field :condition, :class => 'text_field' %> pcs</td>
-        <td><%= f.text_field :remark, :class => 'text_field' %> </td>
-      </tr>   
-      <tr>
-        <td></td>     
-        <td></td>
-        <td></td>
-        <td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %> </td>        
-        <td><%= @price.condition %> pcs</td>
-        <td> （保密）公司默认参考价格，报价单不显示 </td>
-      </tr>        
-      <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
-      <tr><td colspan="6"><p class="text-center"><%= f.select(:status, [['requested'],['approved']]) %></p></td></tr>
-      </table>
-  </div>  
-</div>
+  <!-- Price line_items -->
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table">
+        <thead> 
+        <tr> 
+          <td> id </td>
+          <td> <%= t(:part_number) %></td>
+          <td> <%= t(:product_name) %></td>
+          <td> <%= t(:unit_price_with_VAT) %> </td>
+          <td> <%= t(:order_quantity) %> </td>
+          <td> <%= t(:base_price) %> </td>
+          <td> <%= t(:extra_price) %> </td>
+          <td> <%= t(:remark) %> </td> 
+        </tr> 
+        </thead>
+        <tr>
+          <td><%= 1 %></td>     
+          <td>
+            <a type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#setPricesModal">
+              <%=t(:select_set_price)%></a>
+            <%= @price.item.partNo if not @price.item.nil? %></td>
+          <td><%= @price.item.name if not @price.item.nil? %></td>
+          <td>¥<%= f.text_field :price, :class => 'text_field' %></td>
+          <td><%= f.text_field :condition, :class => 'text_field' %> pcs</td>
+          <td class="input-xs"><%= f.text_field :base_price, :class => 'text_field' %></td>
+          <td><%= f.text_field :extra_price, :class => 'text_field' %></td>
+          <td><%= f.text_field :remark, :class => 'text_field' %> </td>
+        </tr>   
+        <tr>
+          <td></td>     
+          <td></td>
+          <td></td>
+          <td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %> </td>        
+          <td><%= @price.condition %> pcs</td>
+          <td colspan="3"> （保密）公司默认参考价格，报价单不显示 </td>
+        </tr>        
+        <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
+        <tr><td colspan="6"><p class="text-center"><%= f.select(:status, [['requested'],['approved']]) %></p></td></tr>
+        </table>
+    </div>  
+  </div>
 
   <%= f.hidden_field :item_id, :value => @price.item_id %>
+  <%= f.hidden_field :customer_id, :value => @price.customer_id %>
   </br>
 
   <div class="form-actions">

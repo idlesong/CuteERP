@@ -4,7 +4,7 @@ class LineItemsController < ApplicationController
   # GET /line_items
   # GET /line_items.json
   def index
-    @line_items = LineItem.all
+    @line_items = LineItem.all.order(id: :asc)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -39,30 +39,35 @@ class LineItemsController < ApplicationController
     @line_item = LineItem.find(params[:id])
   end
 
-  # POST /line_items?item_id=3  ;create order
-  # POST /line_items?line_id=3  ;issue order
+  # POST /line_items?item_id=3  ;create order line_item
+  # POST /line_items?line_id=3  ;issue order line_item to cart
+  # POST /line_items?remark='remove'; issue_back sales_order line_item to cart
   def create
 
-    if(params[:line_id])
+    if(params[:remark])
+      @cart = current_issue_cart
+      @line_item = LineItem.find(params[:line_id])
+      @line_item.remark = params[:remark]
+      # logger.debug "=====quantity== #{params[:quantity]}"
+      # unless @line_item = @cart.issue_back_line_item(line, line.quantity)
+      #   return
+      # end  
+    elsif(params[:line_id])
       @cart = current_issue_cart
       line = LineItem.find(params[:line_id])
       # logger.debug "=====quantity== #{params[:quantity]}"
       unless @line_item = @cart.issue_line_item(line, params[:quantity].to_i)
         return
-      end
-
+      end    
     else
       @cart = current_cart
       item = Item.find(params[:item_id])
-      price = current_customer.get_special_price(item)
+      fixed_price = Price.find(params[:price_id]).price
 
-      if params[:addition]
-        addition = Item.find(params[:addition])
-        addition_price = current_customer.get_special_price(addition)
-      end
       # logger.debug "=====quantity== #{params[:quantity]}"
-      # @line_item = @cart.add_item(item.id, params[:quantity].to_i, price)
-      @line_item = @cart.add_item(item.id, params[:addition], params[:suffix],params[:quantity].to_i, price, addition_price)
+      # @line_item = @cart.add_line_item(item.id, params[:quantity].to_i, price)
+      @line_item = @cart.add_line_item(item.id, params[:suffix],params[:quantity].to_i,
+                                       fixed_price, params[:price_id])
     end
 
     respond_to do |format|
@@ -87,9 +92,11 @@ class LineItemsController < ApplicationController
     respond_to do |format|
       if @line_item.update_attributes(params[:line_item])
         format.html { redirect_to @line_item, notice: 'Line item was successfully updated.' }
+        format.js {}
         format.json { head :no_content }
       else
         format.html { render action: "edit" }
+        format.js {}
         format.json { render json: @line_item.errors, status: :unprocessable_entity }
       end
     end

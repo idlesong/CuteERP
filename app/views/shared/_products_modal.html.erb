@@ -11,28 +11,26 @@
             <th><%=t(:product_name)%></th>
             <th><%=t(:part_number)%></th>
             <th></th>
-            <th></th>
             <th><%=t(:package)%></th>
             <th><%=t(:price)%></th>
             <th><%=t(:quantity)%></th>
             <th><%=t(:actions)%></th>
           </tr>
 
-          <% if not @customers.nil? then %>
-            <% @main_items.each do |item| %>
-            <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-              <%= form_tag(line_items_path(:item_id => item), remote: true) do %>
-                <td><%= item.name %></td>
-                <td><strong><%= item.partNo %></strong></td>
-                <td><%= select_tag("suffix", options_for_select(Item::FW_MARK_TYPES)) if item.assembled == 'main'%></td>
-                <td><%= item.package %></td>
-                <td>¥<%= current_customer.get_special_price(item)%></td>
-                <td><%= text_field_tag(:quantity, item.mop, placeholder: item.mop, size:10) %></td>
-                <td><%= submit_tag(t(:add), :class=>"btn btn-xs btn-primary") %></td>
-              <% end %>
-            </tr>
+        <% @customer.prices.where(status: 'active').each do |price| %>
+          <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+            <%= form_tag(line_items_path(:item_id => price.item), remote: true) do %>
+              <td><%= price.item.name %></td>
+              <td><strong><%= price.item.partNo %></strong></td>
+              <td><%= select_tag("suffix", options_for_select(Item::FW_MARK_TYPES)) if price.item.assembled == 'main'%></td>
+              <td><%= price.item.package %></td>
+              <td>¥<%= link_to price.price, price %> - <%= hidden_field_tag(:price_id, price.id) %></td>
+              <td><%= text_field_tag(:quantity, price.condition, placeholder: price.condition, size:10) %></td>
+              <td><%= submit_tag(t(:add), :class=>"btn btn-xs btn-primary") %></td>
             <% end %>
-          <% end %>
+          </tr>
+          <% end %>        
+        
         </table>
       </div>
       <div class="modal-footer">

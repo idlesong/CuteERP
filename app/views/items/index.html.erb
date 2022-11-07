@@ -12,10 +12,10 @@
       <th><%=t(:product_name) %></th>
       <th><%=t(:description) %></th>
       <th><%=t(:package) %></th>
-      <th><%=t(:price) %></th>
-      <th>RMB<%=t(:tax_rate) %></th>
       <th><%=t(:mpq)%> </th>
       <th><%=t(:assembled)%> </th>
+      <th><%=t(:base_item)%> </th>
+      <th><%=t(:extra_item)%> </th>
       <th>active</th>
     </tr>
   </thead>
@@ -29,10 +29,10 @@
         <td><%= item.name        %></td>
         <td><%= item.description %></td>
         <td><%= item.package     %></td>
-        <td><%= item.price       %></td>
-        <td><%= item.rmb_tax_rate%></td>
         <td><%= item.mop       %></td>
         <td><%= item.assembled %></td>
+        <td><%= item.base_item %></td>
+        <td><%= item.extra_item %></td>                
         <td><%= item.index %></td>
       </tr>
     <% end %>

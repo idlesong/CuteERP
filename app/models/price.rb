@@ -1,11 +1,13 @@
 class Price < ActiveRecord::Base
   attr_accessible :boss_suggestion, :condition, :customer_id, :department_suggestion,
   :finance_suggestion, :item_id, :payment_terms, :price, :sales_suggestion, :status,
-  :remark, :created_at
+  :remark, :created_at, :base_price, :extra_price
 
   belongs_to :item
   belongs_to :customer
   belongs_to :quotation
+
+  has_many :line_items
 
   validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
   validates :item_id, :presence => true

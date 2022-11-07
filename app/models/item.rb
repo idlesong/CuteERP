@@ -1,7 +1,7 @@
 class Item < ActiveRecord::Base
-  attr_accessible :imageURL, :name, :package, :partNo, :price, :description,
-    :volume, :weight, :moq, :mop ,:rmb_tax_rate, :usd_tax_rate, :assembled, :index, 
-    :group, :family
+  attr_accessible :imageURL, :name, :package, :partNo, :description,
+    :volume, :weight, :moq, :mop ,
+    :assembled, :index, :base_item, :extra_item, :group, :family
 
   # default_scope :order => 'name'
   # default_scope { where order: 'name'}
@@ -15,7 +15,6 @@ class Item < ActiveRecord::Base
 
   validates :name, :partNo, :presence => true
   validates :partNo, :uniqueness => true
-  validates :price, :numericality => {:greater_than_or_equal_to => 0}
 
   before_destroy :ensure_not_referenced_by_any_line_item
 

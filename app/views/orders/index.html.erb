@@ -34,7 +34,12 @@
         <td><%= line_item.item.name %> </td>
         <td><%= line_item.full_part_number %> </td>
         <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
-        <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+        <% if line_item.price.nil? then %>
+          <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>          
+        <% else %>
+          <td><%= link_to(number_to_currency(line_price, unit: currency_unit), price_path(line_item.price_id))%> </td>
+        <% end %> 
+
         <td>x<%= line_item.quantity %> </td>
         <td> <%= line_item.quantity - line_item.quantity_issued %> </td>
         <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>

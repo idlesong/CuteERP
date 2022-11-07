@@ -54,12 +54,6 @@
     </div>
   </div>
   <div class="control-group">
-    <%= f.label :price, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.text_field :price, :class => 'text_field', :step => 0.01 , :placeholder => '*Reference price' %>
-    </div>
-  </div>
-  <div class="control-group">
     <%= f.label :description, :class => 'control-label' %>
     <div class="controls">
       <%= f.text_field :description, :class => 'text_field' %>
@@ -91,25 +85,25 @@
   </div>
 
   <div class="control-group">
-    <%= f.label :rmb_tax_rate, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.number_field :rmb_tax_rate, :class => 'number_field', :step => 0.01 %>
-    </div>
-  </div>
-
-  <div class="control-group">
-    <%= f.label :usd_tax_rate, :class => 'control-label' %>
-    <div class="controls">
-      <%= f.number_field :usd_tax_rate, :class => 'number_field', :step => 0.01  %>
-    </div>
-  </div>
-
-  <div class="control-group">
     <%= f.label :assembled, :class => 'control-label' %>
     <div class="controls">
       <%= f.select(:assembled, [['no'],['yes'],['addition']]) %>
     </div>
   </div>
+
+  <div class="control-group">
+    <%= f.label :base_item, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :base_item, :class => 'text_field', :placeholder => 'Base part number'%>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <%= f.label :extra_item, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :extra_item, :class => 'text_field', :placeholder => 'Extra part number'%>
+    </div>
+  </div>  
 
   </br>
   <div class="form-actions">
