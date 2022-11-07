@@ -14,7 +14,8 @@
 
 	<!-- input_exchange_rate  -->
 	<% exchange_rate = monthly_exchange_rate if exchange_rate.nil? %>
-	<% currency	=	current_cart_currency if currency.nil?%>
+	<% exchange_rate = 1 %>
+	<% currency	= current_cart_currency if currency.nil?%>
 
 	<% 	if current_cart_currency == 'RMB'
         currency_unit = '¥'
@@ -28,15 +29,27 @@
 			<td><%= line_item.full_part_number %> </td>
 			<td> <% line_price = line_item.show_currency_price(exchange_rate, currency) %>
 				<% if currency_unit == '$' %>
-					<a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.price})/1.17/#{exchange_rate}" %>>
+					<a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.fixed_price})/1.13/#{exchange_rate}" %>>
 						<%= number_to_currency(line_price, unit: currency_unit) %>	</a>
 				<% else %>
 					<%= number_to_currency(line_price, unit: currency_unit) %>
 				<% end %>
 			</td>
 			<td><%= line_item.quantity %> </td>
-	    <td><%= number_to_currency(line_item.total_currency_price(exchange_rate,
-								currency), unit: currency_unit) %></td>
+	    	<td><%= number_to_currency(line_item.total_currency_price(exchange_rate,
+				currency), unit: currency_unit) %></td>				
+			<td>
+				<% if line_item.remark %>
+					<del> <%= line_item.remark %> </del>
+				<% end %>
+
+				<%= form_tag(line_items_path(:line_id => line_item.id), remote: true) do %>
+
+						<%= hidden_field_tag :remark, 'remove' %>
+					<td><%= submit_tag(t(:issue_back), :class=>"btn btn-xs btn-primary") %></td>
+				<% end %>
+			</td>	
+
 			<td><%= link_to t('.destroy', :default => t("helpers.links.destroy")),
 						line_item,
 						method: :delete,

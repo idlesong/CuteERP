@@ -22,10 +22,14 @@
             <h4 class="text-right"><%=t(:show_date)%>:<%= @sales_order.created_at.to_date %></h4>
             <h4 class="text-right"><%=t(:sales_order_number)%>#:<%= @sales_order.serial_number %></h4>
             <h4 class="text-right"><%=t(:payment_term)%>:<%= @sales_order.payment_term %></h4>
-            <h4 class="text-right"><%=t(:ship_date)%>:
-              <% if @sales_order.delivery_date %>
-                <%= @sales_order.delivery_date.to_date %>
+            <h4 class="text-right">
+              <% unless @sales_order.delivery_date.nil? %>
+                <%=t(:ship_date)%>:<%= @sales_order.delivery_date.to_date %>
               <% else %>
+                <%=t(:plan_ship_date)%>:
+                <% if not @sales_order.delivery_plan.nil? %>
+                  <%= @sales_order.delivery_plan.to_date %> 
+                <% end %>
                 <%= link_to(t(:ship_now), confirm_sales_order_path(@sales_order)) %>
               <% end %>
             </h4>
@@ -78,7 +82,7 @@
     			<% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
     			<td>
             <% if currency_unit == '$' %>
-              <a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.price})/1.17/#{@sales_order.exchange_rate}" %>>
+              <a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.fixed_price})/1.17/#{@sales_order.exchange_rate}" %>>
       					<%= number_to_currency(line_price, unit: currency_unit) %>	</a>
             <% else %>
               <%= number_to_currency(line_price, unit: currency_unit) %>
@@ -99,6 +103,9 @@
   </div>
 
   <div class="panel-footer">
+    <% if not @sales_order.delivery_date %>
+      <%= link_to t('.edit', :default => t("helpers.links.edit")), edit_sales_order_path(@sales_order) %> |
+    <% end %>
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
       data-target=".bs-invoice-modal-lg"><%=t(:invoice)%></button> |
     <button type="button" class="btn btn-link btn-primary" data-toggle="modal"

@@ -16,6 +16,14 @@
     <%= f.number_field :item_id %>
   </div>
   <div class="field">
+    <%= f.label :remark %><br />
+    <%= f.text_field :remark, :class => 'text_field' %>
+  </div>  
+  <div class="field">
+    <%= f.label :quantity_issued %><br />
+    <%= f.number_field :quantity_issued %>
+  </div>
+  <div class="field">
     <%= f.label :cart_id %><br />
     <%= f.number_field :cart_id %>
   </div>

@@ -90,7 +90,7 @@
     			<% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
     			<td>
             <% if currency_unit == '$' %>
-              <a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.price})/1.17/#{@sales_order.exchange_rate}" %>>
+              <a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.fixed_price})/1.17/#{@sales_order.exchange_rate}" %>>
       					<%= number_to_currency(line_price, unit: currency_unit) %>	</a>
             <% else %>
               <%= number_to_currency(line_price, unit: currency_unit) %>

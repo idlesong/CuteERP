@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20220912013058) do
+ActiveRecord::Schema.define(version: 20221106072053) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,20 +71,19 @@ ActiveRecord::Schema.define(version: 20220912013058) do
     t.string   "partNo"
     t.string   "package"
     t.string   "imageURL"
-    t.decimal  "price",        precision: 8, scale: 2
-    t.datetime "created_at",                                          null: false
-    t.datetime "updated_at",                                          null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "description"
     t.decimal  "volume"
     t.decimal  "weight"
     t.integer  "moq"
     t.integer  "mop"
-    t.decimal  "rmb_tax_rate", precision: 8, scale: 2, default: 0.17
-    t.decimal  "usd_tax_rate", precision: 8, scale: 2, default: 0.0
     t.string   "assembled"
     t.integer  "index"
     t.string   "group"
     t.string   "family"
+    t.string   "base_item"
+    t.string   "extra_item"
   end
 
   create_table "line_items", force: :cascade do |t|
@@ -96,10 +95,12 @@ ActiveRecord::Schema.define(version: 20220912013058) do
     t.integer  "line_id"
     t.string   "line_type"
     t.integer  "refer_line_id"
-    t.decimal  "price",            precision: 8, scale: 2
+    t.decimal  "fixed_price",      precision: 8, scale: 2
     t.integer  "cart_id"
     t.string   "full_part_number"
     t.string   "full_name"
+    t.integer  "price_id"
+    t.string   "remark"
   end
 
   add_index "line_items", ["line_id"], name: "index_line_items_on_line_id", using: :btree
@@ -166,11 +167,13 @@ ActiveRecord::Schema.define(version: 20220912013058) do
     t.string   "department_suggestion"
     t.string   "finance_suggestion"
     t.string   "boss_suggestion"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.string   "status"
     t.integer  "quotation_id"
     t.string   "remark"
+    t.decimal  "base_price",            precision: 8, scale: 2
+    t.decimal  "extra_price",           precision: 8, scale: 2
   end
 
   create_table "quotations", force: :cascade do |t|
@@ -196,6 +199,8 @@ ActiveRecord::Schema.define(version: 20220912013058) do
     t.datetime "delivery_date"
     t.string   "delivery_status"
     t.decimal  "exchange_rate",   precision: 8, scale: 2
+    t.datetime "delivery_plan"
+    t.string   "remark"
   end
 
   create_table "set_prices", force: :cascade do |t|
@@ -204,8 +209,10 @@ ActiveRecord::Schema.define(version: 20220912013058) do
     t.decimal  "price"
     t.string   "sell_by"
     t.datetime "released_at"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+    t.decimal  "base_price",     precision: 8, scale: 2
+    t.decimal  "extra_price",    precision: 8, scale: 2
   end
 
   create_table "settings", force: :cascade do |t|

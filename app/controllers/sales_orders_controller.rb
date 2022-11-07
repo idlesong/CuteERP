@@ -49,43 +49,22 @@ class SalesOrdersController < ApplicationController
   def edit
     @sales_order = SalesOrder.find(params[:id])
 
+    @cart = current_issue_cart
     session[:cart_order_type] = "SalesOrder"
     # session[:cart_order_id] = @sales_order.id
     session[:cart_currency] = @sales_order.customer.currency
     session[:exchange_rate] = @sales_order.exchange_rate
-  end
 
-  # GET /sales_orders/1/confirm
-  def confirm
-    @sales_order = SalesOrder.find(params[:id])
-  end
+    # @cart.line_items.clear
+    # @cart.copy_line_item_from_sales_order(@sales_order)
 
-  # GET /sales_orders/1/invoice
-  def invoice
-    @sales_order = SalesOrder.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.pdf do
-        render pdf: "file_name",
-        layout:      "/layouts/pdf.html.erb"
-      end
-      format.json { render json: @sales_order }
-    end
-  end
-
-  # GET /sales_orders/1/packing_list
-  def packing_list
-    @sales_order = SalesOrder.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.pdf do
-        render pdf: "file_name",
-        layout:      "/layouts/pdf.html.erb"
-      end
-      format.json { render json: @sales_order }
+    @cart.line_items.clear
+    @sales_order.line_items.each do |line|
+      new_line = line.dup
+      new_line.line = nil
+      @cart.line_items << new_line
     end    
+
   end
 
   # POST /sales_orders
@@ -122,15 +101,74 @@ class SalesOrdersController < ApplicationController
   def update
     @sales_order = SalesOrder.find(params[:id])
 
-    respond_to do |format|
-      if @sales_order.update_attributes(params[:sales_order])
-        format.html { redirect_to @sales_order, notice: 'Sales order was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @sales_order.errors, status: :unprocessable_entity }
+    # update cart, or
+    # update delivery_status(includes reschedule devlivery_plan) 
+    unless params[:delivery_status]
+      # issue_back to customer order
+      current_issue_cart.issue_back_refer_line_items()
+
+      # @sales_order.update_line_items_from_issue_cart(current_issue_cart)  
+      current_issue_cart.line_items.each do |line_item|
+        if(line_item.remark == 'remove')
+          so_line = @sales_order.line_items.where(refer_line_id: line_item.refer_line_id).take
+          so_line.destroy
+        end
       end
+
+      Cart.destroy(session[:issue_cart_id])
+      session[:issue_cart_id] = nil
+    end  
+
+    if not @sales_order.line_items.exists?    
+      @sales_order.destroy
+      respond_to do |format|
+        format.html { redirect_to sales_orders_url }
+        format.json { head :no_content }        
+      end
+    else
+      respond_to do |format|
+        if @sales_order.update_attributes(params[:sales_order])
+          format.html { redirect_to @sales_order, notice: 'Sales order was successfully updated.' }
+          format.json { head :no_content }          
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @sales_order.errors, status: :unprocessable_entity }
+        end
+      end
+    end  
+  end
+
+  # GET /sales_orders/1/confirm
+  def confirm
+    @sales_order = SalesOrder.find(params[:id])
+  end
+
+  # GET /sales_orders/1/invoice
+  def invoice
+    @sales_order = SalesOrder.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf do
+        render pdf: "file_name",
+        layout:      "/layouts/pdf.html.erb"
+      end
+      format.json { render json: @sales_order }
     end
+  end
+
+  # GET /sales_orders/1/packing_list
+  def packing_list
+    @sales_order = SalesOrder.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf do
+        render pdf: "file_name",
+        layout:      "/layouts/pdf.html.erb"
+      end
+      format.json { render json: @sales_order }
+    end    
   end
 
   # DELETE /sales_orders/1

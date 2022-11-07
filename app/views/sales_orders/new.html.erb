@@ -3,7 +3,7 @@
     <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
     <div class="panel-body">
       <h2>
-        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有线公司
+        <%=image_tag('sicomm_logo.jpg') %>无锡士康通讯技术有公司
       </h2>
       <table class="table">
         <thead>
@@ -33,7 +33,7 @@
 
 <div class="panel panel-default">
 	<div class="panel-body">
-<h3> <%=t(:unissued_po)%>(<%=t(:show_as_lines)%>) </h3>
+<h3> <%=t(:unscheduled_po)%>(<%=t(:show_as_lines)%>) </h3>
 <table class="table">
   <thead>
     <tr>
@@ -63,10 +63,9 @@
           <td><%= order.created_at.strftime("%m-%d") %></td>
           <td><%= line_item.full_name %> </td>
           <td><%= line_item.full_part_number %> </td>
-          <td>¥<%= line_item.price %> </td>
+          <td>¥<%= line_item.fixed_price %> </td>
           <td>x<%= line_item.quantity %> </td>
           <td>x<%= line_item.quantity_issued %> </td>
-
           <%= form_tag(line_items_path(:line_id => line_item.id), remote: true) do %>
           <td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
           <td><%= submit_tag(t(:issue_to_cart), :class=>"btn btn-xs btn-primary") %></td>

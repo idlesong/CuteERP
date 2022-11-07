@@ -8,6 +8,7 @@ RorWebERP::Application.routes.draw do
       get 'confirm'
       get 'invoice'
       get 'packing_list'
+      put 'reschedule'
     end
   end
 
@@ -61,7 +62,8 @@ RorWebERP::Application.routes.draw do
   end
 
 
-  resources :line_items
+  resources :line_items do
+  end
 
   resources :carts
 

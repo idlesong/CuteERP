@@ -83,9 +83,9 @@ Order.delete_all
 onreal_sct3258p_price = onreal.prices.create(item_id: sct3258p.id, price: 38, payment_terms: 'T.T in advance')
 # cart & line_item
 cart = Cart.create
-line_sct3258p = cart.add_item(sct3258p.id, vocoder_t.id, '-', 260, 40,15)
+line_sct3258p = cart.add_line_item(sct3258p.id, vocoder_t.id, '-', 260, 40,15)
 line_sct3258p.save
-line_srt3210 = cart.add_item(srt3210.id, nil, nil,490, 10, nil)
+line_srt3210 = cart.add_line_item(srt3210.id, nil, nil,490, 10, nil)
 line_srt3210.save
 
 # customer_orders

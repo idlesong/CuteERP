@@ -11,6 +11,7 @@
       <th><h4><%=t(:price)%></h4></th>
       <th><h4><%=t(:quantity)%></h4></th>
       <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:plan_ship_date)%></h4></th>      
       <th><h4><%=t(:ship_date)%></h4></th>
     </tr>
   </thead>
@@ -32,9 +33,23 @@
           <td><%= line_item.item.name %> </td>
           <td><%= line_item.full_part_number %> </td>
           <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
-          <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>
+
+          <% if line_item.price.nil? then %>
+            <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>          
+          <% else %>
+            <td><%= link_to(number_to_currency(line_price, unit: currency_unit), price_path(line_item.price_id))%> </td>
+          <% end %> 
+
           <td>x<%= line_item.quantity %> </td>
           <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
+          <td>
+            <% if order.delivery_plan %>
+              <%= order.delivery_plan.to_date %>
+            <% end %>  
+            <% if not order.delivery_date %>
+              <%= link_to('re-schedule', confirm_sales_order_path(order.id)) %> 
+            <% end %>
+          </td>
           <td>
             <% if order.delivery_date %>
               <a data-toggle="tooltip" data-placement="top" title="SF201572441752">

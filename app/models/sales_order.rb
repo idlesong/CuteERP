@@ -1,7 +1,7 @@
 class SalesOrder < ActiveRecord::Base
   attr_accessible :bill_address, :bill_contact, :bill_telephone, :customer_id,
   :payment_term, :serial_number, :ship_address, :ship_contact, :ship_telephone,
-  :delivery_date, :delivery_status, :exchange_rate
+  :delivery_date, :delivery_status, :delivery_plan, :exchange_rate, :remark
 
   has_many :line_items, :as => :line
   belongs_to :customer
@@ -14,6 +14,12 @@ class SalesOrder < ActiveRecord::Base
   validates :exchange_rate, :presence => true #:if => usd_currency_customer?
 
   def add_line_items_from_issue_cart(cart)
+    cart.line_items.each do |line|
+      line_items << line
+    end
+  end
+
+  def update_line_items_from_issue_cart(cart)
     cart.line_items.each do |line|
       line_items << line
     end
@@ -43,7 +49,7 @@ class SalesOrder < ActiveRecord::Base
 
   private
    def ensure_not_invoiced_or_delivered
-   	unless delivery_date.nil?
+   	if delivery_date.nil?
    		return true
    	else
    		errors.add(:base, 'Line Items present')

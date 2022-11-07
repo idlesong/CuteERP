@@ -1,0 +1,36 @@
+<div class="panel panel-default">
+    <!-- <div class="panel-heading"><h3>Sales Order<h3></div> -->
+    <div class="panel-body">
+
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h3><%= @sales_order.customer.name %> </h3>
+            </td>
+            <td>
+              <h4 class="text-right"><%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
+              <h4 class="text-right"><%=t(:payment_term)%>:</h4>
+              <h5 class="text-right"><%=t(:plan_ship_date)%>#:</h5>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan = "2"><h3 class="text-center"><%=t(:sales_order)%></h3></td></tr>
+        <tr><td><h4><%=t(:bill_to)%>:<%= @sales_order.customer.name %>
+          <a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+          data-target="#customersModal">
+            <%=t(:change_customer)%>
+          </a>  </h4>
+        </td>  <td><h4><%=t(:ship_to)%>:<%= @sales_order.customer.name %></h4></td></tr>
+
+        <tr><td><strong><%=t(:contact)%>:</strong><%= @sales_order.bill_contact %></td>
+            <td><strong><%=t(:contact)%>:</strong><%= @sales_order.ship_contact %></td></tr>
+        <tr><td><strong><%=t(:address)%>:</strong><%= @sales_order.bill_address %></td>
+            <td><strong><%=t(:address)%>:</strong><%= @sales_order.ship_address %></td></tr>
+        <tr><td><strong><%=t(:telephone)%>:</strong><%= @sales_order.bill_telephone %></td>
+            <td><strong><%=t(:telephone)%>:</strong><%= @sales_order.ship_telephone %></td></tr>
+
+      </table>
+
+    </div>
+  </div>

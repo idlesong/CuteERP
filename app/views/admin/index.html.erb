@@ -3,6 +3,7 @@
 </div>
 
 <%= render 'shared/delivery_status_modal'%>
+<%= render 'shared/reschedule_modal'%>
 <h3><%= t(:order)%> (<%=t(:unissued)%>) <small><%= link_to(t(:more), orders_path) %></small>
   <%= link_to t(:new_order), new_order_path, :class=>"btn btn-primary" %>
 </h3>
@@ -72,6 +73,7 @@
       <th><h4><%=t(:price)%></h4></th>
       <th><h4><%=t(:quantity)%></h4></th>
       <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:plan_ship_date)%></h4></th>  
       <th><h4><%=t(:ship_date)%></h4></th>
     </tr>
   </thead>
@@ -97,13 +99,23 @@
           <td class="text-right"><%= line_item.quantity %> </td>
           <td class="text-right"><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
           <td>
+            <% ship_plan_text = '0000-00-00' %>
+            <% if order.delivery_plan %>
+              <% ship_plan_text = order.delivery_plan.to_date %>
+            <% end %>  
+            <% if not order.delivery_date %>
+              <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
+                data-id=<%="#{order.id}" %> > <%=ship_plan_text %> &#x21bb </a>
+            <% end %>
+          </td>          
+          <td>
             <% if order.delivery_date %>
               <% if order.delivery_status %>
                 <a data-toggle="tooltip" data-placement="top" title=<%= "ship:#{order.delivery_status}" %> >
                   <%= order.delivery_date.to_date%></a>
               <% else %>
                  <a class="shipLink" href="" data-toggle="modal" data-target="#deliveryStatusModal"
-                 data-id=<%="#{order.id}" %> > <%=order.delivery_date.to_date %> </a>
+                  data-id=<%="#{order.id}" %> > <%=order.delivery_date.to_date %> </a>
               <% end %>
             <% else %>
               <%= link_to(t(:ship_now), confirm_sales_order_path(order.id)) %>
@@ -118,6 +130,57 @@
 
 <h3> <%= t(:sales_rolling_forecast)%>(FYF23) </h3>
 
+<% financial_months = Array.new() %>
+<% month_begin = Time.now.beginning_of_year.at_end_of_quarter + 1.day %>
+<% for n in 0..11 %>
+<%  financial_months[n] =  month_begin .. month_begin.at_end_of_month %>
+<%  month_begin = month_begin.at_end_of_month + 1.day %>
+<% end %>
+
+</br>
+<% forecast_table_by_month = Array.new(12) {Array.new(@yearly_uniq_prices.length) } %>
+<% financial_months.each_with_index do | month, index | %>
+  <% @yearly_uniq_prices.each_with_index do | price, pn | %>
+  <% if index < 7 %>  
+    <%  @month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+      .where(line_items: {line_type: 'SalesOrder'})
+      .where(sales_orders: {delivery_date: month})
+    %>
+    <%  forecast_table_by_month[index][pn] = @month_line_items.where(price_id: price).sum("quantity") %>
+  <% else %>
+
+    <%  @plan_ship_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+      .where(line_items: {line_type: 'SalesOrder'})
+      .where(sales_orders: {delivery_plan: month})
+    %>  
+    <%  forecast_table_by_month[index][pn] = @plan_ship_line_items.where(price_id: price).sum("quantity") %>  
+  <% end %>
+  <% end %>
+<% end %>
+
+<% forecast_table = forecast_table_by_month.transpose %>
+
+<% if false %>
+  <p> ---debug forecast table--- </p> </br>
+ 
+  <% forecast_table.each do |row| %>
+    <%= row %> ||</br>
+  <% end %>  
+
+  <% @yearly_uniq_prices.each do |price| %>
+    </br> price:<%= price.item.partNo %> <%= price.price %>
+  <% end %>
+
+  </br>
+  <% @forecast_shipped_line_items.each do |line_item| %>
+      shipped line: <%= line_item.full_part_number %> <%= line_item.quantity %> </br>
+  <% end %>
+
+  <% @forecast_plan_ship_line_items.each do |line_item| %>
+      plan ship line: <%= line_item.full_part_number %> <%= line_item.quantity %> </br>
+  <% end %>
+<% end %>
+
 <table class="table table-striped">
   <tr>
     <th><%=t(:part_number)%>#</th>
@@ -125,8 +188,7 @@
     <th><%=t(:Plan)%></th>   
     <th><%=t(:FCST)%></th>
     <th><%=t(:FCST)%></th>
-    <th><%=t(:price)%></th>
-    <th><%=t(:price)%></th>   
+    <th><%=t(:price)%></th>  
     <th><%=t(:Apr)%></th>
     <th><%=t(:May)%></th>
     <th><%=t(:Jun)%></th>
@@ -136,20 +198,33 @@
     <th><%=t(:Oct)%></th>
     <th><%=t(:Nov)%></th>
     <th><%=t(:Dec)%></th>
+    <th><%=t(:Jan)%></th>
+    <th><%=t(:Feb)%></th>
+    <th><%=t(:Mar)%></th>    
     <th><%=t(:Customer)%></th>
     <th><%=t(:Open_orders)%></th>
   </tr>  
 
-  <% @this_year_open_order_line_items.each do |line| %>
+  <% @yearly_uniq_prices.each_with_index do |price, row_n| %>
     <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-        <td><%= line.full_part_number %></td>    
+        <td><%= price.item.partNo %></td>    
         <td></td>
         <td></td>
         <td></td>
         <td></td>
+        <td><%= price.price %></td>
+        <% for j in 0..11 %>
+          <% if (j+1)%3 == 0 %>
+          <td  class="bg-success">
+          <% else %>
+            <td>
+          <% end %>
+            <p> <% if j < 7 %> <strong> <%end%>
+            <%= forecast_table[row_n][j] %> </p>
+          </td>
+        <% end %>     
+        <td><%= link_to price.customer.name, price.customer %></td>
         <td></td>
-        <td><%= line.price %></td>
-        <td><%= line.quantity %></td>
     </tr>
   <% end %>
 
@@ -198,4 +273,5 @@
   </div>
 </div>
 
-</br>
+
+

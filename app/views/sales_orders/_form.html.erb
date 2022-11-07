@@ -1,64 +1,59 @@
-<%= form_for(@sales_order) do |f| %>
-  <% if @sales_order.errors.any? %>
-    <div id="error_explanation" class="alert alert-danger" role="alert">
-      <h2><%= pluralize(@sales_order.errors.count, "error") %> prohibited this sales_order from being saved:</h2>
+<div id="orderHeaderDiv">
+<%= render partial: 'orderHeader'%>
+</div>
+  
 
-      <ul>
-      <% @sales_order.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+<div id="cart">
+  <%= render(@cart, :exchange_rate => monthly_exchange_rate) %>
+</div>
 
-  <div class="field">
-    <%= f.label :serial_number %><br />
-    <%= f.text_field :serial_number %>
-  </div>
-  <div class="field">
-    <%= f.label :customer_id %><br />
-    <%= f.number_field :customer_id, placeholder: @sales_order.customer.id %>
-  </div>
-  <div class="field">
-    <%= f.label :bill_contact %><br />
-    <%= f.text_field :bill_contact %>
-  </div>
-  <div class="field">
-    <%= f.label :bill_address %><br />
-    <%= f.text_area :bill_address,:rows=> 4%>
-  </div>
-  <div class="field">
-    <%= f.label :bill_telephone %><br />
-    <%= f.text_field :bill_telephone %>
-  </div>
-  <div class="field">
-    <%= f.label :ship_contact %><br />
-    <%= f.text_field :ship_contact %>
-  </div>
-  <div class="field">
-    <%= f.label :ship_address %><br />
-    <%= f.text_area :ship_address,:rows=> 4 %>
-  </div>
-  <div class="field">
-    <%= f.label :ship_telephone %><br />
-    <%= f.text_field :ship_telephone %>
-  </div>
-  <div class="field">
-    <%= f.label :payment_term %><br />
-    <%= f.text_field :payment_term %>
-  </div>
-  <div class="field">
-    <%= f.label :delivery_status %><br />
-    <%= f.text_field :delivery_status %>
-  </div>
-  <div class="field">
-    <%= f.label :exchange_rate %><br />
-    <%= f.number_field :exchange_rate, :class => 'number_field',
-      :step =>'any', :placeholder => 6.5 %>
-  </div>
+<%= form_for(@sales_order, html: { multipart: true }) do |f| %>
+	<% if @sales_order.errors.any? %>
+		<div id="error_explanation" class="alert alert-danger" role="alert">
+			<h2><%= pluralize(@sales_order.errors.count, "error") %> <%=t(:prohibited_save)%>:</h2>
 
+			<ul>
+			<% @sales_order.errors.full_messages.each do |msg| %>
+				<li><%= msg %></li>
+			<% end %>
+			</ul>
+		</div>
+	<% end %>
 
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<%=t(:order_cart_lineitems)%>
+				<small><%=t(:order_number)%>#:<%= f.text_field :serial_number,:size => 20 %>
+							 <!-- <= f.file_field :document > -->
+				</small>
+			</h3></div>
+		<div class="panel-body">
+
+			<strong>Remark:<%= f.text_field :remark, :value => current_user.settings(:remark).order_remark_zh,:size => 60 %>
+				<%= "Exchange rate: #{@sales_order.exchange_rate}" if @sales_order.customer.currency == 'usd' %>
+			</strong>
+			<% if @sales_order.customer.currency == 'USD'%>
+				Exchange rate:
+				<%= f.number_field :exchange_rate, :class => 'number_field', :step =>'any', :id =>'exchange_rate' %>
+			<% else %>
+				<%= f.hidden_field :exchange_rate%>
+			<% end %>
+		</div>
+		<div class="panel-footer">
+      <%= f.hidden_field :customer_id, :value => @sales_order.customer.id %>
+	    <%= f.hidden_field :bill_contact %>
+	    <%= f.hidden_field :bill_address %>
+	    <%= f.hidden_field :bill_telephone %>
+	    <%= f.hidden_field :ship_contact %>
+	    <%= f.hidden_field :ship_address %>
+	    <%= f.hidden_field :ship_telephone %>
+	    <%= f.hidden_field :payment_term %>
+		  <div class="text-center">
+				<%= f.submit t(:submit_order), :class=>"btn btn-primary" %>
+			</div>
+		</div>
+	</div>
 <% end %>
+
+
