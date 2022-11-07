@@ -58,7 +58,7 @@
       <% if quantity_left > 0 then %>
         <tr>
           <td>#<%= link_to(order.id,order_path(order.id)) %></td>
-          <td><%= order.customer.short_name %></td>
+          <td><%= order.customer.name %></td>
           <td><%=order.order_number%></td>
           <td><%= order.created_at.strftime("%m-%d") %></td>
           <td><%= line_item.full_name %> </td>

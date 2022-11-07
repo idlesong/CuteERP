@@ -47,7 +47,7 @@ class Order < ActiveRecord::Base
   def generate_order_number
     next_id=1
     next_id=Order.maximum(:id).next if Order.exists?
-    order_number = customer.short_name + DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
+    order_number = customer.name + DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
   end
 
   # Cancel issued order left quantity

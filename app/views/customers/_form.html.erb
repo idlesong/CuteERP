@@ -13,20 +13,26 @@
 
   <div class="control-group">
     <div class="row">
-      <div class="col-xs-3">
+      <div class="col-xs-2">
         <%= f.label "#{t(:customer)}#{t(:name)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :name, :class => 'text_field', placeholder:'Company *name*' %>
         </div>
       </div>
-      <div class="col-xs-3">
+      <div class="col-xs-2">
         <%= f.label "#{t(:customer)}#{t(:full_name)}", :class => 'control-label' %>
         <div class="controls">
           <%= f.text_field :full_name, :class => 'text_field', placeholder:'Company full name' %>
         </div>
-      </div>      
+      </div>     
+      <div class="col-xs-2">
+        <%= f.label "#{t(:sales_type)}", :class => 'control-label' %>
+        <div class="controls">
+          <%= f.select(:sales_type, Customer::SALES_TYPES) %>
+        </div>
+      </div>       
       <div>
-        <div class="col-xs-3">
+        <div class="col-xs-2">
           <div class="control-group">
             <%= f.label t(:since), :class => 'control-label' %>
             <div class="controls">

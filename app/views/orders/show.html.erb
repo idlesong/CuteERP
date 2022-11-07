@@ -6,7 +6,7 @@
   <div class="panel-body">
 
     <h2>
-      <%= @order.customer.name %>
+      <%= link_to @order.customer.name, customer_path(@order.customer) %>
     </h2>
     <table class="table">
       <thead>

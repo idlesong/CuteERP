@@ -21,7 +21,7 @@
           <% if not @customers.nil? then %>
               <% @customers.each do |customer| %>
               <tr>
-                <td><strong><%= customer.short_name %></strong></td>
+                <td><strong><%= customer.name %></strong></td>
                 <td><%= customer.credit %></td>
                 <td><%= customer.contact %></td>
                 <td><%= customer.telephone %></td>

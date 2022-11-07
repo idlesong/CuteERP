@@ -57,7 +57,17 @@ class PricesController < ApplicationController
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
     @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @price_list = @latest_release_set_price.get_price_list(@step_quantities)
+    @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, 'price')
+    @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')
+
+    # clear cart and destroy associated line_items, when customer switched
+    if (params[:customer_id] && (params[:customer_id] != current_customer.id))
+      session[:customer_id] = params[:customer_id]
+      current_cart.line_items.clear
+    end
+    
+    @customer = current_customer
+    @price.customer = @customer
 
     if (params[:item_id] && params[:price] && params[:condition])
       @price.item_id = Item.find_by(partNo: params[:item_id]).id
@@ -84,7 +94,7 @@ class PricesController < ApplicationController
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
     @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @price_list = @latest_release_set_price.get_price_list(@step_quantities)
+    @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, "price")
 
     if (params[:item_id] && params[:price] && params[:condition])
       @price.item_id = Item.find_by(partNo: params[:item_id]).id

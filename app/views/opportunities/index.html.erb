@@ -56,7 +56,7 @@
           <span class="label label-primary"><%= opportunity.priority %></span>
         <% end %>
         </td>
-        <td><%= link_to opportunity.customer.short_name, customer_path(opportunity.customer) %></td>
+        <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer) %></td>
         <td><%= opportunity.project_type %></td>
         <td><%= link_to(opportunity.market, post_path(opportunity.market,:query => "url")) %>
         <%= opportunity.solution.to_s.delete(opportunity.market.to_s)%></td>

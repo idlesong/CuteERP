@@ -1,9 +1,10 @@
 class Customer < ActiveRecord::Base
   attr_accessible :address, :balance, :contact, :name, :full_name, :since, :telephone,
                   :payment ,:currency, :ship_contact, :ship_address, :ship_telephone,
-                  :credit
+                  :credit, :sales_type
 
   CURRENCY_TYPES = ['RMB', 'USD']
+  SALES_TYPES = ['OEM', 'ODM', 'Internal']
 
   has_many :orders
   has_many :sales_orders
@@ -15,23 +16,6 @@ class Customer < ActiveRecord::Base
   validates :payment, :presence => true
   validates :currency, :presence => true
   validates :currency, :inclusion => CURRENCY_TYPES
-
-  def get_special_price(item)
-    price = prices.where({item_id: item.id, status: 'approved'}).order("created_at ASC").last
-    if price.nil?
-      special_price = item.price
-    else
-      special_price = price.price
-    end
-  end
-
-  def short_name
-    if name =~ /\*.*\*/
-      short_name = "#{$&}"
-    else
-      short_name = name
-    end
-  end
 
   before_save  :copy_ship_to_from_bill_to
   before_destroy :ensure_not_used_by_others
