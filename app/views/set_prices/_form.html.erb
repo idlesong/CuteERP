@@ -19,6 +19,8 @@
       <th><%=t(:price)%></th>
       <th><%=t(:order_quantity)%></th>
       <th><%=t(:sell_by)%></th>
+      <th><%=t(:base_price)%></th>
+      <th><%=t(:extra_price)%></th>     
       <th><%=t(:released_at)%></th>
     </tr>
   </thead>
@@ -28,6 +30,8 @@
         <td><%= f.text_field :price, :class => 'text_field' %></td>
         <td><%= f.text_field :order_quantity %></td>
         <td><%= f.text_field :sell_by %></td>
+        <td><%= f.text_field :base_price, :class => 'text_field' %></td>
+        <td><%= f.text_field :extra_price, :class => 'text_field' %></td>                
         <td><%= f.text_field :released_at %></td>
       </tr>
   </tbody>

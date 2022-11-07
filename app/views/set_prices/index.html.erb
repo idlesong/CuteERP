@@ -22,11 +22,16 @@
     </tr>
   </thead>
   <tbody>
-  <% if @price_list %>
-    <% @price_list.each do |line| %>
+ 
+  <% if (@price_list_prices && @price_list_ids) %>
+    <% @price_list_prices.each_with_index do |line, index| %>
       <tr>
-      <% line.each do |price| %>      
-        <td><%= price %></td>
+      <% line.each_with_index do |price, column| %>   
+        <% if column > 0 %>   
+          <td><%= link_to price, set_price_path(@price_list_ids[index][column]) %></td>
+        <% else %>
+          <td><%= price %></td>
+        <% end %>
       <% end  %>
       </tr>
     <% end  %>
@@ -69,7 +74,9 @@
       <th><%=t(:part_number)%></th>
       <th><%=t(:price)%></th>
       <th><%=t(:order_quantity)%></th>  
-      <th><%=t(:sell_by)%></th>          
+      <th><%=t(:sell_by)%></th> 
+      <th><%=t(:base_price)%></th>
+      <th><%=t(:extra_price)%></th>         
       <th><%=t(:released_at)%> </th>
       <th><%=t(:created_at) %></th>
     </tr>
@@ -82,6 +89,8 @@
         <td><strong>¥<%= set_price.price %></strong></td>
         <td><%= set_price.order_quantity %></td>  
         <td><%= set_price.sell_by %></td> 
+        <td>¥<%= set_price.base_price %></td>
+        <td>¥<%= set_price.extra_price %></td>
         <td><%= set_price.released_at.strftime("%F") if set_price.released_at %></td>
         <td><%= set_price.created_at.strftime("%F") if set_price.created_at %></td>
       </tr>

@@ -24,29 +24,40 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
 1. products/items
 1. net weight, gross weight
 1. wiki,related marketing report
+1. support assembled products: 
+   - assembled item is basic item, but with base, extra, assembled information
 
 ### customers management
 1. customer
    - overview 
      - basic info: contacts & orders & opportunities & wiki
-   - multiply currencies(now RMB and USD) support
-   - ship_to bill_to can different(clone when not supplied)
+   - multiple currencies(now RMB and USD) support
+   - different ship_to and bill_to address support(clone by default)
    - new customer quick creation support
-   - export customers list need to support Chinese
+   - export / import customers list
 
-### orders system(price, customer order, sales order, invoice, packing list)
-1. customer order
-   - documents creation
-     - quotation / price_request, base on different volume[todo]
-     - invoice
-     - packing_list
+### orders system
+price, customer order, sales order(invoice, packing list)
+1. customer order(single driving force)
+   - types/catalogs: order, preorder
+   - orders status(line_items): shipped, backlog, open_orders, preorders 
+   - issue to sales order
    - original order upload(pdf format)     
-   - monthly exchange_rate support, quick exchange_rate input
-1. sales order
-   - issue sales order from customer order
+1. sales order(based on shipment)
+   - customer order ==issue to==> sales orders(scheduled, but not shipped) 分解订单
+   - sales orders =confirm/ship to=> shipped
+   - edit sales orders(shipped: confirmed=shipped=invoiced)
+     - how to edit-issued: edit quantity, zero delete lineitems? issue more? 
+     - split sales orders: new sales order
+   - Sales orders shipped
+   - invoice, packing_list   
    - overview report
    - ship confirmation
-   - ship status input
+   - ship status input    
+1. preorders(shipment)
+   - used for forecast. easy to edit and reschedule, act like sales orders(shipment).
+   - can turn to real customer orders, if match. 
+   - order_kind: preorders   
 1. prices
    - set_price: (part_number /quantity /price / dist_customer / released_at(key))
      - batch view (like price list excel)
@@ -56,21 +67,51 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
          - setting: name: order_quantity_OEM1, value: 1000, note: released_date
        - item.set_price(quantity)   
        - batch input; batch achieve
+     - support assembled set_price: 
+       - assembled set_price is a basic set_price, but with base, extra nformation  
    - prices(customer prices)
      - released_at(confirmed)
      - order_quantity
      - condition(remarks for quotation?)
      - status(approved/outdated)
+     - support assembled price: 
+       - assembled price is a basic price, but with base, extra nformation 
    - price request
-     - auto fillin related set_price according to sales_channel(customer) & order_quantity
+     - auto fillin related set_price according to sales_channel(ODM/OEM) & order_quantity
      - special price need approved
-     - when approved, price status set approved, and inactive old price [todo]
+     - when approved, price status set approved, and inactive old price
      - status: approved, stared, achived; hide achived prices     
    - quotation
-     - has many customer prices (with codition & remarks)
-       - selected
+     - has many customer prices (with order_quantity(codition) & remarks)
      - quotation remarks(can modify freely)
      - quotation number  
+1. Sales Rolling Forecast view is *Main View*(admin)
+   - All customer orders(with preorders) together in a year forecast overview
+     - sort by shipped, open-orders, and preorders.
+     - Customers orders view, sort by:
+       - sales type: ODM, OEM(inter-company), Re-sell
+       - product group: Digital_baseband, RF, PA, Vocoder, 
+       - territoreis: KR, ExFJ, FJ
+       - customers
+       - part_numbers
+       - prices
+     - Products view, sort by:
+       - sales type
+       - product group
+       - product family(SCT3258, SCT3604, SCT3600)
+   - as easy as excel, or better
+     - fill the table with forecast-preorders
+     - change preorder quantity
+
+
+PartNo. | Plan | billing | forecast | price | price VAT | Apr | May | Jun |July|...|customer
+---|---|---|---|---|---|---|---|---|---|---|---
+ProductA | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| CustomerA
+
+
+PartNo. | remain booking | Apr | May | June | July | Aug| Sep| Oct| Nov| Dec| total booking | Open Orders | customer
+---|---|---|---|---|---|---|---|---|---|---|---|---|---
+SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
 
 ### payment & receivable
 1. payment
@@ -81,7 +122,7 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
 1. index(show opportunities in catalog)
 
 ### activities(tasks) management
-1. related to customer.[todo]
+1. related to customer.
 1. related to opportunities
 
 ### user management
@@ -122,8 +163,8 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
   - customer_orders_list  
   - sales_orders
 
-
-## upgrade rails from 3.2 to 4.2 tips
+## development
+### upgrade rails from 3.2 to 4.2 tips
 1. [upgrade guide](https://edgeguides.rubyonrails.org/upgrading_ruby_on_rails.html)
 1. [upgrade tips](https://ruby-china.org/topics/22280?locale=en)
 1. Change logs:
@@ -133,64 +174,40 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
    - group assets
    
 
-## bugs and feature request
-### Feature request
+### bugs and feature request
+#### Feature request
 see issues, focus on core features
 1. customer orders(single driving force)
-   - types: shipped orders, open orders, preorders(all need schedule) 
-   - Year view of booking 
-   - remain booking, allocate orders   
-1. sales orders(shipment orders?) 
-   - types: shipped orders(invoice), scheduled shipments, forecast shipments
-   - issue from sales orders, open orders and pre-orders.
-1. rolloing forecast: includes 3 shipped orders, open orders, preorders with dispatch schedule  
+   - types: shipped orders(confirmed), open orders, preorders 
+   - customer-orders: issued: scheduled;  confirm sales orders also make orders shipped?   
+   - preorders: easy to edit, reschedule; based on shipment used for forecast 
+1. sales orders(based on shipment) 
+   - types: shipped orders(invoice, confirmed), scheduled shipments, forecast shipments
+   - issue from sales orders, open orders and pre-orders.   
+- more
+   1. rolloing forecast: includes 3 shipped orders, open orders, preorders with dispatch schedule  
    - (list view) re-schedule easily: 
-     - add new line(in current view), delete line, change quantity 
-   - auto clear forecast orders, when issue sales orders (first in, first out)
+   - add new line(in current view), delete line, change quantity 
+   - auto clear forecast orders, when issue sales orders (first in, first out)?
    - manually adjustment forecast quantity & auto re-schedule outdated forecast schedule(in forecast view) 
-   - copy sales orders
-1. Sales Rolling Forecast view is *Main View*(admin)
-   - put open orders and forecast orders together in year view
-     - Customers view, sort by:
-       - sales type: ODM, OEM, Re-sell
-       - product group: Digital_baseband, RF, PA, Vocoder, 
-       - territoreis: KR, ExFJ, FJ
-       - customers
-       - part_numbers
-       - prices
-     - Products view, sort by:
-       - sales type
-       - product group
-       - product family(SCT3258, SCT3604, SCT3600)
-   - as easy as excel, or better
-     - fill the table with forecast-orders
-     - change forecast quantity and auto update ship_shedule?
+
    - filter by: product number/ product family / product type/ Territory / customer/
    - default:  product type/ territory /       
+   - Year view of booking 
+   - remain booking, allocate orders 
 
 
-PartNo. | Plan | billing | forecast | price | price VAT | Apr | May | Jun |July|...|customer
----|---|---|---|---|---|---|---|---|---|---|---
-SCT3288TN | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| Abell
+line_type: Order, -> issued SalesOrder(scheduled -> shipped); 
+quantity_issued:
 
-
-PartNo. | remain booking | Apr | May | June | July | Aug| Sep| Oct| Nov| Dec| total booking | Open Orders | customer
----|---|---|---|---|---|---|---|---|---|---|---|---|---
-SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
 
 ### bugs and small Feature points
 1. items
-   - [x] part number
-   - [x] product group
-   - [x] product family
    - assembled: no, main, addition1, addtion2(mark), assembled(main + addition1)
      - price: addition1 price(vocoder price)
    - import, todo: new forbidden same part number; 
-   - [x] import, disable all old items that not need to update.
-     - index: use as o: inactive, index: 0,1,2,3 
 
 1. customers
-  - [x] need to set a default customer?
   - sales type: customer or distributor 
 
 1. Orders(customer order)
@@ -207,6 +224,11 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
    - todo status using auto; with label color
    - Opportunities: priority force to integer
    - project type: default should be DT
+
+1. Price
+   - assembled_items: core_item(SCT3258T), additon_item(D:AMBE+2 voocer)
+   - price#, item_id, price, codition, assemble_with?
+   - [ ] get special price by ODM/OEM/Internal
 
 1. price as quotation or a flexible quotation?
    - rails g migrateion add_remark_to_price remark:string
@@ -238,3 +260,10 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
    - sales orders overview, sort with item index
    - overview filter for choosen customer  
 
+deliver schedule management
+- rule: PO before leadtime; before 8weeks re-schedule: pull in/push out; within 8 week no re-schedule; 
+- Order(PO/Customer Order) remark: requested deliver date
+- SalesOrder(SO/) deliver_plan: re-schedule
+
+update sales_order.delivery_plan 
+- Can't mass-assign protected attributes for SalesOrder: {:delivery_status=>"reschedule"}

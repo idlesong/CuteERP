@@ -1,5 +1,6 @@
 class SetPrice < ActiveRecord::Base
-    attr_accessible :order_quantity, :price, :sell_by, :item_id, :released_at, :created_at
+    attr_accessible :order_quantity, :price, :sell_by, :item_id, :released_at, :created_at,
+                    :base_price, :extra_price
  
     has_settings do |s|
         s.key :order_quantities, :defaults => { :quantities => ["1000", "2500", "5000", "10000", "50000"] }
@@ -12,16 +13,20 @@ class SetPrice < ActiveRecord::Base
     validates :item_id, :presence => true
     # validates :order_quantity
 
-    def get_set_price(prices, item_id, order_quantity, sell_by)
+    def get_set_price(prices, item_id, order_quantity, sell_by, id_or_value)
         if prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.nil?
           return 0
         else
-          return prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.price
+          if(id_or_value == 'id')
+            return prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.id
+          else
+            return prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.price
+          end
         end
     end    
 
     # prices: latest released set_prices  
-    def get_price_list(order_quantities)
+    def get_price_list(order_quantities, id_or_value)
         latest_release_date = SetPrice.order(released_at: :asc).last.released_at
         latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => latest_release_date)
         # .order("order_quantity::integer ASC")
@@ -38,10 +43,10 @@ class SetPrice < ActiveRecord::Base
 
             ["OEM", "ODM"].each do |sell_by|
                 order_quantities.each do |quantity|
-                    if self.get_set_price(latest_set_prices, item.item_id, quantity, sell_by).nil?
+                    if self.get_set_price(latest_set_prices, item.item_id, quantity, sell_by, id_or_value).nil?
                         price_line << 0
                     else
-                        price_line << self.get_set_price(latest_set_prices, item.item_id, quantity, sell_by)
+                        price_line << self.get_set_price(latest_set_prices, item.item_id, quantity, sell_by, id_or_value)
                     end
                 end
             end
@@ -72,7 +77,7 @@ class SetPrice < ActiveRecord::Base
     def self.to_csv(options = {})
         set_price = SetPrice.order(released_at: :asc).last
         step_quantities = ["1000", "2500", "5000", "10000", "50000"]        
-        price_list = set_price.get_price_list(step_quantities)
+        price_list = set_price.get_price_list(step_quantities, "price")
         headers = ['item', '1000', '2500', '5000', '10000', '50000', '1000', '2500', '5000', '10000', '50000']
  
         CSV.generate(options) do |csv|

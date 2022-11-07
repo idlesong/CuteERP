@@ -24,15 +24,15 @@
         </tr>
       </thead>
       <tbody>
-        <% if not @price_list.nil? %>
-        <% @price_list.each do |line| %>
+        <% if not @price_list_prices.nil? %>
+        <% @price_list_prices.each do |line| %>
           <tr>
           <% line.each_with_index do |price, index| %>      
             <% if index == 0 %>
               <td><%= @part_number = price %></td>
             <% elsif index <= @step_quantities.length %>
               <td><%= link_to(price, {:controller =>'prices',:action => current_path_action, 
-                                      :item_id => @part_number , :price => price, 
+                                      :item_id => @part_number , :price => price,
                                       :condition => @step_quantities[index-1]}, :class=>"link")%></td>
             <% else %>
               <td><%= price %></td>
