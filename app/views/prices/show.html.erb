@@ -3,7 +3,7 @@
   <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
 </div>
 
-<!-- Quotation header -->
+<!-- Price header -->
   <div class="panel panel-default">
     <div class="panel-body">
       <h2>
@@ -27,10 +27,10 @@
         <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> <%= @price.status %> </h3></td></tr>
         <tr><td> 
         <h4>To:
-        <% if @price.customer.full_name.nil? %>
-          <%= @price.customer.name %>  
+        <% if @price.customer.full_name.blank? %>        
+          <%= link_to @price.customer.name, customer_path(@price.customer) %>  
         <% else %>
-          <%= @price.customer.full_name %>         
+          <%= link_to @price.customer.full_name, customer_path(@price.customer) %>         
         <% end %>
         </h4> </td>
         <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
@@ -40,7 +40,7 @@
     </div>
   </div>
 
-<!-- Quotation price list -->
+<!-- Price line items -->
 <div class="panel panel-default">
   <div class="panel-body">
     <table class="table">
@@ -60,6 +60,7 @@
         <td><%= @price.item.name %></td>
         <td>RMB <%= @price.price %></td>
         <td><%= @price.condition %> pcs</td>
+        <td>=<%= @price.base_price %> + <%= @price.extra_price %> </td>
         <td><%= @price.remark %> </td>
       </tr>
       <tr>
@@ -68,7 +69,7 @@
         <td></td>
         <td>RMB <%= @price.get_set_price(@price.item_id, @price.condition) %> </td> 
         <td><%= @price.condition %> pcs</td>
-        <td>公司默认参考价格，报价单不显示（保密）</td>
+        <td>（保密）公司参考报价，报价单不显示</td>
       </tr>
       <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
     
