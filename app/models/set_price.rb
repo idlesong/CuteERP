@@ -107,15 +107,23 @@ class SetPrice < ActiveRecord::Base
             partNo = row[0]
             item = Item.where(partNo: partNo).take
 
+            # parse extra_price column(index 1)
+            if (row[1])
+                # logger.debug "=====++++++extra_price+++++===== #{row[1]}"                     
+                extra_price = row[1].to_i
+            else
+                extra_price = 0
+            end            
+
             row.each_with_index do |value, index|
 
                 # logger.debug "=====import set price row index== #{index}"                
                 # set_price.new(item_id: item_id, sell_by: sell_by, price: price, condition: header[index], released_at: released_at)
                 released_date = Date.parse "20220401"
 
-                # skip partNo column(index 0) 
-                if index > 0 
-                    if index <= 5
+                # skip partNo extra_price columns(index 0,1);
+                if index > 1 
+                    if index <= 6
                         sell_by = "OEM"
                     else 
                         sell_by = "ODM"
@@ -125,6 +133,11 @@ class SetPrice < ActiveRecord::Base
                     set_price.sell_by = sell_by
                     set_price.item_id = item.id
                     set_price.price = value
+                    if extra_price != 0
+                        # logger.debug "=====++++++save extra_price+++++===== #{extra_price}" 
+                        set_price.extra_price = extra_price
+                        set_price.base_price = set_price.price - extra_price
+                    end    
                     set_price.order_quantity = header[index]
                     set_price.released_at = released_date
                     set_price.save!

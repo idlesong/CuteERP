@@ -7,6 +7,7 @@
     <tr>
       <th><%= t(:name) %></th>
       <th><%= t(:full_name) %></th>     
+      <th><%= t(:sales_type) %></th> 
       <th><%= t(:credit) %></th>
       <th><%= t(:address) %></th>
       <th><%= t(:telephone) %></th>
@@ -21,6 +22,7 @@
       <tr>
         <td><%= link_to customer.name, customer_path(customer) %></td>
         <td><%= customer.full_name %></td>
+        <td><%= customer.sales_type %></td>
         <td><%= customer.credit.to_i %></td>
         <td><%= customer.address %></td>
         <td><%= customer.telephone %></td>

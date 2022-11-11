@@ -28,6 +28,8 @@ class PricesController < ApplicationController
   def show
     @price = Price.find(params[:id])
 
+    @customer = current_customer
+
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @price }
@@ -56,7 +58,8 @@ class PricesController < ApplicationController
     @latest_release_set_price = SetPrice.order(released_at: :asc).last
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    # @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @step_quantities = @latest_release_set_price.settings(:order_quantities).quantities
     @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, 'price')
     @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')
 
@@ -69,9 +72,12 @@ class PricesController < ApplicationController
     @customer = current_customer
     @price.customer = @customer
 
-    if (params[:item_id] && params[:price] && params[:condition])
-      @price.item_id = Item.find_by(partNo: params[:item_id]).id
-      @price.price = params[:price]
+    if (params[:item_id] && params[:price_id] && params[:condition])
+      @set_price = SetPrice.find(params[:price_id])
+      @price.item_id = @set_price.item_id # Item.find_by(partNo: params[:item_id]).id
+      @price.price = @set_price.price
+      @price.base_price = @set_price.base_price
+      @price.extra_price = @set_price.extra_price     
       @price.condition = params[:condition]
     end
 
@@ -93,8 +99,10 @@ class PricesController < ApplicationController
 
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    # @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @step_quantities = @latest_release_set_price.settings(:order_quantities).quantities    
     @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, "price")
+    @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')    
 
     if (params[:item_id] && params[:price] && params[:condition])
       @price.item_id = Item.find_by(partNo: params[:item_id]).id

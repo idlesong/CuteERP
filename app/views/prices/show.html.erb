@@ -24,7 +24,7 @@
             </td>
           </tr>
         </thead>
-        <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> <%= @price.status %> </h3></td></tr>
+        <tr><td colspan = "2"><h3 class="text-center"> <%= t(:quotation) %> </h3></td></tr>
         <tr><td> 
         <h4>To:
         <% if @price.customer.full_name.blank? %>        
@@ -67,7 +67,7 @@
         <td></td>     
         <td></td>
         <td></td>
-        <td>RMB <%= @price.get_set_price(@price.item_id, @price.condition) %> </td> 
+        <td>RMB <%= @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %> </td> 
         <td><%= @price.condition %> pcs</td>
         <td>（保密）公司参考报价，报价单不显示</td>
       </tr>

@@ -78,7 +78,7 @@
           <td></td>     
           <td></td>
           <td></td>
-          <td>¥<%= @price.get_set_price(@price.item_id, @price.condition) %> </td>        
+          <td>¥<%= @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %> </td>        
           <td><%= @price.condition %> pcs</td>
           <td colspan="3"> （保密）公司默认参考价格，报价单不显示 </td>
         </tr>        

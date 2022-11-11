@@ -43,8 +43,9 @@ class SetPricesController < ApplicationController
     @latest_release_set_price = SetPrice.order(released_at: :asc).last
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", step_quantities)
+    # step_quantities = ["1000", "2500", "5000", "10000", "50000"]
+    @step_quantities = @latest_release_set_price.settings(:order_quantities).quantities
+    @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", @step_quantities)
   end
 
   # GET /set_prices/new

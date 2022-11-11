@@ -37,7 +37,7 @@
         <td><%= price.item.partNo %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
-        <td>¥<%= price.get_set_price(price.item_id, price.condition) %></td>
+        <td>¥<%= price.get_set_price(price.item_id, price.condition, Customer.find(price.customer_id).sales_type) %></td>
         <td> 
         <% if not price.base_price.blank? %>
           =<%= price.base_price%>+<%= price.extra_price%> 
