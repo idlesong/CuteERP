@@ -1,7 +1,7 @@
 class Order < ActiveRecord::Base
   attr_accessible :customer_id, :amount, :order_number, :name, :address,
     :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type,
-    :exchange_rate, :remark, :document, :created_at
+    :exchange_rate, :remark, :document, :created_at, :end_customer_id
 
   has_many :line_items, as: :line,  :dependent => :destroy
   belongs_to :customer

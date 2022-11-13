@@ -1,0 +1,43 @@
+<div class="modal fade" id="customersModal" tabindex="-1" role="dialog" aria-labelledby="customersModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><%=t(:select_customer_who_has_active_prices)%></h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped datatable">
+          <thead>
+            <tr>
+              <th><%=t(:customer_name)%></th>
+              <th><%=t(:sales_type)%></th>
+              <th><%=t(:credit)%></th>
+              <th><%=t(:contact)%></th>
+              <th><%=t(:balance)%></th>
+              <th>$/¥</th>
+              <th><%=t(:select)%></th>
+            </tr>
+          </thead>
+          <% if not @customers.nil? then %>
+              <% @customers.each do |customer| %>
+              <tr>
+                <td><strong><%= customer.name %></strong></td>
+                <td><%= customer.sales_type if not customer.sales_type.nil? %></td>
+                <td><%= customer.credit %></td>
+                <td><%= customer.contact %></td>
+                <td><%= customer.balance %></td>
+                <td><%= customer.currency %></td>
+                <td><%= link_to( t(:select), {:controller =>'orders',:action => 'new',
+                  :customer_id =>customer.id}, :class=>"btn btn-xs btn-primary")%></td>
+              </tr>
+              <% end %>
+          <% end %>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+      </div>
+    </div>
+  </div>
+</div>

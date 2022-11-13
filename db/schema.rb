@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20221106072053) do
+ActiveRecord::Schema.define(version: 20221112123509) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -52,19 +52,21 @@ ActiveRecord::Schema.define(version: 20221106072053) do
     t.decimal  "balance"
     t.string   "contact"
     t.string   "telephone"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.string   "full_name"
     t.string   "sales_type"
     t.string   "payment"
-    t.text     "invoice_address"
-    t.text     "deliver_address"
-    t.string   "currency",        default: "RMB"
+    t.string   "currency",       default: "RMB"
     t.string   "ship_contact"
     t.text     "ship_address"
     t.string   "ship_telephone"
     t.decimal  "credit"
+    t.integer  "disty_id"
+    t.string   "territory"
   end
+
+  add_index "customers", ["disty_id"], name: "index_customers_on_disty_id", using: :btree
 
   create_table "items", force: :cascade do |t|
     t.string   "name"
@@ -146,6 +148,7 @@ ActiveRecord::Schema.define(version: 20221106072053) do
     t.integer  "document_file_size"
     t.datetime "document_updated_at"
     t.string   "remark"
+    t.integer  "end_customer_id"
   end
 
   create_table "posts", force: :cascade do |t|

@@ -17,6 +17,8 @@ class OrdersController < ApplicationController
   def show
     @order = Order.find(params[:id])
 
+    @end_customer = Customer.find(@order.end_customer_id) if not @order.end_customer_id.nil?
+
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @order }
@@ -43,7 +45,10 @@ class OrdersController < ApplicationController
     @main_items = Item.where(assembled: ['no','main','assembled'])
     @option_items = Item.where(assembled: 'addition')
     # @main_items = @items - @option_items
-    @customers = Customer.where("credit > ?", 0)
+    # @customers = Customer.where("credit > ?", 0)
+
+    # customers with active? prices, and available
+    @customers = Customer.joins(:prices).where(prices: {status: "active"}).uniq.where("credit > ?", 0)
 
     # clear cart and destroy associated line_items, when customer switched
     if (params[:customer_id] && (params[:customer_id] != current_customer.id))

@@ -1,4 +1,7 @@
-<!-- <p id="notice"><= notice ></p> -->
+<% if notice %>
+  </br> <p id="notice" class="alert alert-danger" role="alert"><%= notice %></p>
+<% end %>
+
 <h1><%=t(:order)%></h1>
 
 <div class="panel panel-default">
@@ -7,6 +10,7 @@
 
     <h2>
       <%= link_to @order.customer.name, customer_path(@order.customer) %>
+      <%= @end_customer.name if not @end_customer.nil?%>
     </h2>
     <table class="table">
       <thead>

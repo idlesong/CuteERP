@@ -22,7 +22,11 @@
 				<small><%=t(:order_number)%>#:<%= f.text_field :order_number,:size => 20 %>
 							 <%=t(:received_date)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
 							 <!-- <= f.file_field :document > -->
-				</small>
+						<% if Customer.find(@order.customer_id).sales_type == "ODM" %>
+							<%=t(:end_customer)%>:
+							<%= f.select(:end_customer_id, options_from_collection_for_select(@order.customer.end_customers, :id, :name)) %>
+						<% end %>
+				<small> 
 			</h3></div>
 		<div class="panel-body">
 			<div id="cart">

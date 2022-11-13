@@ -5,7 +5,7 @@
   <thead>
     <tr>
       <th><h4><%=t(:order)%>#</h4></th>
-      <th><h4><%=t(:customer)%></h4></th>
+      <th><h4><%=t(:customer)%> => <%=t(:end_customer)%></h4></th>
       <th><h4><%=t(:show_date)%></h4></th>
       <th><h4><%=t(:product_name)%></h4></th>
       <th><h4><%=t(:part_number)%></h4></th>
@@ -29,7 +29,11 @@
     <% order.line_items.each do |line_item|%>
       <tr>
         <td>#<%= link_to(order.order_number, order_path(order.id))%>-<%= link_to(order.id,order_path(order.id)) %></td>
-        <td><%= order.customer.name %></td>
+        <td><%= order.customer.name %>
+          <% if order.end_customer_id %>
+            => <%= Customer.find(order.end_customer_id).name %>
+          <% end %>
+        </td>
         <td><%= order.created_at.strftime("%F") %>
         <td><%= line_item.item.name %> </td>
         <td><%= line_item.full_part_number %> </td>
