@@ -342,3 +342,6 @@ zh-CN:
   issue_back: "撤销生成"
   full_name: "全名"
   sales_type: "客户类型"
+  end_customer: "最终客户"
+  disty: "代理"
+  territory: "区域"

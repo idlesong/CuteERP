@@ -1,7 +1,7 @@
 class Customer < ActiveRecord::Base
   attr_accessible :address, :balance, :contact, :name, :full_name, :since, :telephone,
                   :payment ,:currency, :ship_contact, :ship_address, :ship_telephone,
-                  :credit, :sales_type
+                  :credit, :sales_type, :disty_id, :territory
 
   CURRENCY_TYPES = ['RMB', 'USD']
   SALES_TYPES = ['OEM', 'ODM', 'Internal']
@@ -12,6 +12,9 @@ class Customer < ActiveRecord::Base
   has_many :opportunities
   has_many :prices
   has_many :quotation
+  has_many :end_customers, class_name: "Customer", foreign_key: "disty_id"
+  belongs_to :disty, class_name: "Customer"
+
   validates :name, :presence => true, :uniqueness => true
   validates :payment, :presence => true
   validates :currency, :presence => true
@@ -56,7 +59,7 @@ class Customer < ActiveRecord::Base
  private
   #ensure that there are no line items referencing this item
   def ensure_not_used_by_others
-    if orders.empty? and sales_orders.empty? and contacts.empty? and opportunities.empty? and prices.any? then
+    if orders.empty? and sales_orders.empty? and contacts.empty? and opportunities.empty? and prices.empty? then
   		return true
   	else
       errors.add(:base, 'orders,sales_orders,contacts,opportunities or prices exist')

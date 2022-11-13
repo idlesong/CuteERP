@@ -41,6 +41,7 @@ class CustomersController < ApplicationController
   def new
     @customer = Customer.new
 
+    @disties = Customer.where.not(sales_type: "OEM")
     respond_to do |format|
       if(params[:simplify] =='yes')
         format.html {render "new_simplify"}
@@ -55,6 +56,8 @@ class CustomersController < ApplicationController
   # GET /customers/1/edit
   def edit
     @customer = Customer.find(params[:id])
+    @disties = Customer.where.not(sales_type: "OEM")
+    @disties = Customer.none if @disties.nil?
   end
 
   # POST /customers
@@ -93,11 +96,15 @@ class CustomersController < ApplicationController
   # DELETE /customers/1.json
   def destroy
     @customer = Customer.find(params[:id])
-    @customer.destroy
 
     respond_to do |format|
-      format.html { redirect_to customers_url }
-      format.json { head :no_content }
+      if @customer.destroy
+        format.html { redirect_to customers_url }
+        format.json { head :no_content }
+      else
+        format.html { redirect_to customer_url(@customer), :notice => "customer can't be destroyed" }
+        format.json { render json: @customer.errors, status: :unprocessable_entity }
+      end  
     end
   end
 

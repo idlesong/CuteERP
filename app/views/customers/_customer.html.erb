@@ -5,10 +5,12 @@
 <ul class="list-inline">
   <li><%=t(:since)%>:<%=@customer.since%></li>
   <li><%=t(:sales_type)%>:<%=@customer.sales_type%></li>
+  <li><%=t(:disty)%>:<%=@customer.disty.name if not @customer.disty.nil? %></li>  
   <li><%=t(:currency)%>:<%= @customer.currency %></li>
   <li><%=t(:payment_term)%>:<%= @customer.payment %></li>
   <li><%=t(:credit)%>:<%= @customer.credit.to_i %></li>
 </ul>
+<h5><%=t(:territory)%>:<%= @customer.territory %> </h5>
 <h5><%=t(:bill)%><%=t(:address)%>:<small><%= @customer.address %></small>,
     <%=t(:bill)%><%=t(:contact)%>:<small><%= @customer.contact %></small>,
     <%=t(:telephone)%>:<small><%= @customer.telephone %></small></h5>
