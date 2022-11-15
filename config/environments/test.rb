@@ -8,7 +8,8 @@ RorWebERP::Application.configure do
   config.cache_classes = true
 
   # Configure static asset server for tests with Cache-Control for performance
-  config.serve_static_assets = true
+  # config.serve_static_assets = true
+  config.serve_static_files = true
   config.static_cache_control = "public, max-age=3600"
 
   # Log error messages when you accidentally call methods on nil
@@ -37,5 +38,11 @@ RorWebERP::Application.configure do
 
   # disable eager load by manual
   config.eager_load = false
+
+  # added by idlesong
+  config.active_support.test_order = :sorted
+  config.active_record.raise_in_transactional_callbacks = true
+
+
 
 end
