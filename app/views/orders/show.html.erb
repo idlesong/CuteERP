@@ -1,5 +1,5 @@
 <% if notice %>
-  </br> <p id="notice" class="alert alert-danger" role="alert"><%= notice %></p>
+  </br> <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
 <% end %>
 
 <h1><%=t(:order)%></h1>
@@ -32,8 +32,10 @@
         </tr>
       </thead>
       <tr><td colspan = "2"><h3 class="text-center"><%=t(:order)%></h3></td></tr>
-      <tr><td><h4><%=t(:bill_to)%>: <%= @order.customer.name %></h4></td>
-          <td><h4><%=t(:ship_to)%>: <%= @order.customer.name %></h4></td></tr>
+      <% customer_name = @order.customer.name %>
+      <% customer_name = @order.customer.full_name if @order.customer.full_name %>
+      <tr><td><h4><%=t(:bill_to)%>: <%= customer_name %></h4></td>
+          <td><h4><%=t(:ship_to)%>: <%= customer_name %></h4></td></tr>
 
       </tr>
       <tr><td><%=t(:contact)%>:<%= @order.name %></td> <td><%=t(:contact)%>:<%= @order.ship_contact %></td></tr>
@@ -63,25 +65,7 @@
                 :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
                 :class => 'btn btn-mini btn-danger' %>
 
-  <button type="button" class="btn btn-link btn-primary" data-toggle="modal"
-    data-target=".bs-quotation-modal-lg"><%=t(:quotation)%></button>
-
    <%= link_to t(:issue_sales_order), new_sales_order_path(:customer_id => @order.customer.id) %>
   </div>
 </div>
 
-<!-- Large modal Quotation-->
-<div class="modal fade bs-quotation-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-body">
-
-        <%= render("quotation")%>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <a href= <%="#{quotation_order_path(@order)}.pdf"%> class="btn btn-primary" target="_blank">Print Quotation</a>
-      </div>
-    </div>
-  </div>
-</div>
