@@ -16,6 +16,7 @@ class Customer < ActiveRecord::Base
   belongs_to :disty, class_name: "Customer"
 
   validates :name, :presence => true, :uniqueness => true
+  validates :sales_type, :presence => true
   validates :payment, :presence => true
   validates :currency, :presence => true
   validates :currency, :inclusion => CURRENCY_TYPES
@@ -25,9 +26,12 @@ class Customer < ActiveRecord::Base
 
   def self.export_to_csv(options = {})
     CSV.generate(options) do |csv|
-      csv << column_names
-      all.each do |item|
-        csv << item.attributes.values_at(*column_names)
+      header = ["territory", "name", "full_name", "sales_type", "disty_id", 
+      "payment", "currency", "since", "address", "contact", "telephone", "credit"]
+
+      csv << header
+      all.each do |customer|
+        csv << customer.attributes.values_at(*header)
       end
     end
   end
@@ -35,15 +39,21 @@ class Customer < ActiveRecord::Base
   def self.import(file)
     spreadsheet = open_spreadsheet(file)
 
-    header = spreadsheet.row(1)
+    header = ["territory", "name", "full_name", "sales_type", "disty_id", 
+    "payment", "currency", "since", "address", "contact", "telephone", "credit"]
+
+    # header = spreadsheet.row(1)
     (2..spreadsheet.last_row).each do |i|
       # logger.debug "=====csv row== #{spreadsheet.row(i)}"
       row = Hash[[header, spreadsheet.row(i)].transpose]
-      # primary key: full_name
+      # find exsits by uniq name, or new customer
       customer = find_by_name(row["name"])  || new      
-      customer.attributes = row.to_hash.slice(*accessible_attributes)
 
-      customer.save!
+      row_attributes = row.to_hash.slice(*header)
+
+      header.each do |attr|
+        customer.update_attribute(attr, row_attributes[attr])
+      end       
     end
   end
 

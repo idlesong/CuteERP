@@ -17,12 +17,17 @@ class Item < ActiveRecord::Base
   validates :partNo, :uniqueness => true
 
   before_destroy :ensure_not_referenced_by_any_line_item
+  before_destroy :ensure_not_used_by_others
 
   def self.export_to_csv(options = {})
     CSV.generate(options) do |csv|
-      csv << column_names
+
+      header = ["partNo", "group", "family", "name", "description", 
+      "package", "mop", "assembled", "base_item", "extra_item", "index"]
+
+      csv << header
       all.each do |item|
-        csv << item.attributes.values_at(*column_names)
+        csv << item.attributes.values_at(*header)
       end
     end
   end
@@ -30,20 +35,21 @@ class Item < ActiveRecord::Base
   def self.import(file)
     spreadsheet = open_spreadsheet(file)
 
-    # inactive all items
-    Item.all.each do |item|
-      item.index = 0
-      item.save
-    end
+    header = ["partNo", "group", "family", "name", "description", 
+    "package", "mop", "assembled", "base_item", "extra_item", "index"]
 
-    header = spreadsheet.row(1)
+    # header = spreadsheet.row(1)
     (2..spreadsheet.last_row).each do |i|
       row = Hash[[header, spreadsheet.row(i)].transpose]
-      product = find_by_partNo(row["partNo"])  || new      
-      product.attributes = row.to_hash.slice(*accessible_attributes)
 
-      product.index = 1        
-      product.save!
+      # Upate exsits, find by uniq partNo, or new a item
+      item = find_by(partNo: row["partNo"])  || new
+
+      row_attributes = row.to_hash.slice(*header)
+
+      header.each do |attr|
+        item.update_attribute(attr, row_attributes[attr])
+      end      
     end
   end
 
@@ -66,4 +72,13 @@ class Item < ActiveRecord::Base
   		return false
   	end
   end
+
+  def ensure_not_used_by_others
+    if prices.empty? and set_prices.empty? then
+  		return true
+  	else
+      errors.add(:base, 'prices or set_prices exist')
+  		return false
+  	end
+  end  
 end

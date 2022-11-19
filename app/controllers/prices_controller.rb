@@ -53,6 +53,7 @@ class PricesController < ApplicationController
   # GET /prices/new.json
   def new
     @price = Price.new
+    @price.price_number = @price.generate_price_number
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
     @latest_release_set_price = SetPrice.order(released_at: :asc).last

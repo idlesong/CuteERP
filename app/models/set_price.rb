@@ -78,11 +78,13 @@ class SetPrice < ActiveRecord::Base
         set_price = SetPrice.order(released_at: :asc).last
         step_quantities = ["1000", "2500", "5000", "10000", "50000"]        
         price_list = set_price.get_price_list(step_quantities, "price")
-        headers = ['item', '1000', '2500', '5000', '10000', '50000', '1000', '2500', '5000', '10000', '50000']
+        header = ['item', 'extra_price', '1000', '2500', '5000', '10000', '50000', 
+                                        '1000', '2500', '5000', '10000', '50000']
  
         CSV.generate(options) do |csv|
-            csv << headers
+            csv << header
             price_list.each do |line|
+                line.insert(1, 0)
                 csv << line
             end            
         end       
@@ -90,15 +92,10 @@ class SetPrice < ActiveRecord::Base
 
     def self.import(file)
         spreadsheet = open_spreadsheet(file)
-        header = spreadsheet.row(1)
-
+        # header = spreadsheet.row(1)
+        header = ['item', 'extra_price', '1000', '2500', '5000', '10000', '50000', 
+                                        '1000', '2500', '5000', '10000', '50000']
         # logger.debug "=====import set price header== #{header}" 
-
-        # inactive all items
-        Item.all.each do |item|
-            item.index = 0
-            item.save
-        end
 
         (2..spreadsheet.last_row).each do |i|
             # row = Hash[[header, spreadsheet.row(i)].transpose]
