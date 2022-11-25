@@ -59,6 +59,7 @@ RorWebERP::Application.routes.draw do
     member do
       get 'quotation'
     end
+    collection { post :import}    
   end
 
 

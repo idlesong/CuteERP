@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20221112123509) do
+ActiveRecord::Schema.define(version: 20221121010827) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -103,6 +103,7 @@ ActiveRecord::Schema.define(version: 20221112123509) do
     t.string   "full_name"
     t.integer  "price_id"
     t.string   "remark"
+    t.string   "line_number"
   end
 
   add_index "line_items", ["line_id"], name: "index_line_items_on_line_id", using: :btree
@@ -149,6 +150,7 @@ ActiveRecord::Schema.define(version: 20221112123509) do
     t.datetime "document_updated_at"
     t.string   "remark"
     t.integer  "end_customer_id"
+    t.string   "po_number"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -177,6 +179,9 @@ ActiveRecord::Schema.define(version: 20221112123509) do
     t.string   "remark"
     t.decimal  "base_price",            precision: 8, scale: 2
     t.decimal  "extra_price",           precision: 8, scale: 2
+    t.string   "price_number"
+    t.string   "part_number"
+    t.string   "customer_name"
   end
 
   create_table "quotations", force: :cascade do |t|

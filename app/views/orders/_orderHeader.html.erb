@@ -10,6 +10,7 @@
             </td>
             <td>
               <h4 class="text-right"><%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
+              <h4 class="text-right"><%=t(:order_number)%>:<%= @order.order_number%></h4>              
               <h4 class="text-right"><%=t(:payment_term)%>:<%= @order.pay_type%></h4>
             </td>
           </tr>

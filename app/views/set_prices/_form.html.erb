@@ -26,7 +26,7 @@
   </thead>
   <tbody>
       <tr>
-        <td><%= f.collection_select(:item_id, Item.all, :id, :partNo) %></td>
+        <td><%= f.collection_select(:item_id, Item.all.order(:partNo), :id, :partNo) %></td>
         <td><%= f.text_field :price, :class => 'text_field' %></td>
         <td><%= f.text_field :order_quantity %></td>
         <td><%= f.text_field :sell_by %></td>

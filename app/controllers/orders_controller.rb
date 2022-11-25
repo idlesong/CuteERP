@@ -9,6 +9,9 @@ class OrdersController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @orders }
+
+      format.csv { send_data @orders.export_to_csv }
+      format.xls { send_data @orders.export_to_csv(col_sep: "\t") }      
     end
   end
 
@@ -163,6 +166,11 @@ class OrdersController < ApplicationController
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def import
+    Order.import(params[:file])
+    redirect_to orders_url, notice: "Orders imported."
   end
 
   # DELETE /orders/1

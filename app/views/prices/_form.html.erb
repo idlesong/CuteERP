@@ -27,7 +27,7 @@
             </td>
             <td>
               <h5 class="text-right"><%=t(:request_date)%><%= f.date_select :created_at,:class => 'date_select'%></h5>
-              <h5 class="text-right"> <%=t(:sheet_number)%>#:<%=  %></h5>
+              <h5 class="text-right"> <%=t(:sheet_number)%>#:<%= f.text_field :price_number, :class => 'text_field' %> </h5>
               <h5 class="text-right"> <%= t(:payment_term) %> :<%= f.select(:payment_terms, Order::PAYMENT_TYPES) %></h5>
             </td>
           </tr>
@@ -68,7 +68,7 @@
               <%=t(:select_set_price)%></a>
             <%= @price.item.partNo if not @price.item.nil? %></td>
           <td><%= @price.item.name if not @price.item.nil? %></td>
-          <td>¥<%= f.text_field :price, :class => 'text_field' %></td>
+          <td><%= f.text_field :price, :class => 'text_field' %></td>
           <td><%= f.text_field :condition, :class => 'text_field' %> pcs</td>
           <td class="input-xs"><%= f.text_field :base_price, :class => 'text_field' %></td>
           <td><%= f.text_field :extra_price, :class => 'text_field' %></td>
@@ -90,6 +90,8 @@
 
   <%= f.hidden_field :item_id, :value => @price.item_id %>
   <%= f.hidden_field :customer_id, :value => @price.customer_id %>
+  <%= f.hidden_field :part_number, :value => @price.item.partNo if not @price.item.nil?%>
+  <%= f.hidden_field :customer_name, :value => @price.customer.name if not @price.customer.nil?%>
   </br>
 
   <div class="form-actions">

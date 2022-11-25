@@ -267,3 +267,22 @@ deliver schedule management
 
 update sales_order.delivery_plan 
 - Can't mass-assign protected attributes for SalesOrder: {:delivery_status=>"reschedule"}
+
+### uniq identities for import / exprot
+- Customer: customer engilish short name: Onreal
+- Item: part_number: SCT3258TD, TN, TDM
+- SetPrice: release_date
+- Price: price_order_number QO2022102205
+- Order: order_number PO2022102206
+- SalesOrder: order_number SO2022102206
+
+- export: export exsiting data
+- import: 
+  - update exsiting data according to uniq identities
+  - create new one when it's not exist.
+  - import fixed values(item part number), find related record(item_id).
+ 
+### status
+- customer status(credit): active, archived, no_quotation?
+- item status(index): active, archived 
+- price status(status): requested, approved => active, archived

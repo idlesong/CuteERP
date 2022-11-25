@@ -14,8 +14,14 @@ class Cart < ActiveRecord::Base
   	if current_item
   		current_item.quantity += item_quantity
   	else
-  		current_item = line_items.build(:item_id => item_id, :full_part_number => full_part_number,
-        :full_name => full_name, :quantity => item_quantity, :fixed_price => price, :price_id => price_id)
+  		current_item = line_items.build(
+                      :line_number => LineItem.maximum(:id) + 1, 
+                      :item_id => item_id, 
+                      :full_part_number => full_part_number,
+                      :full_name => full_name, 
+                      :quantity => item_quantity, 
+                      :fixed_price => price, 
+                      :price_id => price_id)
   	end
   	current_item
   end

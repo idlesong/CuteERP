@@ -19,7 +19,7 @@
 		<div class="panel-heading">
 			<h3 class="panel-title">
 				<%=t(:order_cart_lineitems)%>
-				<small><%=t(:order_number)%>#:<%= f.text_field :order_number,:size => 20 %>
+				<small><%=t(:order_number)%>#:<%= f.text_field :po_number,:size => 20 %>
 							 <%=t(:received_date)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
 							 <!-- <= f.file_field :document > -->
 						<% if Customer.find(@order.customer_id).sales_type == "ODM" %>
@@ -44,6 +44,7 @@
 		</div>
 		<div class="panel-footer">
 
+		<%= f.hidden_field :order_number %>
 	    <%= f.hidden_field :name %>
 	    <%= f.hidden_field :address %>
 	    <%= f.hidden_field :telephone %>

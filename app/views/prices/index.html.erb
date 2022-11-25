@@ -13,12 +13,13 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%=t(:created_at) %></th>
+      <th><%=t(:price_number) %></th>
       <th><%=t(:customer)%></th>
       <th><%=t(:part_number)%></th>
       <th><%=t(:price)%></th>
       <th><%=t(:condition)%></th>
       <th><%=t(:default_price)%></th>
+      <th><%=t(:price)%></th>      
       <th><%=t(:remark)%></th>      
       <th><%=t(:payment_term)%></th>
       <th><%=t(:status)%> </th>
@@ -30,11 +31,13 @@
     <% @prices.each do |price| %>
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= link_to 'QO-'+price.created_at.strftime("%F"), price_path(price) %></td>        
+        <% price_number = "no price number" %>
+        <% price_number = price.price_number if price.price_number %>
+        <td><%= link_to price_number, price_path(price) %></td>        
         <td><% if price.customer != nil %>
-          <%= link_to price.customer.name, price.customer %>
+          <%= link_to price.customer_name, price.customer %>
         <% end %></td>        
-        <td><%= price.item.partNo %></td>
+        <td><%= price.part_number %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %> </td>
         <td>¥<%= price.get_set_price(price.item_id, price.condition, Customer.find(price.customer_id).sales_type) %></td>
@@ -42,23 +45,28 @@
         <% if not price.base_price.blank? %>
           =<%= price.base_price%>+<%= price.extra_price%> 
         <% end %>
-        <%= price.remark %> </td>        
+        </td>
+        <td><%= price.remark %> </td>        
         <td><%= price.payment_terms %></td>            
         <td>
           <% if price.status == "achived" %>
-            <del>  <%= price.status %> </del>
+            <del> ✘ <%= price.status %> </del>
+          <% elsif price.status == "approved" %>
+            ✔ <%= price.status %>
+          <% elsif price.status == "active" %>  
+            ★ <%= price.status %>
           <% else %>
             <%= price.status %>
           <% end %>
         </td>   
         <td>
           <% if price.status == 'approved' %>
-            <%= button_to 'activate', price, method: :put, params: { status: "active" }, :class=>'btn-link' %> 
+            <%= button_to '★', price, method: :put, params: { status: "active" }, :class=>'btn-link' %> 
           <% end %>
         </td>
         <td>
           <% if price.status == 'approved' || price.status == 'active' %>
-            <%= button_to 'archive', price, method: :put, params: { status: "achived" }, :class=>'btn-link'%>
+            <%= button_to '✘', price, method: :put, params: { status: "achived" }, :class=>'btn-link'%>
           <% end %>
         </td>
       </tr>

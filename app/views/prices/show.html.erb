@@ -19,7 +19,7 @@
             </td>
             <td>
               <h4 class="text-right"> <%=t(:show_date)%>:<%= @price.created_at.strftime("%F") %></h4>
-              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%=  %></h4>
+              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%=  @price.price_number if  @price.price_number %></h4>
               <h4 class="text-right"> <%= t(:payment_term) %> :<%= @price.customer.payment %></h4>
             </td>
           </tr>
@@ -69,11 +69,11 @@
         <td></td>
         <td>RMB <%= @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %> </td> 
         <td><%= @price.condition %> pcs</td>
-        <td>（保密）公司参考报价，报价单不显示</td>
+        <td colspan = "2">（保密）公司参考报价，报价单不显示</td>
       </tr>
       <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
     
-      <tr><td colspan = "6">
+      <tr><td colspan = "7">
         <h4 class="text-center"> 
         (<%= @price.status %>) 
         <% if (@price.status == 'requested') %>

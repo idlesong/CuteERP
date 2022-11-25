@@ -1,18 +1,19 @@
 <!-- <p id="notice"><= notice ></p> -->
-
+<% if true %>
 <h3> <%=t(:order)%>(<%=t(:show_as_lines)%>) </h3>
 <table class="table datatable">
   <thead>
     <tr>
-      <th><h4><%=t(:order)%>#</h4></th>
-      <th><h4><%=t(:customer)%> => <%=t(:end_customer)%></h4></th>
-      <th><h4><%=t(:show_date)%></h4></th>
-      <th><h4><%=t(:product_name)%></h4></th>
+      <th><h4><%=t(:id)%></h4></th>
+      <th><h4><%=t(:po_line_number)%></h4></th>
+      <th><h4><%=t(:customer)%> / <%=t(:end_customer)%></h4></th>
+      <th><h4><%=t(:po_number)%></h4></th>
       <th><h4><%=t(:part_number)%></h4></th>
       <th><h4><%=t(:price)%></h4></th>
       <th><h4><%=t(:quantity)%></h4></th>
       <th><h4><%=t(:quantity_left)%></h4></th>
       <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:show_date)%></h4></th>
       <th><h4><%=t(:actions)%></th></th>
     </tr>
   </thead>
@@ -28,14 +29,15 @@
   <% if not order.line_items.nil? then %>
     <% order.line_items.each do |line_item|%>
       <tr>
-        <td>#<%= link_to(order.order_number, order_path(order.id))%>-<%= link_to(order.id,order_path(order.id)) %></td>
+        <td><%= line_item.id %></td>
+        <td><%= link_to(line_item.line_number, order_path(order.id)) %> </td>
+
         <td><%= order.customer.name %>
           <% if order.end_customer_id %>
-            => <%= Customer.find(order.end_customer_id).name %>
+            / <%= Customer.find(order.end_customer_id).name %>
           <% end %>
         </td>
-        <td><%= order.created_at.strftime("%F") %>
-        <td><%= line_item.item.name %> </td>
+        <td><%= order.po_number %></td>
         <td><%= line_item.full_part_number %> </td>
         <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
         <% if line_item.price.nil? then %>
@@ -47,10 +49,11 @@
         <td>x<%= line_item.quantity %> </td>
         <td> <%= line_item.quantity - line_item.quantity_issued %> </td>
         <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
+        <td><%= order.created_at.strftime("%F") %>
         <td>
-        <% if line_item.quantity > line_item.quantity_issued then %>
-          <%= link_to t(:issue), new_sales_order_path(:customer_id => order.customer.id) %>
-        <% end %>
+          <% if line_item.quantity > line_item.quantity_issued then %>
+            <%= link_to t(:issue), new_sales_order_path(:customer_id => order.customer.id) %>
+          <% end %>
         </td>
       </tr>
     <% end %>
@@ -59,3 +62,27 @@
 </table>
 
 <%= link_to 'New Order', new_order_path, :class=>"btn btn-primary" %>
+
+<% end %>
+<p>
+</br>
+  <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import orders
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Orders:</h4>
+    <%= link_to "Export CSV", orders_path(format: "csv"),:class => "btn btn-primary" %> |
+    <%= link_to "Export Excel", orders_path(format: "xls"),:class => "btn btn-primary" %>
+    
+    
+    <h4>Import Products</h4>
+    <%= form_tag import_orders_path, multipart: true do %>
+      <%= file_field_tag :file %>
+      <%= submit_tag "Import",  :class=>"btn btn-primary"%>
+    <% end %>
+  </div>
+</div>
+</br>
+</br>
