@@ -39,34 +39,36 @@ class LineItemsController < ApplicationController
     @line_item = LineItem.find(params[:id])
   end
 
-  # POST /line_items?item_id=3  ;create order line_item
-  # POST /line_items?line_id=3  ;issue order line_item to cart
-  # POST /line_items?remark='remove'; issue_back sales_order line_item to cart
+  # POST /line_items?item_id=3  ;add line_item for po_cart
+  # POST /line_items?line_id=3  ;add issue_line_item for so_cart(issue_cart)
+  # POST /line_items?remark='remove';add unissue line_item for so cart
   def create
 
-    if(params[:remark])
-      @cart = current_issue_cart
-      @line_item = LineItem.find(params[:line_id])
-      @line_item.remark = params[:remark]
-      # logger.debug "=====quantity== #{params[:quantity]}"
-      # unless @line_item = @cart.issue_back_line_item(line, line.quantity)
-      #   return
-      # end  
-    elsif(params[:line_id])
-      @cart = current_issue_cart
-      line = LineItem.find(params[:line_id])
-      # logger.debug "=====quantity== #{params[:quantity]}"
-      unless @line_item = @cart.issue_line_item(line, params[:quantity].to_i)
-        return
-      end    
-    else
+    if(params[:line_id]) # issue,unissue
+      if not params[:remark]
+        @cart = current_issue_cart
+        line = LineItem.find(params[:line_id])
+        logger.debug "========quantity== #{params[:quantity]}"
+        unless @line_item = @cart.add_issue_line_item(line, params[:quantity].to_i)
+          return
+        end 
+      else
+        @cart = current_issue_cart
+        @line_item = LineItem.find(params[:line_id])
+        @line_item.remark = params[:remark]
+        # logger.debug "=====quantity== #{params[:quantity]}"
+        # unless @line_item = @cart.issue_back_line_item(line, line.quantity)
+        #   return
+        # end 
+      end 
+    else  # cart.add_line_item
       @cart = current_cart
       item = Item.find(params[:item_id])
       fixed_price = Price.find(params[:price_id]).price
 
       # logger.debug "=====quantity== #{params[:quantity]}"
       # @line_item = @cart.add_line_item(item.id, params[:quantity].to_i, price)
-      @line_item = @cart.add_line_item(item.id, params[:suffix],params[:quantity].to_i,
+      @line_item = @cart.add_line_item(item.id, params[:suffix], params[:quantity].to_i,
                                        fixed_price, params[:price_id])
     end
 

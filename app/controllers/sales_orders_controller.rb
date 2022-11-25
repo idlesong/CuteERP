@@ -57,12 +57,17 @@ class SalesOrdersController < ApplicationController
 
     # @cart.line_items.clear
     # @cart.copy_line_item_from_sales_order(@sales_order)
-
     @cart.line_items.clear
     @sales_order.line_items.each do |line|
       new_line = line.dup
       new_line.line = nil
+      new_line.line_number = 'cart' + new_line.line_number # must uniq
       @cart.line_items << new_line
+    end    
+
+    respond_to do |format|
+      format.html
+      format.json
     end    
 
   end
@@ -103,7 +108,7 @@ class SalesOrdersController < ApplicationController
 
     # update cart, or
     # update delivery_status(includes reschedule devlivery_plan) 
-    unless params[:delivery_status]
+    if not params[:delivery_status]
       # issue_back to customer order
       current_issue_cart.issue_back_refer_line_items()
 
@@ -112,6 +117,7 @@ class SalesOrdersController < ApplicationController
         if(line_item.remark == 'remove')
           so_line = @sales_order.line_items.where(refer_line_id: line_item.refer_line_id).take
           so_line.destroy
+          line_item.destroy # destroy cart line_item too
         end
       end
 

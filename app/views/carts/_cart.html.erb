@@ -9,6 +9,7 @@
 			<th><h4><%=t(:quantity)%></h4></th>
 			<th><h4><%=t(:suble_total)%></h4></th>
 			<th><h4><%=t(:remark)%></h4></th>
+			<th></th>
 		</tr>
 	</thead>
 
@@ -24,7 +25,7 @@
       end %>
 	<% @cart.line_items.each do |line_item| %>
 		<tr>
-			<td>1 </td>
+			<td><%= link_to line_item.id %> </td>
 			<td><%= line_item.full_name %> </td>
 			<td><%= line_item.full_part_number %> </td>
 			<td> <% line_price = line_item.show_currency_price(exchange_rate, currency) %>
@@ -44,9 +45,8 @@
 				<% end %>
 
 				<%= form_tag(line_items_path(:line_id => line_item.id), remote: true) do %>
-
 						<%= hidden_field_tag :remark, 'remove' %>
-					<td><%= submit_tag(t(:issue_back), :class=>"btn btn-xs btn-primary") %></td>
+					<%= submit_tag(t(:issue_back), :class=>"btn btn-xs btn-primary") %>
 				<% end %>
 			</td>	
 

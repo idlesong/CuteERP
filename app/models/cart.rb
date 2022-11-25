@@ -26,10 +26,11 @@ class Cart < ActiveRecord::Base
   	current_item
   end
 
-  def issue_line_item(po_line, issue_quantity)
+  def add_issue_line_item(po_line, issue_quantity)
     unless line_items.where(refer_line_id: po_line.id).exists? then
       if issue_quantity <= po_line.quantity - po_line.quantity_issued
         line_item = line_items.build(
+          line_number: LineItem.maximum(:id) + 1,          
           item_id: po_line.item_id, 
           full_part_number: po_line.full_part_number, 
           full_name: po_line.full_name,
@@ -40,26 +41,10 @@ class Cart < ActiveRecord::Base
       end
     end
   end
+  
 
-  # def issue_back_line_item(so_line, issue_back_quantity)
-  #   unless line_items.where(line_id: so_line.id).exists? then
-  #     if issue_back_quantity <= so_line.quantity
-  #       line_item = line_items.build(
-  #         item_id: so_line.item_id, 
-  #         full_part_number: so_line.full_part_number, 
-  #         full_name: so_line.full_name,
-  #         quantity: issue_back_quantity, 
-  #         # refer_line_id: so_line.id, 
-  #         fixed_price: so_line.fixed_price, 
-  #         price_id: so_line.price_id,
-  #         remark: 'remove'
-  #         )
-  #     end
-  #   end
-  # end    
-
+  # issue refer po's line items, after save; and then clear cart
   def issue_refer_line_items
-    # issue refer po's line items, after save; and then clear cart
     line_items.each do |line|
       # logger.debug "=====refer_line_id== #{line.refer_line_id}"
       po_line = LineItem.find(line.refer_line_id)
