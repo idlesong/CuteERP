@@ -1,7 +1,8 @@
 class Order < ActiveRecord::Base
   attr_accessible :customer_id, :amount, :order_number, :name, :address,
     :telephone, :ship_contact, :ship_address, :ship_telephone, :pay_type,
-    :exchange_rate, :remark, :document, :created_at, :end_customer_id
+    :exchange_rate, :remark, :document, :created_at, :end_customer_id,
+    :po_number
 
   has_many :line_items, as: :line,  :dependent => :destroy
   belongs_to :customer
@@ -22,6 +23,9 @@ class Order < ActiveRecord::Base
   validates :exchange_rate, :presence => true
   # validates :name, :address, :presence => true # can fill when ship
 
+  # before_update :not_issued?
+  before_destroy :not_issued?
+
   def initialize_order_header(new_customer)
     self.customer = new_customer
     # set bill_to and ship_to contact by default, then confirm it in sales order
@@ -38,24 +42,97 @@ class Order < ActiveRecord::Base
   end
 
   def add_line_items_from_cart(cart)
-  	cart.line_items.each do |line|
+  	cart.line_items.each_with_index do |line, index|
   		line.cart_id = nil
+      line.line_number = self.order_number + '-' + (index + 1).to_s.rjust(2,'0')
   		line_items << line
   	end
   end
 
   def generate_order_number
-    next_id=1
-    next_id=Order.maximum(:id).next if Order.exists?
-    order_number = customer.name + DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
+    # next_id=1
+    # next_id=Order.maximum(:id).next if Order.exists?
+    next_id = Order.where(created_at: DateTime.now.at_beginning_of_day..DateTime.now.at_end_of_day ).count + 1
+    order_number = 'PO' + DateTime.now.strftime("%Y%m%d") + '-' + (next_id%100).to_s.rjust(2,'0')
   end
 
   # Cancel issued order left quantity
   def cancel
   end
 
-  before_update :not_issued?
-  before_destroy :not_issued?
+  def self.export_to_csv(options = {})
+    annual_orders = Order.all.order(order_number: :asc)
+    order_header = ['order_number', 'customer_id', 'end_customer_id', 'po_number', 'created_at']
+    line_item_header = ['line_number', 'full_part_number', 'fixed_price', 'quantity', 'quantity_issued', 'remark']
+
+    CSV.generate(options) do |csv|
+        csv << order_header + line_item_header
+
+        all.each do |order|
+          row_order_info = order.attributes.values_at(*order_header)
+          row_order_info[1] = Customer.find(row_order_info[1]).name if Customer.find(row_order_info[1])
+          if (row_order_info[2] and Customer.find(row_order_info[2]))
+            row_order_info[2] = Customer.find(row_order_info[2]).name 
+          end
+
+          order.line_items.each do |line_item|
+            row_line_item = line_item.attributes.values_at(*line_item_header)
+
+            csv << (row_order_info + row_line_item)
+          end
+        end            
+    end       
+  end
+
+  def self.import(file)
+    spreadsheet = open_spreadsheet(file)
+
+    order_header = ['order_number', 'customer_id', 'end_customer_id', 'po_number', 'created_at']
+    line_item_header = ['line_number', 'full_part_number', 'fixed_price', 
+                        'quantity', 'quantity_issued', 'remark']
+    header =  order_header + line_item_header                      
+
+    (2..spreadsheet.last_row).each do |i|
+
+      row = Hash[[header, spreadsheet.row(i)].transpose]
+      # primary key: order_number, update exsit, or create new one
+      @line_item = LineItem.find_by(line_number: row["line_number"])  || LineItem.new
+
+      row_attributes = row.to_hash.slice(*header)
+      # update order_header attr
+      if @line_item.line_type.nil?
+        #  @line_item.order.new
+      elsif @line_item.line_type == 'Order'
+        order_header.each do |attr|
+          @line_item_order = Order.find(@line_item.line_id)
+
+          if @customer = Customer.find_by(name: row_attributes["customer_id"]) 
+            row_attributes.store("customer_id", @customer.id)  
+          end
+          if @end_customer = Customer.find_by(name: row_attributes["end_customer_id"]) 
+            row_attributes.store("end_customer_id", @end_customer.id)  
+          end
+          @line_item_order.update_attribute(attr, row_attributes[attr])
+          # @line_item_order.update_attribute(:po_number, row_attributes[po_number])
+        end
+      end
+
+      # update line_item_header attr
+      line_item_header.each do |attr|
+        @line_item.update_attribute(attr, row_attributes[attr])
+      end
+      # logger.debug "=====row attr== #{price.attributes[attr]}, #{row_attributes[attr]}"      
+    end
+  end
+
+  def self.open_spreadsheet(file)
+    case File.extname(file.original_filename)              
+    when ".csv" then Roo::CSV.new(file.path)
+    when ".xls" then Excel.new(file.path, nil, :ignore)
+    when ".xlsx" then Excelx.new(file.path, nil, :ignore)
+    else raise "Unknown file type: #{file.original_filename}"
+    end
+  end
 
   # ensure this order is not issued by any of the sales order
   def not_issued?

@@ -10,6 +10,7 @@ class Price < ActiveRecord::Base
   has_many :line_items
 
   validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
+  validates :condition, :presence => true
   validates :part_number, :presence => true
   validates :customer_name, :presence => true
   validates :item_id, :presence => true

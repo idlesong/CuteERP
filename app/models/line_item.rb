@@ -1,10 +1,13 @@
 class LineItem < ActiveRecord::Base
   attr_accessible :cart_id, :item_id, :quantity, :order_id, :price_id, :remark,
-      :quantity_issued, :refer_line_id, :fixed_price, :full_part_number, :full_name
+      :quantity_issued, :refer_line_id, :fixed_price, :full_part_number, :full_name,
+      :line_number
 
-  # validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
+  validates :fixed_price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
   validates :quantity,:presence => true, :numericality => {:greater_than_or_equal_to => 1}
   validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
+  validates :line_number, :presence => true
+  validates :line_number, :uniqueness => true
 
   belongs_to :line, :polymorphic => true
   # belongs_to :order
