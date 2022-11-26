@@ -42,6 +42,27 @@ class Cart < ActiveRecord::Base
     end
   end
   
+  def copy_line_items_from_customer_order( order )
+    # clear cart line items first.
+    self.line_items.clear
+    order.line_items.each do |line|
+      new_line = line.dup
+      new_line.line = nil
+      new_line.line_number = 'cart-' + new_line.line_number # must uniq
+      self.line_items << new_line
+    end
+  end
+
+  def copy_line_items_from_sales_order( sales_order )
+    # clear cart line items first.
+    self.line_items.clear
+    sales_order.line_items.each do |line|
+      new_line = line.dup
+      new_line.line = nil
+      # new_line.line_number = 'cart-' + new_line.line_number # must uniq
+      self.line_items << new_line
+    end
+  end  
 
   # issue refer po's line items, after save; and then clear cart
   def issue_refer_line_items
@@ -51,6 +72,13 @@ class Cart < ActiveRecord::Base
       po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
 
       line.update_attribute(:cart_id, nil)
+    end
+  end
+
+  def issue_back_refer_line_item(line_item)
+    po_line = LineItem.find(line_item.refer_line_id)
+    if line_item.quantity <= po_line.quantity_issued
+      po_line.update_attribute(:quantity_issued, po_line.quantity_issued - line_item.quantity)
     end
   end
 

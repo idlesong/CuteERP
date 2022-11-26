@@ -48,7 +48,7 @@ class LineItemsController < ApplicationController
       if not params[:remark]
         @cart = current_issue_cart
         line = LineItem.find(params[:line_id])
-        logger.debug "========quantity== #{params[:quantity]}"
+        # logger.debug "========quantity== #{params[:quantity]}"
         unless @line_item = @cart.add_issue_line_item(line, params[:quantity].to_i)
           return
         end 
@@ -66,7 +66,7 @@ class LineItemsController < ApplicationController
       item = Item.find(params[:item_id])
       fixed_price = Price.find(params[:price_id]).price
 
-      # logger.debug "=====quantity== #{params[:quantity]}"
+      logger.debug "=====cart.add_line_item:item, quantity== #{item.name}, #{params[:quantity]}"
       # @line_item = @cart.add_line_item(item.id, params[:quantity].to_i, price)
       @line_item = @cart.add_line_item(item.id, params[:suffix], params[:quantity].to_i,
                                        fixed_price, params[:price_id])

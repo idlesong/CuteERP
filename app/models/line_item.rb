@@ -7,7 +7,7 @@ class LineItem < ActiveRecord::Base
   validates :quantity,:presence => true, :numericality => {:greater_than_or_equal_to => 1}
   validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
   validates :line_number, :presence => true
-  validates :line_number, :uniqueness => true
+  # validates :line_number, :uniqueness => true
 
   belongs_to :line, :polymorphic => true
   # belongs_to :order

@@ -73,9 +73,9 @@
           else
             currency_unit = '$'
           end %>
-    	<% @sales_order.line_items.each do |line_item| %>
+    	<% @sales_order.line_items.each_with_index do |line_item, index| %>
     		<tr>
-    			<td>1 </td>
+    			<td><%= link_to index+1, line_item_path(line_item.id) %> </td>
     			<td><%= line_item.full_name %> </td>
     			<td><%= line_item.full_part_number%> </td>
     			<td><%= line_item.quantity %> </td>

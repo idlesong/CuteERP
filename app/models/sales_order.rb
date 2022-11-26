@@ -14,11 +14,13 @@ class SalesOrder < ActiveRecord::Base
   validates :exchange_rate, :presence => true #:if => usd_currency_customer?
 
   def add_line_items_from_issue_cart(cart)
-    cart.line_items.each do |line|
+    cart.line_items.each_with_index do |line, index|
+      line.line_number = self.serial_number + '-' + (index + 1).to_s.rjust(2,'0')
       line_items << line
     end
   end
 
+  # issue_unissue_line_items SO.line_items vs cart.line_items
   def update_line_items_from_issue_cart(cart)
     cart.line_items.each do |line|
       line_items << line
@@ -26,10 +28,9 @@ class SalesOrder < ActiveRecord::Base
   end
 
   def generate_order_number
-    next_id=1
-    next_id=SalesOrder.maximum(:id).next if SalesOrder.exists?
-    order_number = DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
-  end
+    next_id = SalesOrder.where(created_at: DateTime.now.at_beginning_of_day..DateTime.now.at_end_of_day ).count + 1
+    order_number = 'SO' + DateTime.now.strftime("%Y%m%d") + '-' + (next_id%100).to_s.rjust(2,'0')
+  end  
 
   def initialize_order_header(new_customer)
     self.customer = new_customer

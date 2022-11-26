@@ -34,8 +34,8 @@ class SalesOrdersController < ApplicationController
     @sales_order.exchange_rate = monthly_exchange_rate
 
     @cart = current_issue_cart
+    @cart.line_items.clear
     session[:cart_order_type] = "SalesOrder"
-    # session[:cart_order_id] = @sales_order.id
     session[:cart_currency] = @sales_order.customer.currency
     # session[:exchange_rate] = @sales_order.exchange_rate
 
@@ -48,6 +48,7 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1/edit
   def edit
     @sales_order = SalesOrder.find(params[:id])
+    @orders = Order.where(customer_id: @sales_order.customer_id)
 
     @cart = current_issue_cart
     session[:cart_order_type] = "SalesOrder"
@@ -56,14 +57,14 @@ class SalesOrdersController < ApplicationController
     session[:exchange_rate] = @sales_order.exchange_rate
 
     # @cart.line_items.clear
-    # @cart.copy_line_item_from_sales_order(@sales_order)
-    @cart.line_items.clear
-    @sales_order.line_items.each do |line|
-      new_line = line.dup
-      new_line.line = nil
-      new_line.line_number = 'cart' + new_line.line_number # must uniq
-      @cart.line_items << new_line
-    end    
+    @cart.copy_line_items_from_sales_order(@sales_order)
+    # @cart.line_items.clear
+    # @sales_order.line_items.each do |line|
+    #   new_line = line.dup
+    #   new_line.line = nil
+    #   new_line.line_number = 'cart' + new_line.line_number # must uniq
+    #   @cart.line_items << new_line
+    # end    
 
     respond_to do |format|
       format.html
@@ -106,18 +107,26 @@ class SalesOrdersController < ApplicationController
   def update
     @sales_order = SalesOrder.find(params[:id])
 
-    # update cart, or
     # update delivery_status(includes reschedule devlivery_plan) 
     if not params[:delivery_status]
-      # issue_back to customer order
-      current_issue_cart.issue_back_refer_line_items()
 
-      # @sales_order.update_line_items_from_issue_cart(current_issue_cart)  
+      # so_cart.line_items vs so.line_items
+      # @sales_order.update_line_items_from_issue_cart(current_issue_cart)        
+      @sales_order.line_items.each do |so_line|
+        # so line_items not in cart: to be removed from so
+        if not current_issue_cart.line_items.where(line_number: so_line.line_number).exists?
+            logger.debug "========line_items to be removed from so==== #{so_line.id}"
+            current_issue_cart.issue_back_refer_line_item(so_line)
+            so_line.destroy
+        end
+      end
+
       current_issue_cart.line_items.each do |line_item|
-        if(line_item.remark == 'remove')
-          so_line = @sales_order.line_items.where(refer_line_id: line_item.refer_line_id).take
-          so_line.destroy
-          line_item.destroy # destroy cart line_item too
+        # cart line_items not in so: to be added to so
+        if not @sales_order.line_items.where(line_number: line_item.line_number).exists?
+          logger.debug "========line_items to be added to so==== #{line_item.id}"    
+          @sales_order.line_items << line_item      
+          # current_issue_cart.issue_refer_line_item(line_item)         
         end
       end
 
