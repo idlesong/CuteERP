@@ -41,7 +41,6 @@
 				<td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
 				<td><%= submit_tag(t(:issue_to_cart), :class=>"btn btn-xs btn-primary") %></td>
 				<% end %>
-				<!-- <td>< button_to 'issue to Cart', line_items_path(:line_id => line_item.id, ) , :remote => true ></td> -->
 				</tr>
 			<% end %>
 			<% end %>
@@ -70,6 +69,7 @@
 				<%=t(:cart)%>
 				<%=t(:order_cart_lineitems)%>
 				<small><%=t(:order_number)%>#:<%= f.text_field :serial_number,:size => 20 %>
+					   <%=t(:delivery_plan)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
 							 <!-- <= f.file_field :document > -->
 				</small>
 			</h3></div>

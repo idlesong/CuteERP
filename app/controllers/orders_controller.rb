@@ -33,12 +33,12 @@ class OrdersController < ApplicationController
   # GET /orders/new.json
   def new
     # @items = Item.all
-    @main_items = Item.where(assembled: ['no','main','assembled'])
-    @option_items = Item.where(assembled: 'addition')
+    # @main_items = Item.where(assembled: ['no','main','assembled'])
+    # @option_items = Item.where(assembled: 'addition')
     # @main_items = @items - @option_items
     # @customers = Customer.where("credit > ?", 0)
 
-    # customers with active? prices, and available
+    # customers with active prices? (available)
     @customers = Customer.joins(:prices).where(prices: {status: "active"}).uniq.where("credit > ?", 0)
 
     # clear cart and destroy associated line_items, when customer switched
@@ -73,9 +73,12 @@ class OrdersController < ApplicationController
     @customer = current_customer
 
     if @order.not_issued?
-      @main_items = Item.where(assembled: ['no','yes'])
-      @option_items = Item.where(assembled: 'addition')
-      @customers = Customer.where("credit > ?", 0)
+      # @main_items = Item.where(assembled: ['no','yes'])
+      # @option_items = Item.where(assembled: 'addition')
+      # @customers = Customer.where("credit > ?", 0)
+
+      # customers with active prices? (available)
+      @customers = Customer.joins(:prices).where(prices: {status: "active"}).uniq.where("credit > ?", 0)      
 
       @cart = current_cart
       @cart.copy_line_items_from_customer_order(@order)
@@ -137,21 +140,21 @@ class OrdersController < ApplicationController
   def update
     @order = Order.find(params[:id])
 
-      respond_to do |format|
-        if current_cart.line_items.exists?  # can't update without cart.line_items
-          if @order.update_attributes(params[:order])
-            @order.line_items.clear
-            @order.add_line_items_from_cart(current_cart)
+    respond_to do |format|
+      if current_cart.line_items.exists?  # can't update without cart.line_items
+        if @order.update_attributes(params[:order])
+          @order.line_items.clear
+          @order.add_line_items_from_cart(current_cart)
 
-            format.html { redirect_to @order, notice: 'Order was successfully updated.' }
-            format.json { head :no_content }
-          end
-        else
-          # logger.debug "========Errors when update order==== #{@cart}"
-          @customer = current_customer
-          @cart = current_cart
-          format.html { render action: "edit", notice: 'Errors when update order, make sure line_items.' }
-          format.json { render json: @order.errors, status: :unprocessable_entity }
+          format.html { redirect_to @order, notice: 'Order was successfully updated.' }
+          format.json { head :no_content }
+        end
+      else
+        # logger.debug "========Errors when update order==== #{@cart}"
+        @customer = current_customer
+        @cart = current_cart
+        format.html { render action: "edit", notice: 'Errors when update order, make sure line_items.' }
+        format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
   end

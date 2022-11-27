@@ -10,8 +10,8 @@
             </td>
             <td>
               <h4 class="text-right"><%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
-              <h4 class="text-right"><%=t(:payment_term)%>:</h4>
-              <h5 class="text-right"><%=t(:plan_ship_date)%>#:</h5>
+              <h5 class="text-right"><%=t(:order_number)%>#:<%= @sales_order.serial_number %></h5>
+              <h4 class="text-right"><%=t(:payment_term)%>:<%= @sales_order.payment_term %></h4>
             </td>
           </tr>
         </thead>

@@ -48,7 +48,7 @@ class Cart < ActiveRecord::Base
     order.line_items.each do |line|
       new_line = line.dup
       new_line.line = nil
-      new_line.line_number = 'cart-' + new_line.line_number # must uniq
+      # new_line.line_number = 'cart-' + new_line.line_number # must uniq
       self.line_items << new_line
     end
   end
@@ -67,12 +67,19 @@ class Cart < ActiveRecord::Base
   # issue refer po's line items, after save; and then clear cart
   def issue_refer_line_items
     line_items.each do |line|
-      # logger.debug "=====refer_line_id== #{line.refer_line_id}"
+      logger.debug "====cart-cart-cart-=refer_line_id== #{line.refer_line_id}"
       po_line = LineItem.find(line.refer_line_id)
       po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
 
       line.update_attribute(:cart_id, nil)
     end
+  end
+
+  def issue_refer_line_item(line_item)
+      logger.debug "====cart-cart=refer_line_id== #{line.refer_line_id}"
+      po_line = LineItem.find(line_item.refer_line_id)
+      po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line_item.quantity)
+      line.update_attribute(:cart_id, nil)
   end
 
   def issue_back_refer_line_item(line_item)

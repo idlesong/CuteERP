@@ -56,15 +56,14 @@ RorWebERP::Application.routes.draw do
 
 
   resources :orders do
-    member do
-      get 'quotation'
-    end
+    # member do
+    #   get 'quotation'
+    # end
     collection { post :import}    
   end
 
 
-  resources :line_items do
-  end
+  resources :line_items
 
   resources :carts
 
