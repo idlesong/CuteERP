@@ -11,9 +11,11 @@
 		</div>
 	<% end %>
 
+<% if false %>
 	<div id="orderHeaderDiv">
-		<%= render partial: 'orderHeader', :locals => { :f => f}%>
+		<%= render partial: 'orderHeader'%>
 	</div>
+<% end %>
 
 	<div class="panel panel-danger">
 		<div class="panel-heading">
@@ -52,7 +54,11 @@
 	    <%= f.hidden_field :ship_address %>
 	    <%= f.hidden_field :ship_telephone %>
 	    <%= f.hidden_field :pay_type %>
+		<%= f.hidden_field :customer_id, :value => @order.customer.id %>		
 		  <div class="text-center">
+				<%= check_box_tag(:reverse_order) %>
+				<%= label_tag(:reverse_order, "reverse order") %>
+
 				<%= link_to t('.cancel', :default => t("helpers.links.cancel")),
 				orders_path, :class => 'btn' %>
 				<%= f.submit t(:submit_order), :class=>"btn btn-primary"%>

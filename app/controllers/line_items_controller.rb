@@ -39,43 +39,40 @@ class LineItemsController < ApplicationController
     @line_item = LineItem.find(params[:id])
   end
 
-  # POST /line_items?item_id=3  ;add line_item for po_cart
-  # POST /line_items?line_id=3  ;add issue_line_item for so_cart(issue_cart)
-  # POST /line_items?remark='remove';add unissue line_item for so cart
+  # POST /line_items?item_id=3  ;po_cart: add line_item 
+  # POST /line_items?line_id=3  ;so_cart: add issue_line_item
+  # POST /line_items?line_id=3?reverse_order=true; po_cart add line_item
   def create
-
-    if(params[:line_id]) # issue,unissue
-      if not params[:remark]
+    if(params[:line_id]) # issue, unissue, reverse po according refer line_id
+      if params[:reverse_order] # reverse po
+        @cart = current_cart
+        so_line = LineItem.find(params[:line_id])
+  
+        logger.debug "=====##reverse##cart.add_po_line_item:item, quantity== 
+                      #{so_line.full_part_number}, #{params[:quantity]}"
+        @line_item = @cart.add_po_line_item(so_line.price_id, 
+          so_line.full_part_number, 0-params[:quantity].to_i, so_line.fixed_price, so_line.id)        
+      else # issue, unissue po
         @cart = current_issue_cart
-        line = LineItem.find(params[:line_id])
-        # logger.debug "========quantity== #{params[:quantity]}"
-        unless @line_item = @cart.add_issue_line_item(line, params[:quantity].to_i)
-          return
-        end 
-      else
-        @cart = current_issue_cart
-        @line_item = LineItem.find(params[:line_id])
-        @line_item.remark = params[:remark]
-        # logger.debug "=====quantity== #{params[:quantity]}"
-        # unless @line_item = @cart.issue_back_line_item(line, line.quantity)
-        #   return
-        # end 
+        po_line = LineItem.find(params[:line_id])
+        logger.debug "=====cart.add_so_line_item, quantity==  #{params[:quantity]}"
+        @line_item = @cart.add_so_line_item(po_line, params[:quantity].to_i)
       end 
-    else  # cart.add_line_item
+    else  # cart.add_po_line_item
       @cart = current_cart
       item = Item.find(params[:item_id])
+      item_suffix = '' if (params[:suffix] == '-' or params[:suffix].nil?)
+      full_part_number = item.partNo + item_suffix
       fixed_price = Price.find(params[:price_id]).price
 
-      logger.debug "=====cart.add_line_item:item, quantity== #{item.name}, #{params[:quantity]}"
-      # @line_item = @cart.add_line_item(item.id, params[:quantity].to_i, price)
-      @line_item = @cart.add_line_item(item.id, params[:suffix], params[:quantity].to_i,
-                                       fixed_price, params[:price_id])
+      logger.debug "=====cart.add_po_line_item:item, quantity== #{full_part_number}, #{params[:quantity]}"
+      @line_item = @cart.add_po_line_item(params[:price_id], 
+                      full_part_number, params[:quantity].to_i, fixed_price, nil)
     end
 
     respond_to do |format|
       if @line_item.save
-        #format.html { redirect_to @line_item, notice: 'Line item was successfully created.' }
-        format.html { redirect_to (inventory_url)}
+        format.html { redirect_to @line_item, notice: 'Line item was successfully created.' }
         format.js {}
         format.json { render json: @line_item, status: :created, location: @line_item }
       else

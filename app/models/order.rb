@@ -41,10 +41,24 @@ class Order < ActiveRecord::Base
     self.order_number = self.generate_order_number
   end
 
-  def add_line_items_from_cart(cart)
+  def add_line_items_from_cart(cart, reverse_order)
   	cart.line_items.each_with_index do |line, index|
   		line.cart_id = nil
       line.line_number = self.order_number + '-' + (index + 1).to_s.rjust(2,'0')
+
+      if line.quantity < 0 
+        if reverse_order
+          # issue po order before create reverse po
+          logger.debug "====cart-cart=refer_line_id== #{line.refer_line_id}"
+          po_line = LineItem.find(line.refer_line_id)
+          po_line.update_attribute(:quantity_issued, po_line.quantity_issued - line.quantity)
+          line.quantity_issued = line.quantity         
+        else
+          logger.debug "====po.po.po.po#### line_quantity error"        
+          return
+        end
+      end
+
   		line_items << line
   	end
   end

@@ -7,4 +7,7 @@
 <%= render 'shared/customers_modal' %>
 <%= render 'shared/products_modal',:locals => { :order => @order} %>
 
+<div id="orderHeaderDiv">
+<%= render partial: 'orderHeader'%>
+</div>
 <%= render :partial => 'form' %>

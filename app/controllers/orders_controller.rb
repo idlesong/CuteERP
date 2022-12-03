@@ -67,6 +67,35 @@ class OrdersController < ApplicationController
     end
   end
 
+  # Get /orders/reverse?customer_id=1
+  def reverse
+
+    # initialize orders with selected customer
+    if params[:customer_id]
+      @customer = Customer.find( params[:customer_id])
+    else
+      @customer = current_customer
+    end
+    @orders = Order.where(customer_id: @customer.id)
+
+    @order = Order.new
+    @order.initialize_order_header(current_customer)
+    @order.exchange_rate = monthly_exchange_rate
+
+    @cart = current_cart
+    @cart.line_items.clear
+    # @order.exchange_rate = @exchange_rate_setting.value.to_i if @exchange_rate_setting.value.to_f > 0
+    session[:cart_order_type] = "Order"
+    session[:cart_currency] = @order.customer.currency
+    # session[:exchange_rate] = @order.exchange_rate
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @order }
+      # format.js
+    end
+  end
+
   # GET /orders/1/edit
   def edit
     @order = Order.find(params[:id])
@@ -111,7 +140,9 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(params[:order])
 
-    @order.add_line_items_from_cart(current_cart) if current_cart.line_items.exists?
+    if current_cart.line_items.exists? 
+      @order.add_line_items_from_cart(current_cart, params["reverse_order"]) 
+    end
 
     respond_to do |format|
       if @order.save
@@ -144,7 +175,7 @@ class OrdersController < ApplicationController
       if current_cart.line_items.exists?  # can't update without cart.line_items
         if @order.update_attributes(params[:order])
           @order.line_items.clear
-          @order.add_line_items_from_cart(current_cart)
+          @order.add_line_items_from_cart(current_cart, params['reverse_order'])
 
           format.html { redirect_to @order, notice: 'Order was successfully updated.' }
           format.json { head :no_content }

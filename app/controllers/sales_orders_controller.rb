@@ -35,8 +35,8 @@ class SalesOrdersController < ApplicationController
 
     @cart = current_issue_cart
     @cart.line_items.clear
-    session[:cart_order_type] = "SalesOrder"
-    session[:cart_currency] = @sales_order.customer.currency
+    # session[:cart_order_type] = "SalesOrder"
+    # session[:cart_currency] = @sales_order.customer.currency
     # session[:exchange_rate] = @sales_order.exchange_rate
 
     respond_to do |format|
@@ -110,47 +110,29 @@ class SalesOrdersController < ApplicationController
 
     # update delivery_status(includes reschedule devlivery_plan) 
     if not params[:delivery_status]
+      # if current_issue_cart.line_items.exists? 
+        @sales_order.issue_unissue_po_line_items_when_so_and_cart_diffs(current_issue_cart)  
 
-      @sales_order.issue_unissue_po_line_items_when_so_and_cart_diffs(current_issue_cart)
-      # so_cart.line_items vs so.line_items
-      # @sales_order.update_line_items_from_issue_cart(current_issue_cart)        
-      # @sales_order.line_items.each do |so_line|
-      #   # so line_items not in cart: to be removed from so
-      #   if not current_issue_cart.line_items.where(line_number: so_line.line_number).exists?
-      #       logger.debug "========line_items to be removed from so==== #{so_line.id}"
-      #       current_issue_cart.issue_back_refer_line_item(so_line)
-      #       # so_line.destroy
-      #   end
-      # end
-
-      # current_issue_cart.line_items.each do |line_item|
-      #   # cart line_items not in so: to be added to so
-      #   if not @sales_order.line_items.where(line_number: line_item.line_number).exists?
-      #     logger.debug "========line_items to be added to so==== #{line_item.id}"    
-      #     # @sales_order.line_items << line_item      
-      #     # current_issue_cart.issue_refer_line_item(line_item)         
-      #   end
-      # end
-
-      # Cart.destroy(session[:issue_cart_id])
-      # session[:issue_cart_id] = nil
+        @sales_order.line_items.clear
+        @sales_order.add_line_items_from_issue_cart(current_issue_cart)
+        @sales_order.save
+        # Cart.destroy(session[:issue_cart_id])
+        # session[:issue_cart_id] = nil     
+      # end        
     end  
 
-
     respond_to do |format|
-      if current_issue_cart.line_items.exists? 
-        if @sales_order.update_attributes(params[:sales_order])
-          @sales_order.line_items.clear
-          @sales_order.add_line_items_from_issue_cart(current_issue_cart)
-
-          # Cart.destroy(session[:issue_cart_id])
-          # session[:issue_cart_id] = nil          
-
-          format.html { redirect_to @sales_order, notice: 'Sales order was successfully updated.' }
-          format.json { head :no_content }  
-        end        
+      if @sales_order.update_attributes(params[:sales_order])
+        format.html { redirect_to @sales_order, notice: 'Sales order was successfully updated.' }
+        format.json { head :no_content }        
       else
-        format.html { render action: "edit" }
+        @orders = Order.where(customer_id: @sales_order.customer.id)
+        @cart = current_issue_cart
+
+        session[:cart_order_type] = "SalesOrder"
+        session[:cart_order_id] = @sales_order.id
+
+        format.html { render action: "edit", notice: 'Sales order can not update.' }
         format.json { render json: @sales_order.errors, status: :unprocessable_entity }
       end
     end

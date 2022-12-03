@@ -2,33 +2,38 @@ class Cart < ActiveRecord::Base
   # has_many :line_items, :as => :line
   has_many :line_items
 
-  def add_line_item(item_id, item_suffix, item_quantity, core_price, price_id)
-    item = Item.find(item_id)
-
-    item_suffix = '' if (item_suffix == '-' or item_suffix.nil?)
-    full_part_number = item.partNo + item_suffix
-    full_name = item.name
-    price = core_price
+  def add_po_line_item(price_id, full_part_number, item_quantity, fixed_price, reverse_po_line_id)
+    price = Price.find(price_id)
+    item = Item.find(price.item_id)
+    line_number = 1
+    line_number += LineItem.maximum(:id) if LineItem.exists?
 
   	current_item = line_items.where(:full_part_number => full_part_number).first
   	if current_item
   		current_item.quantity += item_quantity
   	else
   		current_item = line_items.build(
-                      :line_number => LineItem.maximum(:id) + 1, 
-                      :item_id => item_id, 
+                      :price_id => price_id,
+                      :line_number => line_number, 
+                      :item_id => price.item_id, 
+                      :full_name => item.name,
                       :full_part_number => full_part_number,
-                      :full_name => full_name, 
                       :quantity => item_quantity, 
-                      :fixed_price => price, 
-                      :price_id => price_id)
+                      :fixed_price => fixed_price, 
+                      :refer_line_id => reverse_po_line_id)
   	end
   	current_item
   end
 
-  def add_issue_line_item(po_line, issue_quantity)
-    unless line_items.where(refer_line_id: po_line.id).exists? then
+  def add_so_line_item(po_line, issue_quantity)
+    logger.debug "====##po_line.current_item== "
+    if line_items.where(refer_line_id: po_line.id).exists?
+      line_item = line_items.where(refer_line_id: po_line.id).first
+      line_item.quantity += issue_quantity
+      line_item
+    else
       if issue_quantity <= po_line.quantity - po_line.quantity_issued
+        logger.debug "====$$po_line. build new_item=="
         line_item = line_items.build(
           line_number: LineItem.maximum(:id) + 1,          
           item_id: po_line.item_id, 
@@ -62,48 +67,7 @@ class Cart < ActiveRecord::Base
       # new_line.line_number = 'cart-' + new_line.line_number # must uniq
       self.line_items << new_line
     end
-  end  
-
-  # issue refer po's line items, after save; and then clear cart
-  def issue_refer_line_items
-    line_items.each do |line|
-      logger.debug "====cart-cart-cart-=refer_line_id== #{line.refer_line_id}"
-      po_line = LineItem.find(line.refer_line_id)
-      po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
-
-      line.update_attribute(:cart_id, nil)
-    end
   end
-
-  def issue_refer_line_item(line_item)
-      logger.debug "====cart-cart=refer_line_id== #{line.refer_line_id}"
-      po_line = LineItem.find(line_item.refer_line_id)
-      po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line_item.quantity)
-      line.update_attribute(:cart_id, nil)
-  end
-
-  def issue_back_refer_line_item(line_item)
-    po_line = LineItem.find(line_item.refer_line_id)
-    if line_item.quantity <= po_line.quantity_issued
-      po_line.update_attribute(:quantity_issued, po_line.quantity_issued - line_item.quantity)
-    end
-  end
-
-  def issue_back_refer_line_items
-    line_items.each do |line|
-      if (line.remark == "remove" && line.refer_line_id)     
-        po_line = LineItem.find(line.refer_line_id)
-
-        # logger.debug "+++++line.quantity-po_line.quantity== #{line.quantity}-#{po_line.quantity_issued}"
-        if line.quantity <= po_line.quantity_issued
-          po_line.update_attribute(:quantity_issued, po_line.quantity_issued - line.quantity)
-        end
-
-        # line.update_attribute(:cart_id, nil)        
-      end
-    end
-  end
-
 
   def total_price
     line_items.to_a.sum { |item| item.total_price}

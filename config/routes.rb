@@ -56,9 +56,7 @@ RorWebERP::Application.routes.draw do
 
 
   resources :orders do
-    # member do
-    #   get 'quotation'
-    # end
+    collection { get  :reverse}
     collection { post :import}    
   end
 

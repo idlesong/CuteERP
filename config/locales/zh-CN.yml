@@ -348,3 +348,4 @@ zh-CN:
   po_line_number: "客户订单编号"
   po_number: "客户订单号"
   cancel: "取消"
+  reverse_order_to_cart: "加入撤销订单"

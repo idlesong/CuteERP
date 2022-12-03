@@ -66,6 +66,7 @@
                 :class => 'btn btn-mini btn-danger' %>
 
    <%= link_to t(:issue_sales_order), new_sales_order_path(:customer_id => @order.customer.id) %>
+   <%= link_to t(:reverse_order), reverse_orders_path(:customer_id => @order.customer.id) %>
   </div>
 </div>
 

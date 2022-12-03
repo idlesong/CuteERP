@@ -4,8 +4,8 @@ class LineItem < ActiveRecord::Base
       :line_number
 
   validates :fixed_price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
-  validates :quantity,:presence => true, :numericality => {:greater_than_or_equal_to => 1}
-  validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
+  validates :quantity,:presence => true #, :numericality => {:greater_than_or_equal_to => 1}
+  # validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
   validates :line_number, :presence => true
   # validates :line_number, :uniqueness => true
 
@@ -38,7 +38,7 @@ class LineItem < ActiveRecord::Base
   	total_amount = unit_price * quantity
   end
 
-  before_destroy :ensure_not_used_by_locked_orders
+  # before_destroy :ensure_not_used_by_locked_orders
 
  private
   # ensure this order is not issued by any of the sales order
