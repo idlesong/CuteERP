@@ -1,47 +1,35 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
-sct3258p:
-  name: 数字对讲机基带芯片
-  description: 仅支持DPMR标准
-  partNo: SCT3258P
+  # validates :name, :partNo, :presence => true
+  # validates :partNo, :uniqueness => true
+
+one:
+  name: one_item_name
+  partNo: PartNoOne
+  description: description of Itme one
   package: QFN64
-  price: 38
   mop: 490
   assembled: yes
 
-sct3258t:
-  name: 数字对讲机基带芯片
-  description: 支持DMR_DPMR
-  partNo: SCT3258T
+two:
+  name: two_item_name
+  partNo: PartNoOne
+  description: description of Itme one
   package: QFN64
-  price: 48
   mop: 490
   assembled: yes
 
-sct3700:
-  name: 射频收发芯片
-  description: 仅配合SCT325x使用
-  partNo: SCT3700
-  package: QFN48
-  price: 18
-  mop: 490
-
-sct3604:
- name: 高效率射频放大器
- partNo: SCT3604
- package: QFN28
- price: 3
- mop: 490
-
-vocoder_d:
- name: DVSI+2声码器
- description: AMBE3000
- partNo: D
- package: software
- price: 40
-
-vocoder_u:
- name: 清华声码器
- description: V1.7
- partNo: U
- package: software
- price: 40
+detailed_item:
+  name: item_name
+  partNo: PartNoDetailed
+  package: QFN88
+  description: item with detailed attributes
+  volume:  50
+  weight:  10
+  moq:     490
+  mop:     490
+  assembled: yes
+  index: 1
+  group: ItemGroup
+  family: ItemFamily
+  base_item: BaseItem
+  extra_item: ExtraItem  

@@ -1,53 +1,34 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
-
-asichip:
-  name: Shenzhen_Asichip_Limited
+  # validates :name, :presence => true, :uniqueness => true
+  # validates :sales_type, :presence => true
+  # validates :payment, :presence => true
+  # validates :currency, :presence => true
+first:
+  name: first_customer
+  address: 1customer_address
+  since:   2000-01-01
+  balance: 1000
+  contact: contact1
+  telephone: telephone10000
+  full_name: 1customer full name
+  sales_type: OEM
+  payment: COD
   currency: RMB
-  payment: COD
-  since: 2013-06-25
-  balance: 10000
-  contact: Cuijiyong
-  address: Shenzhen
-  telephone: 0755-68888888
-  ship_contact: Ken
-  ship_address: Shenzhen
-  ship_telephone: 0755-68888888
+  ship_contact: ship_contact_name
+  ship_address: ship addr
+  ship_telephone: phone10000
+  credit: 1
+  disty_id: 1
+  territory: KR  
 
-hyt:
-  name: Shenzhen_hytera_Group
+second: 
+  name: 2nd_customer
+  sales_type: OEM
+  payment: COD
   currency: RMB
-  payment: COD
-  since: 2013-06-25
-  balance: 10000
-  contact: Liujuan
-  address: Shenzhen
-  telephone: 0755-68888888
-  ship_contact: Penxing
-  ship_address: Shenzhen
-  ship_telephone: 0755-68888888
 
-onreal:
-  name: Onreal_Limited
+third: 
+  name: 3rd_customer
+  sales_type: OEM
+  payment: COD
   currency: RMB
-  payment: COD
-  since: 2013-06-25
-  balance: 10000
-  contact: Tangjianyin
-  address: Shenzhen
-  telephone: 0755-68888888
-  ship_contact: Chen
-  ship_address: Shenzhen
-  ship_telephone: 0755-68888888
-
-celetra:
-  name: Korea *celetra* ltd
-  currency: USD
-  payment: COD
-  since: 2013-06-25
-  balance: 10000
-  contact: Jung
-  address: Korea
-  telephone: 029-68888888
-  ship_contact: Samyung
-  ship_address: Korea
-  ship_telephone: 029-68888888

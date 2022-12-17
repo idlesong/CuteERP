@@ -3,9 +3,8 @@
 one:
   quotation_number: MyString
   remark: MyString
-  price_id: 1
 
 two:
   quotation_number: MyString
   remark: MyString
-  price_id: 1
+
