@@ -61,7 +61,7 @@ class LineItemsController < ApplicationController
     else  # cart.add_po_line_item
       @cart = current_cart
       item = Item.find(params[:item_id])
-      item_suffix = '' if (params[:suffix] == '-' or params[:suffix].nil?)
+      item_suffix = '' if (params[:suffix] == '' or params[:suffix].nil?)
       full_part_number = item.partNo + item_suffix
       fixed_price = Price.find(params[:price_id]).price
 

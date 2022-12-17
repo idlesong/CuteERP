@@ -4,10 +4,10 @@ class LineItem < ActiveRecord::Base
       :line_number
 
   validates :fixed_price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
-  validates :quantity,:presence => true #, :numericality => {:greater_than_or_equal_to => 1}
-  # validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
+  validates :quantity, :presence => true, :numericality => {:greater_than_or_equal_to => 1}
   validates :line_number, :presence => true
   # validates :line_number, :uniqueness => true
+  # validates :quantity_issued, :numericality => {:less_than_or_equal_to => :quantity}
 
   belongs_to :line, :polymorphic => true
   # belongs_to :order

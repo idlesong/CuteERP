@@ -12,7 +12,9 @@ class SetPrice < ActiveRecord::Base
   
     validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
     validates :item_id, :presence => true
-    # validates :order_quantity
+    validates :order_quantity, :presence => true
+    validates :sell_by, :presence => true
+    validates :released_at, :presence => true
 
     def get_step_set_price(prices, item_id, order_quantity, sell_by, id_or_value)
         if prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.nil?
