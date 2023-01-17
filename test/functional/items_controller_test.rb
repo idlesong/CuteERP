@@ -2,12 +2,19 @@ require 'test_helper'
 
 class ItemsControllerTest < ActionController::TestCase
   setup do
-    @item = items(:sct3258t)
+    @item =  Item.create(name: "ItemForTest", partNo: "ItemNo001")
+    @price =  Price.create(  
+      item_id: 1,
+      customer_id: 1,
+      price: 9.99,
+      payment_terms: 'payment_terms1',
+      condition: 'condition')
+      
+    @price.item_id = @item.id
     @update = {
-      :name => '数字对讲机系带信号处理芯片',
-      :partNo => 'SCT3928',
+      :name => 'UpdatedItem',
+      :partNo => 'UpdateItem002',
       :package => 'BGA144',
-      :price => 30
     }
   end
 
@@ -46,6 +53,8 @@ class ItemsControllerTest < ActionController::TestCase
     assert_redirected_to item_path(assigns(:item))
   end
 
+  # before_destroy :ensure_not_referenced_by_any_line_item
+  # before_destroy :ensure_not_used_by_others (price, set_price) 
   test "should destroy item" do
     assert_difference('Item.count', -1) do
       delete :destroy, id: @item

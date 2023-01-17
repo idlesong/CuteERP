@@ -8,18 +8,18 @@
 # validates :exchange_rate, :presence => true
 
 one:
-  name: Onreal
+  name: Customer1
   address: Shenzhen
   pay_type: COD
   order_number: PO201601
   exchange_rate: 1
-  customer_id: customer(:one).id
+  customer_id: customer(:first).id
 
 
 two:
-  name: Jung
+  name: Customer2
   address: Korea
   pay_type: COD
   order_number: PO201602
   exchange_rate: 1
-  customer_id: customer(:one).id
+  customer_id: customer(:second).id

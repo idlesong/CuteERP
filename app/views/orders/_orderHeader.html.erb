@@ -6,7 +6,13 @@
         <thead>
           <tr>
             <td>
-              <h3><%= @order.customer.name %> </h3>
+              <h3>
+                <% if @order.customer.full_name.nil? %>
+                  <%= @order.customer.name %> 
+                <% else %>
+                  <%= @order.customer.full_name %> 
+                <% end %>
+              </h3>
             </td>
             <td>
               <h4 class="text-right"><%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>

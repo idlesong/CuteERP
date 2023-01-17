@@ -2,7 +2,10 @@ require 'test_helper'
 
 class CustomersControllerTest < ActionController::TestCase
   setup do
-    @customer = customers(:one)
+    @input_attributes = {name: "new_customer", sales_type: "OEM", payment: "COD", currency: "RMB"}
+    @more_input_attributes = {name: "one_more_customer", sales_type: "OEM", payment: "COD", currency: "RMB"}
+    @customer = Customer.create(@input_attributes)
+    @customer1st = customers(:first)
   end
 
   test "should get index" do
@@ -18,10 +21,19 @@ class CustomersControllerTest < ActionController::TestCase
 
   test "should create customer" do
     assert_difference('Customer.count') do
-      post :create, customer: { address: @customer.address, balance: @customer.balance, contact: @customer.contact, name: @customer.name, since: @customer.since, telephone: @customer.telephone }
+      post :create, customer: @more_input_attributes
     end
 
     assert_redirected_to customer_path(assigns(:customer))
+  end
+
+  test "should not create customer with the same name" do
+    assert_no_difference('Customer.count') do
+      # @input_attributes has been taken by @customer
+      post :create, customer: @input_attributes
+    end
+
+    # assert_redirected_to customer_path(assigns(:customer))
   end
 
   test "should show customer" do
@@ -35,15 +47,29 @@ class CustomersControllerTest < ActionController::TestCase
   end
 
   test "should update customer" do
-    put :update, id: @customer, customer: { address: @customer.address, balance: @customer.balance, contact: @customer.contact, name: @customer.name, since: @customer.since, telephone: @customer.telephone }
+    put :update, id: @customer, customer: { 
+      address: @customer.address, 
+      balance: @customer.balance, 
+      contact: @customer.contact, 
+      name: @customer.name, 
+      since: @customer.since, 
+      telephone: @customer.telephone }
     assert_redirected_to customer_path(assigns(:customer))
   end
 
-  test "should destroy customer" do
+  test "should destroy customer has not been used" do
     assert_difference('Customer.count', -1) do
       delete :destroy, id: @customer
     end
 
     assert_redirected_to customers_path
   end
+
+  test "should not destroy customer that has been used" do
+    assert_difference('Customer.count', -1) do
+      delete :destroy, id: @customer
+    end
+
+    assert_redirected_to customers_path
+  end  
 end

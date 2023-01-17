@@ -3,15 +3,18 @@ require 'test_helper'
 class OrderTest < ActiveSupport::TestCase
   def setup  
     @customer = customers(:first)
-    @input_attributes = {
+    @order_attributes = {
       order_number: "PO20221212", 
       customer_id: @customer.id,
       pay_type: "COD",
-      line_item: LineItem.create(fixed_price: 38, line_number: "LONew001", quantity: 10000, quantity_issued: 0),
       exchange_rate: 1,
     }
-    # @more_input_attributes = {name: "more_item", partNo: "more_partNo"}
-    @order = Order.create(@input_attributes)    
+    @line_attributes = {
+      fixed_price: 38, line_number: "LONew001", quantity: 10000, quantity_issued: 0
+    }
+    @order = Order.new(@order_attributes)    
+    @order.line_items.new(@line_attributes)
+    @order.save
   end
 
   # test validation
@@ -27,13 +30,6 @@ class OrderTest < ActiveSupport::TestCase
     assert_equal [:order_number, :pay_type, :line_items, :customer_id, :exchange_rate], @new_order.errors.keys
     # Orders must have line_items
   end
-    
-  # test "require item in cart" do
-  #   get :new
-  #   assert_redirected_to inventory_path
-  #   assert_equal flash[:notice], 'Your cart is empty'
-  # end
-
 
   test "price must be special price or default price" do
   end

@@ -21,7 +21,7 @@ alpha:
   base_price: 25
   extra_price: 25
   price_number: PO2020010101
-  part_number: one_item_name
+  part_number: PN_one_item
   customer_name: first_customer
 
 
@@ -32,17 +32,17 @@ beta:
   payment_terms: payment_terms1
   condition: 10000
   price_number: PO2020010102
-  part_number: two_item_name
+  part_number: PN_two_item
   customer_name: second_customer  
 
 delta:
-  item_id: two
-  customer_id: second
+  item_id: three
+  customer_id: third
   price: 9.99
-  payment_terms: MyString
+  payment_terms: COD
   condition: 20000
   price_number: PO2020010102
-  part_number: two_item_name
-  customer_name: second_customer  
+  part_number: PN_three_item
+  customer_name: third_customer  
 
   

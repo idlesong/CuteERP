@@ -1,8 +1,15 @@
 require 'test_helper'
 
 class PricesControllerTest < ActionController::TestCase
+  # present: price, condition, part_number, customer_name, item_id, customer_id,  
   setup do
-    @price = prices(:one)
+    @price = prices(:alpha)
+    @input_attributes = {price: 30, condition: 5000, part_number: "partNo007", 
+                        customer_name: "1stCustomer", item_id: items(:one).id, 
+                        customer_id: customers(:first) }
+    @update_attributes = {price: 20, condition: 25000, part_number: "partNo007", 
+                        customer_name: "1stCustomer", item_id: items(:one).id, 
+                        customer_id: customers(:first) }                        
   end
 
   test "should get index" do
@@ -18,7 +25,7 @@ class PricesControllerTest < ActionController::TestCase
 
   test "should create price" do
     assert_difference('Price.count') do
-      post :create, price: { boss_suggestion: @price.boss_suggestion, condition: @price.condition, customer_id: @price.customer_id, department_suggestion: @price.department_suggestion, finance_suggestion: @price.finance_suggestion, item_id: @price.item_id, payment_terms: @price.payment_terms, price: @price.price, sales_suggestion: @price.sales_suggestion }
+      post :create, price: @input_attributes
     end
 
     assert_redirected_to price_path(assigns(:price))
@@ -35,7 +42,7 @@ class PricesControllerTest < ActionController::TestCase
   end
 
   test "should update price" do
-    put :update, id: @price, price: { boss_suggestion: @price.boss_suggestion, condition: @price.condition, customer_id: @price.customer_id, department_suggestion: @price.department_suggestion, finance_suggestion: @price.finance_suggestion, item_id: @price.item_id, payment_terms: @price.payment_terms, price: @price.price, sales_suggestion: @price.sales_suggestion }
+    put :update, id: @price, price: @update_attributes
     assert_redirected_to price_path(assigns(:price))
   end
 

@@ -286,3 +286,15 @@ update sales_order.delivery_plan
 - customer status(credit): active, archived, no_quotation?
 - item status(index): active, archived 
 - price status(status): requested, approved => active, archived
+
+
+<%= form_tag(line_item_path(:id => line_item.id, :line_id => line_item.id), :method => :put, remote: true) do %>
+<td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
+<td><%= submit_tag(t(:issue_to_cart), :class=>"btn btn-xs btn-primary") %></td>
+<% end %>
+
+
+price edit，不能修改产品型号？
+set price list 未按型号排序
+
+delete reverse order also should issue_back

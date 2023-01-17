@@ -72,13 +72,13 @@
 					   <%=t(:delivery_plan)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
 							 <!-- <= f.file_field :document > -->
 				</small>
-			</h3></div>
-  
-			<div id="cart">
-			<%= render(@cart, :exchange_rate => monthly_exchange_rate) %>
-		  </div>			
+			</h3>
+		</div>
+			
 		<div class="panel-body">
-
+			<div id="cart">
+				<%= render(@cart, :exchange_rate => monthly_exchange_rate) %>
+			</div>
 			<strong>Remark:<%= f.text_field :remark, :value => current_user.settings(:remark).order_remark_zh,:size => 60 %>
 				<%= "Exchange rate: #{@sales_order.exchange_rate}" if @sales_order.customer.currency == 'usd' %>
 			</strong>

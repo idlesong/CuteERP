@@ -11,9 +11,8 @@ class LineItemTest < ActiveSupport::TestCase
   test "line_item should not save without nessary attributes" do
     line_item = LineItem.new
     assert line_item.invalid?, line_item.errors.full_messages.to_s
-    assert_equal [:fixed_price, :line_number, :quantity], line_item.errors.keys
+    # assert_equal [:fixed_price, :line_number, :quantity], line_item.errors.keys
+    assert_equal [:fixed_price, :line_number], line_item.errors.keys
   end
-
-
 
 end

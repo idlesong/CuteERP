@@ -12,11 +12,19 @@ one:
 
 two:
   name: two_item_name
-  partNo: PartNoOne
-  description: description of Itme one
+  partNo: PartNoTwo
+  description: description of Itme two
   package: QFN64
   mop: 490
   assembled: yes
+
+three:
+  name: three_item_name
+  partNo: PartNoThree
+  description: description of Itme three
+  package: QFN64
+  mop: 490
+  assembled: yes  
 
 detailed_item:
   name: item_name

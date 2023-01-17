@@ -73,13 +73,13 @@ class PricesController < ApplicationController
     @customer = current_customer
     @price.customer = @customer
 
-    if (params[:item_id] && params[:price_id] && params[:condition])
-      @set_price = SetPrice.find(params[:price_id])
+    if (params[:set_price_id])
+      @set_price = SetPrice.find(params[:set_price_id])
       @price.item_id = @set_price.item_id # Item.find_by(partNo: params[:item_id]).id
       @price.price = @set_price.price
       @price.base_price = @set_price.base_price
       @price.extra_price = @set_price.extra_price     
-      @price.condition = params[:condition]
+      @price.condition = @set_price.order_quantity
     end
 
     session[:current_path_action] = 'new'    

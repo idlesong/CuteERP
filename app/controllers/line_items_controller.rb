@@ -52,7 +52,7 @@ class LineItemsController < ApplicationController
                       #{so_line.full_part_number}, #{params[:quantity]}"
         @line_item = @cart.add_po_line_item(so_line.price_id, 
           so_line.full_part_number, 0-params[:quantity].to_i, so_line.fixed_price, so_line.id)        
-      else # issue, unissue po
+      else # cart.add_so_line_item & issue, unissue po
         @cart = current_issue_cart
         po_line = LineItem.find(params[:line_id])
         logger.debug "=====cart.add_so_line_item, quantity==  #{params[:quantity]}"
