@@ -1,24 +1,24 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+# fixed_price: 38, quantity: 10000, quantity_issued: 0
 
-line1_sct3258t:
-  cart: one
-  item: sct3258t
+line1:
+  item: items(:one)
   quantity: 1000
   quantity_issued: 0
-  price: 48
+  price_id: prices(:alpha).id
+  fixed_price: 30
 
 
-line2_sct3700:
-  cart: one
-  item: sct3700
+line2:
+  item: items(:two)
   quantity: 1000
   quantity_issued: 0
-  price: 18
+  price_id: prices(:beta).id
+  fixed_price: 30
 
-
-line3_sct3604:
-  cart: one
-  item: sct3604
+line3:
+  item: items(:three)
   quantity: 1000
   quantity_issued: 0
-  price: 3
+  price: prices(:delta)
+  fixed_price: 30

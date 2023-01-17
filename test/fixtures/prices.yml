@@ -1,23 +1,48 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+  # validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
+  # validates :condition, :presence => true,  
+  # validates :part_number, :presence => true
+  # validates :customer_name, :presence => true
+  # validates :item_id, :presence => true
+  # validates :customer_id, :presence => true
 
-one:
-  item_id: 1
-  customer_id: 1
-  price: 9.99
-  payment_terms: MyString
-  condition: MyString
-  sales_suggestion: MyString
-  department_suggestion: MyString
-  finance_suggestion: MyString
-  boss_suggestion: MyString
+alpha:
+  item: one
+  customer: first
+  price: 50
+  payment_terms: COD
+  condition: 5000
+  sales_suggestion: yes
+  department_suggestion: yes
+  finance_suggestion: yes
+  boss_suggestion: yes
+  status: approved
+  remark: remark
+  base_price: 25
+  extra_price: 25
+  price_number: PO2020010101
+  part_number: PN_one_item
+  customer_name: first_customer
 
-two:
-  item_id: 1
-  customer_id: 1
+
+beta:
+  item: two
+  customer: second
   price: 9.99
-  payment_terms: MyString
-  condition: MyString
-  sales_suggestion: MyString
-  department_suggestion: MyString
-  finance_suggestion: MyString
-  boss_suggestion: MyString
+  payment_terms: payment_terms1
+  condition: 10000
+  price_number: PO2020010102
+  part_number: PN_two_item
+  customer_name: second_customer  
+
+delta:
+  item_id: three
+  customer_id: third
+  price: 9.99
+  payment_terms: COD
+  condition: 20000
+  price_number: PO2020010102
+  part_number: PN_three_item
+  customer_name: third_customer  
+
+  

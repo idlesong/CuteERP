@@ -1,6 +1,8 @@
 <h1>Editing sales_order</h1>
 
+<% if notice %>
+  </br> <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+<% end %>
+
 <%= render 'form' %>
 
-<%= link_to 'Show', @sales_order %> |
-<%= link_to 'Back', sales_orders_path %>

@@ -6,7 +6,7 @@ class Item < ActiveRecord::Base
   # default_scope :order => 'name'
   # default_scope { where order: 'name'}
 
-  FW_MARK_TYPES = ["-","S","M"]
+  FW_MARK_TYPES = ["","S","M","D","C"]
 
   has_many :line_items
   has_many :orders, :through => :line_items

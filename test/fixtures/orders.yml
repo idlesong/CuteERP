@@ -1,13 +1,25 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
 
+# validates :order_number, :presence => true
+# validates :pay_type, :presence => true
+# # validates :pay_type, :inclusion => PAYMENT_TYPES
+# validates :line_items, :presence => true
+# validates :customer_id, :presence => true
+# validates :exchange_rate, :presence => true
+
 one:
-  name: Onreal
+  name: Customer1
   address: Shenzhen
   pay_type: COD
   order_number: PO201601
+  exchange_rate: 1
+  customer_id: customer(:first).id
+
 
 two:
-  name: Jung
+  name: Customer2
   address: Korea
   pay_type: COD
   order_number: PO201602
+  exchange_rate: 1
+  customer_id: customer(:second).id

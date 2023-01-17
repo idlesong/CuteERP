@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  # before_filter :authorize
+  before_filter :authorize
   # protect_from_forgery
 
   private
@@ -39,15 +39,15 @@ class ApplicationController < ActionController::Base
       end
     end
 
-    def current_cart_order
-      if(session[:cart_order_type] == "SalesOrder")
-        # SalesOrder.find(session[:cart_order_id])
-        session[:cart_order_type]
-      else
-        # Order.find(session[:cart_order_id])
-        session[:cart_order_type]
-      end
-    end
+    # def current_cart_order
+    #   if(session[:cart_order_type] == "SalesOrder")
+    #     # SalesOrder.find(session[:cart_order_id])
+    #     session[:cart_order_type]
+    #   else
+    #     # Order.find(session[:cart_order_id])
+    #     session[:cart_order_type]
+    #   end
+    # end
 
     def current_customer
       Customer.find(session[:customer_id])
@@ -74,8 +74,8 @@ class ApplicationController < ActionController::Base
 
   protected
     def authorize
-    	# unless User.find_by_id(session[:user_id])
-    	# 	redirect_to login_url, :notice => "Please log in"
-    	# end
+    	unless User.find_by_id(session[:user_id])
+    		redirect_to login_url, :notice => "Please log in"
+    	end
     end
 end

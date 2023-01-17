@@ -1,6 +1,8 @@
 <%- model_class = SetPrice -%>
 <div class="page-header">
   <h1><%=t(:set_price_list) %></h1>
+  Set price list released at :
+  <%= @latest_release_set_price.released_at.strftime("%F") if @latest_release_set_price %>
 </div>
 
 <table class="table table-striped">

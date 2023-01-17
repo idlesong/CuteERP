@@ -6,7 +6,13 @@
         <thead>
           <tr>
             <td>
-              <h3><%= @order.customer.name %> </h3>
+              <h3>
+                <% if @order.customer.full_name.nil? %>
+                  <%= @order.customer.name %> 
+                <% else %>
+                  <%= @order.customer.full_name %> 
+                <% end %>
+              </h3>
             </td>
             <td>
               <h4 class="text-right"><%=t(:show_date)%>:<%= DateTime.now.to_date %></h4>
@@ -27,8 +33,6 @@
         <tr><td><%=t(:contact)%>:<%= @order.name %></td> <td><%=t(:contact)%>:<%= @order.ship_contact %></td></tr>
         <tr><td><%=t(:telephone)%>:<%= @order.telephone %></td> <td><%=t(:telephone)%>:<%= @order.ship_telephone %></td></tr>
       </table>
-
-			<%= f.hidden_field :customer_id, :value => @order.customer.id %>
 
     </div>
   </div>

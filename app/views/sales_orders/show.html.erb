@@ -27,6 +27,14 @@
                 <%=t(:ship_date)%>:<%= @sales_order.delivery_date.to_date %>
               <% else %>
                 <%=t(:plan_ship_date)%>:
+                <% ship_plan_text = '0000-00-00' %>
+                <% if @sales_order.delivery_plan %>
+                  <% ship_plan_text = @sales_order.delivery_plan.to_date %>
+                <% end %>  
+                <% if not @sales_order.delivery_date %>
+                  <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
+                    data-id=<%="#{@sales_order.id}" %> > <%=ship_plan_text %> &#x21bb </a>
+                <% end %>                
                 <% if not @sales_order.delivery_plan.nil? %>
                   <%= @sales_order.delivery_plan.to_date %> 
                 <% end %>
@@ -73,9 +81,9 @@
           else
             currency_unit = '$'
           end %>
-    	<% @sales_order.line_items.each do |line_item| %>
+    	<% @sales_order.line_items.each_with_index do |line_item, index| %>
     		<tr>
-    			<td>1 </td>
+    			<td><%= link_to index+1, line_item_path(line_item.id) %> </td>
     			<td><%= line_item.full_name %> </td>
     			<td><%= line_item.full_part_number%> </td>
     			<td><%= line_item.quantity %> </td>
@@ -119,6 +127,10 @@
   </div>
 </div>
 
+
+<% if false %>
+<%= render 'shared/reschedule_modal'%>
+<% end %>
 
 <%= render('packing_list') %>
 

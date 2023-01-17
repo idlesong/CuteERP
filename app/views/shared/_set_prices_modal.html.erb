@@ -6,12 +6,12 @@
         <h4 class="modal-title" id="myModalLabel"><%=t(:select_set_price)%></h4>
       </div>
       <div class="modal-body">
-        <table class="table table-striped">
+        <table class="table table-striped table-xl">
         <thead>
         <tr>
           <th></th>
-          <th colspan="5">OEM</th>
-          <th colspan="5">ODM</th>
+          <th colspan="8">OEM</th>
+          <th colspan="8">ODM</th>
         </tr>
         <tr>
           <th>PartNo</th>
@@ -32,7 +32,7 @@
               <td><%= @part_number = price %></td>
             <% elsif column <= @step_quantities.length * 2%>
               <td><%= link_to(price, {:controller =>'prices',:action => current_path_action, 
-                                      :item_id => @part_number , :price_id => @price_list_ids[row][column],
+                                      :set_price_id => @price_list_ids[row][column],
                                       :condition => @step_quantities[column%@step_quantities.length-1]}, :class=>"link")%></td>
             <% else %>
               <td><%= price %></td>

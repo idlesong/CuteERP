@@ -347,3 +347,8 @@ zh-CN:
   territory: "区域"
   po_line_number: "客户订单编号"
   po_number: "客户订单号"
+  cancel: "取消"
+  reverse_order_to_cart: "加入冲销订单"
+  reverse_order: "冲销订单"
+  select_customer: "选择客户"
+  only_show_with_active_quotation: "仅显示含有效报价的客户"

@@ -39,11 +39,12 @@ class PricesController < ApplicationController
   # GET /prices/1/apply
   def apply
     @price = Price.find(params[:id])
+    file_name = @price.price_number + @price.customer_name + @price.part_number
 
     respond_to do |format|
       format.html # show.html.erb
       format.pdf  do
-        render pdf: "file_name",
+        render pdf: file_name,
         layout:      "/layouts/pdf.html.erb"
       end
     end
@@ -59,8 +60,7 @@ class PricesController < ApplicationController
     @latest_release_set_price = SetPrice.order(released_at: :asc).last
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    # @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @step_quantities = @latest_release_set_price.settings(:order_quantities).quantities
+    @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities
     @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, 'price')
     @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')
 
@@ -73,13 +73,13 @@ class PricesController < ApplicationController
     @customer = current_customer
     @price.customer = @customer
 
-    if (params[:item_id] && params[:price_id] && params[:condition])
-      @set_price = SetPrice.find(params[:price_id])
+    if (params[:set_price_id])
+      @set_price = SetPrice.find(params[:set_price_id])
       @price.item_id = @set_price.item_id # Item.find_by(partNo: params[:item_id]).id
       @price.price = @set_price.price
       @price.base_price = @set_price.base_price
       @price.extra_price = @set_price.extra_price     
-      @price.condition = params[:condition]
+      @price.condition = @set_price.order_quantity
     end
 
     session[:current_path_action] = 'new'    
@@ -100,14 +100,14 @@ class PricesController < ApplicationController
 
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
-    # @step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @step_quantities = @latest_release_set_price.settings(:order_quantities).quantities    
+    @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities    
     @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, "price")
     @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')    
 
-    if (params[:item_id] && params[:price] && params[:condition])
-      @price.item_id = Item.find_by(partNo: params[:item_id]).id
-      @price.price = params[:price]
+    if (params[:set_price_id] && params[:condition])
+      @set_price = SetPrice.find(params[:set_price_id])
+      @price.item_id = @set_price.item_id
+      @price.price = @set_price.price
       @price.condition = params[:condition]
     end
 

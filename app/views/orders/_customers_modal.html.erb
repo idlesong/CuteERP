@@ -3,18 +3,15 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel"><%=t(:select_customer_who_has_active_prices)%></h4>
+        <h4 class="modal-title" id="myModalLabel"><%=t(:select_customer)%>(<%=t(:only_show_with_active_quotation)%>)</h4>
       </div>
       <div class="modal-body">
         <table class="table table-striped datatable">
           <thead>
             <tr>
               <th><%=t(:customer_name)%></th>
+              <th><%=t(:customer_name)%></th>
               <th><%=t(:sales_type)%></th>
-              <th><%=t(:credit)%></th>
-              <th><%=t(:contact)%></th>
-              <th><%=t(:balance)%></th>
-              <th>$/¥</th>
               <th><%=t(:select)%></th>
             </tr>
           </thead>
@@ -22,11 +19,8 @@
               <% @customers.each do |customer| %>
               <tr>
                 <td><strong><%= customer.name %></strong></td>
+                <td><%= customer.full_name if not customer.full_name.nil? %></td>
                 <td><%= customer.sales_type if not customer.sales_type.nil? %></td>
-                <td><%= customer.credit %></td>
-                <td><%= customer.contact %></td>
-                <td><%= customer.balance %></td>
-                <td><%= customer.currency %></td>
                 <td><%= link_to( t(:select), {:controller =>'orders',:action => 'new',
                   :customer_id =>customer.id}, :class=>"btn btn-xs btn-primary")%></td>
               </tr>

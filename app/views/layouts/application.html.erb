@@ -17,7 +17,7 @@
         <li class="nav_left"><%= link_to t(:login), '/login' %> </li>
         <li class="nav_left"> <%= link_to t(:signup), '/signup' %> </li>
       <% end %>
-      <li class="nav_right"><a href="#"><i class="fa fa-truck"></i>⚙<%=t(:settings)%></a></li>      
+      <li class="nav_right"><a href=<%= users_path %>><i class="fa fa-truck"></i>⚙<%=t(:settings)%></a></li>      
       <li class="nav_right"><a href=<%= posts_path %>><i class="fa fa-book"></i><%=t(:document)%></a></li>
       <li class="nav_right"><a href=<%= items_path %>><i class="fa fa-tags"></i><%=t(:product)%></a></li>
       <li class="nav_right"><a href=<%= customers_path %>><i class="fa fa-group"></i><%=t(:customer)%></a></li>

@@ -32,13 +32,7 @@ class OrdersController < ApplicationController
   # GET /orders/new
   # GET /orders/new.json
   def new
-    # @items = Item.all
-    @main_items = Item.where(assembled: ['no','main','assembled'])
-    @option_items = Item.where(assembled: 'addition')
-    # @main_items = @items - @option_items
-    # @customers = Customer.where("credit > ?", 0)
-
-    # customers with active? prices, and available
+    # customers with active prices? (available)
     @customers = Customer.joins(:prices).where(prices: {status: "active"}).uniq.where("credit > ?", 0)
 
     # clear cart and destroy associated line_items, when customer switched
@@ -67,29 +61,57 @@ class OrdersController < ApplicationController
     end
   end
 
+  # Get /orders/reverse?customer_id=1
+  def reverse
+
+    # initialize orders with selected customer
+    if params[:customer_id]
+      @customer = Customer.find( params[:customer_id])
+    else
+      @customer = current_customer
+    end
+    @orders = Order.where(customer_id: @customer.id)
+
+    @order = Order.new
+    @order.initialize_order_header(current_customer)
+    @order.exchange_rate = monthly_exchange_rate
+
+    @cart = current_cart
+    @cart.line_items.clear
+    # @order.exchange_rate = @exchange_rate_setting.value.to_i if @exchange_rate_setting.value.to_f > 0
+    session[:cart_order_type] = "Order"
+    session[:cart_currency] = @order.customer.currency
+    # session[:exchange_rate] = @order.exchange_rate
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @order }
+      # format.js
+    end
+  end
+
   # GET /orders/1/edit
   def edit
     @order = Order.find(params[:id])
     @customer = current_customer
 
     if @order.not_issued?
-      # @items = Item.all
-      # @option_items = Item.where(:package => 'software')
-      # @main_items = @items - @option_items
-      @main_items = Item.where(assembled: ['no','yes'])
-      @option_items = Item.where(assembled: 'addition')
-      @customers = Customer.where("credit > ?", 0)
+      # @main_items = Item.where(assembled: ['no','yes'])
+      # @option_items = Item.where(assembled: 'addition')
+      # @customers = Customer.where("credit > ?", 0)
+
+      # customers with active prices? (available)
+      @customers = Customer.joins(:prices).where(prices: {status: "active"}).uniq.where("credit > ?", 0)      
 
       @cart = current_cart
-      # @cart.line_items = @order.line_items
-      # @cart.copy_line_item_from_order(@order)
-      @cart.line_items.clear
-      @order.line_items.each do |line|
-        new_line = line.dup
-        new_line.line = nil
-        new_line.line_number = 'cart' + new_line.line_number # must uniq
-        @cart.line_items << new_line
-      end
+      @cart.copy_line_items_from_customer_order(@order)
+      # @cart.line_items.clear
+      # @order.line_items.each do |line|
+      #   new_line = line.dup
+      #   new_line.line = nil
+      #   new_line.line_number = 'cart' + new_line.line_number # must uniq
+      #   @cart.line_items << new_line
+      # end
 
       session[:cart_order_type] = "Order"
       session[:cart_currency] = @order.customer.currency
@@ -98,7 +120,7 @@ class OrdersController < ApplicationController
 
     respond_to do |format|
       if @order.not_issued?
-        format.html
+        format.html 
         format.json
       else
         format.html { redirect_to @order, notice: 'Can not edit this order, order been issued!'}
@@ -112,7 +134,9 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(params[:order])
 
-    @order.add_line_items_from_cart(current_cart)
+    if current_cart.line_items.exists? 
+      @order.add_line_items_from_cart(current_cart, params["reverse_order"]) 
+    end
 
     respond_to do |format|
       if @order.save
@@ -122,12 +146,10 @@ class OrdersController < ApplicationController
         format.js
         # format.json { render json: @order }
       else
-        # @items = Item.all
-        # @option_items = Item.where(:package => 'software')
-        # @main_items = @items - @option_items
         @main_items = Item.where(assembled: ['no','yes'])
         @option_items = Item.where(assembled: 'addition')
 
+        @customer = current_customer
         @customers = Customer.all
         @cart = current_cart
 
@@ -144,15 +166,19 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:id])
 
     respond_to do |format|
-      if @order.update_attributes(params[:order])
-        @order.line_items.clear
-        @order.add_line_items_from_cart(current_cart)
+      if current_cart.line_items.exists?  # can't update without cart.line_items
+        if @order.update_attributes(params[:order])
+          @order.line_items.clear
+          @order.add_line_items_from_cart(current_cart, params['reverse_order'])
 
-        format.html { redirect_to @order, notice: 'Order was successfully updated.' }
-        format.json { head :no_content }
+          format.html { redirect_to @order, notice: 'Order was successfully updated.' }
+          format.json { head :no_content }
+        end
       else
+        # logger.debug "========Errors when update order==== #{@cart}"
+        @customer = current_customer
         @cart = current_cart
-        format.html { render action: "edit" }
+        format.html { render action: "edit", notice: 'Errors when update order, make sure line_items.' }
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end

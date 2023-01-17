@@ -34,9 +34,9 @@ class SalesOrdersController < ApplicationController
     @sales_order.exchange_rate = monthly_exchange_rate
 
     @cart = current_issue_cart
-    session[:cart_order_type] = "SalesOrder"
-    # session[:cart_order_id] = @sales_order.id
-    session[:cart_currency] = @sales_order.customer.currency
+    @cart.line_items.clear
+    # session[:cart_order_type] = "SalesOrder"
+    # session[:cart_currency] = @sales_order.customer.currency
     # session[:exchange_rate] = @sales_order.exchange_rate
 
     respond_to do |format|
@@ -48,22 +48,23 @@ class SalesOrdersController < ApplicationController
   # GET /sales_orders/1/edit
   def edit
     @sales_order = SalesOrder.find(params[:id])
+    @orders = Order.where(customer_id: @sales_order.customer_id)
 
     @cart = current_issue_cart
-    session[:cart_order_type] = "SalesOrder"
-    # session[:cart_order_id] = @sales_order.id
-    session[:cart_currency] = @sales_order.customer.currency
-    session[:exchange_rate] = @sales_order.exchange_rate
 
     # @cart.line_items.clear
-    # @cart.copy_line_item_from_sales_order(@sales_order)
-    @cart.line_items.clear
-    @sales_order.line_items.each do |line|
-      new_line = line.dup
-      new_line.line = nil
-      new_line.line_number = 'cart' + new_line.line_number # must uniq
-      @cart.line_items << new_line
-    end    
+    @cart.copy_line_items_from_sales_order(@sales_order)
+    # @cart.line_items.clear
+    # @sales_order.line_items.each do |line|
+    #   new_line = line.dup
+    #   new_line.line = nil
+    #   new_line.line_number = 'cart' + new_line.line_number # must uniq
+    #   @cart.line_items << new_line
+    # end    
+
+    session[:cart_order_type] = "SalesOrder"
+    session[:cart_currency] = @sales_order.customer.currency
+    session[:exchange_rate] = @sales_order.exchange_rate
 
     respond_to do |format|
       format.html
@@ -82,10 +83,11 @@ class SalesOrdersController < ApplicationController
     respond_to do |format|
       if @sales_order.save
 
-        current_issue_cart.issue_refer_line_items
+        @sales_order.issue_refer_line_items
 
         Cart.destroy(session[:issue_cart_id])
         session[:issue_cart_id] = nil
+
         format.html { redirect_to @sales_order, notice: 'Sales order was successfully created.' }
         format.json { render json: @sales_order, status: :created, location: @sales_order }
       else
@@ -106,42 +108,34 @@ class SalesOrdersController < ApplicationController
   def update
     @sales_order = SalesOrder.find(params[:id])
 
-    # update cart, or
     # update delivery_status(includes reschedule devlivery_plan) 
     if not params[:delivery_status]
-      # issue_back to customer order
-      current_issue_cart.issue_back_refer_line_items()
+      # if current_issue_cart.line_items.exists? 
+        @sales_order.issue_unissue_po_line_items_when_so_and_cart_diffs(current_issue_cart)  
 
-      # @sales_order.update_line_items_from_issue_cart(current_issue_cart)  
-      current_issue_cart.line_items.each do |line_item|
-        if(line_item.remark == 'remove')
-          so_line = @sales_order.line_items.where(refer_line_id: line_item.refer_line_id).take
-          so_line.destroy
-          line_item.destroy # destroy cart line_item too
-        end
-      end
-
-      Cart.destroy(session[:issue_cart_id])
-      session[:issue_cart_id] = nil
+        @sales_order.line_items.clear
+        @sales_order.add_line_items_from_issue_cart(current_issue_cart)
+        @sales_order.save
+        # Cart.destroy(session[:issue_cart_id])
+        # session[:issue_cart_id] = nil     
+      # end        
     end  
 
-    if not @sales_order.line_items.exists?    
-      @sales_order.destroy
-      respond_to do |format|
-        format.html { redirect_to sales_orders_url }
+    respond_to do |format|
+      if @sales_order.update_attributes(params[:sales_order])
+        format.html { redirect_to @sales_order, notice: 'Sales order was successfully updated.' }
         format.json { head :no_content }        
+      else
+        @orders = Order.where(customer_id: @sales_order.customer.id)
+        @cart = current_issue_cart
+
+        session[:cart_order_type] = "SalesOrder"
+        session[:cart_order_id] = @sales_order.id
+
+        format.html { render action: "edit", notice: 'Sales order can not update.' }
+        format.json { render json: @sales_order.errors, status: :unprocessable_entity }
       end
-    else
-      respond_to do |format|
-        if @sales_order.update_attributes(params[:sales_order])
-          format.html { redirect_to @sales_order, notice: 'Sales order was successfully updated.' }
-          format.json { head :no_content }          
-        else
-          format.html { render action: "edit" }
-          format.json { render json: @sales_order.errors, status: :unprocessable_entity }
-        end
-      end
-    end  
+    end
   end
 
   # GET /sales_orders/1/confirm

@@ -16,7 +16,7 @@
             </td>
             <td>
               <h4 class="text-right"> <%=t(:show_date)%>:<%= @price.created_at.strftime("%F") %></h4>
-              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%=  %></h4>
+              <h4 class="text-right"> <%=t(:sheet_number)%>#:<%=  @price.price_number if  @price.price_number %></h4>
               <h4 class="text-right"> <%= t(:payment_term) %> :<%= @price.customer.payment %></h4>
             </td>
           </tr>

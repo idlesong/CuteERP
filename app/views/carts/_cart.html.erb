@@ -23,9 +23,9 @@
     	else
         currency_unit = '$'
       end %>
-	<% @cart.line_items.each do |line_item| %>
+	<% @cart.line_items.each_with_index do |line_item, index| %>
 		<tr>
-			<td><%= link_to line_item.id %> </td>
+			<td><%= link_to index+1, line_item_path(line_item.id) %> </td>
 			<td><%= line_item.full_name %> </td>
 			<td><%= line_item.full_part_number %> </td>
 			<td> <% line_price = line_item.show_currency_price(exchange_rate, currency) %>
@@ -39,26 +39,18 @@
 			<td><%= line_item.quantity %> </td>
 	    	<td><%= number_to_currency(line_item.total_currency_price(exchange_rate,
 				currency), unit: currency_unit) %></td>				
-			<td>
-				<% if line_item.remark %>
-					<del> <%= line_item.remark %> </del>
-				<% end %>
-
-				<%= form_tag(line_items_path(:line_id => line_item.id), remote: true) do %>
-						<%= hidden_field_tag :remark, 'remove' %>
-					<%= submit_tag(t(:issue_back), :class=>"btn btn-xs btn-primary") %>
-				<% end %>
-			</td>	
+			<td><%= line_item.remark %></td>	
 
 			<td><%= link_to t('.destroy', :default => t("helpers.links.destroy")),
 						line_item,
 						method: :delete,
 						remote: true,
-						:class => 'btn btn-xs btn-danger' %></td>
+						:class => 'btn btn-xs btn-danger' %>
+			</td>
 		</tr>
 	<% end %>
 		<tr>
-			<td colspan="7"><a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+			<td colspan="8"><a type="button" class="btn btn-primary btn-sm" data-toggle="modal"
 				data-target="#productsModal"> <%=t(:add_product_to_order)%> </a></td>
 		</tr>
 </table>

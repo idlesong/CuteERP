@@ -20,8 +20,9 @@ class Price < ActiveRecord::Base
 
 
   def generate_price_number
-    next_id=1
-    next_id=Price.maximum(:id).next if Price.exists?
+    # next_id=1
+    # next_id=Price.maximum(:id).next if Price.exists?
+    next_id = Price.where(created_at: DateTime.now.at_beginning_of_day..DateTime.now.at_end_of_day ).count + 1
     price_number = 'QO' + DateTime.now.strftime("%Y%m%d") + (next_id%100).to_s.rjust(2,'0')
   end
 

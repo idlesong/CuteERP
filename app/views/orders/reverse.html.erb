@@ -1,0 +1,60 @@
+<h1> <%=t(:order)%> </h1>
+<% if false %>
+<%= render 'customers_modal' %>
+<%= render 'shared/products_modal',:locals => { :order => @order} %>
+<% end %>
+
+<div id="orderHeaderDiv">
+<%= render partial: 'orderHeader'%>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-body">
+		<h3> <%=t(:unscheduled_po)%>(<%=t(:show_as_lines)%>) </h3>
+		<table class="table">
+		<thead>
+			<tr>
+			<th><h4>#</h4></th>
+			<th><h4><%=t(:customer)%></h4></th>
+			<th><h4><%=t(:order_number)%></h4></th>
+			<th><h4><%=t(:show_date)%></h4></th>
+			<th><h4><%=t(:product_name)%></h4></th>
+			<th><h4><%=t(:part_number)%></h4></th>
+			<th><h4><%=t(:price)%></h4></th>
+			<th><h4><%=t(:quantity)%></h4></th>
+			<th><h4><%=t(:quantity_issued)%></h4></th>
+			<th><h4><%=t(:suble_total)%></h4></th>
+			<th></th>
+			</tr>
+		</thead>
+
+		<% @orders.each do |order| %>
+		<% unless order.line_items.nil? then %>
+			<% order.line_items.each do |line_item|%>
+			<% quantity_left = line_item.quantity - line_item.quantity_issued %>
+			<% if quantity_left > 0 then %>
+				<tr>
+				<td>#<%= link_to(order.id,order_path(order.id)) %></td>
+				<td><%= order.customer.name %></td>
+				<td><%=order.order_number%></td>
+				<td><%= order.created_at.strftime("%m-%d") %></td>
+				<td><%= line_item.full_name %> </td>
+				<td><%= line_item.full_part_number %> </td>
+				<td>¥<%= line_item.fixed_price %> </td>
+				<td>x<%= line_item.quantity %> </td>
+				<td>x<%= line_item.quantity_issued %> </td>
+				<%= form_tag(line_items_path(:line_id => line_item.id, :reverse_order => true), remote: true) do %>
+				<td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
+				<td><%= submit_tag(t(:reverse_order_to_cart), :class=>"btn btn-xs btn-danger") %></td>
+				<% end %>
+				</tr>
+			<% end %>
+			<% end %>
+		<% end %>
+		<% end %>
+		</table>
+	</div>
+</div>
+
+
+<%= render :partial => 'form' %>

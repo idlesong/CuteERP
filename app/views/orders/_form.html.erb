@@ -11,15 +11,17 @@
 		</div>
 	<% end %>
 
+<% if false %>
 	<div id="orderHeaderDiv">
-		<%= render partial: 'orderHeader', :locals => { :f => f}%>
+		<%= render partial: 'orderHeader'%>
 	</div>
+<% end %>
 
-	<div class="panel panel-default">
+	<div class="panel panel-danger">
 		<div class="panel-heading">
 			<h3 class="panel-title">
 				<%=t(:order_cart_lineitems)%>
-				<small><%=t(:order_number)%>#:<%= f.text_field :po_number,:size => 20 %>
+				<small><%=t(:order_number)%>#:<%= f.text_field :po_number, :size => 20 %>
 							 <%=t(:received_date)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
 							 <!-- <= f.file_field :document > -->
 						<% if Customer.find(@order.customer_id).sales_type == "ODM" %>
@@ -52,8 +54,14 @@
 	    <%= f.hidden_field :ship_address %>
 	    <%= f.hidden_field :ship_telephone %>
 	    <%= f.hidden_field :pay_type %>
+		<%= f.hidden_field :customer_id, :value => @order.customer.id %>		
 		  <div class="text-center">
-				<%= f.submit t(:submit_order), :class=>"btn btn-primary" %>
+				<%= check_box_tag(:reverse_order) %>
+				<%= label_tag(:reverse_order, "reverse order") %>
+
+				<%= link_to t('.cancel', :default => t("helpers.links.cancel")),
+				orders_path, :class => 'btn' %>
+				<%= f.submit t(:submit_order), :class=>"btn btn-primary"%>
 			</div>
 		</div>
 	</div>
