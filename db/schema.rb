@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20221121010827) do
+ActiveRecord::Schema.define(version: 20240526110741) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -213,14 +213,28 @@ ActiveRecord::Schema.define(version: 20221121010827) do
 
   create_table "set_prices", force: :cascade do |t|
     t.integer  "item_id"
-    t.string   "order_quantity"
-    t.decimal  "price"
     t.string   "sell_by"
     t.datetime "released_at"
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
-    t.decimal  "base_price",     precision: 8, scale: 2
-    t.decimal  "extra_price",    precision: 8, scale: 2
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+    t.decimal  "step1",       precision: 8, scale: 2
+    t.decimal  "step2",       precision: 8, scale: 2
+    t.decimal  "step3",       precision: 8, scale: 2
+    t.decimal  "step4",       precision: 8, scale: 2
+    t.decimal  "step5",       precision: 8, scale: 2
+    t.decimal  "step6",       precision: 8, scale: 2
+    t.decimal  "step7",       precision: 8, scale: 2
+    t.decimal  "step8",       precision: 8, scale: 2
+    t.decimal  "step9",       precision: 8, scale: 2
+    t.decimal  "step10",      precision: 8, scale: 2
+    t.decimal  "step11",      precision: 8, scale: 2
+    t.decimal  "step12",      precision: 8, scale: 2
+    t.decimal  "step13",      precision: 8, scale: 2
+    t.decimal  "step14",      precision: 8, scale: 2
+    t.decimal  "step15",      precision: 8, scale: 2
+    t.decimal  "step16",      precision: 8, scale: 2
+    t.decimal  "extra_price", precision: 8, scale: 2
+    t.integer  "line_no"
   end
 
   create_table "settings", force: :cascade do |t|

@@ -4,14 +4,11 @@ class SetPricesController < ApplicationController
   def index
     @set_prices = SetPrice.all
 
-    @latest_release_set_price = SetPrice.order(released_at: :asc).last
+    @latest_released_set_price = SetPrice.order(released_at: :asc).last
     
-    if @latest_release_set_price 
-      @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
-
-      @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities
-      @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, "price")
-      @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, "id")
+    if @latest_released_set_price 
+      @step_quantities = @latest_released_set_price.settings(:step_quantities).quantities
+      @latest_set_prices = SetPrice.where("released_at" => @latest_released_set_price.released_at)
     end  
 
     respond_to do |format|

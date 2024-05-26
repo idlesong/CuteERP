@@ -8,11 +8,14 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>PartNo</th>
-      <th colspan="5">OEM</th>  
-      <th colspan="5">ODM</th>
+      <th> </th>
+      <th> </th>   
+      <th colspan="8">OEM</th>  
+      <th colspan="8">ODM</th>
+      <th> Extra </th>
     <tr>
-      <th>PartNo</th>
+      <th>#</th>      
+      <th>PartNo</th>        
       <% if @step_quantities %>      
         <% @step_quantities.each do |volume| %>
           <th><%= volume %></th>
@@ -20,11 +23,40 @@
         <% @step_quantities.each do |volume| %>
           <th><%= volume %></th>
         <% end %>   
-      <% end %>                 
+      <% end %>
+      <th></th>                 
     </tr>
   </thead>
   <tbody>
  
+
+  <% if (@latest_set_prices) %>
+    <% @latest_set_prices.each do |set_price| %>
+      <tr>
+        <td> <%= set_price.line_no %> </td>
+        <td> <%= set_price.item.partNo %> </td>
+        <td> <%= set_price.step1 %> </td>        
+        <td> <%= set_price.step2 %> </td>
+        <td> <%= set_price.step3 %> </td>
+        <td> <%= set_price.step4 %> </td>
+        <td> <%= set_price.step5 %> </td>
+        <td> <%= set_price.step6 %> </td>
+        <td> <%= set_price.step7 %> </td>
+        <td> <%= set_price.step8 %> </td>    
+        <td> <%= set_price.step9 %> </td>        
+        <td> <%= set_price.step10 %> </td>
+        <td> <%= set_price.step11 %> </td>
+        <td> <%= set_price.step12 %> </td>
+        <td> <%= set_price.step13 %> </td>
+        <td> <%= set_price.step14 %> </td>
+        <td> <%= set_price.step15 %> </td>
+        <td> <%= set_price.step16 %> </td>                  
+        <td> <%= set_price.extra_price %> </td>     
+      </tr>
+    <% end %>
+
+  <% end %>  
+
   <% if (@price_list_prices && @price_list_ids) %>
     <% @price_list_prices.each_with_index do |line, index| %>
       <tr>
@@ -40,7 +72,6 @@
   <% end %>  
   </tbody>
 </table>
-
 
 <p>
 </br>
@@ -73,12 +104,25 @@
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%=t(:line_no)%></th>
       <th><%=t(:part_number)%></th>
-      <th><%=t(:price)%></th>
-      <th><%=t(:order_quantity)%></th>  
-      <th><%=t(:sell_by)%></th> 
-      <th><%=t(:base_price)%></th>
-      <th><%=t(:extra_price)%></th>         
+      <th><%=t(:step1)%></th>
+      <th><%=t(:step2)%></th>         
+      <th><%=t(:step3)%></th>
+      <th><%=t(:step4)%></th> 
+      <th><%=t(:step5)%></th>
+      <th><%=t(:step6)%></th> 
+      <th><%=t(:step7)%></th>
+      <th><%=t(:step8)%></th> 
+      <th><%=t(:step9)%></th>
+      <th><%=t(:step10)%></th> 
+      <th><%=t(:step11)%></th>
+      <th><%=t(:step12)%></th>   
+      <th><%=t(:step13)%></th>
+      <th><%=t(:step14)%></th> 
+      <th><%=t(:step15)%></th>
+      <th><%=t(:step16)%></th>                                   
+      <th><%=t(:extra_price)%></th> 
       <th><%=t(:released_at)%> </th>
       <th><%=t(:created_at) %></th>
     </tr>
@@ -87,12 +131,25 @@
     <% @set_prices.each do |set_price| %>
       <tr>
         <td><%= link_to set_price.id, set_price_path(set_price) %></td>
+        <td><%= set_price.line_no %></td>         
         <td><%= set_price.item.partNo %></td> 
-        <td><strong>¥<%= set_price.price %></strong></td>
-        <td><%= set_price.order_quantity %></td>  
-        <td><%= set_price.sell_by %></td> 
-        <td>¥<%= set_price.base_price %></td>
-        <td>¥<%= set_price.extra_price %></td>
+        <td>¥<%= set_price.step1 %></td>
+        <td>¥<%= set_price.step2 %></td>
+        <td>¥<%= set_price.step3 %></td>
+        <td>¥<%= set_price.step4 %></td>
+        <td>¥<%= set_price.step5 %></td>
+        <td>¥<%= set_price.step6 %></td>
+        <td>¥<%= set_price.step7 %></td>
+        <td>¥<%= set_price.step8 %></td>
+        <td>¥<%= set_price.step9 %></td>
+        <td>¥<%= set_price.step10 %></td>
+        <td>¥<%= set_price.step11 %></td>
+        <td>¥<%= set_price.step12 %></td>
+        <td>¥<%= set_price.step13 %></td>
+        <td>¥<%= set_price.step14 %></td>
+        <td>¥<%= set_price.step15 %></td>
+        <td>¥<%= set_price.step16 %></td>
+        <td><%= set_price.extra_price %></td> 
         <td><%= set_price.released_at.strftime("%F") if set_price.released_at %></td>
         <td><%= set_price.created_at.strftime("%F") if set_price.created_at %></td>
       </tr>

@@ -15,22 +15,48 @@
   <table class="table table-striped">
   <thead>
     <tr>
+      <th><%=t(:line_no)%></th>    
       <th><%=t(:product)%></th>
-      <th><%=t(:price)%></th>
-      <th><%=t(:order_quantity)%></th>
-      <th><%=t(:sell_by)%></th>
-      <th><%=t(:base_price)%></th>
+      <th><%=t(:step1)%></th>
+      <th><%=t(:step2)%></th>
+      <th><%=t(:step3)%></th>
+      <th><%=t(:step4)%></th>
+      <th><%=t(:step5)%></th>
+      <th><%=t(:step6)%></th>
+      <th><%=t(:step7)%></th>
+      <th><%=t(:step8)%></th>
+      <th><%=t(:step9)%></th>
+      <th><%=t(:step10)%></th>
+      <th><%=t(:step11)%></th>
+      <th><%=t(:step12)%></th>
+      <th><%=t(:step13)%></th>
+      <th><%=t(:step14)%></th>
+      <th><%=t(:step15)%></th>
+      <th><%=t(:step16)%></th>                  
       <th><%=t(:extra_price)%></th>     
       <th><%=t(:released_at)%></th>
     </tr>
   </thead>
   <tbody>
       <tr>
+        <td><%= f.text_field :line_no %></td>
         <td><%= f.collection_select(:item_id, Item.all.order(:partNo), :id, :partNo) %></td>
-        <td><%= f.text_field :price, :class => 'text_field' %></td>
-        <td><%= f.text_field :order_quantity %></td>
-        <td><%= f.text_field :sell_by %></td>
-        <td><%= f.text_field :base_price, :class => 'text_field' %></td>
+        <td><%= f.text_field :step1, :class => 'text_field' %></td>
+        <td><%= f.text_field :step2, :class => 'text_field' %></td>
+        <td><%= f.text_field :step3, :class => 'text_field' %></td>
+        <td><%= f.text_field :step4, :class => 'text_field' %></td>
+        <td><%= f.text_field :step5, :class => 'text_field' %></td>
+        <td><%= f.text_field :step6, :class => 'text_field' %></td>
+        <td><%= f.text_field :step7, :class => 'text_field' %></td>
+        <td><%= f.text_field :step8, :class => 'text_field' %></td>
+        <td><%= f.text_field :step9, :class => 'text_field' %></td>
+        <td><%= f.text_field :step10, :class => 'text_field' %></td>
+        <td><%= f.text_field :step11, :class => 'text_field' %></td>
+        <td><%= f.text_field :step12, :class => 'text_field' %></td>
+        <td><%= f.text_field :step13, :class => 'text_field' %></td>
+        <td><%= f.text_field :step14, :class => 'text_field' %></td>
+        <td><%= f.text_field :step15, :class => 'text_field' %></td>
+        <td><%= f.text_field :step16, :class => 'text_field' %></td>                                        
         <td><%= f.text_field :extra_price, :class => 'text_field' %></td>                
         <td><%= f.text_field :released_at %></td>
       </tr>

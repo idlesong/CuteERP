@@ -10,72 +10,10 @@ class SetPrice < ActiveRecord::Base
 
     belongs_to :item
   
-    validates :price, :presence => true, :numericality => {:greater_than_or_equal_to => 0}
     validates :item_id, :presence => true
-    validates :order_quantity, :presence => true
+    validates :line_no, :presence => true    
     validates :sell_by, :presence => true
-    validates :released_at, :presence => true
-
-    def get_step_set_price(prices, item_id, order_quantity, sell_by, id_or_value)
-        if prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.nil?
-          return 0
-        else
-          if(id_or_value == 'id')
-            return prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.id
-          else
-            return prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.price
-          end
-        end
-    end    
-
-    # prices: latest released set_prices  
-    def get_price_list(step_quantities, id_or_value)
-        latest_release_date = SetPrice.order(released_at: :asc).last.released_at
-        latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => latest_release_date)
-        # .order("order_quantity::integer ASC")
-        
-        items = SetPrice.where(released_at: latest_release_date).order("item_id ASC").select(:item_id).uniq
-
-        price_line = []
-        price_list = []
-        items.each do |item|
-            price_line.clear
-            part_number = latest_set_prices.where(item_id: item.item_id).first.item.partNo
-            price_line << part_number
-            # logger.debug "=====items==== #{item.item_id}"
-
-            ["OEM", "ODM"].each do |sell_by|
-                step_quantities.each do |quantity|
-                    if self.get_step_set_price(latest_set_prices, item.item_id, quantity, sell_by, id_or_value).nil?
-                        price_line << 0
-                    else
-                        price_line << self.get_step_set_price(latest_set_prices, item.item_id, quantity, sell_by, id_or_value)
-                    end
-                end
-            end
-            price_list << price_line.clone
-        end
-
-        return price_list
-    end
-
-    def get_price_line(set_by, partNo, step_quantities)
-        latest_release_date = SetPrice.order(released_at: :asc).last.released_at
-        latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => latest_release_date)
-        item = Item.find_by(partNo: partNo)
-
-        price_line = []
-
-        step_quantities.each do |quantity|
-            if self.get_step_set_price(latest_set_prices, item.id, quantity, sell_by).nil?
-                price_line << 0
-            else
-                price_line << self.get_step_set_price(latest_set_prices, item.id, quantity, sell_by)
-            end
-        end
-
-        return price_line
-    end        
+    validates :released_at, :presence => true       
 
     def self.to_csv(options = {})
         set_price = SetPrice.order(released_at: :asc).last
@@ -111,45 +49,39 @@ class SetPrice < ActiveRecord::Base
                 # row = Hash[[header, spreadsheet.row(i)].transpose]
                 row = spreadsheet.row(i)
                 # logger.debug "=====import set price row== #{spreadsheet.row(i)} => #{row}" 
-                partNo = row[0]
-                item = Item.where(partNo: partNo).take
+                item = Item.where(partNo: row[0]).take
 
-                # parse extra_price column(index 1)
-                if (row[1])
-                    # logger.debug "=====++++++extra_price+++++===== #{row[1]}"                     
-                    extra_price = row[1].to_i
-                else
-                    extra_price = 0
-                end            
+                # parse set_price
+                set_price = SetPrice.where(item_id: item.id, released_at: released_date).take || SetPrice.new  
 
-                row.each_with_index do |value, index|
-                    # skip partNo, extra_price columns(index 0,1);
-                    if index > 1 
-                        if index <= 10
-                            sell_by = "OEM"
-                        else 
-                            sell_by = "ODM"
-                        end
+                set_price.item_id = item.id
+                set_price.line_no = i-2
+                set_price.sell_by = "9" # ODM start position
+                set_price.step1 = row[3].to_i
+                set_price.step2 = row[4].to_i
+                set_price.step3 = row[5].to_i
+                set_price.step4 = row[6].to_i
+                set_price.step5 = row[7].to_i
+                set_price.step6 = row[8].to_i
+                set_price.step7 = row[9].to_i
+                set_price.step8 = row[10].to_i
+                set_price.step9 = row[11].to_i
+                set_price.step10 = row[12].to_i
+                set_price.step11 = row[13].to_i
+                set_price.step12 = row[14].to_i
+                set_price.step13 = row[15].to_i
+                set_price.step14 = row[16].to_i
+                set_price.step15 = row[17].to_i
+                set_price.step16 = row[18].to_i                
+                set_price.extra_price = row[1].to_i if (row[1]) 
 
-                        # uniq: item, order_quantity, ODM/OEM, releasd_at
-                        set_price = SetPrice.where(item_id: item.id, order_quantity: header[index], 
-                                        sell_by: sell_by, released_at: released_date).take || SetPrice.new 
-                        set_price.sell_by = sell_by
-                        set_price.item_id = item.id
-                        set_price.price = value
-                        if extra_price != 0
-                            # logger.debug "=====++++++save extra_price+++++===== #{extra_price}" 
-                            set_price.extra_price = extra_price
-                            set_price.base_price = set_price.price - extra_price
-                        end    
-                        set_price.order_quantity = header[index]
-                        set_price.released_at = released_date
-                        set_price.save!
-                    end
-                end
+                set_price.released_at = released_date
+                set_price.save!      
+                
             end
         end
     end
+
 
     def self.open_spreadsheet(file)
         case File.extname(file.original_filename)
