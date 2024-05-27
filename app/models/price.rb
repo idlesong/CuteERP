@@ -28,13 +28,36 @@ class Price < ActiveRecord::Base
 
   def get_set_price(item_id, order_quantity, sell_by)
     last_set_price = SetPrice.order(released_at: :asc).last
+    step_quantities = ["1", "1000", "2500", "5000", "10000",  "20000", "50000", "100000"]
+    oem_labels = ["step1","step2","step3", "step4","step5", "step6", "step7", "step8"]
+    odm_labels = ["step9","step10","step11", "step12","step13", "step14", "step15", "step16"]
+    
+    step_labels = oem_labels
+
+    if sell_by == "ODM" 
+      step_labels = odm_labels
+    end
+
+    if step_quantities.index(order_quantity).nil?
+      index = 1
+      # logger.debug "@@@@@@@@@@@@ step_arry order quantity== #{order_quantity}"      
+    else
+      index = step_quantities.index(order_quantity)
+    end 
+
+    step = step_labels.at(index)
+    
     if last_set_price  
-      @latest_set_prices = SetPrice.order("item_id ASC").order("order_quantity::integer ASC")
-                                   .where("released_at" => last_set_price.released_at )
-      if @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.nil?
+      @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => last_set_price.released_at )
+      if @latest_set_prices.where(item_id: item_id).first.nil?
         return 0
       else
-        return @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.price
+        # return @latest_set_prices.where(item_id: item_id, order_quantity: order_quantity, sell_by: sell_by).first.price
+        set_price = @latest_set_prices.where(item_id: item_id).first
+
+        price = set_price.attributes[step]
+        # logger.debug "=====return set price== #{price}"
+        return price
       end
     end  
   end

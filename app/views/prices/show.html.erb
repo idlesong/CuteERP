@@ -80,7 +80,7 @@
           <%= link_to("approve", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %>
         <% else %>
           <%= link_to("activate", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %> 
-          <%= link_to("achive", price_path("price[status]" => 'achived'), :method => :put, :confirm => "Sure?") %>    
+          <%= link_to("archive", price_path("price[status]" => 'achived'), :method => :put, :confirm => "Sure?") %>    
         <% end %>
         </h4>
         </td></tr>
