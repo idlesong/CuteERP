@@ -20,31 +20,70 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
 1. heroku
 
 ## Features
-### products management
-1. products/items
-1. net weight, gross weight
-1. wiki,related marketing report
+### product management
+1. products: part_number, type, family, name, description, package, MPQ
 1. support assembled products: 
    - assembled item is basic item, but with base, extra, assembled information
+1. product status(index: -1, 0, 1, 2)
+   - 0: unqualified, 1: inactive, 2: active, -1: EOLed      
+1. wiki,related marketing report
 
-### customers management
+### customer management
 1. customer
    - overview 
      - basic info: contacts & orders & opportunities & wiki
-   - multiple currencies(now RMB and USD) support
-   - different ship_to and bill_to address support(clone by default)
-   - new customer quick creation support
-   - export / import customers list
+   - credit:(-1, 0, 1, >1)
+     - 0: unqualified, 1: inactive, >1: credit, -1: closed  
+1. multiple currencies(now RMB and USD) support   
+1. different ship_to and bill_to address support(clone by default)
+1. export / import customers list
+1. contacts:
+   - status:(-1, 0, 1)
+     - 0: unqulified; 1: inactive; 2: active; -1: archieved/invalid 
+   - link contact as bill_to and ship_to easily 
 
-### orders system
-price, customer order, sales order(invoice, packing list)
+
+### order system
+set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_list)
+
+#### prices
+- set_price: (part_number /quantity /price / dist_customer / released_at(key))
+   - batch view (like price list excel)
+      - batch view all the same released date(default: latest)
+      - show/input/update set_price in step quantities
+      - step order quantity set in settings
+      - setting: name: order_quantity_OEM1, value: 1000, note: released_date
+      - item.set_price(quantity)   
+      - batch input; batch achieve
+   - support assembled set_price: 
+      - assembled set_price is a basic set_price, but with base, extra nformation  
+- prices(customer prices)
+   - released_at(confirmed)
+   - order_quantity
+   - condition(remarks for quotation?)
+   - status(approved/outdated -1: 0, 1, 2)
+     - 0: unqulified; 1: requested; 2: approved; 3: inactive 4: active, -1: outdated/archieved
+   - support assembled price: 
+      - assembled price is a basic price, but with base, extra nformation 
+- price request
+   - auto fillin related set_price according to sales_channel(ODM/OEM) & order_quantity
+   - special price need approved
+   - when approved, price status set approved, and inactive old price
+   - status: approved, stared, achived; hide achived prices     
+- quotation
+   - has many customer prices (with order_quantity(codition) & remarks)
+   - quotation remarks(can modify freely)
+   - quotation number  
+
+#### Orders(customer order, sales order)
+- customer order ==issue to==> sales orders(scheduled) 分解订单 ==> shipped
 1. customer order(single driving force)
-   - types/catalogs: order, preorder
-   - orders status(line_items): shipped, backlog, open_orders, preorders 
-   - issue to sales order
+   - types/catalogs: order, preorder(?), reversed_order
+   - orders status(line_items): issued, shipped(?) 
+   - issue to sales order(means: sales_orders are issued PO)
    - original order upload(pdf format)     
-1. sales order(based on shipment)
-   - customer order ==issue to==> sales orders(scheduled, but not shipped) 分解订单
+1. sales order(issued from customer order, related to shipment)
+   - customer order ==issue to==> sales orders(scheduled) 分解订单
    - sales orders =confirm/ship to=> shipped
    - edit sales orders(shipped: confirmed=shipped=invoiced)
      - how to edit-issued: edit quantity, zero delete lineitems? issue more? 
@@ -53,43 +92,24 @@ price, customer order, sales order(invoice, packing list)
    - invoice, packing_list   
    - overview report
    - ship confirmation
-   - ship status input    
-1. preorders(shipment)
+   - ship status input
+   - invoiced/shipped orders can't edit, use reverse order to handle      
+1. preorders(only forecast, not act as real order data?)
    - used for forecast. easy to edit and reschedule, act like sales orders(shipment).
-   - can turn to real customer orders, if match. 
-   - order_kind: preorders   
-1. prices
-   - set_price: (part_number /quantity /price / dist_customer / released_at(key))
-     - batch view (like price list excel)
-       - batch view all the same released date(default: latest)
-       - show/input/update set_price in step quantities
-       - step order quantity set in settings
-         - setting: name: order_quantity_OEM1, value: 1000, note: released_date
-       - item.set_price(quantity)   
-       - batch input; batch achieve
-     - support assembled set_price: 
-       - assembled set_price is a basic set_price, but with base, extra nformation  
-   - prices(customer prices)
-     - released_at(confirmed)
-     - order_quantity
-     - condition(remarks for quotation?)
-     - status(approved/outdated)
-     - support assembled price: 
-       - assembled price is a basic price, but with base, extra nformation 
-   - price request
-     - auto fillin related set_price according to sales_channel(ODM/OEM) & order_quantity
-     - special price need approved
-     - when approved, price status set approved, and inactive old price
-     - status: approved, stared, achived; hide achived prices     
-   - quotation
-     - has many customer prices (with order_quantity(codition) & remarks)
-     - quotation remarks(can modify freely)
-     - quotation number  
+   - be cleaned every month
+   - can turn to real customer orders, if match?
+   - order_kind: preorders
+1. delivery
+   - re-schedule: delivery_plan date change freely.
+   - auto highlight outdated so when delivery_plan < Time.now.
+   - fixed date: when delivery, set delivery_plan = delivery_date, then fixed.     
+
+### Admin: overview of active Orders
 1. Sales Rolling Forecast view is *Main View*(admin)
    - All customer orders(with preorders) together in a year forecast overview
-     - sort by shipped, open-orders, and preorders.
+     - sort by shipped, open-orders, and preorders. with dispatch schedule
      - Customers orders view, sort by:
-       - sales type: ODM, OEM(inter-company), Re-sell
+       - sales type: ODM, OEM, internal, Re-sell
        - product group: Digital_baseband, RF, PA, Vocoder, 
        - territoreis: KR, ExFJ, FJ
        - customers
@@ -103,22 +123,17 @@ price, customer order, sales order(invoice, packing list)
      - fill the table with forecast-preorders
      - change preorder quantity
 
+1. Product Rolling Forecast view in *Main View*(admin)
+   - Catalog the actually selling products
+   - Calalog settings
 
-PartNo. | Plan | billing | forecast | price | price VAT | Apr | May | Jun |July|...|customer
----|---|---|---|---|---|---|---|---|---|---|---
-ProductA | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| CustomerA
-
-
-PartNo. | remain booking | Apr | May | June | July | Aug| Sep| Oct| Nov| Dec| total booking | Open Orders | customer
----|---|---|---|---|---|---|---|---|---|---|---|---|---
-SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
-
-### payment & receivable
+### payment & receivable(under development)
 1. payment
 1. receivable account
 1. balance
 
-### business opportunities management(customer project status)
+### business opportunities management
+- BO means customer projects
 1. index(show opportunities in catalog)
 
 ### activities(tasks) management
@@ -128,14 +143,8 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
 ### user management
 1. administrator interface(Overview based on user role)
 1. sales overview
-   - open orders
-   - [todo] monthly shipment(roling forecast?)
-   - receivable(sales order not receive the payment)
-1. deliver man & contacts
-   - customers index
-   - contacts index
-   - products info(without price)
-   - delivery index
+   - Sales Rolling Forecast
+   - Customer open orders
 
 ### documents system(markdown, like wiki)
 1. customers wiki
@@ -153,15 +162,26 @@ SCT3288TN|2000 | 5000 | 2000 | 8000 | 30 | 34| 1000|1000|1000| 1000| ...| |Abell
    https://github.com/ledermann/rails-settings
 
 ### maintaince(import, export)
+- Easily import and export all major data timely
 - import (Beginning data) / export(backup data monthly?)
-  - users_list
-  - customers_list
-  - items_list
-  - set_prices_list(item)
+  - customers list
+  - items list
+  - users list
   
-  - (customers) prices_list
-  - customer_orders_list  
-  - sales_orders
+  - set_prices list(item)
+  - (customers) prices list
+  - customer_orders list  
+  - sales_orders list
+
+ - 年度期初数据（含上年度open orders) 
+
+- uniq identities for import / exprot
+   - Customer: customer engilish short name: Onreal
+   - Item: part_number: SCT3258TD, TN, TDM
+   - SetPrice: release_date
+   - Price: price_order_number QO2022102205
+   - Order: order_number PO2022102206
+   - SalesOrder: order_number SO2022102206
 
 ## development
 ### upgrade rails from 3.2 to 4.2 tips
@@ -203,12 +223,10 @@ quantity_issued:
 
 ### bugs and small Feature points
 1. items
-   - assembled: no, main, addition1, addtion2(mark), assembled(main + addition1)
-     - price: addition1 price(vocoder price)
-   - import, todo: new forbidden same part number; 
 
 1. customers
   - sales type: customer or distributor 
+  - show/ add new contact can't save
 
 1. Orders(customer order)
    - forbidden edit issued orders failed when the line not be issued
@@ -225,13 +243,7 @@ quantity_issued:
    - Opportunities: priority force to integer
    - project type: default should be DT
 
-1. Price
-   - assembled_items: core_item(SCT3258T), additon_item(D:AMBE+2 voocer)
-   - price#, item_id, price, codition, assemble_with?
-   - [ ] get special price by ODM/OEM/Internal
-
 1. price as quotation or a flexible quotation?
-   - rails g migrateion add_remark_to_price remark:string
    - quotation has many prices; prices has many quotations.
    - g scaffold quotation quotation_number:string remark:string price_id:integer
    - [ ] show by catalogs: active(current stared price, requested price), all(approved, requested) 
@@ -260,41 +272,29 @@ quantity_issued:
    - sales orders overview, sort with item index
    - overview filter for choosen customer  
 
-deliver schedule management
-- rule: PO before leadtime; before 8weeks re-schedule: pull in/push out; within 8 week no re-schedule; 
-- Order(PO/Customer Order) remark: requested deliver date
-- SalesOrder(SO/) deliver_plan: re-schedule
-
-update sales_order.delivery_plan 
 - Can't mass-assign protected attributes for SalesOrder: {:delivery_status=>"reschedule"}
 
-### uniq identities for import / exprot
-- Customer: customer engilish short name: Onreal
-- Item: part_number: SCT3258TD, TN, TDM
-- SetPrice: release_date
-- Price: price_order_number QO2022102205
-- Order: order_number PO2022102206
-- SalesOrder: order_number SO2022102206
 
-- export: export exsiting data
-- import: 
-  - update exsiting data according to uniq identities
-  - create new one when it's not exist.
-  - import fixed values(item part number), find related record(item_id).
- 
 ### status
-- customer status(credit): active, archived, no_quotation?
-- item status(index): active, archived 
-- price status(status): requested, approved => active, archived
+- customer status(credit): active, inactive, archieved, no_quotation?
+- item status(index): active,<=> inactive, archived 
+- price status(status): requested, approved => active, archieved
+  - customer/show: 
+    - show valid prices: approved but not archieved;
+    - or show working prices: actived
+- contacts
 
+### set_price
+refine:
+- price_list with base_price + extra_price;
+  - all project treat as asembled with base_price and extra_price; 
+  - show final price in price list
+- settings: step_format: oem_step1 = oem, step1 = 1pcs; assembled(base + extra); 
+- set_prices: item, sell_by, step1, step2, step3, ..., step24 ==> item, sell_by, step1: step2
+- set price list; 
+  - sort by product family?
+  - import/export verification. same part number, same sale_type odm/oem only one
 
-<%= form_tag(line_item_path(:id => line_item.id, :line_id => line_item.id), :method => :put, remote: true) do %>
-<td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left) %></td>
-<td><%= submit_tag(t(:issue_to_cart), :class=>"btn btn-xs btn-primary") %></td>
-<% end %>
-
-
+### more
 price edit，不能修改产品型号？
-set price list 未按型号排序
-
 delete reverse order also should issue_back

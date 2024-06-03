@@ -5,6 +5,7 @@ class AdminController < ApplicationController
     this_year = Time.now.beginning_of_year..Time.now
     @orders = Order.order(:name).where(created_at: this_year)
     @sales_orders = SalesOrder.where(created_at: this_year).order("delivery_date IS NULL, delivery_date ASC")
+    @open_orders = Order.order(:name)
 
     this_month = Time.now.beginning_of_month..Time.now
     last_month = 1.month.ago.beginning_of_month..Time.now.beginning_of_month
@@ -25,12 +26,12 @@ class AdminController < ApplicationController
     auguest_begin = july_begin.at_end_of_month + 1.day
     september_begin = auguest_begin.at_end_of_month + 1.day
 
-    # create a yearly forecast table, by prices 
+    # create a yearly forecast table, by unique prices 
     this_financial_year = this_financial_year_begin .. (Time.now.end_of_year + 1.day).at_end_of_quarter
-    @forecast_all_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+    @forecast_all_line_items       = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                      .where(line_items: {line_type: 'SalesOrder'})
                                      .where(sales_orders: {delivery_date: this_financial_year} )  
-    @forecast_shipped_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+    @forecast_shipped_line_items   = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
                                      .where(line_items: {line_type: 'SalesOrder'})
                                      .where(sales_orders: {delivery_date: this_financial_year} )
     @forecast_plan_ship_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
@@ -39,6 +40,8 @@ class AdminController < ApplicationController
 
     # @forecast_uniq_prices = @forecast_shipped_line_items.select(:price_id).distinct                                 
 
+    # create Sales Rolling Forecast
+    # featch uniq prices
     uniq_prices = Array.new()
     @forecast_shipped_line_items.select(:price_id).distinct.each do | line_item |
         uniq_prices.push(line_item.price_id)
@@ -52,91 +55,66 @@ class AdminController < ApplicationController
 
     @yearly_uniq_prices = Price.where(id: uniq_prices)
 
-    # uniq_prices = Array.new()    
-    # # @forecast_all_line_items.select(:price_id).distinct.each do | line_item |                                 
-    # @forecast_all_line_items.select(:price_id).distinct.each do | line_item |
-    #   uniq_prices.push(line_item.price_id) 
-    # end
-
-    # financial_months = Array.new()
-    # financial_months.each do | n |
-    #   financial_months[n] = this_financial_year_begin.at_end_of_month + 1.day
-    # end
-
-    # forecast_table = Array.new(uniq_prices.length) {Array.new(12)}
-    # financial_months.each do | month |
-    #   uniq_prices.each do | n |
-    #     forecast_table[month][n] = @forecast_all_line_items.where(uniq_prices[n]).where(delivery_date: month).sum("quantity")
-    #   end
-    # end
-
-
-    @this_year_open_order_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                     .where(line_items: {line_type: 'SalesOrder'})
-                                     .where(sales_orders: {delivery_date: this_year} )
-
-    @last_month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: last_month} )
-
-    @this_month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: this_month} )
-
-    @this_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: this_quarter} )
-
-    @last_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: last_quarter} )
-
-    @last_2nd_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: last_2nd_quarter} )
-
-    @last_3rd_quarter_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: last_3rd_quarter} )
-
-    @this_year_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: this_year} )
-
-    @last_year_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-                                .where(line_items: {line_type: 'SalesOrder'})
-                                .where(sales_orders: {delivery_date: last_year} )
-                                                      
-
-    # select sales orders of current FY, group by "item_id", "price", "customer_id", sum by deliver_date                                
-    # join customer_id into table first?
-
-    @april_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-    .where(line_items: {line_type: 'SalesOrder'})
-    .where(sales_orders: {delivery_date: april_begin.all_month} )
-
-    @september_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
-    .where(line_items: {line_type: 'SalesOrder'})
-    .where(sales_orders: {delivery_date: september_begin.all_month} )
-    # .find(:all, 
-    #       :select => "item_id, line_id, sum(quantity) AS sum_forecast_quantity",
-    #       :group => "item_id, line_id")
-    # .select("item_id, line_id, sum(quantity) AS sum_forecast_quantity").group("item_id, line_id")
-
+    # create Sales Rolling Forecast table
+    financial_months = Array.new()
+    month_begin = Time.now.beginning_of_year.at_end_of_quarter + 1.day
+    for n in 0..11
+      financial_months[n] =  month_begin .. month_begin.at_end_of_month
+      month_begin = month_begin.at_end_of_month + 1.day
+    end
     
-    # @sales_orders = SalesOrder
+    forecast_table_by_month = Array.new(12) {Array.new(@yearly_uniq_prices.length) }
+    financial_months.each_with_index do | month, index |
+      @yearly_uniq_prices.each_with_index do | price, pn |
+        if index < 7  
+          @month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+            .where(line_items: {line_type: 'SalesOrder'})
+            .where(sales_orders: {delivery_plan: month})
+          
+          forecast_table_by_month[index][pn] = @month_line_items.where(price_id: price).sum("quantity")
+        else
+          @plan_ship_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+            .where(line_items: {line_type: 'SalesOrder'})
+            .where(sales_orders: {delivery_plan: month})
+      
+          forecast_table_by_month[index][pn] = @plan_ship_line_items.where(price_id: price).sum("quantity")  
+        end
+      end
+    end
+    
+    @forecast_table = forecast_table_by_month.transpose
 
-    # @items = Item.all
-    # @option_items = Item.where(:package => 'software')
-    # @main_items = @items - @option_items
-    #
-    # Item default_scope { where order: 'name'}
+    # create Product Rolling Forecast
+    # 1. featch uniq_items
+    uniq_items = Array.new()
+    @forecast_all_line_items.select(:item_id).distinct.each do | line_item |
+        uniq_items.push(line_item.item_id)
+    end
 
-    # @main_items = Item.where(assembled: ['no','main', assembled]).order("partNo ASC")
-    @main_items = Item.order('name').where(assembled: ['no','main', 'assembled'])
-    #  @option_items = Item.where(assembled: 'addition').order("partNo ASC")
-    @option_items = Item.where(assembled: 'addition').order("partNo ASC")
+    @yearly_uniq_items = Item.where(id: uniq_items)   
 
+    # 2. create Product Rolling Forecast table
+    financial_months = Array.new()
+    month_begin = Time.now.beginning_of_year.at_end_of_quarter + 1.day
+    for n in 0..11
+      financial_months[n] =  month_begin .. month_begin.at_end_of_month
+      month_begin = month_begin.at_end_of_month + 1.day
+    end
+    
+    item_forecast_table_by_month = Array.new(12) {Array.new(@yearly_uniq_items.length) }
+    financial_months.each_with_index do | month, index |
+      @yearly_uniq_items.each_with_index do | item, pn |
+
+          @year_table_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+            .where(line_items: {line_type: 'SalesOrder'})
+            .where(sales_orders: {delivery_plan: month})
+      
+          item_forecast_table_by_month[index][pn] = @year_table_line_items.where(item_id: item).sum("quantity")  
+
+      end
+    end
+    
+    @item_forecast_table = item_forecast_table_by_month.transpose
 
   end
 

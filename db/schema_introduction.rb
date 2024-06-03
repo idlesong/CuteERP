@@ -90,17 +90,17 @@ ActiveRecord::Schema.define(version: 20221112123509) do
 
   create_table "line_items", force: :cascade do |t|
     t.integer  "item_id"
-    t.datetime "created_at",                                           null: false
-    t.datetime "updated_at",                                           null: false
-    t.integer  "quantity",                                 default: 1 # fixed quantity
-    t.integer  "quantity_issued",                          default: 0
-    t.integer  "line_id"
-    t.string   "line_type"         # OrderType   
-    t.integer  "refer_line_id"
-    t.decimal  "fixed_price",      precision: 8, scale: 2 # fixed price
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.integer  "quantity",  default: 1                  # fixed quantity
+    t.integer  "quantity_issued",  default: 0
+    t.integer  "line_id"                                # so_id; LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
+    t.string   "line_type"                              # OrderType   
+    t.integer  "refer_line_id"                          # po_id; parent_order_id
+    t.decimal  "fixed_price",  precision: 8, scale: 2   # fixed price
     t.integer  "cart_id"
-    t.string   "full_part_number"  # fixed item
-    t.string   "full_name"
+    t.string   "full_part_number"                       # fixed item
+    t.string   "full_name"                              # fixed name & description
     t.integer  "price_id"
     t.string   "remark"
   end
@@ -191,7 +191,7 @@ ActiveRecord::Schema.define(version: 20221112123509) do
   end
 
   create_table "sales_orders", force: :cascade do |t|
-    t.string   "serial_number"      # uniq number 
+    t.string   "serial_number"
     t.integer  "customer_id"
     t.string   "bill_contact"
     t.text     "bill_address"
@@ -200,12 +200,12 @@ ActiveRecord::Schema.define(version: 20221112123509) do
     t.text     "ship_address"
     t.string   "ship_telephone"
     t.string   "payment_term"
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
-    t.datetime "delivery_date"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.datetime "delivery_date"                             # actual deliver date
     t.string   "delivery_status"
     t.decimal  "exchange_rate",   precision: 8, scale: 2
-    t.datetime "delivery_plan"
+    t.datetime "delivery_plan"                             # estimated_date                      
     t.string   "remark"
   end
 
@@ -252,3 +252,18 @@ ActiveRecord::Schema.define(version: 20221112123509) do
   end
 
 end
+
+
+"sales_order"=>{
+  "serial_number"=>"SO20240602-06", 
+  "customer_id"=>"50", 
+  "bill_contact"=>"l", 
+  "bill_address"=>"sz", 
+  "bill_telephone"=>"200000", 
+  "ship_contact"=>"l", 
+  "ship_address"=>"sz", 
+  "ship_telephone"=>"200000", 
+  "payment_term"=>"款到发货", 
+  "delivery_date(1i)"=>"2024", 
+  "delivery_date(2i)"=>"6", 
+  "delivery_date(3i)"=>"2"}

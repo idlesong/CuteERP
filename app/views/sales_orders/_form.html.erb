@@ -69,7 +69,7 @@
 				<%=t(:cart)%>
 				<%=t(:order_cart_lineitems)%>
 				<small><%=t(:order_number)%>#:<%= f.text_field :serial_number,:size => 20 %>
-					   <%=t(:delivery_plan)%>#:<%= f.date_select :created_at,:class => 'date_select'%>
+					   <%=t(:delivery_plan)%>#:<%= f.date_select :delivery_plan,:class => 'date_select'%>
 							 <!-- <= f.file_field :document > -->
 				</small>
 			</h3>

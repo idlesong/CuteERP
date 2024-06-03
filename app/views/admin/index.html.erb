@@ -4,7 +4,7 @@
 
 <%= render 'shared/delivery_status_modal'%>
 <%= render 'shared/reschedule_modal'%>
-<h3><%= t(:order)%> (<%=t(:unissued)%>) <small><%= link_to(t(:more), orders_path) %></small>
+<h3><%= t(:open_orders)%>  <small><%= link_to(t(:more), orders_path) %></small>
   <%= link_to t(:new_order), new_order_path, :class=>"btn btn-primary" %>
 </h3>
 <table class="table">
@@ -13,17 +13,16 @@
       <th><h4><%=t(:order) %>#</h4></th>
       <th><h4><%=t(:customer)%></h4></th>
       <th><h4><%=t(:show_date)%></h4></th>
-      <th><h4><%=t(:product_name)%></h4></th>
       <th><h4><%=t(:part_number)%></h4></th>
-      <th><h4><%=t(:price)%></h4></th>
-      <th><h4><%=t(:quantity)%></h4></th>
-      <th><h4><%=t(:quantity_left)%></h4></th>
-      <th><h4><%=t(:suble_total)%></h4></th>
+      <th class="text-right"><h4><%=t(:price)%></h4></th>
+      <th class="text-right"><h4><%=t(:quantity)%></h4></th>
+      <th class="text-right"><h4><%=t(:quantity_unissued)%></h4></th>
+      <th class="text-right"><h4><%=t(:suble_total)%></h4></th>
       <th><h4><%=t(:actions)%></th></th>
     </tr>
   </thead>
 
-  <% @orders.each do |order| %>
+  <% @open_orders.each do |order| %>
 
   <% if order.customer.currency == 'RMB'
         currency_unit = '¥'
@@ -38,7 +37,6 @@
           <td>#<%= link_to(order.order_number, order_path(order.id))%>-<%= link_to(order.id,order_path(order.id)) %></td>
           <td><%= order.customer.name %></td>
           <td><%= order.created_at.strftime("%F") %>
-          <td><%= line_item.item.name %> </td>
           <td><%= line_item.full_part_number %> </td>
               <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
           <td class="text-right"><%= number_to_currency(line_price, unit: currency_unit) %> </td>
@@ -59,22 +57,19 @@
 
 </br>
 <!-- Listing sales orders -->
-<h3> <%= t(:sales_orders)%>(今年)
-  <small>  <a data-toggle="modal" href="" data-target="#salesOrderReportModal"><%=t(:overview)%> </a></small>
-</h3>
+<h3> <%= t(:sales_orders)%>(今年:已发货 + 待发货) <small><%= link_to(t(:push_out_outdated), sales_orders_path) %></small></h3>
 <table class="table">
   <thead>
     <tr>
       <th><h4><%=t(:sales_orders)%>#</h4></th>
       <th><h4><%=t(:customer)%></h4></th>
       <th><h4><%=t(:refer_po)%>#</h4></th>
-      <th><h4><%=t(:product_name)%></h4></th>
       <th><h4><%=t(:part_number)%></h4></th>
-      <th><h4><%=t(:price)%></h4></th>
-      <th><h4><%=t(:quantity)%></h4></th>
-      <th><h4><%=t(:suble_total)%></h4></th>
-      <th><h4><%=t(:plan_ship_date)%></h4></th>  
-      <th><h4><%=t(:ship_date)%></h4></th>
+      <th class="text-right"><h4><%=t(:price)%></h4></th>
+      <th class="text-right"><h4><%=t(:quantity)%></h4></th>
+      <th class="text-right"><h4><%=t(:suble_total)%></h4></th>
+      <th class="text-right"><h4><%=t(:plan_ship_date)%></h4></th>  
+      <th class="text-right"><h4><%=t(:ship_date)%></h4></th>
     </tr>
   </thead>
 
@@ -92,23 +87,27 @@
           <td>#<%= link_to(order.serial_number, sales_order_path(order.id)) %>-<%= link_to(order.id,sales_order_path(order.id)) %></td>
           <td><%= order.customer.name %></td>
           <td><%= order_number%></td>
-          <td><%= line_item.item.name %> </td>
           <td><%= line_item.full_part_number %> </td>
             <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
           <td class="text-right"><%= number_to_currency(line_price, unit: currency_unit) %> </td>
           <td class="text-right"><%= line_item.quantity %> </td>
           <td class="text-right"><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
-          <td>
-            <% ship_plan_text = '0000-00-00' %>
-            <% if order.delivery_plan %>
-              <% ship_plan_text = order.delivery_plan.to_date %>
-            <% end %>  
-            <% if not order.delivery_date %>
-              <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
-                data-id=<%="#{order.id}" %> > <%=ship_plan_text %> &#x21bb </a>
-            <% end %>
-          </td>          
-          <td>
+          <% ship_plan_text = '0000-00-00' %>
+          <% if order.delivery_plan %>
+            <% ship_plan_text = order.delivery_plan.to_date %>
+          <% end %>  
+          <% if order.delivery_date %>
+            <td class="text-right"><%=ship_plan_text %></td>
+          <% elsif order.delivery_plan.to_date < Time.now %>
+            <td class="text-right bg-danger">
+            <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
+            data-id=<%="#{order.id}" %> > <%=ship_plan_text %> &#x21bb </a></td>                
+          <% else %>
+            <td class="text-right">
+            <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
+              data-id=<%="#{order.id}" %> > <%=ship_plan_text %> &#x21bb </a></td>            
+          <% end %>
+          <td class="text-right">
             <% if order.delivery_date %>
               <% if order.delivery_status %>
                 <a data-toggle="tooltip" data-placement="top" title=<%= "ship:#{order.delivery_status}" %> >
@@ -128,7 +127,11 @@
 </table>
 </br>
 
-<h3> <%= t(:sales_rolling_forecast)%>(FYF23) </h3>
+<h3> <%= t(:sales_rolling_forecast)%>(FinancialYear) 
+<small>  <a data-toggle="modal" href="" data-target="#salesOrderReportModal"><%=t(:product_overview)%> </a></small>
+</h3>
+
+<% if false %>
 
 <% financial_months = Array.new() %>
 <% month_begin = Time.now.beginning_of_year.at_end_of_quarter + 1.day %>
@@ -144,7 +147,7 @@
   <% if index < 7 %>  
     <%  @month_line_items = LineItem.joins("INNER JOIN sales_orders ON line_items.line_id = sales_orders.id ")
       .where(line_items: {line_type: 'SalesOrder'})
-      .where(sales_orders: {delivery_date: month})
+      .where(sales_orders: {delivery_plan: month})
     %>
     <%  forecast_table_by_month[index][pn] = @month_line_items.where(price_id: price).sum("quantity") %>
   <% else %>
@@ -159,6 +162,7 @@
 <% end %>
 
 <% forecast_table = forecast_table_by_month.transpose %>
+<% end %>
 
 <% if false %>
   <p> ---debug forecast table--- </p> </br>
@@ -220,7 +224,7 @@
             <td>
           <% end %>
             <p> <% if j < 7 %> <strong> <%end%>
-            <%= forecast_table[row_n][j] %> </p>
+            <%= @forecast_table[row_n][j] %> </p>
           </td>
         <% end %>     
         <td><%= link_to price.customer.name, price.customer %></td>
@@ -230,6 +234,7 @@
 
 </table>
 
+</br>
 
 <!-- sales_orders report modal-->
 <div class="modal fade" id="salesOrderReportModal" tabindex="-1" role="dialog" aria-labelledby="salesOrderReportModal" aria-hidden="true">
@@ -242,27 +247,43 @@
       <div class="modal-body">
         <table class="table table-striped">
           <tr>
-            <th><%=t(:part_number)%>#</th>
-            <th><%=t(:last_month)%></th>
-            <th><%=t(:this_month)%></th>
-            <th><%=t(:this_quarter)%></th>
-            <th><%=t(:last_1_quarter)%></th>
-            <th><%=t(:last_2_quarter)%></th>
-            <th><%=t(:this_year)%></th>
-            <th><%=t(:last_year)%></th>
+            <th><%=t(:part_number)%>#</th>  
+            <th><%=t(:Year)%></th>
+            <th><%=t(:mons)%></th>
+            <th><%=t(:Apr)%></th>
+            <th><%=t(:May)%></th>
+            <th><%=t(:Jun)%></th>
+            <th><%=t(:Jul)%></th>
+            <th><%=t(:Aug)%></th>
+            <th><%=t(:Sep)%></th>
+            <th><%=t(:Oct)%></th>
+            <th><%=t(:Nov)%></th>
+            <th><%=t(:Dec)%></th>
+            <th><%=t(:Jan)%></th>
+            <th><%=t(:Feb)%></th>
+            <th><%=t(:Mar)%></th>    
+          </tr> 
 
-            <% @main_items.each do |item| %>
-              <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
-                  <td><%= item.partNo %></td>
-                  <td><%= @last_month_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td class="text-primary"><%= @this_month_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td class="text-primary"><%= @this_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td><%= @last_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td><%= @last_2nd_quarter_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td><%= @this_year_line_items.where(item_id: item.id).sum("quantity")%></td>
-                  <td><%= @last_year_line_items.where(item_id: item.id).sum("quantity")%></td>
-              </tr>
-            <% end %>
+
+          <% @yearly_uniq_items.each_with_index do |item, row_n| %>
+            <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+                <td><%= item.partNo %></td>    
+                <td></td>
+                <td></td>
+                <% for j in 0..11 %>
+                  <% if (j+1)%3 == 0 %>
+                  <td  class="bg-success">
+                  <% else %>
+                    <td>
+                  <% end %>
+                    <p> <% if j < 7 %> <strong> <%end%>
+                    <%= @item_forecast_table[row_n][j] %> </p>
+                  </td>
+                <% end %>     
+                <td></td>
+                <td></td>
+            </tr>
+          <% end %>
 
         </table>
       </div>

@@ -34,10 +34,14 @@
                 <% if not @sales_order.delivery_date %>
                   <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
                     data-id=<%="#{@sales_order.id}" %> > <%=ship_plan_text %> &#x21bb </a>
-                <% end %>                
+                <% end %> 
+
+                <% if false %>              
                 <% if not @sales_order.delivery_plan.nil? %>
                   <%= @sales_order.delivery_plan.to_date %> 
                 <% end %>
+                <% end %>
+                
                 <%= link_to(t(:ship_now), confirm_sales_order_path(@sales_order)) %>
               <% end %>
             </h4>

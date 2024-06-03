@@ -108,17 +108,35 @@ class SalesOrdersController < ApplicationController
   def update
     @sales_order = SalesOrder.find(params[:id])
 
-    # update delivery_status(includes reschedule devlivery_plan) 
-    if not params[:delivery_status]
-      # if current_issue_cart.line_items.exists? 
+    # update delivery_status only(includes reschedule devlivery_plan) 
+    if (params[:sales_order][:delivery_status])
+        logger.debug "==####==update delivery status= #{params[:sales_order][:delivery_status]}"
+    else
+      # skip when cart is empty.
+      if current_issue_cart.line_items.exists? 
+        logger.debug "==####==current_issue_cart_has_line_items="
         @sales_order.issue_unissue_po_line_items_when_so_and_cart_diffs(current_issue_cart)  
 
         @sales_order.line_items.clear
         @sales_order.add_line_items_from_issue_cart(current_issue_cart)
+
         @sales_order.save
         # Cart.destroy(session[:issue_cart_id])
         # session[:issue_cart_id] = nil     
-      # end        
+      end
+
+      # confirm_and_dispatch_order if develivery_date exist
+      if (params[:sales_order][:"delivery_date(1i)"])
+        delivery_plan = Time.new(params[:sales_order][:"delivery_date(1i)"],
+                                params[:sales_order][:"delivery_date(2i)"],
+                                params[:sales_order][:"delivery_date(3i)"])
+        logger.debug "==####==confirm and dispatch: delivery_plan= #{delivery_plan}"
+
+        # @sales_order.delivery_date_overwrite_delivery_plan(delivery_plan)
+        @sales_order.update_attribute(:delivery_plan, delivery_plan + 8.hour)
+      end
+      @sales_order.save      
+      
     end  
 
     respond_to do |format|

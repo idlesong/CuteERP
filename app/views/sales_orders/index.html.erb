@@ -43,12 +43,18 @@
           <td>x<%= line_item.quantity %> </td>
           <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
           <td>
+          
+            <% ship_plan_text = '0000-00-00' %>
             <% if order.delivery_plan %>
-              <%= order.delivery_plan.to_date %>
+              <% ship_plan_text = order.delivery_plan.to_date %>
             <% end %>  
-            <% if not order.delivery_date %>
-              <%= link_to('re-schedule', confirm_sales_order_path(order.id)) %> 
+            <% if order.delivery_date %>
+              <%=ship_plan_text %>
+            <% else %>
+              <a class="shipLink" href="" data-toggle="modal" data-target="#rescheduleModal"
+                data-id=<%="#{order.id}" %> > <%=ship_plan_text %> &#x21bb </a>            
             <% end %>
+
           </td>
           <td>
             <% if order.delivery_date %>
