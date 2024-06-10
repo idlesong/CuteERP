@@ -4,14 +4,21 @@ class PricesController < ApplicationController
   def index
     # @prices = Price.all
     if(params[:status])
-      if(params[:status] == "effective")
-        effective = ["active", "approved"]
-        @prices = Price.where(status: effective).order("created_at asc")
+      if(params[:status] == "active")
+        @prices = Price.where(status: "active").order("created_at asc")        
+      elsif(params[:status] == "active_approved")
+        active_approved = ["active", "approved"]
+        @prices = Price.where(status: active_approved).order("created_at asc")
       else
-        @prices = Price.where(status: params[:status]).order("created_at asc")
+        effective = ["active", "approved", "requested"]
+        @prices = Price.where(status: effective).order("created_at asc")        
       end
     else
       @prices = Price.order("created_at asc").all
+    end
+
+    if(params[:is_prr])
+      @prices = Price.where(is_prr: 1).order("created_at asc")       
     end
 
     respond_to do |format|
@@ -57,13 +64,11 @@ class PricesController < ApplicationController
     @price.price_number = @price.generate_price_number
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
-    @latest_release_set_price = SetPrice.order(released_at: :asc).last
-    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
-
-    @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities
-    @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, 'price')
-    @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')
-
+    @latest_released_set_price = SetPrice.order(released_at: :asc).last  
+    if @latest_released_set_price 
+      @latest_set_prices_list = SetPrice.where("released_at" => @latest_released_set_price.released_at)
+    end  
+    
     # clear cart and destroy associated line_items, when customer switched
     if (params[:customer_id] && (params[:customer_id] != current_customer.id))
       session[:customer_id] = params[:customer_id]
@@ -73,13 +78,22 @@ class PricesController < ApplicationController
     @customer = current_customer
     @price.customer = @customer
 
-    if (params[:set_price_id])
+    # get set_price by quantity(params[:condition])
+    @step_quantities = current_user.settings(:step_values).quantities
+    @step_names = current_user.settings(:step_names).names
+
+    if (params[:set_price_id] && params[:condition])
       @set_price = SetPrice.find(params[:set_price_id])
-      @price.item_id = @set_price.item_id # Item.find_by(partNo: params[:item_id]).id
-      @price.price = @set_price.price
-      @price.base_price = @set_price.base_price
+      @price.item_id = @set_price.item_id
+      step_index = @step_quantities.index(params[:condition]).to_i
+      step_index += 8 if @customer.sales_type == "ODM"
+      step_name = @step_names[step_index]
+
+      @price.price = @set_price[step_name]
+      logger.debug "==####@@@@==set_price step_name, value: #{step_name}, #{@set_price[step_name]}"
+      @price.base_price = @set_price[step_name] - @set_price.extra_price
       @price.extra_price = @set_price.extra_price     
-      @price.condition = @set_price.order_quantity
+      @price.condition = params[:condition]
     end
 
     session[:current_path_action] = 'new'    
@@ -98,30 +112,31 @@ class PricesController < ApplicationController
 
     @customer = current_customer
 
-    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
+    @latest_released_set_price = SetPrice.order(released_at: :asc).last
+    
+    if @latest_released_set_price 
+      @latest_set_prices_list = SetPrice.where("released_at" => @latest_released_set_price.released_at)
+    end  
 
-    @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities    
-    @price_list_prices = @latest_release_set_price.get_price_list(@step_quantities, "price")
-    @price_list_ids = @latest_release_set_price.get_price_list(@step_quantities, 'id')    
+    # get set_price by quantity(params[:condition])
+    @step_quantities = current_user.settings(:step_values).quantities
+    @step_names = current_user.settings(:step_names).names  
 
     if (params[:set_price_id] && params[:condition])
       @set_price = SetPrice.find(params[:set_price_id])
       @price.item_id = @set_price.item_id
-      @price.price = @set_price.price
+      step_index = @step_quantities.index(params[:condition]).to_i
+      step_index += 8 if @customer.sales_type == "ODM"
+      step_name = @step_names[step_index]      
+      @price.price = @set_price[step_name]
+      logger.debug "==####@@@@==set_price step_name, value: #{step_name}, #{@set_price[step_name]}"
+      @price.base_price = @set_price[step_name] - @set_price.extra_price
+      @price.extra_price = @set_price.extra_price     
       @price.condition = params[:condition]
     end
 
     session[:current_path_action] = 'edit'
 
-  end
-
-  # GET /prices/lookup_set_price
-  def lookup_set_price
-    if (params[:item_id] && params[:price] && params[:condition])
-      @price.item_id = Item.find_by(partNo: params[:item_id]).id
-      @price.price = params[:price]
-      @price.condition = params[:condition]
-    end    
   end
 
   # POST /prices
@@ -135,7 +150,8 @@ class PricesController < ApplicationController
         format.html { redirect_to @price, notice: 'Price was successfully created.' }
         format.json { render json: @price, status: :created, location: @price }
       else
-        format.html { render action: "new" }
+        # format.html { render action: "new" }
+        format.html { redirect_to proc { new_price_url(@price) }, notice: 'Price was not valid: maybe duplicated.' }
         format.json { render json: @price.errors, status: :unprocessable_entity }
       end
     end
@@ -148,13 +164,12 @@ class PricesController < ApplicationController
 
     if params[:status]
       @price.status = params[:status] 
-
-      # auto achive old price, when active old price
-      # if params[:status] == 'active'
-      #   @prices = Price.where(item_id: @price.item_id, condition: @price.condition)
-      #   @prices.update_all(status: "achived")   
-      # end
     end
+
+    # @latest_released_set_price = SetPrice.order(released_at: :asc).last
+    # @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities 
+    # @step_quantities = [1, 1000, 2500, 5000, 10000, 20000, 50000, 100000]
+    @step_quantities = current_user.settings(:step_values).quantities    
 
     respond_to do |format|
       if @price.update_attributes(params[:price])
@@ -165,7 +180,8 @@ class PricesController < ApplicationController
         format.json { head :no_content }
         end
       else
-        format.html { render action: "edit" }
+        format.html { redirect_to proc { edit_price_url(@price) }, notice: 'Price was not valid, maybe duplicated' }
+        # format.html { render action: "edit" }
         format.json { render json: @price.errors, status: :unprocessable_entity }
       end
     end

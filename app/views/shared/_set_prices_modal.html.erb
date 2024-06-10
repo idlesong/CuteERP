@@ -24,6 +24,68 @@
         </tr>
       </thead>
       <tbody>
+ 
+        <% if not @latest_set_prices_list.nil? %>
+        <% steps = ["0", "1", "1000", "2500", "5000", "10000",  "20000", "50000", "100000"] %>
+        <% @latest_set_prices_list.each do |set_price| %>
+          <tr>      
+          <td><%= set_price.item.partNo %></td> 
+          <% if @customer.sales_type != "ODM" %>
+          <td><%= link_to(set_price.step1, {:controller =>'prices',:action => current_path_action, 
+            :set_price_id => set_price.id, :condition => steps[1]}, :class=>"link")%> </td>
+          <td><%= link_to(set_price.step2, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[2]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step3, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[3]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step4, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[4]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step5, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[5]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step6, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[6]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step7, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[7]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step8, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[8]}, :class=>"link")%> </td> 
+          <td><%= set_price.step9 %> </td> 
+          <td><%= set_price.step10 %> </td> 
+          <td><%= set_price.step11 %> </td> 
+          <td><%= set_price.step12 %> </td> 
+          <td><%= set_price.step13 %> </td> 
+          <td><%= set_price.step14 %> </td> 
+          <td><%= set_price.step15 %> </td> 
+          <td><%= set_price.step16 %> </td> 
+          <% else %>
+          
+          <td><%= set_price.step1 %> </td> 
+          <td><%= set_price.step2 %> </td> 
+          <td><%= set_price.step3 %> </td> 
+          <td><%= set_price.step4 %> </td> 
+          <td><%= set_price.step5 %> </td> 
+          <td><%= set_price.step6 %> </td> 
+          <td><%= set_price.step7 %> </td> 
+          <td><%= set_price.step8 %> </td>                                         
+          <td><%= link_to(set_price.step9, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[1]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step10, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[2]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step11, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[3]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step12, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[4]}, :class=>"link")%> </td>     
+          <td><%= link_to(set_price.step13, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[5]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step14, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[6]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step15, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[7]}, :class=>"link")%> </td> 
+          <td><%= link_to(set_price.step16, {:controller =>'prices',:action => current_path_action, 
+          :set_price_id => set_price.id, :condition => steps[8]}, :class=>"link")%> </td>           
+          <% end %>                                                                                                                                
+        </tr>
+        <% end  %>
+        <% end %>
+
         <% if not @price_list_prices.nil? %>
         <% @price_list_prices.each_with_index do |line, row| %>
           <tr>

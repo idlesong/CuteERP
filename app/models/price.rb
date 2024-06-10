@@ -1,7 +1,8 @@
 class Price < ActiveRecord::Base
   attr_accessible :boss_suggestion, :condition, :customer_id, :department_suggestion,
   :finance_suggestion, :item_id, :payment_terms, :price, :sales_suggestion, :status,
-  :remark, :created_at, :base_price, :extra_price, :price_number, :part_number, :customer_name
+  :remark, :created_at, :base_price, :extra_price, :price_number, :part_number, :customer_name,
+  :is_prr
 
   belongs_to :item
   belongs_to :customer
@@ -16,6 +17,7 @@ class Price < ActiveRecord::Base
   validates :item_id, :presence => true
   validates :customer_id, :presence => true
 
+  before_save  :ensure_price_is_unique?
   before_destroy :ensure_not_used_by_others  
 
 
@@ -118,6 +120,18 @@ class Price < ActiveRecord::Base
   before_destroy :price_request_approved?
 
  private
+  def ensure_price_is_unique?
+    if (Price.where(customer_name: self.customer_name)
+              .where(part_number: self.part_number)
+              .where(condition: self.condition)
+              .where.not(id: self.id)
+              .first)
+      return false
+    else
+      return true
+    end
+  end
+
   def price_request_approved?
     if status_was == 'approved'
       errors.add(:base, 'price has been approved, cannot update!')

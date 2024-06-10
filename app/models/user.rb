@@ -22,8 +22,11 @@ class User < ActiveRecord::Base
     s.key :remark, :defaults => { :order_remark_en => "Unit price includes 13% VAT;",
                                   :order_remark_zh => "此价格包含13%增值税",
                                   :quotation_remark_en => "Unit price includes 13% VAT; Forbidden to re-sell;",
-                                  :quotation_remark_zh => "单价包含13%增值税；禁止转卖，否则本公司有权取消特价",
-   }                           
+                                  :quotation_remark_zh => "单价包含13%增值税；禁止转卖，否则本公司有权取消特价",}
+    s.key :step_values, :defaults => { :quantities => ["1", "1000", "2500", "5000", "10000",  "20000", "50000", "100000"] }
+    s.key :step_names, :defaults => { :names => ["step1", "step2", "step3", "step4", "step5",  "step6", "step7", "step8",
+                                          "step9", "step10", "step11", "step12", "step13", "step14", "step15", "step16"]}
+    s.key :sell_by, :defaults => { :sell_by => ["OEM", "ODM"] }                                                             
   end
 
   def User.encrypt_password(password, salt)

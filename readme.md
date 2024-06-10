@@ -34,6 +34,7 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
      - basic info: contacts & orders & opportunities & wiki
    - credit:(-1, 0, 1, >1)
      - 0: unqualified, 1: inactive, >1: credit, -1: closed  
+   - sales_type: OEM, ODM, internal, re_sell  
 1. multiple currencies(now RMB and USD) support   
 1. different ship_to and bill_to address support(clone by default)
 1. export / import customers list
@@ -48,30 +49,28 @@ set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_
 
 #### prices
 - set_price: (part_number /quantity /price / dist_customer / released_at(key))
-   - batch view (like price list excel)
-      - batch view all the same released date(default: latest)
-      - show/input/update set_price in step quantities
-      - step order quantity set in settings
+   - latest price list view(like price list excel, with extra price)
+      - step values/names set in current_user.settings
       - setting: name: order_quantity_OEM1, value: 1000, note: released_date
-      - item.set_price(quantity)   
-      - batch input; batch achieve
-   - support assembled set_price: 
-      - assembled set_price is a basic set_price, but with base, extra nformation  
+   - support assembled set_price: final price and extra price  
 - prices(customer prices)
-   - released_at(confirmed)
-   - order_quantity
-   - condition(remarks for quotation?)
-   - status(approved/outdated -1: 0, 1, 2)
-     - 0: unqulified; 1: requested; 2: approved; 3: inactive 4: active, -1: outdated/archieved
-   - support assembled price: 
-      - assembled price is a basic price, but with base, extra nformation 
-- price request
-   - auto fillin related set_price according to sales_channel(ODM/OEM) & order_quantity
-   - special price need approved
-   - when approved, price status set approved, and inactive old price
-   - status: approved, stared, achived; hide achived prices     
-- quotation
-   - has many customer prices (with order_quantity(codition) & remarks)
+   - price is the key block for orders, linked to item and customer.
+   - support assembled price
+     - final price=base + extra through item(part_number=base_item+extra_item) 
+   - protections: 
+     - avoid to create similar price(same customer, item, volume(condition))   
+     - can't edit approved price
+     - warning price > set_price 
+   - price request & approval(active) & archive
+     - auto fillin related set_price according to sales_channel(ODM/OEM) & order_quantity
+     - Price reduce request need approval
+     - when approved, price status set approved, and inactive old price
+     - status(approved/outdated -1: 0, 1, 2, 3, 4)
+     - 0: unqulified; 1: requested; 2: approved; ->3: active(inactive to approved)  -1: outdated/archieved 
+   - price import/export    
+- quotation(united)
+   - each price can print a quotation
+   - united quotation has many customer prices (with order_quantity(codition) & remarks)
    - quotation remarks(can modify freely)
    - quotation number  
 
@@ -102,7 +101,8 @@ set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_
 1. delivery
    - re-schedule: delivery_plan date change freely.
    - auto highlight outdated so when delivery_plan < Time.now.
-   - fixed date: when delivery, set delivery_plan = delivery_date, then fixed.     
+   - fixed date: when delivery, set delivery_plan = delivery_date, then fixed.    
+1. import/export orders/sales orders?    
 
 ### Admin: overview of active Orders
 1. Sales Rolling Forecast view is *Main View*(admin)
@@ -168,8 +168,8 @@ set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_
   - items list
   - users list
   
-  - set_prices list(item)
-  - (customers) prices list
+  - set_prices list
+  - prices list
   - customer_orders list  
   - sales_orders list
 
@@ -286,15 +286,12 @@ quantity_issued:
 
 ### set_price
 refine:
-- price_list with base_price + extra_price;
-  - all project treat as asembled with base_price and extra_price; 
-  - show final price in price list
-- settings: step_format: oem_step1 = oem, step1 = 1pcs; assembled(base + extra); 
-- set_prices: item, sell_by, step1, step2, step3, ..., step24 ==> item, sell_by, step1: step2
-- set price list; 
+- set price list
   - sort by product family?
-  - import/export verification. same part number, same sale_type odm/oem only one
+  - import/export verification：part_number should be unique
 
 ### more
-price edit，不能修改产品型号？
 delete reverse order also should issue_back
+
+SCT3258PV for Korea, not assemble?
+sales_type: set_price/ ODM/OEM, internal, resell? 如何拆分

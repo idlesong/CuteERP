@@ -55,10 +55,15 @@
       </tr> 
       </thead>
       <tr>
+        <% set_price = @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type)%>      
         <td><%= 1 %></td>     
         <td><%= @price.item.partNo %></td>
         <td><%= @price.item.name %></td>
-        <td>RMB <%= @price.price %></td>
+        <% if @price.price < set_price - 1 %>
+          <td class="bg-danger">RMB <%= @price.price %></td>
+        <% else %>
+          <td>RMB <%= @price.price %></td>        
+        <% end %>
         <td><%= @price.condition %> pcs</td>
         <td>=<%= @price.base_price %> + <%= @price.extra_price %> </td>
         <td><%= @price.remark %> </td>
@@ -67,20 +72,32 @@
         <td></td>     
         <td></td>
         <td></td>
-        <td>RMB <%= @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %> </td> 
+        <td>RMB <%= set_price %> </td> 
         <td><%= @price.condition %> pcs</td>
         <td colspan = "2">（保密）公司参考报价，报价单不显示</td>
       </tr>
       <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
-    
+      <tr>
+      <td colspan = "7"></td></tr>
+      <% if @price.is_prr == 1 %>
+      <tr><td>☑</td><td colspan = "2" class="bg-danger"> Price Reduce Request(need Department approval)</td>
+      <td  colspan = "2"><%= @price.department_suggestion %></td>
+      <% if @price.status == "requested" %>
+      <td colspan = "2"><%= link_to("☑PRR approve & active", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %></td>
+      <% end %>
+      </tr>
+      <% end %>
       <tr><td colspan = "7">
         <h4 class="text-center"> 
         (<%= @price.status %>) 
         <% if (@price.status == 'requested') %>
-          <%= link_to("approve", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %>
+          <% if (@price.is_prr != 1) %>
+          <%= link_to("approve & active☑", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %>
+          <% end %>
         <% else %>
-          <%= link_to("activate", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %> 
-          <%= link_to("archive", price_path("price[status]" => 'achived'), :method => :put, :confirm => "Sure?") %>    
+          <%= link_to("active☑", price_path("price[status]" => 'active'), :method => :put, :confirm => "Sure?") %> 
+          <%= link_to("inactive✔", price_path("price[status]" => 'approved'), :method => :put, :confirm => "Sure?") %> 
+          <%= link_to("archive✘", price_path("price[status]" => 'archived'), :method => :put, :confirm => "Sure?") %>    
         <% end %>
         </h4>
         </td></tr>
@@ -92,7 +109,7 @@
   <button type="button" class="btn btn-primary" data-toggle="modal"
   data-target=".bs-quotation-modal-lg"><%=t(:quotation_preview)%></button>
 
-  <% if @price.status != 'approved' %>
+  <% if (@price.status != 'approved') && (@price.status != 'active') %>
     <%= link_to t('.edit', :default => t("helpers.links.edit")),
                 edit_price_path(@price), :class => 'btn' %>
 

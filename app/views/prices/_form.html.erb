@@ -83,7 +83,10 @@
           <td colspan="3"> （保密）公司默认参考价格，报价单不显示 </td>
         </tr>        
         <tr><td> <%= t(:remark) %> </td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
-        <tr><td colspan="6"><p class="text-center"><%= f.select(:status, [['requested'],['approved']]) %></p></td></tr>
+        <tr><td colspan = "8"></td></tr>
+        <tr><td colspan = "3" class="bg-danger"> PRR(need department approval)</td>
+        <td  colspan = "4"><%= f.check_box(:is_prr) %> <%= f.text_field :department_suggestion, :class => 'text_field' %></td></tr>
+
         </table>
     </div>  
   </div>
@@ -92,6 +95,7 @@
   <%= f.hidden_field :customer_id, :value => @price.customer_id %>
   <%= f.hidden_field :part_number, :value => @price.item.partNo if not @price.item.nil?%>
   <%= f.hidden_field :customer_name, :value => @price.customer.name if not @price.customer.nil?%>
+  <%= f.hidden_field :status, :value => 'requested' %>  
   </br>
 
   <div class="form-actions">

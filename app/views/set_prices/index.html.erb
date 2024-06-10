@@ -57,6 +57,7 @@
 
   <% end %>  
 
+  <% if false %>
   <% if (@price_list_prices && @price_list_ids) %>
     <% @price_list_prices.each_with_index do |line, index| %>
       <tr>
@@ -70,6 +71,7 @@
       </tr>
     <% end  %>
   <% end %>  
+  <% end %>
   </tbody>
 </table>
 

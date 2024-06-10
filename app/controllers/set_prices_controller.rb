@@ -7,7 +7,8 @@ class SetPricesController < ApplicationController
     @latest_released_set_price = SetPrice.order(released_at: :asc).last
     
     if @latest_released_set_price 
-      @step_quantities = @latest_released_set_price.settings(:step_quantities).quantities
+      # @step_quantities = @latest_released_set_price.settings(:step_quantities).quantities
+      @step_quantities = current_user.settings(:step_values).quantities
       @latest_set_prices = SetPrice.where("released_at" => @latest_released_set_price.released_at)
     end  
 
@@ -41,7 +42,8 @@ class SetPricesController < ApplicationController
     @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => @latest_release_set_price.released_at )
 
     # step_quantities = ["1000", "2500", "5000", "10000", "50000"]
-    @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities
+    # @step_quantities = @latest_release_set_price.settings(:step_quantities).quantities
+    @step_quantities = current_user.settings(:step_values).quantities
     @price_line = @latest_release_set_price.get_price_line("OEM", "SCT3258TN", @step_quantities)
   end
 
