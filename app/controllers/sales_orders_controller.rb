@@ -73,6 +73,26 @@ class SalesOrdersController < ApplicationController
 
   end
 
+  # GET /sales_orders/1/production
+  def production
+    @sales_order = SalesOrder.find(params[:id])
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @sales_order }
+    end  
+  end
+
+  # GET /sales_orders/1/edit_production
+  def edit_production
+    @sales_order = SalesOrder.find(params[:id])
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @sales_order }
+    end  
+  end  
+
   # POST /sales_orders
   # POST /sales_orders.json
   def create

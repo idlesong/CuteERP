@@ -6,11 +6,11 @@
       <th><h4><%=t(:sales_order_number)%>#</h4></th>
       <th><h4><%=t(:customer)%></h4></th>
       <th><h4><%=t(:refer_po)%>#</h4></th>
-      <th><h4><%=t(:product_name)%></h4></th>
       <th><h4><%=t(:part_name)%></h4></th>
       <th><h4><%=t(:price)%></h4></th>
       <th><h4><%=t(:quantity)%></h4></th>
       <th><h4><%=t(:suble_total)%></h4></th>
+      <th><h4><%=t(:uniform_number)%></h4></th>
       <th><h4><%=t(:plan_ship_date)%></h4></th>      
       <th><h4><%=t(:ship_date)%></h4></th>
     </tr>
@@ -30,20 +30,24 @@
           <td>#<%= link_to(order.serial_number, sales_order_path(order.id)) %>-<%= link_to(order.id, sales_order_path(order.id)) %></td>
           <td><%= order.customer.name %></td>
           <td><%= order_number%></td>
-          <td><%= line_item.item.name %> </td>
           <td><%= line_item.full_part_number %> </td>
           <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
-
+          
           <% if line_item.price.nil? then %>
-            <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>          
+          <td><%= number_to_currency(line_price, unit: currency_unit) %> </td>          
           <% else %>
-            <td><%= link_to(number_to_currency(line_price, unit: currency_unit), price_path(line_item.price_id))%> </td>
+          <td><%= link_to(number_to_currency(line_price, unit: currency_unit), price_path(line_item.price_id))%> </td>
           <% end %> 
-
+          
           <td>x<%= line_item.quantity %> </td>
           <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
-          <td>
-          
+
+          <% if line_item.full_name %>
+          <td> <%= line_item.full_name %> </td>
+          <% else %>
+          <td><%= link_to('produce now', edit_production_sales_order_path(order.id)) %></td>          
+          <% end %>
+          <td>          
             <% ship_plan_text = '0000-00-00' %>
             <% if order.delivery_plan %>
               <% ship_plan_text = order.delivery_plan.to_date %>

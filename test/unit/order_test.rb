@@ -31,7 +31,7 @@ class OrderTest < ActiveSupport::TestCase
     # Orders must have line_items
   end
 
-  test "price must be special price or default price" do
+  test "price must be PRR or default price" do
   end
 
 end

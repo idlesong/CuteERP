@@ -5,10 +5,13 @@ RorWebERP::Application.routes.draw do
 
   resources :sales_orders do
     member do
+      get 'edit_production'
+      get 'production'
       get 'confirm'
       get 'invoice'
       get 'packing_list'
       put 'reschedule'
+      put 'update_production'
     end
   end
 

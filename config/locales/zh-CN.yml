@@ -229,7 +229,7 @@ zh-CN:
   opportunities: "业务机会"
   tasks: "工作动态"
   order: "客户订单"
-  open_orders: "未交订单"  
+  open_orders: "未完成订单"  
   sales_orders: "销售订单"
   sales_order: "销售订单"
   tools: "工具"
@@ -356,3 +356,8 @@ zh-CN:
   reverse_order: "冲销订单"
   select_customer: "选择客户"
   only_show_with_active_quotation: "仅显示含有效报价的客户"
+  ongoing: "进行中"
+  property: "固件版本"
+  uniform_number: "六联单号"
+  place_uniform_order: "提交生产六联单"
+

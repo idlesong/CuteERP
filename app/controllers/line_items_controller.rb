@@ -89,7 +89,13 @@ class LineItemsController < ApplicationController
     @line_item = LineItem.find(params[:id])
 
     respond_to do |format|
-      if @line_item.update_attributes(params[:line_item])
+      if params[:uniform_number] # produce with uniform_number
+        @line_item.update_attribute(:full_name, params[:full_name] )
+        @line_item.update_attribute(:remark, params[:remark])
+        format.html { redirect_to @line_item, notice: 'Line item was successfully updated.' }
+        format.js {}
+        format.json { head :no_content }     
+      elsif @line_item.update_attributes(params[:line_item])
         format.html { redirect_to @line_item, notice: 'Line item was successfully updated.' }
         format.js {}
         format.json { head :no_content }

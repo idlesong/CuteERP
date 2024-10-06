@@ -35,7 +35,7 @@
       <% if line_item.quantity > line_item.quantity_issued %>
         <tr>
           <td>#<%= link_to(order.order_number, order_path(order.id))%>-<%= link_to(order.id,order_path(order.id)) %></td>
-          <td><%= order.customer.name %></td>
+          <td><%= link_to order.customer.name, order.customer %></td>
           <td><%= order.created_at.strftime("%F") %>
           <td><%= line_item.full_part_number %> </td>
               <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
@@ -85,7 +85,7 @@
       <% order_number = find_order_number_from_reference(line_item.refer_line_id) %>
         <tr>
           <td>#<%= link_to(order.serial_number, sales_order_path(order.id)) %>-<%= link_to(order.id,sales_order_path(order.id)) %></td>
-          <td><%= order.customer.name %></td>
+          <td><%= link_to order.customer.name, order.customer %></td>
           <td><%= order_number%></td>
           <td><%= line_item.full_part_number %> </td>
             <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>

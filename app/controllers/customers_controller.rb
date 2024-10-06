@@ -25,7 +25,7 @@ class CustomersController < ApplicationController
     @opportunities = Opportunity.where("customer_id = ?", @customer.id).order("created_at")
     @oppostatuses = Oppostatus.all
     @users = User.all
-    @prices = Price.where("customer_id = ?", @customer.id)
+    @prices = Price.where("customer_id = ?", @customer.id).where.not(status: "archived")
 
     #add session id to customer id when show a customer???
     session[:customer_id] = @customer.id

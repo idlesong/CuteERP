@@ -55,11 +55,8 @@ customer_path(@customer),
   <% end %>
 </table>
 
-<h3> <%=t(:price)%>
-<% if false %>
-<button type="button" class="btn btn-mini btn-primary ajax-new"
-  data= <%= @customer.id %> id="/prices"><%=t(:new_price)%></button>
-<% end %>
+<h3> <%=t(:price)%> <small>(<%=t(:ongoing)%>)</small>
+
 
   <%= link_to t('.new', :default => t("helpers.links.new")),
   new_price_path,

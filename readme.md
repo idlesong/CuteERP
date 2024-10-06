@@ -45,7 +45,7 @@ CuteERP: Focus on my needs first， new market development & lean startup in min
 
 
 ### order system
-set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_list)
+set_price(PriceList)->price(Quotation), order(PO), sales_order(production_order, invoice, packing_list)
 
 #### prices
 - set_price: (part_number /quantity /price / dist_customer / released_at(key))
@@ -83,7 +83,7 @@ set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_
    - original order upload(pdf format)     
 1. sales order(issued from customer order, related to shipment)
    - customer order ==issue to==> sales orders(scheduled) 分解订单
-   - sales orders =confirm/ship to=> shipped
+   - sales orders =>start production =>confirm/ship to=> shipped
    - edit sales orders(shipped: confirmed=shipped=invoiced)
      - how to edit-issued: edit quantity, zero delete lineitems? issue more? 
      - split sales orders: new sales order
@@ -192,7 +192,11 @@ set_price(PriceList)->price(Quotation), order(PO), sales_order(invoice, packing_
    - whitelist_attribute
    - mass_assignment_san...
    - group assets
-   
+
+
+### feature introduces
+![block_diagram](./doc/block_digrams.png)
+
 
 ### bugs and feature request
 #### Feature request
@@ -274,6 +278,12 @@ quantity_issued:
 
 - Can't mass-assign protected attributes for SalesOrder: {:delivery_status=>"reschedule"}
 
+orders/show: Can not edit this order, order been issued!
+- 应该醒目提示已分解订单（右上角显示订单状态？），隐藏编辑按钮
+- 取消人民币和美元兑换，number_to_currency
+
+- 全部使用中文，根据客户语言选择订单
+
 
 ### status
 - customer status(credit): active, inactive, archieved, no_quotation?
@@ -295,3 +305,13 @@ delete reverse order also should issue_back
 
 SCT3258PV for Korea, not assemble?
 sales_type: set_price/ ODM/OEM, internal, resell? 如何拆分
+
+#### 生成生产订单
+sales_orders: start_production, uniform_number(use lineitem.full_name first )
+生成六联单（sales_order:start_production，production_number，line_items:product_property)
+如何拆分生产订单？直接修改SO？
+
+预计交期: 2024-09-02 ↻ 现在发货
+
+#### 生产发货首页 role
+

@@ -4,7 +4,6 @@
 <h1><%=t(:sales_order)%></h1>
 
 <div class="panel panel-default">
-  <!-- <div class="panel-heading"><h3>Customer Order<h3></div> -->
   <div class="panel-body">
 
     <h2>
@@ -36,15 +35,11 @@
                     data-id=<%="#{@sales_order.id}" %> > <%=ship_plan_text %> &#x21bb </a>
                 <% end %> 
 
-                <% if false %>              
-                <% if not @sales_order.delivery_plan.nil? %>
-                  <%= @sales_order.delivery_plan.to_date %> 
-                <% end %>
-                <% end %>
                 </br>
                 <%= link_to(t(:edit_order), edit_sales_order_path(@sales_order)) %> >
-                <%= link_to(t(:process_order), production_sales_order_path(@sales_order)) %> >
+                <%= link_to(t(:produce_order), production_sales_order_path(@sales_order)) %> >
                 <%= link_to(t(:ship_now), confirm_sales_order_path(@sales_order)) %>
+
               <% end %>
             </h4>
           </td>
@@ -74,12 +69,11 @@
     	<thead>
     		<tr>
     			<th><h4>#</h4></th>
-    			<th><h4><%=t(:product_name)%></h4></th>
+    			<th><h4><%=t(:uniform_number)%></h4></th>
     			<th><h4><%=t(:part_number)%></h4></th>
     			<th><h4><%=t(:quantity)%></h4></th>
-    			<th><h4><%=t(:price)%></h4></th>
-    			<th><h4><%=t(:suble_total)%></h4></th>
-    			<th><h4><%=t(:remark)%></h4></th>
+    			<th><h4><%=t(:property)%>/<%=t(:remark)%></h4></th>
+    			<th><h4><%=t(:plan_ship_date)%></h4></th>
     		</tr>
     	</thead>
       <% if @sales_order.customer.currency == 'RMB'
@@ -88,24 +82,35 @@
             currency_unit = '$'
           end %>
     	<% @sales_order.line_items.each_with_index do |line_item, index| %>
+<% if false %>        
     		<tr>
     			<td><%= link_to index+1, line_item_path(line_item.id) %> </td>
-    			<td><%= line_item.full_name %> </td>
-    			<td><%= line_item.full_part_number%> </td>
-    			<td><%= line_item.quantity %> </td>
-    			<% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
-    			<td>
-            <% if currency_unit == '$' %>
-              <a data-toggle="tooltip" data-placement="top" title=<%= "=(#{line_item.fixed_price})/1.17/#{@sales_order.exchange_rate}" %>>
-      					<%= number_to_currency(line_price, unit: currency_unit) %>	</a>
-            <% else %>
-              <%= number_to_currency(line_price, unit: currency_unit) %>
-            <% end %>
-          </td>
-    	    <td><%= number_to_currency(line_item.total_currency_price(@sales_order.exchange_rate,
-    								@sales_order.customer.currency), unit: currency_unit) %></td>
+          <%= form_tag(line_items_path(:line_id => line_item.id, :uniform_number => true)) do %>
+            <td><%= text_field_tag(:full_name, "XS2024-376", placeholder: "XS2024-000" ) %></td>
+            <td><%= line_item.full_part_number%> </td>
+            <td><%= line_item.quantity %> </td>         
+            <td><%= text_field_tag(:remark, "V3.01.02GB", placeholder: "V0.00.000" ) %></td>
+            <td><%=ship_plan_text %></td>                 
+            <td><%= submit_tag(t(:place_uniform_order), :class=>"btn btn-xs btn-primary") %></td>
+          <% end %>          
     			<td></td>
     		</tr>
+<% end %>
+    		<tr>
+    			<td><%= link_to index+1, line_item_path(line_item.id) %> </td>
+          <%= form_for(line_item) do |f| %>
+            <td><%= f.text_field(:full_name, placeholder: "XS2024-000" ) %></td>
+            <td><%= line_item.full_part_number%> </td>
+            <td><%= line_item.quantity %> </td>         
+            <td><%= f.text_field(:remark, placeholder: "V0.00.000" ) %></td>
+            <td><%=ship_plan_text %></td>                 
+            <td><%= f.submit(t(:place_uniform_order), :class=>"btn btn-xs btn-primary") %></td>
+          <% end %>          
+    			<td></td>
+    		</tr>
+
+
+
     	<% end %>
 
 	    <tr><td colspan="7"> <strong><%=t(:remark)%>:</strong>
@@ -118,13 +123,13 @@
 
   <div class="panel-footer">
     <% if not @sales_order.delivery_date %>
-      <%= link_to t('.edit', :default => t("helpers.links.edit")), edit_sales_order_path(@sales_order) %> |
+    | <%= link_to t('.edit', :default => t("helpers.links.edit")), edit_sales_order_path(@sales_order) %> |
     <% end %>
 
     | <a href= <%="#{invoice_sales_order_path(@sales_order)}.pdf"%> class="" target="_blank"><%=t(:invoice)%> </a>
     | <a href= <%="#{packing_list_sales_order_path(@sales_order)}.pdf"%> class="" target="_blank"><%=t(:packing_list)%> </a>
-  
-    <% if @sales_order.delivery_status %>
+
+    | <% if @sales_order.delivery_status %>
       <%= "ship:#{@sales_order.delivery_status}" %>
     <% else %>
       <a class="shipLink" href="" data-toggle="modal" data-target="#deliveryStatusModal"
@@ -133,11 +138,6 @@
 
   </div>
 </div>
-
-
-<% if false %>
-<%= render 'shared/reschedule_modal'%>
-<% end %>
 
 <%= render('packing_list') %>
 
