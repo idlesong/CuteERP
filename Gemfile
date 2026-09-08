@@ -20,7 +20,18 @@ gem "cssbundling-rails"
 gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
-# gem "bcrypt", "~> 3.1.7"
+gem "bcrypt", "~> 3.1.7"
+
+# Excel/CSV import [https://github.com/roo-rb/roo]
+gem "roo", "~> 2.10"
+gem "roo-xls", "~> 1.2"
+
+# Per-user settings storage [https://github.com/ledermann/rails-settings]
+gem "ledermann-rails-settings", "~> 2.6"
+
+# PDF generation (invoice / packing list) [https://github.com/mileszs/wicked_pdf]
+gem "wicked_pdf"
+gem "wkhtmltopdf-binary"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]

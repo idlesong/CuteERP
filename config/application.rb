@@ -6,6 +6,9 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# CSV is no longer a default gem from Ruby 3.4; models rely on CSV.generate.
+require "csv"
+
 module CuteErp
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -24,6 +27,11 @@ module CuteErp
     config.time_zone = "Asia/Shanghai"
     config.i18n.default_locale = :"zh-CN"
     config.i18n.available_locales = [:"zh-CN", :en]
+
+    # Legacy behaviour (Rails 4.2): belongs_to is optional unless explicitly
+    # validated. Several associations are legitimately nil (e.g. cart
+    # line_items have no `line`, OEM customers have no `disty`).
+    config.active_record.belongs_to_required_by_default = false
 
     config.generators.system_tests = nil
     # config.eager_load_paths << Rails.root.join("extras")
