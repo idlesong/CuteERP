@@ -1,14 +1,68 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  resources :quotations
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  resources :set_prices do
+    collection do
+      post :import
+      get :quotate
+    end
+  end
+
+  resources :sales_orders do
+    member do
+      get :edit_production
+      get :production
+      get :confirm
+      get :invoice
+      get :packing_list
+      put :reschedule
+      put :update_production
+    end
+  end
+
+  resources :attachments
+
+  resources :prices do
+    member { get :apply }
+    collection { post :import }
+  end
+
+  resources :posts
+  resources :tasks
+  resources :oppostatuses
+  resources :opportunities
+  resources :contacts
+
+  resources :customers do
+    collection { post :import }
+  end
+
+  controller :sessions do
+    get "login" => :new
+    post "login" => :create
+    get "logout" => :destroy
+  end
+
+  resources :users
+
+  resources :orders do
+    collection do
+      get :reverse
+      post :import
+    end
+  end
+
+  resources :line_items
+  resources :carts
+
+  resources :items do
+    member { get :who_bought }
+    collection { post :import }
+  end
+
+  get "inventory", to: "inventory#index", as: :inventory
+
+  root "admin#index", as: :admin
 end

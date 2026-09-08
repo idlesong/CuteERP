@@ -1,4 +1,72 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  protect_from_forgery with: :exception
+
+  before_action :authorize
+
+  private
+
+  def current_cart
+    Cart.find(session[:cart_id])
+  rescue ActiveRecord::RecordNotFound
+    cart = Cart.create
+    session[:cart_id] = cart.id
+    cart
+  end
+
+  def current_issue_cart
+    Cart.find(session[:issue_cart_id])
+  rescue ActiveRecord::RecordNotFound
+    cart = Cart.create
+    session[:issue_cart_id] = cart.id
+    cart
+  end
+
+  def current_cart_currency
+    session[:cart_currency] = "RMB" if session[:cart_currency].nil?
+    session[:cart_currency]
+  end
+
+  def monthly_exchange_rate
+    this_month_start = DateTime.now.beginning_of_month
+    @exchange_rate_setting = current_user.settings(:exchange_rate).name_zh
+
+    if !@exchange_rate_setting.nil?
+      if @exchange_rate_setting.value.to_f > 0
+        session[:exchange_rate] = @exchange_rate_setting.value.to_f
+      end
+    else
+      session[:exchange_rate] = 1
+    end
+  end
+
+  def current_customer
+    Customer.find(session[:customer_id])
+  rescue ActiveRecord::RecordNotFound
+    customer = Customer.first
+    raise ActiveRecord::RecordNotFound if customer.nil?
+
+    session[:customer_id] = customer.id
+    customer
+  end
+
+  def current_user
+    @current_user ||= User.find(session[:user_id]) if session[:user_id]
+  end
+
+  def current_path_action
+    session[:current_path_action] = "new" if session[:current_path_action].nil?
+    session[:current_path_action]
+  end
+
+  helper_method :current_cart_currency
+  helper_method :monthly_exchange_rate
+  helper_method :current_customer
+  helper_method :current_user
+  helper_method :current_path_action
+
+  def authorize
+    unless User.find_by_id(session[:user_id])
+      redirect_to login_url, notice: "Please log in"
+    end
+  end
 end

@@ -83,4 +83,28 @@ class SetPrice < ActiveRecord::Base
     else raise "Unknown file type: #{file.original_filename}"
     end
   end
+
+  # Rows of the release batch this SetPrice belongs to:
+  # [part_number, *oem_step_values, *odm_step_values]
+  # (reconstructed: the old app called a non-existent method here)
+  def get_price_list(step_quantities, _field = "price")
+    batch = SetPrice.where(released_at: released_at).order(:item_id, :line_no)
+    batch.map do |sp|
+      oem = step_quantities.first(8).each_with_index.map { |_q, idx| sp.attributes["step#{idx + 1}"] }
+      odm = step_quantities.first(8).each_with_index.map { |_q, idx| sp.attributes["step#{idx + 9}"] }
+      [sp.item&.partNo] + oem + odm
+    end
+  end
+
+  # Single price line of part_number in this release batch for the given sell_by.
+  def get_price_line(sell_by, part_number, step_quantities)
+    item = Item.find_by(partNo: part_number)
+    return [] unless item
+
+    sp = SetPrice.where(item_id: item.id, released_at: released_at).order(:line_no).first
+    return [] unless sp
+
+    base = sell_by == "ODM" ? 8 : 0
+    [part_number] + step_quantities.first(8).each_with_index.map { |_q, idx| sp.attributes["step#{base + idx + 1}"] }
+  end
 end
