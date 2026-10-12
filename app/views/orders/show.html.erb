@@ -1,0 +1,60 @@
+<% if notice %>
+  <br /><p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+<% end %>
+
+<h1><%= t(:order) %></h1>
+
+<div class="card">
+  <div class="card-body">
+    <h2>
+      <%= link_to @order.customer.name, customer_path(@order.customer) %>
+      <%= @end_customer.name if not @end_customer.nil? %>
+    </h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <td></td>
+          <td>
+            <h4 class="text-right"><%= t(:show_date) %>: <%= @order.created_at.to_date %></h4>
+            <h4 class="text-right"><%= t(:order_number) %>#:
+              <% if @order.document.attached? %>
+                <%= link_to(@order.order_number, url_for(@order.document), target: "_blank") %>
+              <% else %>
+                <%= @order.order_number %>
+              <% end %>
+            </h4>
+            <h4 class="text-right"><%= t(:payment_term) %>:<%= @order.pay_type %></h4>
+          </td>
+        </tr>
+      </thead>
+      <tr><td colspan="2"><h3 class="text-center"><%= t(:order) %></h3></td></tr>
+      <% customer_name = @order.customer.full_name || @order.customer.name %>
+      <tr>
+        <td><h4><%= t(:bill_to) %>: <%= customer_name %></h4></td>
+        <td><h4><%= t(:ship_to) %>: <%= customer_name %></h4></td>
+      </tr>
+      <tr><td><%= t(:contact) %>:<%= @order.name %></td><td><%= t(:contact) %>:<%= @order.ship_contact %></td></tr>
+      <tr><td><%= t(:address) %>:<%= @order.address %></td><td><%= t(:address) %>:<%= @order.ship_address %></td></tr>
+      <tr><td><%= t(:telephone) %>:<%= @order.telephone %></td><td><%= t(:telephone) %>:<%= @order.ship_telephone %></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h5><%= t(:po_number) %>:<%= @order.po_number %></h5></div>
+  <div class="card-body">
+    <%= render @order %>
+  </div>
+
+  <div class="card-footer">
+    <%= link_to t(".edit", default: t("helpers.links.edit")), edit_order_path(@order) %>
+
+    <%= link_to t(".destroy", default: t("helpers.links.destroy")), order_path(@order),
+                data: { turbo_method: :delete, turbo_confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                class: "btn btn-sm btn-danger" %>
+
+    <%= link_to t(:issue_sales_order), new_sales_order_path(customer_id: @order.customer.id) %>
+    <%= link_to t(:reverse_order), reverse_orders_path(customer_id: @order.customer.id),
+                class: "btn btn-sm btn-danger float-end" %>
+  </div>
+</div>

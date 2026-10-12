@@ -1,0 +1,59 @@
+<%- model_class = Customer -%>
+<div class="page-header">
+  <h1><%= t(:customer) %></h1>
+</div>
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th><%= t(:territory) %></th>
+      <th><%= t(:name) %></th>
+      <th><%= t(:full_name) %></th>
+      <th><%= t(:sales_type) %></th>
+      <th><%= t(:disty) %></th>
+      <th><%= t(:payment_term) %></th>
+      <th><%= t(:currency) %></th>
+      <th><%= t(:since) %></th>
+      <th><%= t(:credit) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @customers.each do |customer| %>
+      <tr>
+        <td><%= customer.id %></td>
+        <td><%= customer.territory %></td>
+        <td><%= link_to customer.name, customer_path(customer) %></td>
+        <td><%= customer.full_name %></td>
+        <td><%= customer.sales_type %></td>
+        <td><%= customer.disty&.name %></td>
+        <td><%= customer.payment %></td>
+        <td><%= customer.currency %></td>
+        <td><%= customer.since %></td>
+        <td><%= customer.credit.to_i %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "new customer", new_customer_path, class: "btn btn-primary" %>
+
+<p>
+  <br />
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import customers
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Customers:</h4>
+    <%= link_to "export csv", customers_path(format: "csv"), class: "btn btn-primary" %>|
+    <%= link_to "export Excel", customers_path(format: "xls"), class: "btn btn-primary" %>
+
+    <h4>Import Customers</h4>
+    <%= form_tag import_customers_path, multipart: true do %>
+      <%= file_field_tag :file, class: "form-control" %>
+      <%= submit_tag "Import customers", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+<br />

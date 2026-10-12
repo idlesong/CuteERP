@@ -1,0 +1,36 @@
+<div class="card">
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <td>
+            <h3>
+              <% if @order.customer.full_name.nil? %>
+                <%= @order.customer.name %>
+              <% else %>
+                <%= @order.customer.full_name %>
+              <% end %>
+            </h3>
+          </td>
+          <td>
+            <h4 class="text-right"><%= t(:show_date) %>:<%= DateTime.now.to_date %></h4>
+            <h4 class="text-right"><%= t(:order_number) %>:<%= @order.order_number %></h4>
+            <h4 class="text-right"><%= t(:payment_term) %>:<%= @order.pay_type %></h4>
+          </td>
+        </tr>
+      </thead>
+      <tr><td colspan="2"><h3 class="text-center"><%= t(:order) %></h3></td></tr>
+      <tr>
+        <td><h4><%= t(:bill_to) %>:<%= @order.customer.name %>
+          <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#customersModal">
+            <%= t(:change_customer) %>
+          </a></h4>
+        </td>
+        <td><h4><%= t(:ship_to) %>:<%= @order.customer.name %></h4></td>
+      </tr>
+      <tr><td><%= t(:address) %>:<%= @order.address %></td><td><%= t(:address) %>:<%= @order.ship_address %></td></tr>
+      <tr><td><%= t(:contact) %>:<%= @order.name %></td><td><%= t(:contact) %>:<%= @order.ship_contact %></td></tr>
+      <tr><td><%= t(:telephone) %>:<%= @order.telephone %></td><td><%= t(:telephone) %>:<%= @order.ship_telephone %></td></tr>
+    </table>
+  </div>
+</div>

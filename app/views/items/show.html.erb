@@ -1,0 +1,50 @@
+<% if notice %>
+  <br /><p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+<% end %>
+
+<%- model_class = Item -%>
+<div class="page-header">
+  <h1><%= t ".title", default: model_class.model_name.human.titleize %>
+    <small><%= link_to("wiki", post_path(@item.partNo, query: "url")) %></small></h1>
+</div>
+
+<dl class="dl-horizontal">
+  <dt><strong>index:</strong></dt>
+  <dd><%= @item.index %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:name) %>:</strong></dt>
+  <dd><%= @item.name %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:partNo) %>:</strong></dt>
+  <dd><%= @item.partNo %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:group) %>:</strong></dt>
+  <dd><%= @item.group %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:family) %>:</strong></dt>
+  <dd><%= @item.family %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:package) %>:</strong></dt>
+  <dd><%= @item.package %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:imageURL) %>:</strong></dt>
+  <dd><%= @item.imageURL %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:description) %>:</strong></dt>
+  <dd><%= @item.description %></dd>
+  <dt><strong>volume:</strong></dt>
+  <dd><%= @item.volume %></dd>
+  <dt><strong>weight:</strong></dt>
+  <dd><%= @item.weight %></dd>
+  <dt><strong>MOQ(Minimum Order Quantity)::</strong></dt>
+  <dd><%= @item.moq %></dd>
+  <dt><strong>MPQ(Minimum Packing Quantity):</strong></dt>
+  <dd><%= @item.mop %></dd>
+  <dt><strong>assembled:</strong></dt>
+  <dd><%= @item.assembled %></dd>
+  <dt><strong>base_item:</strong></dt>
+  <dd><%= @item.base_item %></dd>
+  <dt><strong>extra_item:</strong></dt>
+  <dd><%= @item.extra_item %></dd>
+</dl>
+
+<div class="form-actions">
+  <%= link_to t(".back", default: t("helpers.links.back")), items_path, class: "btn btn-outline-secondary" %>
+  <%= link_to t(".edit", default: t("helpers.links.edit")), edit_item_path(@item), class: "btn btn-outline-secondary" %>
+  <%= link_to t(".destroy", default: t("helpers.links.destroy")), item_path(@item),
+              data: { turbo_method: :delete, turbo_confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+              class: "btn btn-danger" %>
+</div>

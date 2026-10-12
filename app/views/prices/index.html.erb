@@ -1,0 +1,109 @@
+<%- model_class = Price -%>
+<div class="page-header">
+  <h1><%= t(:price) %><small>---UnitedQuotations</small></h1>
+  <%= link_to t(".new", default: t("helpers.links.new")), new_price_path, class: "btn btn-primary" %>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "active") %>">active</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "active_approved") %>">active & approved</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "requested") %>">requested</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(is_prr: 1) %>">PRR</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path %>">all</a>
+  </div>
+</div>
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= t(:price_number) %></th>
+      <th><%= t(:customer) %></th>
+      <th><%= t(:sell_by) %></th>
+      <th><%= t(:part_number) %></th>
+      <th><%= t(:condition) %></th>
+      <th><%= t(:price) %></th>
+      <th><%= t(:default_price) %></th>
+      <th><%= t(:price1) %></th>
+      <th>PRR</th>
+      <th><%= t(:remark) %></th>
+      <th><%= t(:status) %></th>
+      <th><%= t(:activate) %></th>
+      <th><%= t(:archive) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @prices.each do |price| %>
+      <tr>
+        <td><%= link_to price.id, price_path(price) %></td>
+        <% price_number = price.price_number || "no price number" %>
+        <td><%= link_to price_number, price_path(price) %></td>
+        <% if price.customer != nil %>
+          <td><%= link_to price.customer_name, price.customer %></td>
+          <td><%= price.customer.sales_type %></td>
+        <% end %>
+        <td><%= price.part_number %></td>
+        <td><%= price.condition %></td>
+        <% set_price = price.get_set_price(price.item_id, price.condition, Customer.find(price.customer_id).sales_type) %>
+        <% if set_price && price.price < set_price - 1 %>
+          <td class="bg-danger"><strong>¥<%= price.price %></strong></td>
+        <% else %>
+          <td><strong>¥<%= price.price %></strong></td>
+        <% end %>
+        <td>¥<%= set_price %></td>
+        <td>
+          <% if not price.base_price.blank? %>
+            =<%= price.base_price %>+<%= price.extra_price %>
+          <% end %>
+        </td>
+        <td><%= "✂" if price.is_prr == 1 %></td>
+        <td><%= price.remark %></td>
+        <td>
+          <% if price.status == "archived" %>
+            <del>✘ <%= price.status %></del>
+          <% elsif price.status == "approved" %>
+            ✔ <%= price.status %>
+          <% elsif price.status == "active" %>
+            ☑ <%= price.status %>
+          <% else %>
+            ○ <%= price.status %>
+          <% end %>
+        </td>
+        <td>
+          <% if price.status == "approved" %>
+            <%= button_to "★", price, method: :put, params: { status: "active" }, class: "btn btn-link" %>
+          <% elsif price.status == "active" %>
+            <%= button_to "☆", price, method: :put, params: { status: "approved" }, class: "btn btn-link" %>
+          <% end %>
+        </td>
+        <td>
+          <% if price.status == "approved" || price.status == "active" %>
+            <%= button_to "✘", price, method: :put, params: { status: "archived" }, class: "btn btn-link" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to t(".new", default: t("helpers.links.new")), new_price_path, class: "btn btn-primary" %>
+
+<p>
+  <br />
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import set prices
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Customers:</h4>
+    <%= link_to "export csv", prices_path(format: "csv"), class: "btn btn-primary" %>|
+    <%= link_to "export Excel", prices_path(format: "xls"), class: "btn btn-primary" %>
+
+    <h4>Import Customers</h4>
+    <%= form_tag import_prices_path, multipart: true do %>
+      <%= file_field_tag :file, class: "form-control" %>
+      <%= submit_tag "Import prices", class: "btn btn-primary" %>
+    <% end %>
+    <br />
+  </div>
+</div>
+<br />

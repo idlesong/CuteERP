@@ -1,0 +1,19 @@
+<p>
+  <b>Name:</b>
+  <%= @attachment.name %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @attachment.description %>
+</p>
+
+<p>
+  <b>Document:</b>
+  <% if @attachment.document.attached? %>
+    <%= link_to @attachment.document.filename.to_s, url_for(@attachment.document) %>
+  <% end %>
+</p>
+
+<%= link_to "Edit", edit_attachment_path(@attachment) %> |
+<%= link_to "Back", attachments_path %>

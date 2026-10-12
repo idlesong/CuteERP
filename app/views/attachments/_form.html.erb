@@ -1,0 +1,30 @@
+<%= form_with model: @attachment, html: { multipart: true } do |f| %>
+  <% if @attachment.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@attachment.errors.count, "error") %> prohibited this attachment from being saved:</h2>
+      <ul>
+        <% @attachment.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :description, class: "form-label" %>
+    <%= f.text_field :description, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :document, class: "form-label" %>
+    <%= f.file_field :document, class: "form-control" %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+  </div>
+<% end %>

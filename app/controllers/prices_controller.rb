@@ -1,5 +1,5 @@
 class PricesController < ApplicationController
-  before_action :set_price, only: [:show, :edit, :update, :destroy]
+  before_action :set_price, only: [:show, :edit, :update, :destroy, :apply]
 
   # GET /prices
   def index
@@ -40,13 +40,13 @@ class PricesController < ApplicationController
 
   # GET /prices/1/apply
   def apply
-    file_name = @price.price_number + @price.customer_name + @price.part_number
+    file_name = [@price.price_number, @price.customer_name, @price.part_number].compact.join
 
     respond_to do |format|
       format.html
       format.pdf do
         render pdf: file_name,
-               layout: "/layouts/pdf.html.erb"
+               layout: "pdf"
       end
     end
   end

@@ -1,0 +1,43 @@
+<div class="modal fade" id="customersModal" tabindex="-1" aria-labelledby="customersModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="customersModalLabel"><%= t(:change_customer) %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped datatable">
+          <thead>
+            <tr>
+              <th><%= t(:customer_name) %></th>
+              <th><%= t(:credit) %></th>
+              <th><%= t(:contact) %></th>
+              <th><%= t(:telephone) %></th>
+              <th><%= t(:balance) %></th>
+              <th>$/¥</th>
+              <th><%= t(:select) %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if not @customers.nil? then %>
+              <% @customers.each do |customer| %>
+                <tr>
+                  <td><strong><%= customer.name %></strong></td>
+                  <td><%= customer.credit %></td>
+                  <td><%= customer.contact %></td>
+                  <td><%= customer.telephone %></td>
+                  <td><%= customer.balance %></td>
+                  <td><%= customer.currency %></td>
+                  <td><%= link_to t(:select), { controller: "orders", action: "new", customer_id: customer.id }, class: "btn btn-sm btn-primary" %></td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

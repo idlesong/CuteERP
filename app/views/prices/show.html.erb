@@ -1,0 +1,141 @@
+<%- model_class = Price -%>
+<div class="page-header">
+  <h1><%= t ".title", default: model_class.model_name.human.titleize %></h1>
+</div>
+
+<!-- Price header -->
+<div class="card">
+  <div class="card-body">
+    <h2>
+      <%= image_tag("sicomm_logo.jpg") %><%= current_user.settings(:company).name_zh %>
+    </h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <td>
+            <h5><%= current_user.settings(:company).name_zh %></h5>
+            <h5><%= current_user.settings(:company).address_zh %></h5>
+            <h5>Tel:051066682208 Fax: 051066682208</h5>
+          </td>
+          <td>
+            <h4 class="text-right"><%= t(:show_date) %>:<%= @price.created_at.strftime("%F") %></h4>
+            <h4 class="text-right"><%= t(:sheet_number) %>#:<%= @price.price_number if @price.price_number %></h4>
+            <h4 class="text-right"><%= t(:payment_term) %>:<%= @price.customer.payment %></h4>
+          </td>
+        </tr>
+      </thead>
+      <tr><td colspan="2"><h3 class="text-center"><%= t(:quotation) %></h3></td></tr>
+      <tr>
+        <td>
+          <h4>To:
+            <% if @price.customer.full_name.blank? %>
+              <%= link_to @price.customer.name, customer_path(@price.customer) %>
+            <% else %>
+              <%= link_to @price.customer.full_name, customer_path(@price.customer) %>
+            <% end %>
+          </h4>
+        </td>
+        <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- Price line items -->
+<div class="card">
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <td>id</td>
+          <td><%= t(:part_number) %></td>
+          <td><%= t(:product_name) %></td>
+          <td><%= t(:unit_price_with_VAT) %></td>
+          <td><%= t(:order_quantity) %></td>
+          <td><%= t(:remark) %></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <% set_price = @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %>
+          <td><%= 1 %></td>
+          <td><%= @price.item.partNo %></td>
+          <td><%= @price.item.name %></td>
+          <% if set_price && @price.price < set_price - 1 %>
+            <td class="bg-danger">RMB <%= @price.price %></td>
+          <% else %>
+            <td>RMB <%= @price.price %></td>
+          <% end %>
+          <td><%= @price.condition %> pcs</td>
+          <td>=<%= @price.base_price %> + <%= @price.extra_price %></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>RMB <%= set_price %></td>
+          <td><%= @price.condition %> pcs</td>
+          <td colspan="2">（保密）公司参考报价，报价单不显示</td>
+        </tr>
+        <tr><td><%= t(:remark) %></td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
+        <tr><td colspan="7"></td></tr>
+        <% if @price.is_prr == 1 %>
+          <tr>
+            <td>☑</td><td colspan="2" class="bg-danger">Price Reduce Request(need Department approval)</td>
+            <td colspan="2"><%= @price.department_suggestion %></td>
+            <% if @price.status == "requested" %>
+              <td colspan="2"><%= link_to "☑PRR approve & active", price_path("price[status]" => "active"), data: { turbo_method: :put, turbo_confirm: "Sure?" } %></td>
+            <% end %>
+          </tr>
+        <% end %>
+        <tr>
+          <td colspan="7">
+            <h4 class="text-center">
+              (<%= @price.status %>)
+              <% if @price.status == "requested" %>
+                <% if @price.is_prr != 1 %>
+                  <%= link_to "approve & active☑", price_path("price[status]" => "active"), data: { turbo_method: :put, turbo_confirm: "Sure?" } %>
+                <% end %>
+              <% else %>
+                <%= link_to "active☑", price_path("price[status]" => "active"), data: { turbo_method: :put, turbo_confirm: "Sure?" } %>
+                <%= link_to "inactive✔", price_path("price[status]" => "approved"), data: { turbo_method: :put, turbo_confirm: "Sure?" } %>
+                <%= link_to "archive✘", price_path("price[status]" => "archived"), data: { turbo_method: :put, turbo_confirm: "Sure?" } %>
+              <% end %>
+            </h4>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div>
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=".bs-quotation-modal-lg"><%= t(:quotation_preview) %></button>
+
+  <% if @price.status != "approved" && @price.status != "active" %>
+    <%= link_to t(".edit", default: t("helpers.links.edit")), edit_price_path(@price), class: "btn btn-outline-secondary" %>
+
+    <%= link_to t(".destroy", default: t("helpers.links.destroy")), price_path(@price),
+                data: { turbo_method: :delete, turbo_confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
+                class: "btn btn-danger" %>
+  <% end %>
+</div>
+
+<br />
+<br />
+<br />
+
+<!-- Large modal Quotation-->
+<div class="modal fade bs-quotation-modal-lg" tabindex="-1" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <%= render "quotation" %>
+      </div>
+      <div class="modal-footer">
+        <a href="<%= "#{apply_price_path(@price)}.pdf" %>" class="btn btn-primary" target="_blank">Print Quotation</a>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

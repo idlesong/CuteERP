@@ -1,0 +1,48 @@
+<%= form_with model: @oppostatus, html: { class: "form-horizontal" } do |f| %>
+  <% if @oppostatus.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@oppostatus.errors.count, "error") %> <%= t(:prohibited_save) %>:</h2>
+      <ul>
+        <% @oppostatus.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :status_mark, class: "form-label" %>
+    <%= f.select :status_mark, Oppostatus::STATUS_LABEL, {}, class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :status, class: "form-label" %>
+    <%= f.text_field :status, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :issue, class: "form-label" %>
+    <%= f.text_field :issue, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :opportunity_id, class: "form-label" %>
+    <%= f.number_field :opportunity_id, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :todo_status, class: "form-label" %>
+    <%= f.text_field :todo_status, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :todo_description, class: "form-label" %>
+    <%= f.text_field :todo_description, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :user_id, class: "form-label" %>
+    <%= f.select :user_id, options_from_collection_for_select(User.all, :id, :name, @oppostatus.user_id), {}, class: "form-select" %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+    <%= link_to t("helpers.links.cancel", default: t("helpers.links.cancel")), oppostatuses_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

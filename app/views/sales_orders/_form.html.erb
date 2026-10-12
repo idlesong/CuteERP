@@ -1,0 +1,105 @@
+<div id="orderHeaderDiv">
+  <%= render partial: "orderHeader" %>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <h3><%= t(:unscheduled_po) %>(<%= t(:show_as_lines) %>)</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><h4>#</h4></th>
+          <th><h4><%= t(:customer) %></h4></th>
+          <th><h4><%= t(:order_number) %></h4></th>
+          <th><h4><%= t(:show_date) %></h4></th>
+          <th><h4><%= t(:product_name) %></h4></th>
+          <th><h4><%= t(:part_number) %></h4></th>
+          <th><h4><%= t(:price) %></h4></th>
+          <th><h4><%= t(:quantity) %></h4></th>
+          <th><h4><%= t(:quantity_issued) %></h4></th>
+          <th><h4><%= t(:suble_total) %></h4></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @orders.each do |order| %>
+          <% unless order.line_items.nil? then %>
+            <% order.line_items.each do |line_item| %>
+              <% quantity_left = line_item.quantity - line_item.quantity_issued %>
+              <% if quantity_left > 0 then %>
+                <tr>
+                  <td>#<%= link_to(order.id, order_path(order.id)) %></td>
+                  <td><%= order.customer.name %></td>
+                  <td><%= order.order_number %></td>
+                  <td><%= order.created_at.strftime("%m-%d") %></td>
+                  <td><%= line_item.full_name %></td>
+                  <td><%= line_item.full_part_number %></td>
+                  <td>¥<%= line_item.fixed_price %></td>
+                  <td>x<%= line_item.quantity %></td>
+                  <td>x<%= line_item.quantity_issued %></td>
+                  <%= form_tag line_items_path(line_id: line_item.id) do %>
+                    <td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left, class: "form-control form-control-sm") %></td>
+                    <td><%= submit_tag(t(:issue_to_cart), class: "btn btn-sm btn-primary") %></td>
+                  <% end %>
+                </tr>
+              <% end %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= form_with model: @sales_order, html: { multipart: true } do |f| %>
+  <% if @sales_order.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@sales_order.errors.count, "error") %> <%= t(:prohibited_save) %>:</h2>
+      <ul>
+        <% @sales_order.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card border-danger">
+    <div class="card-header">
+      <h3 class="card-title">
+        <%= t(:cart) %>
+        <%= t(:order_cart_lineitems) %>
+        <small><%= t(:order_number) %>#:<%= f.text_field :serial_number, size: 20, class: "form-control d-inline-block", style: "width: 12rem;" %>
+          <%= t(:delivery_plan) %>#:<%= f.date_select :delivery_plan, class: "form-select" %>
+        </small>
+      </h3>
+    </div>
+
+    <div class="card-body">
+      <div id="cart">
+        <%= render "carts/cart" %>
+      </div>
+      <strong>Remark:<%= f.text_field :remark, value: current_user.settings(:remark).order_remark_zh, size: 60, class: "form-control d-inline-block", style: "width: 30rem;" %>
+        <%= "Exchange rate: #{@sales_order.exchange_rate}" if @sales_order.customer.currency == "usd" %>
+      </strong>
+      <% if @sales_order.customer.currency == "USD" %>
+        Exchange rate:
+        <%= f.number_field :exchange_rate, class: "form-control", step: "any", id: "exchange_rate" %>
+      <% else %>
+        <%= f.hidden_field :exchange_rate %>
+      <% end %>
+    </div>
+    <div class="card-footer">
+      <%= f.hidden_field :customer_id, value: @sales_order.customer.id %>
+      <%= f.hidden_field :bill_contact %>
+      <%= f.hidden_field :bill_address %>
+      <%= f.hidden_field :bill_telephone %>
+      <%= f.hidden_field :ship_contact %>
+      <%= f.hidden_field :ship_address %>
+      <%= f.hidden_field :ship_telephone %>
+      <%= f.hidden_field :payment_term %>
+      <div class="text-center">
+        <%= f.submit t(:submit_order), class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

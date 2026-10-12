@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Who bought <%= @item.name %></title>
+  <id><%= url_for(controller: "items", action: "show", id: @item) %></id>
+  <updated><%= @item.updated_at.xmlschema %></updated>
+  <% @orders.each do |order| %>
+    <entry>
+      <id><%= url_for(controller: "orders", action: "show", id: order) %></id>
+      <link href="<%= url_for(controller: "orders", action: "show", id: order) %>"/>
+      <updated><%= order.updated_at.xmlschema %></updated>
+      <title><%= order.order_number %> (<%= order.customer.name %>)</title>
+      <content type="html"><%= order.line_items.where(item_id: @item.id).sum(:quantity) %> pcs</content>
+      <author><name><%= order.customer.name %></name></author>
+    </entry>
+  <% end %>
+</feed>

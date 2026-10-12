@@ -1,0 +1,67 @@
+<%= form_with model: @set_price do |f| %>
+  <% if @set_price.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@set_price.errors.count, "error") %> prohibited this set_price from being saved:</h2>
+      <ul>
+        <% @set_price.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th><%= t(:line_no) %></th>
+        <th><%= t(:product) %></th>
+        <th><%= t(:step1) %></th>
+        <th><%= t(:step2) %></th>
+        <th><%= t(:step3) %></th>
+        <th><%= t(:step4) %></th>
+        <th><%= t(:step5) %></th>
+        <th><%= t(:step6) %></th>
+        <th><%= t(:step7) %></th>
+        <th><%= t(:step8) %></th>
+        <th><%= t(:step9) %></th>
+        <th><%= t(:step10) %></th>
+        <th><%= t(:step11) %></th>
+        <th><%= t(:step12) %></th>
+        <th><%= t(:step13) %></th>
+        <th><%= t(:step14) %></th>
+        <th><%= t(:step15) %></th>
+        <th><%= t(:step16) %></th>
+        <th><%= t(:extra_price) %></th>
+        <th><%= t(:released_at) %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><%= f.text_field :line_no, class: "form-control" %></td>
+        <td><%= f.collection_select :item_id, Item.all.order(:partNo), :id, :partNo, {}, class: "form-select" %></td>
+        <td><%= f.text_field :step1, class: "form-control" %></td>
+        <td><%= f.text_field :step2, class: "form-control" %></td>
+        <td><%= f.text_field :step3, class: "form-control" %></td>
+        <td><%= f.text_field :step4, class: "form-control" %></td>
+        <td><%= f.text_field :step5, class: "form-control" %></td>
+        <td><%= f.text_field :step6, class: "form-control" %></td>
+        <td><%= f.text_field :step7, class: "form-control" %></td>
+        <td><%= f.text_field :step8, class: "form-control" %></td>
+        <td><%= f.text_field :step9, class: "form-control" %></td>
+        <td><%= f.text_field :step10, class: "form-control" %></td>
+        <td><%= f.text_field :step11, class: "form-control" %></td>
+        <td><%= f.text_field :step12, class: "form-control" %></td>
+        <td><%= f.text_field :step13, class: "form-control" %></td>
+        <td><%= f.text_field :step14, class: "form-control" %></td>
+        <td><%= f.text_field :step15, class: "form-control" %></td>
+        <td><%= f.text_field :step16, class: "form-control" %></td>
+        <td><%= f.text_field :extra_price, class: "form-control" %></td>
+        <td><%= f.text_field :released_at, class: "form-control" %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+  </div>
+<% end %>

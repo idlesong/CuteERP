@@ -4,7 +4,7 @@ class AdminController < ApplicationController
 
     this_year = Time.now.beginning_of_year..Time.now
     @orders = Order.order(:name).where(created_at: this_year)
-    @sales_orders = SalesOrder.where(created_at: this_year).order("delivery_date IS NULL, delivery_date ASC")
+    @sales_orders = SalesOrder.where(created_at: this_year).order(Arel.sql("delivery_date IS NULL, delivery_date ASC"))
     @open_orders = Order.order(:name)
 
     this_month = Time.now.beginning_of_month..Time.now

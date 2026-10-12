@@ -1,0 +1,82 @@
+<%= form_with model: @item, html: { class: "form-horizontal" } do |f| %>
+  <% if @item.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@item.errors.count, "error") %> <%= t(:prohibited_save) %>:</h2>
+      <ul>
+        <% @item.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :index, class: "form-label" %>
+    <%= f.number_field :index, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-control", placeholder: "*Product name" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :partNo, class: "form-label" %>
+    <%= f.text_field :partNo, class: "form-control", placeholder: "*Part number,must unique" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :group, class: "form-label" %>
+    <%= f.text_field :group, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :family, class: "form-label" %>
+    <%= f.text_field :family, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :package, class: "form-label" %>
+    <%= f.text_field :package, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :imageURL, class: "form-label" %>
+    <%= f.text_field :imageURL, class: "form-control", value: "default_chip.png" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :description, class: "form-label" %>
+    <%= f.text_field :description, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :volume, class: "form-label" %>
+    <%= f.text_field :volume, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :weight, class: "form-label" %>
+    <%= f.text_field :weight, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :moq, class: "form-label" %>
+    <%= f.number_field :moq, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :mop, class: "form-label" %>
+    <%= f.number_field :mop, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :assembled, class: "form-label" %>
+    <%= f.select :assembled, [["no"], ["yes"], ["addition"]], {}, class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :base_item, class: "form-label" %>
+    <%= f.text_field :base_item, class: "form-control", placeholder: "Base part number" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :extra_item, class: "form-label" %>
+    <%= f.text_field :extra_item, class: "form-control", placeholder: "Extra part number" %>
+  </div>
+
+  <br />
+  <div class="form-actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+    <%= link_to t("helpers.links.cancel", default: t("helpers.links.cancel")), items_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

@@ -1,0 +1,111 @@
+<%= form_with model: @price do |f| %>
+  <% if @price.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@price.errors.count, "error") %> prohibited this price from being saved:</h2>
+      <ul>
+        <% @price.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Price header -->
+  <div class="card">
+    <div class="card-body">
+      <h2>
+        <%= image_tag("sicomm_logo.jpg") %><%= current_user.settings(:company).name_zh %>
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5><%= current_user.settings(:company).name_zh %></h5>
+              <h5><%= current_user.settings(:company).address_zh %></h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h5 class="text-right"><%= t(:request_date) %><%= f.date_select :created_at, class: "form-select" %></h5>
+              <h5 class="text-right"><%= t(:sheet_number) %>#:<%= f.text_field :price_number, class: "form-control d-inline-block", style: "width: 12rem;" %></h5>
+              <h5 class="text-right"><%= t(:payment_term) %>:<%= f.select :payment_terms, Order::PAYMENT_TYPES, {}, class: "form-select d-inline-block", style: "width: auto;" %></h5>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan="2"><h3 class="text-center"><%= t(:quotation) %> <%= @price.status %></h3></td></tr>
+        <tr>
+          <td>
+            <h4>To:<%= @price.customer.name %>
+              <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#customersModal">
+                <%= t(:change_customer) %>
+              </a></h4>
+          </td>
+          <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Price line_items -->
+  <div class="card">
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr>
+            <td>id</td>
+            <td><%= t(:part_number) %></td>
+            <td><%= t(:product_name) %></td>
+            <td><%= t(:unit_price_with_VAT) %></td>
+            <td><%= t(:order_quantity) %></td>
+            <td><%= t(:base_price) %></td>
+            <td><%= t(:extra_price) %></td>
+            <td><%= t(:remark) %></td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><%= 1 %></td>
+            <td>
+              <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#setPricesModal">
+                <%= t(:select_set_price) %></a>
+              <%= @price.item.partNo if not @price.item.nil? %></td>
+            <td><%= @price.item.name if not @price.item.nil? %></td>
+            <td><%= f.text_field :price, class: "form-control" %></td>
+            <td><%= f.text_field :condition, class: "form-control d-inline-block", style: "width: 8rem;" %> pcs</td>
+            <td><%= f.text_field :base_price, class: "form-control" %></td>
+            <td><%= f.text_field :extra_price, class: "form-control" %></td>
+            <td><%= f.text_field :remark, class: "form-control" %></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>¥<%= @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %></td>
+            <td><%= @price.condition %> pcs</td>
+            <td colspan="3">（保密）公司默认参考价格，报价单不显示</td>
+          </tr>
+          <tr><td><%= t(:remark) %></td><td colspan="5"><%= current_user.settings(:remark).quotation_remark_zh %></td></tr>
+          <tr><td colspan="8"></td></tr>
+          <tr>
+            <td colspan="3" class="bg-danger">PRR(need department approval)</td>
+            <td colspan="4"><%= f.check_box :is_prr %> <%= f.text_field :department_suggestion, class: "form-control d-inline-block", style: "width: 20rem;" %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <%= f.hidden_field :item_id, value: @price.item_id %>
+  <%= f.hidden_field :customer_id, value: @price.customer_id %>
+  <%= f.hidden_field :part_number, value: @price.item.partNo if not @price.item.nil? %>
+  <%= f.hidden_field :customer_name, value: @price.customer.name if not @price.customer.nil? %>
+  <%= f.hidden_field :status, value: "requested" %>
+  <br />
+
+  <div class="form-actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+    <%= link_to t("helpers.links.cancel", default: t("helpers.links.cancel")), prices_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
+
+<br />
+<br />

@@ -33,6 +33,9 @@ gem "ledermann-rails-settings", "~> 2.6"
 gem "wicked_pdf"
 gem "wkhtmltopdf-binary"
 
+# Markdown rendering (documents) [https://github.com/gettalong/kramdown]
+gem "kramdown"
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 

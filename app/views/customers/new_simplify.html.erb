@@ -1,0 +1,34 @@
+<%- model_class = Customer -%>
+<div class="page-header">
+  <h1><%= t(:new_customer) %></h1>
+</div>
+
+<%= form_with model: @customer, html: { class: "form-horizontal" } do |f| %>
+  <div class="mb-3">
+    <%= f.label t(:name), class: "form-label" %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label t(:address), class: "form-label" %>
+    <%= f.text_area :address, class: "form-control", rows: 4, placeholder: "Please enter address" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label t(:contact), class: "form-label" %>
+    <%= f.text_field :contact, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label t(:telephone), class: "form-label" %>
+    <%= f.text_field :telephone, class: "form-control" %>
+  </div>
+
+  <%= f.hidden_field :since, value: DateTime.now %>
+  <%= f.hidden_field :currency, value: "RMB" %>
+  <%= f.hidden_field :payment, value: "T.T in advance" %>
+  <%= f.hidden_field :balance, value: 0 %>
+
+  <br />
+  <div class="form-actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+    <%= link_to t("helpers.links.cancel", default: t("helpers.links.cancel")), customers_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

@@ -1,0 +1,21 @@
+<div class="modal fade" id="deliveryStatusModal" tabindex="-1" aria-labelledby="deliveryStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deliveryStatusModalLabel"><%= t(:add_ship_status) %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_tag sales_orders_path, method: :put, id: "ship_status" do %>
+          <div>
+            <%= text_field_tag "sales_order[delivery_status]", nil, class: "form-control d-inline-block", style: "width: 12rem;" %>
+            <%= submit_tag "Save", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,29 +1,61 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Cute Erp" %></title>
+    <title>WebERP System Online</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Cute Erp">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
   <body>
-    <%= yield %>
+    <div id="menu">
+      <ul>
+        <li class="nav_left"><a href="/"><i class="bi bi-briefcase"></i> CuteERP</a></li>
+        <% if current_user %>
+          <li class="nav_left"><%= link_to "@#{current_user.name}", "/admin" %></li>
+          <li class="nav_left"><%= link_to t(:logout), "/logout" %></li>
+        <% else %>
+          <li class="nav_left"><%= link_to t(:login), "/login" %></li>
+        <% end %>
+        <li class="nav_right"><a href="<%= users_path %>"><i class="bi bi-gear"></i> <%= t(:settings) %></a></li>
+        <li class="nav_right"><a href="<%= posts_path %>"><i class="bi bi-book"></i> <%= t(:document) %></a></li>
+        <li class="nav_right"><a href="<%= items_path %>"><i class="bi bi-tags"></i> <%= t(:product) %></a></li>
+        <li class="nav_right"><a href="<%= customers_path %>"><i class="bi bi-people"></i> <%= t(:customer) %></a></li>
+      </ul>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-1">
+          <h1>&nbsp;</h1>
+          <ul id="side-nav" class="list-group">
+            <li class="list-group-item disabled"><%= t(:sales_group) %></li>
+            <li class="list-group-item"><%= link_to t(:admin), "/admin" %></li>
+            <li class="list-group-item"><a href="<%= orders_path %>"><%= t(:order) %></a></li>
+            <li class="list-group-item"><a href="<%= sales_orders_path %>"><%= t(:sales_orders) %></a></li>
+            <li class="list-group-item"><a href="<%= prices_path %>"><%= t(:price) %> - </a><a href="<%= set_prices_path %>"><%= t(:set_prices_list) %></a></li>
+            <li class="list-group-item disabled"><%= t(:tools) %></li>
+            <li class="list-group-item"><a href="<%= sales_orders_path %>"><%= t(:production) %></a></li>
+            <li class="list-group-item"><a href="<%= opportunities_path %>"><%= t(:opportunities) %></a></li>
+            <li class="list-group-item"><a href="<%= tasks_path %>"><%= t(:tasks) %></a></li>
+            <li class="list-group-item"><a href="<%= contacts_path %>"><i class="bi bi-person"></i> <%= t(:contact) %></a> - <a href="<%= new_contact_path %>"><i class="bi bi-person-plus"></i></a></li>
+            <li class="list-group-item"><a href="<%= new_customer_path %>"><i class="bi bi-person-plus"></i> <%= t(:new_customer) %></a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-11">
+          <% flash.each do |type, message| %>
+            <div class="alert alert-<%= type == "notice" ? "info" : "danger" %> alert-dismissible fade show" role="alert">
+              <%= message %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% end %>
+          <%= yield %>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

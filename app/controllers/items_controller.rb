@@ -82,6 +82,8 @@ class ItemsController < ApplicationController
   # GET /items/1/who_bought
   def who_bought
     @item = Item.find(params[:id])
+    # Item has no has_many :orders through line_items (polymorphic line), so query directly
+    @orders = Order.where(id: @item.line_items.where(line_type: "Order").select(:line_id)).distinct
 
     respond_to do |format|
       format.atom

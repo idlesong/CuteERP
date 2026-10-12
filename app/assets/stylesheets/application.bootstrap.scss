@@ -1,2 +1,73 @@
-@import 'bootstrap/scss/bootstrap';
-@import 'bootstrap-icons/font/bootstrap-icons';
+// Bootstrap 5 + Bootstrap Icons + DataTables (bs5) + app styles
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons";
+@import "datatables.net-bs5/css/dataTables.bootstrap5";
+
+// ---- top menu bar (migrated from legacy scaffolds.css.scss) ----
+#menu {
+  width: 100%;
+  height: 3em;
+  background: #22384d;
+  color: #eee;
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0.6em 1em;
+
+    li {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+
+    li.nav_left {
+      float: left;
+    }
+
+    li.nav_right {
+      float: right;
+    }
+
+    li a {
+      color: #eee;
+      text-decoration: none;
+
+      &:hover,
+      &.current {
+        color: #fff;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// ---- left sidebar (migrated from legacy scaffolds.css.scss) ----
+#side-nav li {
+  font-size: 0.925rem;
+}
+
+// ---- simple form blocks (migrated from legacy inventory.css.scss) ----
+.inventory_form {
+  fieldset {
+    background: #efe;
+  }
+
+  label {
+    width: 8em;
+    float: left;
+    text-align: right;
+    padding-top: 0.2em;
+    margin-right: 0.1em;
+    display: block;
+  }
+
+  select,
+  textarea,
+  input {
+    margin-left: 0.5em;
+  }
+
+  div {
+    margin: 0.5em 0;
+  }
+}

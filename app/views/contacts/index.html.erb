@@ -1,0 +1,37 @@
+<%- model_class = Contact -%>
+<div class="page-header">
+  <h1><%= t(:contact) %></h1>
+</div>
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= t(:name) %></th>
+      <th><%= t(:customer) %></th>
+      <th><%= t(:title) %></th>
+      <th><%= t(:mobile) %></th>
+      <th><%= t(:telephone) %></th>
+      <th><%= t(:email) %></th>
+      <th><%= t(:address) %></th>
+      <th><%= t(:note) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @contacts.each do |contact| %>
+      <% company = @customers.map { |customer| [customer.id, customer.name] } %>
+      <tr>
+        <td><%= link_to contact.id, contact_path(contact) %></td>
+        <td><%= inline_edit contact, :name %></td>
+        <td><%= inline_edit contact, :customer_id, type: :select, collection: company %></td>
+        <td><%= inline_edit contact, :title %></td>
+        <td><%= inline_edit contact, :mobile %></td>
+        <td><%= inline_edit contact, :telephone %></td>
+        <td><%= inline_edit contact, :email %></td>
+        <td><%= inline_edit contact, :address %></td>
+        <td><%= inline_edit contact, :note %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<button type="button" class="btn btn-primary ajax-new" id="/contacts">new contact</button>

@@ -15,7 +15,7 @@ class Order < ActiveRecord::Base
   # validates :name, :address, presence: true # can fill when ship
 
   # before_update :not_issued?
-  before_destroy :not_issued?
+  before_destroy :ensure_not_issued
 
   def initialize_order_header(new_customer)
     self.customer = new_customer
@@ -131,9 +131,15 @@ class Order < ActiveRecord::Base
     end
   end
 
-  # ensure this order is not issued by any of the sales order
+  # true when this order has not been issued by any sales order
   def not_issued?
-    return unless line_items.where("quantity_issued > 0").exists?
+    line_items.where("quantity_issued > 0").none?
+  end
+
+  private
+
+  def ensure_not_issued
+    return true if not_issued?
 
     errors.add(:base, "Order has been used by sales orders")
     throw :abort

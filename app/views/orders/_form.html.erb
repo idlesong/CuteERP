@@ -1,0 +1,59 @@
+<%= form_with model: @order, html: { multipart: true } do |f| %>
+  <% if @order.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@order.errors.count, "error") %> <%= t(:prohibited_save) %>:</h2>
+      <ul>
+        <% @order.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card border-danger">
+    <div class="card-header">
+      <h3 class="card-title">
+        <%= t(:order_cart_lineitems) %>
+        <small><%= t(:order_number) %>#:<%= f.text_field :po_number, size: 20, class: "form-control d-inline-block", style: "width: 12rem;" %>
+          <%= t(:received_date) %>#:<%= f.date_select :created_at, class: "form-select" %>
+          <% if Customer.find(@order.customer_id).sales_type == "ODM" %>
+            <%= t(:end_customer) %>:
+            <%= f.select :end_customer_id, options_from_collection_for_select(@order.customer.end_customers, :id, :name), {}, class: "form-select" %>
+          <% end %>
+        </small>
+      </h3>
+    </div>
+    <div class="card-body">
+      <div id="cart">
+        <%= render "carts/cart" %>
+      </div>
+      <strong>Remark:<%= f.text_field :remark, value: current_user.settings(:remark).order_remark_zh, size: 60, class: "form-control d-inline-block", style: "width: 30rem;" %>
+        <%= "Exchange rate: #{@order.exchange_rate}" if @order.customer.currency == "usd" %>
+      </strong>
+      <% if @order.customer.currency == "USD" %>
+        Exchange rate:
+        <%= f.number_field :exchange_rate, class: "form-control", step: "any", id: "exchange_rate" %>
+      <% else %>
+        <%= f.hidden_field :exchange_rate %>
+      <% end %>
+    </div>
+    <div class="card-footer">
+      <%= f.hidden_field :order_number %>
+      <%= f.hidden_field :name %>
+      <%= f.hidden_field :address %>
+      <%= f.hidden_field :telephone %>
+      <%= f.hidden_field :ship_contact %>
+      <%= f.hidden_field :ship_address %>
+      <%= f.hidden_field :ship_telephone %>
+      <%= f.hidden_field :pay_type %>
+      <%= f.hidden_field :customer_id, value: @order.customer.id %>
+      <div class="text-center">
+        <%= check_box_tag :reverse_order %>
+        <%= label_tag :reverse_order, "reverse order" %>
+
+        <%= link_to t("helpers.links.cancel", default: t("helpers.links.cancel")), orders_path, class: "btn btn-outline-secondary" %>
+        <%= f.submit t(:submit_order), class: "btn btn-primary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

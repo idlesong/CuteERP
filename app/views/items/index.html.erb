@@ -1,0 +1,64 @@
+<%- model_class = Item -%>
+<div class="page-header">
+  <h1><%= t(:product) %></h1>
+</div>
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th><%= t(:part_number) %></th>
+      <th><%= t(:product_group) %></th>
+      <th><%= t(:product_family) %></th>
+      <th><%= t(:product_name) %></th>
+      <th><%= t(:description) %></th>
+      <th><%= t(:package) %></th>
+      <th><%= t(:mpq) %></th>
+      <th><%= t(:assembled) %></th>
+      <th><%= t(:base_item) %></th>
+      <th><%= t(:extra_item) %></th>
+      <th>active</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @items.each do |item| %>
+      <tr>
+        <td><%= item.id %></td>
+        <td><%= link_to item.partNo, item_path(item) %></td>
+        <td><%= item.group %></td>
+        <td><%= item.family %></td>
+        <td><%= item.name %></td>
+        <td><%= item.description %></td>
+        <td><%= item.package %></td>
+        <td><%= item.mop %></td>
+        <td><%= item.assembled %></td>
+        <td><%= item.base_item %></td>
+        <td><%= item.extra_item %></td>
+        <td><%= item.index %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to "New Item", new_item_path, class: "btn btn-primary" %>
+
+<p>
+  <br />
+  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+    Advanced: Export, Import products
+  </a>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <h4>Export Produts:</h4>
+    <%= link_to "Export CSV", items_path(format: "csv"), class: "btn btn-primary" %> |
+    <%= link_to "Export Excel", items_path(format: "xls"), class: "btn btn-primary" %>
+
+    <h4>Import Products</h4>
+    <%= form_tag import_items_path, multipart: true do %>
+      <%= file_field_tag :file, class: "form-control" %>
+      <%= submit_tag "Import", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+<br />
+<br />

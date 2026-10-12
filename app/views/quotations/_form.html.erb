@@ -1,0 +1,89 @@
+<%= form_with model: @quotation do |f| %>
+  <% if @quotation.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@quotation.errors.count, "error") %> prohibited this quotation from being saved:</h2>
+      <ul>
+        <% @quotation.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Quotation header -->
+  <div class="card">
+    <div class="card-body">
+      <h2>
+        <%= image_tag("sicomm_logo.jpg") %><%= current_user.settings(:company).name_zh %>
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5><%= current_user.settings(:company).name_zh %></h5>
+              <h5><%= current_user.settings(:company).address_zh %></h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right">Date: <%= t(:show_date) %>:<%= DateTime.now.to_date %></h4>
+              <h4 class="text-right">Quotation#:Q<%= DateTime.now.to_date %></h4>
+              <h4 class="text-right">Payment:<%= @quotation.customer.payment %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan="2"><h3 class="text-center">Quotation</h3></td></tr>
+        <tr>
+          <td>
+            <h4>ATTN: <%= t(:bill_to) %>:<%= @quotation.customer.name %>
+              <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#customersSelection">
+                <%= t(:change_customer) %>
+              </a></h4>
+          </td>
+          <td><h4>From: <%= current_user.settings(:company).name_zh %></h4></td>
+        </tr>
+      </table>
+      <%= f.hidden_field :customer_id, value: @quotation.customer_id %>
+      <%= f.hidden_field :quotation_number, value: @quotation.generate_quotation_number %>
+    </div>
+  </div>
+
+  <!-- Quotation price list -->
+  <div class="card">
+    <div class="card-body">
+      <h5>Quotation details</h5>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>part number</td>
+            <td>price</td>
+            <td>condition</td>
+            <td>action</td>
+            <td>note</td>
+          </tr>
+        </thead>
+        <tbody>
+          <% @unquotated_prices.each_with_index do |price, index| %>
+            <tr>
+              <td><%= price.item.partNo %></td>
+              <td><%= price.price %></td>
+              <td><%= price.condition %></td>
+              <td><%= f.check_box :prices, { multiple: true }, price.id, nil %></td>
+              <td>note</td>
+            </tr>
+          <% end %>
+
+          <tr>
+            <td colspan="8">
+              <%= f.label :remark %>
+              <%= f.text_field :remark, value: current_user.settings(:remark).quotation_remark_zh, size: 90, class: "form-control" %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer">
+      <%= f.submit nil, class: "btn btn-primary" %>
+    </div>
+  </div>
+<% end %>

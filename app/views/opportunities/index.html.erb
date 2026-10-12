@@ -1,0 +1,72 @@
+<%- model_class = Opportunity -%>
+<div class="page-header">
+  <h1><%= t ".title", default: model_class.model_name.human.pluralize.titleize %>
+    <div class="btn-group" role="group" aria-label="...">
+      <% @product_catalogs.each do |catalog| %>
+        <a role="button" class="btn btn-outline-secondary" href="<%= opportunities_path(catalog: catalog.project_type) %>"><%= catalog.project_type %></a>
+      <% end %>
+      <a role="button" class="btn btn-outline-secondary" href="<%= opportunities_path %>">All</a>
+    </div>
+  </h1>
+</div>
+
+<table id="oppotunities-table" class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:priority) %></th>
+      <th><%= model_class.human_attribute_name(:customer_id) %></th>
+      <th>catalog</th>
+      <th>[market]solution</th>
+      <th>status</th>
+      <th>issue</th>
+      <th>assign</th>
+      <th>todo</th>
+      <th>status</th>
+      <th>date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @opportunities.each do |opportunity| %>
+      <% if opportunity.oppostatuses.last.nil?
+          opportunity_status_mark = ""
+          opportunity_status = ""
+          opportunity_issue = ""
+          opportunity_todo_status = ""
+          opportunity_todo_description = ""
+          opportunity_user_id = ""
+          opportunity_last_edit = ""
+        else
+          opportunity_status_mark = opportunity.oppostatuses.last.status_mark
+          opportunity_status = opportunity.oppostatuses.last.status
+          opportunity_issue = opportunity.oppostatuses.last.issue
+          opportunity_todo_status = opportunity.oppostatuses.last.todo_status
+          opportunity_todo_description = opportunity.oppostatuses.last.todo_description
+          opportunity_user_id = opportunity.oppostatuses.last.user&.name
+          opportunity_last_edit = opportunity.oppostatuses.last.created_at.strftime("%Y/%m/%d")
+        end %>
+      <tr>
+        <td><%= link_to opportunity.id, opportunity_path(opportunity) %></td>
+        <td>
+          <% if opportunity.priority.to_s < "200" %>
+            <span class="badge text-bg-danger"><%= opportunity.priority %></span>
+          <% elsif opportunity.priority.to_s > "899" %>
+            <span class="badge text-bg-secondary"><%= opportunity.priority %></span>
+          <% else %>
+            <span class="badge text-bg-primary"><%= opportunity.priority %></span>
+          <% end %>
+        </td>
+        <td><%= link_to opportunity.customer.name, customer_path(opportunity.customer) %></td>
+        <td><%= opportunity.project_type %></td>
+        <td><%= link_to(opportunity.market, post_path(opportunity.market, query: "url")) %>
+          <%= opportunity.solution.to_s.delete(opportunity.market.to_s) %></td>
+        <td><span class="badge text-bg-success"><%= opportunity_status_mark %></span><%= opportunity_status %></td>
+        <td><%= opportunity_issue %></td>
+        <td><%= opportunity_user_id %></td>
+        <td><%= opportunity_todo_description %></td>
+        <td><%= opportunity_todo_status %></td>
+        <td><%= opportunity_last_edit %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

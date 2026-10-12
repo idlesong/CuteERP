@@ -1,0 +1,13 @@
+<% if notice %>
+  <br /><p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+<% end %>
+
+<%- model_class = Customer -%>
+
+<div class="page-header">
+  <h1><%= t ".title", default: model_class.model_name.human.titleize %>:<%= @customer.name %>
+    <small><%= link_to "(wiki)", post_path(@customer.name, query: "url") %></small>
+  </h1>
+</div>
+
+<%= render @customer %>

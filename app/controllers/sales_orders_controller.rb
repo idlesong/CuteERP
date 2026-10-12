@@ -155,7 +155,7 @@ class SalesOrdersController < ApplicationController
       format.html
       format.pdf do
         render pdf: "file_name",
-               layout: "/layouts/pdf.html.erb"
+               layout: "pdf"
       end
       format.json { render json: @sales_order }
     end
@@ -167,7 +167,7 @@ class SalesOrdersController < ApplicationController
       format.html
       format.pdf do
         render pdf: "file_name",
-               layout: "/layouts/pdf.html.erb"
+               layout: "pdf"
       end
       format.json { render json: @sales_order }
     end

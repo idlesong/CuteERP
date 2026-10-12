@@ -1,0 +1,100 @@
+<%= form_with model: @sales_order do |f| %>
+  <% if @sales_order.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@sales_order.errors.count, "error") %> prohibited this sales_order from being saved:</h2>
+      <ul>
+        <% @sales_order.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= f.hidden_field :serial_number %>
+  <%= f.hidden_field :customer_id %>
+  <%= f.hidden_field :bill_contact %>
+  <%= f.hidden_field :bill_address %>
+  <%= f.hidden_field :bill_telephone %>
+  <%= f.hidden_field :ship_contact %>
+  <%= f.hidden_field :ship_address %>
+  <%= f.hidden_field :ship_telephone %>
+  <%= f.hidden_field :payment_term %>
+
+  <h1><%= t(:confirm_sales_order) %></h1>
+
+  <div class="card">
+    <div class="card-body">
+      <h2>
+        <%= image_tag("sicomm_logo.jpg") %>无锡士康通讯技术有线公司
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <td>
+              <h5>Wuxi Sicomm Communication Tech</h5>
+              <h5>Address: B building #21 road, Wuxi</h5>
+              <h5>Tel:051066682208 Fax: 051066682208</h5>
+            </td>
+            <td>
+              <h4 class="text-right"><%= t(:show_date) %>: <%= @sales_order.created_at.to_date %></h4>
+              <h4 class="text-right"><%= t(:sales_order_number) %>#:<%= @sales_order.serial_number %></h4>
+              <h4 class="text-right"><%= t(:payment_term) %>:<%= @sales_order.payment_term %></h4>
+              <h4 class="text-right"><%= t(:ship_date) %>:<%= f.date_select :delivery_date, class: "form-select" %></h4>
+            </td>
+          </tr>
+        </thead>
+        <tr><td colspan="2"><h3 class="text-center"><%= t(:sales_order) %></h3></td></tr>
+        <tr>
+          <td><h4><%= t(:bill_to) %>: <%= @sales_order.customer.name %></h4></td>
+          <td><h4><%= t(:ship_to) %>: <%= @sales_order.customer.name %></h4></td>
+        </tr>
+        <tr><td><%= t(:contact) %>:<%= f.text_field :bill_contact, class: "form-control" %></td><td><%= t(:contact) %>:<%= f.text_field :ship_contact, class: "form-control" %></td></tr>
+        <tr><td><%= t(:address) %>:<%= f.text_field :bill_address, class: "form-control" %></td><td><%= t(:address) %>:<%= f.text_field :ship_address, class: "form-control" %></td></tr>
+        <tr><td><%= t(:telephone) %>:<%= f.text_field :bill_telephone, class: "form-control" %></td><td><%= t(:telephone) %>:<%= f.text_field :ship_telephone, class: "form-control" %></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="cart_title"><%= t(:order_details) %></div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th><h4>#</h4></th>
+            <th><h4><%= t(:product_name) %></h4></th>
+            <th><h4><%= t(:part_number) %></h4></th>
+            <th><h4><%= t(:quantity) %></h4></th>
+            <th><h4><%= t(:price) %></h4></th>
+            <th><h4><%= t(:suble_total) %></h4></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% currency_unit = @sales_order.customer.currency == "RMB" ? "¥" : "$" %>
+          <% @sales_order.line_items.each do |line_item| %>
+            <tr>
+              <td>1</td>
+              <td><%= line_item.full_name %></td>
+              <td><%= line_item.full_part_number %></td>
+              <td><%= line_item.quantity %></td>
+              <% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
+              <td>
+                <% if currency_unit == "$" %>
+                  <a data-bs-toggle="tooltip" data-bs-placement="top" title="=(<%= line_item.fixed_price %>)/1.17/<%= @sales_order.exchange_rate %>">
+                    <%= number_to_currency(line_price, unit: currency_unit) %></a>
+                <% else %>
+                  <%= number_to_currency(line_price, unit: currency_unit) %>
+                <% end %>
+              </td>
+              <td><%= number_to_currency(line_item.total_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency), unit: currency_unit) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <div class="card-footer">
+        <p class="text-center"><%= f.submit t(:confirm_and_dispatch_order), class: "btn btn-primary" %></p>
+      </div>
+    </div>
+  </div>
+<% end %>

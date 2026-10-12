@@ -1,0 +1,27 @@
+<h3>Inventory Catalog</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>PartNo</th>
+      <th>Name</th>
+      <th>Package</th>
+      <th>Price</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @items.each do |item| %>
+      <tr class="<%= cycle("list_line_odd", "list_line_even") %>">
+        <td><%= item.partNo %></td>
+        <td><%= item.name %></td>
+        <td><%= item.package %></td>
+        <td><%# Item has no price column in the schema (legacy page quirk) %></td>
+        <td><%= button_to "Add to Cart", line_items_path(item_id: item) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div id="cart">
+  <%= render @cart %>
+</div>

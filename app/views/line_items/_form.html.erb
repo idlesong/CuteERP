@@ -1,0 +1,37 @@
+<%= form_with model: @line_item do |f| %>
+  <% if @line_item.errors.any? %>
+    <div id="error_explanation" class="alert alert-danger" role="alert">
+      <h2><%= pluralize(@line_item.errors.count, "error") %> prohibited this line_item from being saved:</h2>
+      <ul>
+        <% @line_item.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :line_number, class: "form-label" %>
+    <%= f.text_field :line_number, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :item_id, class: "form-label" %>
+    <%= f.number_field :item_id, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :remark, class: "form-label" %>
+    <%= f.text_field :remark, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :quantity_issued, class: "form-label" %>
+    <%= f.number_field :quantity_issued, class: "form-control" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :cart_id, class: "form-label" %>
+    <%= f.number_field :cart_id, class: "form-control" %>
+  </div>
+  <div class="actions">
+    <%= f.submit nil, class: "btn btn-primary" %>
+  </div>
+<% end %>
