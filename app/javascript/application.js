@@ -1,30 +1,44 @@
 // Entry point for the build script in your package.json
 import "@hotwired/turbo-rails"
 
-import jquery from "jquery"
-window.$ = jquery
-window.jQuery = jquery
+import * as jqueryModule from "jquery"
+const jquery = jqueryModule.default ?? jqueryModule
+window.$ = window.jQuery = jquery
 
 import * as Bootstrap from "bootstrap"
 window.Bootstrap = Bootstrap
 
-import "datatables.net"
+import DataTable from "datatables.net"
 import "datatables.net-bs5"
+window.DataTable = DataTable
 
 import "./controllers"
+import { initColumnFilters } from "./lib/column_filters"
 
 document.addEventListener("turbo:load", () => {
   // Bootstrap tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => new Bootstrap.Tooltip(el))
 
-  // DataTables (legacy markup uses .datatable)
+  // DataTables (legacy markup uses .datatable) + Excel-style column filter row
   document.querySelectorAll(".datatable").forEach((table) => {
-    if (!$.fn.DataTable.isDataTable(table)) {
-      $(table).DataTable({
+    if (!DataTable.isDataTable(table)) {
+      const columnCount = table.querySelectorAll("thead th").length
+      const dt = new DataTable(table, {
         pageLength: 50,
-        order: [[1, "asc"]]
+        order: columnCount > 1 ? [[1, "asc"]] : []
       })
+      initColumnFilters(table, dt)
     }
+  })
+
+  // restore original table markup before Turbo caches the page,
+  // so the next visit re-initialises cleanly
+  document.addEventListener("turbo:before-cache", () => {
+    document.querySelectorAll(".datatable").forEach((table) => {
+      if (DataTable.isDataTable(table)) {
+        new DataTable(table, { retrieve: true }).destroy()
+      }
+    })
   })
 
   // ship status modal: point its form at the selected sales order

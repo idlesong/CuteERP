@@ -46,6 +46,23 @@
   font-size: 0.925rem;
 }
 
+// ---- DataTables per-column filter row ----
+.datatable tfoot th {
+  padding: 0.25rem;
+  background: #f8f9fa;
+}
+
+.datatable tfoot input,
+.datatable tfoot select {
+  width: 100%;
+  min-width: 4.5rem;
+  font-size: 0.8125rem;
+}
+
+.datatable tfoot input[type="date"] {
+  min-width: 7.5rem;
+}
+
 // ---- simple form blocks (migrated from legacy inventory.css.scss) ----
 .inventory_form {
   fieldset {
