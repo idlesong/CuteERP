@@ -8,20 +8,27 @@
   background: #22384d;
 }
 
-// ---- DataTables per-column filter row ----
-.datatable tfoot th {
+// ---- DataTables per-column filter row + inline creation row (in thead) ----
+.datatable thead tr[data-filter-row] th {
   padding: 0.25rem;
   background: #f8f9fa;
 }
 
-.datatable tfoot input,
-.datatable tfoot select {
+.datatable thead tr.inline-new-row th {
+  padding: 0.25rem;
+  background: #eaf3ff;
+}
+
+.datatable thead tr[data-filter-row] input,
+.datatable thead tr[data-filter-row] select,
+.datatable thead tr.inline-new-row input,
+.datatable thead tr.inline-new-row select {
   width: 100%;
   min-width: 4.5rem;
   font-size: 0.8125rem;
 }
 
-.datatable tfoot input[type="date"] {
+.datatable thead tr[data-filter-row] input[type="date"] {
   min-width: 7.5rem;
 }
 

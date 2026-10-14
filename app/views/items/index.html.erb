@@ -3,26 +3,12 @@
   <h1><%= t(:product) %></h1>
 </div>
 
-<div class="card mb-3">
-  <div class="card-body py-2">
-    <%= form_with model: Item.new(index: 1), url: items_path, html: { class: "row g-2 align-items-end" } do |f| %>
-      <%= f.hidden_field :inline, value: "1" %>
-      <div class="col-auto"><%= f.text_field :generic_part_no, placeholder: "通用型号*", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.text_field :suffix, placeholder: "后缀", class: "form-control form-control-sm", style: "width: 4.5rem;" %></div>
-      <div class="col-auto"><%= f.text_field :name, placeholder: "名称*", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.text_field :group, placeholder: "大类", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.text_field :family, placeholder: "家族", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.submit "快速创建", class: "btn btn-sm btn-primary" %></div>
-      <div class="col-auto"><%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-sm btn-outline-secondary" %></div>
-    <% end %>
-  </div>
-</div>
-
+<%= form_tag items_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
       <th>id</th>
-      <th><%= t(:part_number) %></th>
+      <th><%= model_class.human_attribute_name(:partNo) %></th>
       <th><%= t(:product_group) %></th>
       <th><%= t(:product_family) %></th>
       <th><%= t(:product_name) %></th>
@@ -33,6 +19,14 @@
       <th><%= t(:base_item) %></th>
       <th><%= t(:extra_item) %></th>
       <th>active</th>
+    </tr>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th><input name="item[partNo]" class="form-control form-control-sm" placeholder="型号*（自动拆分）" required></th>
+      <th><input name="item[group]" class="form-control form-control-sm" placeholder="大类"></th>
+      <th><input name="item[family]" class="form-control form-control-sm" placeholder="家族"></th>
+      <th><input name="item[name]" class="form-control form-control-sm" placeholder="产品名称*" required></th>
+      <th colspan="7"></th>
     </tr>
   </thead>
   <tbody>
@@ -54,6 +48,7 @@
     <% end %>
   </tbody>
 </table>
+<% end %>
 
 <%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-outline-secondary btn-sm" %>
 

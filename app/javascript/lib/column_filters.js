@@ -37,6 +37,10 @@ function appendTextFilter(th, dt, columnIndex) {
       dt.column(columnIndex).search(input.value).draw()
     }, 200)
   })
+  // 筛选行在创建表单内：拦截回车，避免误触发创建
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") e.preventDefault()
+  })
   th.appendChild(input)
 }
 
@@ -87,23 +91,23 @@ function appendRangeFilter(th, dt, columnIndex, table, type) {
 }
 
 // Attach the filter row to an initialised DataTable.
+// The row is inserted into <thead> (below existing header/creation rows),
+// so it always sits right under the column titles.
 export function initColumnFilters(table, dt) {
   if (table.dataset.columnFilters === "off") return
 
   const columnCount = dt.columns().count()
   if (columnCount === 0) return
+  if (!table.tHead) return
 
   // remove a previously generated filter row (Turbo cache restore)
-  table.querySelectorAll("tfoot[data-filter-row]").forEach((el) => el.remove())
-  if (table.tFoot) return // hand-written tfoot: leave it alone
+  table.querySelectorAll("tr[data-filter-row]").forEach((el) => el.remove())
 
-  const tfoot = document.createElement("tfoot")
-  tfoot.dataset.filterRow = "1"
   const row = document.createElement("tr")
-  tfoot.appendChild(row)
-  table.appendChild(tfoot)
+  row.dataset.filterRow = "1"
+  table.tHead.appendChild(row)
 
-  const headerCells = table.tHead ? table.tHead.rows[0].cells : []
+  const headerCells = table.tHead.rows[0].cells
 
   for (let i = 0; i < columnCount; i++) {
     const th = document.createElement("th")

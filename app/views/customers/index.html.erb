@@ -3,26 +3,11 @@
   <h1><%= t(:customer) %></h1>
 </div>
 
-<div class="card mb-3">
-  <div class="card-body py-2">
-    <%= form_with model: Customer.new, url: customers_path, html: { class: "row g-2 align-items-end" } do |f| %>
-      <%= f.hidden_field :inline, value: "1" %>
-      <div class="col-auto"><%= f.text_field :name, placeholder: "英文名*", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.text_field :full_name, placeholder: "公司全称", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.text_field :name_zh, placeholder: "中文名", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.select :sales_type, Customer::SALES_TYPES, { prompt: "销售类型*" }, class: "form-select form-select-sm" %></div>
-      <div class="col-auto"><%= f.select :payment, Order::PAYMENT_TYPES, { prompt: "付款*" }, class: "form-select form-select-sm" %></div>
-      <div class="col-auto"><%= f.select :currency, Customer::CURRENCY_TYPES, { prompt: "币别*" }, class: "form-select form-select-sm" %></div>
-      <div class="col-auto"><%= f.submit "快速创建", class: "btn btn-sm btn-primary" %></div>
-      <div class="col-auto"><%= link_to "高级创建（完整字段）", new_customer_path, class: "btn btn-sm btn-outline-secondary" %></div>
-    <% end %>
-  </div>
-</div>
-
+<%= form_tag customers_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th>id</th>
+      <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%= t(:territory) %></th>
       <th><%= t(:name) %></th>
       <th><%= t(:full_name) %></th>
@@ -32,6 +17,33 @@
       <th><%= t(:currency) %></th>
       <th><%= t(:since) %></th>
       <th><%= t(:credit) %></th>
+    </tr>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th></th>
+      <th><input name="customer[name]" class="form-control form-control-sm" placeholder="英文名*" required></th>
+      <th><input name="customer[full_name]" class="form-control form-control-sm" placeholder="公司全称"></th>
+      <th>
+        <select name="customer[sales_type]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>类型*</option>
+          <%= options_for_select(Customer::SALES_TYPES) %>
+        </select>
+      </th>
+      <th></th>
+      <th>
+        <select name="customer[payment]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>付款*</option>
+          <%= options_for_select(Order::PAYMENT_TYPES) %>
+        </select>
+      </th>
+      <th>
+        <select name="customer[currency]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>币别*</option>
+          <%= options_for_select(Customer::CURRENCY_TYPES) %>
+        </select>
+      </th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -51,6 +63,7 @@
     <% end %>
   </tbody>
 </table>
+<% end %>
 
 <%= link_to "高级创建（完整字段）", new_customer_path, class: "btn btn-outline-secondary btn-sm" %>
 

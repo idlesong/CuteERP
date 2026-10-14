@@ -40,6 +40,13 @@ class ItemsController < ApplicationController
 
   # POST /items
   def create
+    # 行内创建：完整型号自动拆分为 通用型号 + 后缀
+    if params.dig(:item, :partNo).present?
+      base, sfx = Item.split_part_no(params[:item][:partNo])
+      params[:item][:generic_part_no] = base
+      params[:item][:suffix] = sfx
+    end
+
     @item = Item.new(item_params)
 
     respond_to do |format|
@@ -47,8 +54,12 @@ class ItemsController < ApplicationController
         format.html { redirect_to(params[:inline] ? items_url : @item, notice: "Item was successfully created.") }
         format.json { render json: @item, status: :created, location: @item }
       else
-        format.html { render action: "new" }
-        format.json { render json: @item.errors, status: :unprocessable_entity }
+        if params[:inline]
+          redirect_to items_url, alert: @item.errors.full_messages.to_sentence
+        else
+          format.html { render action: "new" }
+          format.json { render json: @item.errors, status: :unprocessable_entity }
+        end
       end
     end
   end

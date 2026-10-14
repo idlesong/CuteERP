@@ -12,21 +12,7 @@
   </div>
 </div>
 
-<div class="card mb-3">
-  <div class="card-body py-2">
-    <%= form_with model: Price.new, url: prices_path, html: { class: "row g-2 align-items-end" } do |f| %>
-      <%= f.hidden_field :inline, value: "1" %>
-      <div class="col-auto">
-        <%= f.collection_select :customer_id, Customer.order(:name), :id, :name, { prompt: "客户*" }, class: "form-select form-select-sm" %>
-      </div>
-      <div class="col-auto"><%= f.text_field :part_number, placeholder: "通用型号*", class: "form-control form-control-sm" %></div>
-      <div class="col-auto"><%= f.number_field :price, placeholder: "单价*", step: :any, class: "form-control form-control-sm", style: "width: 7rem;" %></div>
-      <div class="col-auto"><%= f.text_field :condition, placeholder: "数量条件*", class: "form-control form-control-sm", style: "width: 7rem;" %></div>
-      <div class="col-auto"><%= f.submit "快速创建", class: "btn btn-sm btn-primary" %></div>
-    <% end %>
-  </div>
-</div>
-
+<%= form_tag prices_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
@@ -44,6 +30,27 @@
       <th><%= t(:status) %></th>
       <th><%= t(:activate) %></th>
       <th><%= t(:archive) %></th>
+    </tr>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th></th>
+      <th>
+        <select name="price[customer_id]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>客户*</option>
+          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
+        </select>
+      </th>
+      <th>
+        <select name="price[sell_by]" class="form-select form-select-sm">
+          <option value="" selected>渠道</option>
+          <option>OEM</option>
+          <option>ODM</option>
+        </select>
+      </th>
+      <th><input name="price[part_number]" class="form-control form-control-sm" placeholder="通用型号*" required></th>
+      <th><input name="price[condition]" class="form-control form-control-sm" placeholder="数量*" required></th>
+      <th><input name="price[price]" type="number" step="any" class="form-control form-control-sm" placeholder="单价*" required></th>
+      <th colspan="7"></th>
     </tr>
   </thead>
   <tbody>
@@ -99,8 +106,9 @@
     <% end %>
   </tbody>
 </table>
+<% end %>
 
-<%= link_to t(".new", default: t("helpers.links.new")), new_price_path, class: "btn btn-primary" %>
+<%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
 
 <p>
   <br />
