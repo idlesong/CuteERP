@@ -7,6 +7,7 @@ class Price < ApplicationRecord
   validates :condition, uniqueness: { scope: [:customer_name, :part_number] }
   validates :currency, inclusion: { in: ["RMB", "USD"] }, allow_blank: true
 
+  before_validation :parse_price_formula
   before_validation :normalize
   validate :components_sum_matches_price, if: -> { price.present? }
   before_destroy :ensure_not_approved
@@ -18,11 +19,6 @@ class Price < ApplicationRecord
       .where("effective_from IS NULL OR effective_from <= ?", Date.current)
       .where("expired_at IS NULL OR expired_at >= ?", Date.current)
   }
-
-  # 过渡期：通用型号对应的官方 item（正式型号未建时为 nil，P3 起订单行直接用通用型号）
-  def order_item
-    Item.find_by(generic_part_no: part_number)
-  end
 
   # 过渡期：通用型号对应的官方 item（正式型号未建时为 nil，P3 起订单行直接用通用型号）
   def order_item
@@ -78,6 +74,33 @@ class Price < ApplicationRecord
   end
 
   private
+
+  # 成分公式："=50+50" → 总价 100，成分按顺序拆为 基本款/附加1/附加2（多余并入附加2）
+  def self.parse_formula_terms(input)
+    expr = input.to_s.strip.sub(/\A=/, "").gsub(/\s+/, "")
+    return nil if expr.blank?
+    return nil unless expr.match?(/\A\d+(?:\.\d+)?(?:\+\d+(?:\.\d+)?)*\z/)
+
+    terms = expr.split("+").map(&:to_f)
+    terms << (terms.pop + terms.pop) while terms.size > 3
+    terms
+  end
+
+  def parse_price_formula
+    raw = price_before_type_cast
+    return unless raw.is_a?(String) && raw.strip.start_with?("=")
+
+    terms = self.class.parse_formula_terms(raw)
+    if terms.nil?
+      errors.add(:price, "公式格式无法识别（示例：=50+50，仅支持加法）")
+      return
+    end
+
+    self.price = terms.sum.round(2)
+    self.base_price = terms[0] || 0
+    self.v1_price = terms[1] || 0
+    self.v2_price = terms[2] || 0
+  end
 
   def normalize
     self.part_number = part_number.presence

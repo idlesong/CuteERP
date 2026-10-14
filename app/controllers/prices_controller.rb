@@ -127,8 +127,6 @@ class PricesController < ApplicationController
 
   # PATCH/PUT /prices/1
   def update
-    @step_quantities = current_user.settings(:step_values).quantities
-
     respond_to do |format|
       if @price.update(price_params)
         if params[:status]
@@ -138,7 +136,13 @@ class PricesController < ApplicationController
           format.json { head :no_content }
         end
       else
-        format.html { redirect_to proc { edit_price_url(@price) }, notice: "Price was not valid, maybe duplicated" }
+        format.html do
+          if params[:inline]
+            redirect_to prices_url, alert: "价格未保存：#{@price.errors.full_messages.to_sentence}"
+          else
+            redirect_to proc { edit_price_url(@price) }, notice: "Price was not valid, maybe duplicated"
+          end
+        end
         format.json { render json: @price.errors, status: :unprocessable_entity }
       end
     end

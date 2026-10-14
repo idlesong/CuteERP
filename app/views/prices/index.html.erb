@@ -21,8 +21,8 @@
       <th><%= t(:customer) %></th>
       <th><%= t(:sell_by) %></th>
       <th><%= t(:part_number) %></th>
-      <th><%= t(:condition) %></th>
       <th><%= t(:price) %></th>
+      <th><%= t(:condition) %></th>
       <th><%= t(:default_price) %></th>
       <th><%= t(:price1) %></th>
       <th>PRR</th>
@@ -43,13 +43,13 @@
           <td><%= price.customer.sales_type %></td>
         <% end %>
         <td><%= price.part_number %></td>
-        <td><%= price.condition %></td>
         <% set_price = PriceListEntry.tier_price(price.part_number, Customer.find(price.customer_id)&.sales_type, price.condition) %>
         <% if set_price && price.price < set_price - 1 %>
           <td class="bg-danger"><strong>¥<%= price.price %></strong></td>
         <% else %>
           <td><strong>¥<%= price.price %></strong></td>
         <% end %>
+        <td><%= price.condition %></td>
         <td>¥<%= set_price %></td>
         <td>
           <% if not price.base_price.blank? %>
@@ -94,17 +94,17 @@
           <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
         </select>
       </th>
-      <th>
-        <select name="price[sell_by]" class="form-select form-select-sm">
-          <option value="" selected>渠道</option>
-          <option>OEM</option>
-          <option>ODM</option>
-        </select>
-      </th>
+      <th></th>
       <th><input name="price[part_number]" class="form-control form-control-sm" placeholder="通用型号*" required></th>
-      <th><input name="price[condition]" class="form-control form-control-sm" placeholder="数量*" required></th>
-      <th><input name="price[price]" type="number" step="any" class="form-control form-control-sm" placeholder="单价*" required></th>
-      <th colspan="7"></th>
+      <th><input name="price[price]" class="form-control form-control-sm" placeholder="=50+50 或 单价*" required></th>
+      <th><input name="price[condition]" class="form-control form-control-sm" placeholder="订单量*" required></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
     </tr>
   </tfoot>
 </table>
