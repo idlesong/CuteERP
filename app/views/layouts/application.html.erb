@@ -18,23 +18,18 @@
       </button>
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><%= link_to "首页", "/admin", class: "nav-link" %></li>
           <% if current_user %>
             <li class="nav-item"><%= link_to "客户订单", orders_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "销售订单", sales_orders_path, class: "nav-link" %></li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">价格</a>
-              <ul class="dropdown-menu">
-                <li><%= link_to "价格管理", prices_path, class: "dropdown-item" %></li>
-                <li><%= link_to "阶梯价目", set_prices_path, class: "dropdown-item" %></li>
-              </ul>
-            </li>
+            <li class="nav-item"><%= link_to "价格", prices_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "客户", customers_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "产品", items_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "文档", posts_path, class: "nav-link" %></li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">工具</a>
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">更多</a>
               <ul class="dropdown-menu">
+                <li><%= link_to "文档", posts_path, class: "dropdown-item" %></li>
+                <li><%= link_to "阶梯价目", set_prices_path, class: "dropdown-item" %></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><%= link_to "业务机会", opportunities_path, class: "dropdown-item" %></li>
                 <li><%= link_to "工作动态", tasks_path, class: "dropdown-item" %></li>
                 <li><%= link_to "联系人", contacts_path, class: "dropdown-item" %></li>

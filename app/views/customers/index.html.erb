@@ -18,6 +18,24 @@
       <th><%= t(:since) %></th>
       <th><%= t(:credit) %></th>
     </tr>
+  </thead>
+  <tbody>
+    <% @customers.each do |customer| %>
+      <tr>
+        <td><%= customer.id %></td>
+        <td><%= customer.territory %></td>
+        <td><%= link_to customer.name, customer_path(customer) %></td>
+        <td><%= customer.full_name %></td>
+        <td><%= customer.sales_type %></td>
+        <td><%= customer.disty&.name %></td>
+        <td><%= customer.payment %></td>
+        <td><%= customer.currency %></td>
+        <td><%= customer.since %></td>
+        <td><%= customer.credit.to_i %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  <tfoot>
     <tr class="inline-new-row">
       <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
       <th></th>
@@ -45,23 +63,7 @@
       <th></th>
       <th></th>
     </tr>
-  </thead>
-  <tbody>
-    <% @customers.each do |customer| %>
-      <tr>
-        <td><%= customer.id %></td>
-        <td><%= customer.territory %></td>
-        <td><%= link_to customer.name, customer_path(customer) %></td>
-        <td><%= customer.full_name %></td>
-        <td><%= customer.sales_type %></td>
-        <td><%= customer.disty&.name %></td>
-        <td><%= customer.payment %></td>
-        <td><%= customer.currency %></td>
-        <td><%= customer.since %></td>
-        <td><%= customer.credit.to_i %></td>
-      </tr>
-    <% end %>
-  </tbody>
+  </tfoot>
 </table>
 <% end %>
 

@@ -20,14 +20,6 @@
       <th><%= t(:extra_item) %></th>
       <th>active</th>
     </tr>
-    <tr class="inline-new-row">
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
-      <th><input name="item[partNo]" class="form-control form-control-sm" placeholder="型号*（自动拆分）" required></th>
-      <th><input name="item[group]" class="form-control form-control-sm" placeholder="大类"></th>
-      <th><input name="item[family]" class="form-control form-control-sm" placeholder="家族"></th>
-      <th><input name="item[name]" class="form-control form-control-sm" placeholder="产品名称*" required></th>
-      <th colspan="7"></th>
-    </tr>
   </thead>
   <tbody>
     <% @items.each do |item| %>
@@ -47,6 +39,16 @@
       </tr>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th><input name="item[partNo]" class="form-control form-control-sm" placeholder="型号*（自动拆分）" required></th>
+      <th><input name="item[group]" class="form-control form-control-sm" placeholder="大类"></th>
+      <th><input name="item[family]" class="form-control form-control-sm" placeholder="家族"></th>
+      <th><input name="item[name]" class="form-control form-control-sm" placeholder="产品名称*" required></th>
+      <th colspan="7"></th>
+    </tr>
+  </tfoot>
 </table>
 <% end %>
 

@@ -1,16 +1,6 @@
-<div class="card mb-3">
-  <div class="card-body py-2">
-    <%= form_tag new_order_path, method: :get, class: "row g-2 align-items-end" do %>
-      <div class="col-auto">
-        <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name), class: "form-select form-select-sm" %>
-      </div>
-      <div class="col-auto"><%= submit_tag "选客户开单", class: "btn btn-sm btn-primary" %></div>
-    <% end %>
-  </div>
-</div>
-
 <% if true %>
   <h3><%= t(:order) %>(<%= t(:show_as_lines) %>)</h3>
+  <%= form_tag new_order_path, method: :get do %>
   <table class="table datatable">
     <thead>
       <tr>
@@ -62,7 +52,17 @@
         <% end %>
       <% end %>
     </tbody>
+    <tfoot>
+      <tr class="inline-new-row">
+        <td colspan="3">
+          <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name), class: "form-select form-select-sm", style: "width: 14rem;" %>
+          <%= submit_tag "选客户开单", class: "btn btn-sm btn-primary" %>
+        </td>
+        <td colspan="8"></td>
+      </tr>
+    </tfoot>
   </table>
+  <% end %>
 
   <%= link_to "New Order", new_order_path, class: "btn btn-primary" %>
 <% end %>

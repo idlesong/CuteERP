@@ -31,27 +31,6 @@
       <th><%= t(:activate) %></th>
       <th><%= t(:archive) %></th>
     </tr>
-    <tr class="inline-new-row">
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
-      <th></th>
-      <th>
-        <select name="price[customer_id]" class="form-select form-select-sm" required>
-          <option value="" selected disabled>客户*</option>
-          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
-        </select>
-      </th>
-      <th>
-        <select name="price[sell_by]" class="form-select form-select-sm">
-          <option value="" selected>渠道</option>
-          <option>OEM</option>
-          <option>ODM</option>
-        </select>
-      </th>
-      <th><input name="price[part_number]" class="form-control form-control-sm" placeholder="通用型号*" required></th>
-      <th><input name="price[condition]" class="form-control form-control-sm" placeholder="数量*" required></th>
-      <th><input name="price[price]" type="number" step="any" class="form-control form-control-sm" placeholder="单价*" required></th>
-      <th colspan="7"></th>
-    </tr>
   </thead>
   <tbody>
     <% @prices.each do |price| %>
@@ -105,6 +84,29 @@
       </tr>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th></th>
+      <th>
+        <select name="price[customer_id]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>客户*</option>
+          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
+        </select>
+      </th>
+      <th>
+        <select name="price[sell_by]" class="form-select form-select-sm">
+          <option value="" selected>渠道</option>
+          <option>OEM</option>
+          <option>ODM</option>
+        </select>
+      </th>
+      <th><input name="price[part_number]" class="form-control form-control-sm" placeholder="通用型号*" required></th>
+      <th><input name="price[condition]" class="form-control form-control-sm" placeholder="数量*" required></th>
+      <th><input name="price[price]" type="number" step="any" class="form-control form-control-sm" placeholder="单价*" required></th>
+      <th colspan="7"></th>
+    </tr>
+  </tfoot>
 </table>
 <% end %>
 
