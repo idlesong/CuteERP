@@ -70,8 +70,12 @@ class Price < ActiveRecord::Base
       row_attributes = row.to_hash.slice(*header)
 
       # part_number and customer_name are fixed; auto link to id when import
-      row_attributes.store("item_id", Item.find_by(partNo: row_attributes["part_number"]).id)
-      row_attributes.store("customer_id", Customer.find_by(name: row_attributes["customer_name"]).id)
+      import_item = Item.find_by_any_part_no(row_attributes["part_number"])
+      import_customer = Customer.find_by(name: row_attributes["customer_name"])
+      next if import_item.nil? || import_customer.nil?
+
+      row_attributes.store("item_id", import_item.id)
+      row_attributes.store("customer_id", import_customer.id)
 
       (header + ["item_id", "customer_id"]).each do |attr|
         price.update_attribute(attr, row_attributes[attr])

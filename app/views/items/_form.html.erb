@@ -19,8 +19,17 @@
     <%= f.text_field :name, class: "form-control", placeholder: "*Product name" %>
   </div>
   <div class="mb-3">
-    <%= f.label :partNo, class: "form-label" %>
-    <%= f.text_field :partNo, class: "form-control", placeholder: "*Part number,must unique" %>
+    <%= f.label :generic_part_no, "通用型号", class: "form-label" %>
+    <%= f.text_field :generic_part_no, class: "form-control", placeholder: "*通用型号（含软件段），如 TC2008AB" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :suffix, "后缀", class: "form-label" %>
+    <%= f.text_field :suffix, class: "form-control", placeholder: "后缀字母（C/M/S…，可空）" %>
+    <div class="form-text">完整型号 = 通用型号 + 后缀，如 TC2008ABC</div>
+  </div>
+  <div class="mb-3">
+    <%= f.label :name_zh, "中文名称", class: "form-label" %>
+    <%= f.text_field :name_zh, class: "form-control" %>
   </div>
   <div class="mb-3">
     <%= f.label :group, class: "form-label" %>
@@ -72,6 +81,14 @@
   <div class="mb-3">
     <%= f.label :extra_item, class: "form-label" %>
     <%= f.text_field :extra_item, class: "form-control", placeholder: "Extra part number" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :extra_item2, class: "form-label" %>
+    <%= f.text_field :extra_item2, class: "form-control", placeholder: "Extra part number 2" %>
+  </div>
+  <div class="mb-3">
+    <%= f.label :eol_at, "EOL 停产日期", class: "form-label" %>
+    <%= f.date_field :eol_at, class: "form-control" %>
   </div>
 
   <br />

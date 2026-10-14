@@ -6,11 +6,40 @@ class Item < ActiveRecord::Base
   has_many :prices
   has_many :set_prices
 
-  validates :name, :partNo, presence: true
-  validates :partNo, uniqueness: true
+  before_validation :normalize_suffix
+
+  validates :name, :generic_part_no, presence: true
+  validates :suffix, uniqueness: { scope: :generic_part_no }
 
   before_destroy :ensure_not_referenced_by_any_line_item
   before_destroy :ensure_not_used_by_others
+
+  # 完整型号（派生）：generic_part_no + suffix（D4，partNo 列已移除）
+  def partNo
+    [generic_part_no, suffix].compact.join
+  end
+
+  # 完整型号拆分："TC2008ABC" => ["TC2008AB", "C"]；无字母尾缀 => [pn, nil]
+  def self.split_part_no(pn)
+    pn = pn.to_s.strip
+    if pn[-1]&.match?(/[A-Za-z]/)
+      [pn[0..-2], pn[-1]]
+    else
+      [pn, nil]
+    end
+  end
+
+  # 兼容完整/通用两种型号的查找
+  def self.find_by_any_part_no(pn)
+    pn = pn.to_s.strip
+    return nil if pn.blank?
+
+    exact = find_by(generic_part_no: pn)
+    return exact if exact
+
+    base, sfx = split_part_no(pn)
+    find_by(generic_part_no: base, suffix: sfx)
+  end
 
   def self.export_to_csv(options = {})
     CSV.generate(**options) do |csv|
@@ -19,7 +48,7 @@ class Item < ActiveRecord::Base
 
       csv << header
       all.each do |item|
-        csv << item.attributes.values_at(*header)
+        csv << header.map { |h| h == "partNo" ? item.partNo : item.attributes[h] }
       end
     end
   end
@@ -33,12 +62,18 @@ class Item < ActiveRecord::Base
     (2..spreadsheet.last_row).each do |i|
       row = Hash[[header, spreadsheet.row(i)].transpose]
 
-      # Update existing item found by unique partNo, or create a new one
-      item = find_by(partNo: row["partNo"]) || new
+      # Update existing item found by unique part number, or create a new one
+      base, sfx = split_part_no(row["partNo"])
+      item = find_by(generic_part_no: base, suffix: sfx) || new
+
+      item.generic_part_no = base
+      item.suffix = sfx
 
       row_attributes = row.to_hash.slice(*header)
 
       header.each do |attr|
+        next if attr == "partNo"
+
         item.update_attribute(attr, row_attributes[attr])
       end
     end
@@ -54,6 +89,10 @@ class Item < ActiveRecord::Base
   end
 
   private
+
+  def normalize_suffix
+    self.suffix = suffix.presence
+  end
 
   # ensure that there are no line items referencing this item
   def ensure_not_referenced_by_any_line_item

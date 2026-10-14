@@ -1,6 +1,7 @@
 <%- model_class = User -%>
-<div class="page-header">
+<div class="page-header d-flex justify-content-between align-items-center">
   <h1><%= t ".title", default: model_class.model_name.human.pluralize.titleize %></h1>
+  <%= link_to "汇率设置", exchange_rates_path, class: "btn btn-outline-secondary" %>
 </div>
 <table class="table table-striped">
   <thead>

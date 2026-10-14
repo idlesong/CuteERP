@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_025749) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -78,7 +78,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_025749) do
     t.string "currency", default: "RMB"
     t.integer "disty_id"
     t.string "full_name"
+    t.text "invoice_address"
+    t.string "invoice_contact"
+    t.string "invoice_phone"
     t.string "name"
+    t.string "name_zh"
     t.string "payment"
     t.string "sales_type"
     t.text "ship_address"
@@ -91,24 +95,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_025749) do
     t.index ["disty_id"], name: "index_customers_on_disty_id"
   end
 
+  create_table "exchange_rates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "currency", default: "USD", null: false
+    t.date "month", null: false
+    t.decimal "rate", precision: 10, scale: 4, null: false
+    t.datetime "updated_at", null: false
+    t.index ["month", "currency"], name: "index_exchange_rates_on_month_and_currency", unique: true
+  end
+
   create_table "items", force: :cascade do |t|
     t.string "assembled"
     t.string "base_item"
     t.datetime "created_at", null: false
     t.string "description"
+    t.date "eol_at"
     t.string "extra_item"
+    t.string "extra_item2"
     t.string "family"
+    t.string "generic_part_no", null: false
     t.string "group"
     t.string "imageURL"
     t.integer "index"
     t.integer "mop"
     t.integer "moq"
     t.string "name"
+    t.string "name_zh"
     t.string "package"
-    t.string "partNo"
+    t.string "suffix"
     t.datetime "updated_at", null: false
     t.decimal "volume"
     t.decimal "weight"
+    t.index ["generic_part_no", "suffix"], name: "index_items_on_generic_part_no_and_suffix", unique: true, nulls_not_distinct: true
+    t.index ["generic_part_no"], name: "index_items_on_generic_part_no"
   end
 
   create_table "line_items", force: :cascade do |t|

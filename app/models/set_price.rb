@@ -44,7 +44,8 @@ class SetPrice < ActiveRecord::Base
 
       (3..spreadsheet.last_row).each do |i|
         row = spreadsheet.row(i)
-        item = Item.where(partNo: row[0]).take
+        item = Item.find_by_any_part_no(row[0])
+        next if item.nil?
 
         set_price = SetPrice.where(item_id: item.id, released_at: released_date).take || SetPrice.new
 
@@ -98,7 +99,7 @@ class SetPrice < ActiveRecord::Base
 
   # Single price line of part_number in this release batch for the given sell_by.
   def get_price_line(sell_by, part_number, step_quantities)
-    item = Item.find_by(partNo: part_number)
+    item = Item.find_by_any_part_no(part_number)
     return [] unless item
 
     sp = SetPrice.where(item_id: item.id, released_at: released_at).order(:line_no).first

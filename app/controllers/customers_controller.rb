@@ -111,6 +111,7 @@ class CustomersController < ApplicationController
   def customer_params
     params.require(:customer).permit(:address, :balance, :contact, :name, :full_name, :since,
                                      :telephone, :payment, :currency, :ship_contact, :ship_address,
-                                     :ship_telephone, :credit, :sales_type, :disty_id, :territory)
+                                     :ship_telephone, :credit, :sales_type, :disty_id, :territory,
+                                     :name_zh, :invoice_address, :invoice_contact, :invoice_phone)
   end
 end

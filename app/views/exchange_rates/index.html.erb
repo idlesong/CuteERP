@@ -1,0 +1,46 @@
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1>汇率设置</h1>
+  <%= link_to "返回设置", users_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th>月份</th>
+      <th>币种</th>
+      <th>汇率（兑 RMB）</th>
+      <th>更新时间</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @exchange_rates.each do |rate| %>
+      <tr>
+        <td><%= rate.month.strftime("%Y-%m") %></td>
+        <td><%= rate.currency %></td>
+        <td><%= rate.rate %></td>
+        <td><%= l rate.updated_at %></td>
+        <td><%= link_to "删除", exchange_rate_path(rate), data: { turbo_method: :delete, turbo_confirm: "确定删除？" }, class: "btn btn-sm btn-danger" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h3 class="mt-4">新增当月汇率</h3>
+<%= form_with model: @exchange_rate, html: { class: "row g-3 align-items-end" } do |f| %>
+  <div class="col-md-3">
+    <%= f.label :month, "月份", class: "form-label" %>
+    <%= f.month_field :month, class: "form-control" %>
+  </div>
+  <div class="col-md-3">
+    <%= f.label :currency, "币种", class: "form-label" %>
+    <%= f.select :currency, ["USD"], {}, class: "form-select" %>
+  </div>
+  <div class="col-md-3">
+    <%= f.label :rate, "汇率（1 外币 = ? RMB）", class: "form-label" %>
+    <%= f.number_field :rate, class: "form-control", step: :any %>
+  </div>
+  <div class="col-md-3">
+    <%= f.submit "保存", class: "btn btn-primary" %>
+  </div>
+<% end %>

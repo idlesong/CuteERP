@@ -27,16 +27,18 @@ class ApplicationController < ActionController::Base
   end
 
   def monthly_exchange_rate
-    this_month_start = DateTime.now.beginning_of_month
-    @exchange_rate_setting = current_user.settings(:exchange_rate).name_zh
+    rate = ExchangeRate.rate_for(Date.current, "USD")
+    rate ||= legacy_monthly_rate
+    session[:exchange_rate] = rate.to_f.positive? ? rate.to_f : 1
+  end
 
-    if !@exchange_rate_setting.nil?
-      if @exchange_rate_setting.value.to_f > 0
-        session[:exchange_rate] = @exchange_rate_setting.value.to_f
-      end
-    else
-      session[:exchange_rate] = 1
-    end
+  # 旧机制：汇率存在 User settings（exchange_rate.current_month），仅作回退
+  def legacy_monthly_rate
+    value = current_user&.settings(:exchange_rate)&.value
+    value = value["current_month"] if value.is_a?(Hash)
+    value.to_f
+  rescue StandardError
+    0
   end
 
   def current_customer

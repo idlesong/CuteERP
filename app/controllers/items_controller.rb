@@ -104,8 +104,9 @@ class ItemsController < ApplicationController
   end
 
   def item_params
-    params.require(:item).permit(:imageURL, :name, :package, :partNo, :description,
+    params.require(:item).permit(:imageURL, :name, :generic_part_no, :suffix, :description,
                                  :volume, :weight, :moq, :mop, :assembled, :index,
-                                 :base_item, :extra_item, :group, :family)
+                                 :base_item, :extra_item, :extra_item2, :group, :family,
+                                 :name_zh, :eol_at)
   end
 end

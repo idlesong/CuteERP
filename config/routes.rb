@@ -47,6 +47,8 @@ Rails.application.routes.draw do
 
   resources :users
 
+  resources :exchange_rates, only: [:index, :create, :destroy]
+
   resources :orders do
     collection do
       get :reverse
