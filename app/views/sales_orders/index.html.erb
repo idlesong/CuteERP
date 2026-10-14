@@ -1,4 +1,15 @@
 <!-- <p id="notice"><= notice ></p> -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <%= form_tag new_sales_order_path, method: :get, class: "row g-2 align-items-end" do %>
+      <div class="col-auto">
+        <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name), class: "form-select form-select-sm" %>
+      </div>
+      <div class="col-auto"><%= submit_tag "选客户开六联单", class: "btn btn-sm btn-primary" %></div>
+    <% end %>
+  </div>
+</div>
+
 <div class="page-header"><h1><%= t(:sales_orders) %>(<%= t(:show_as_lines) %>)</h1></div>
 <table class="table datatable">
   <thead>

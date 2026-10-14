@@ -63,9 +63,15 @@ class SetPricesController < ApplicationController
   def create
     @set_price = SetPrice.new(set_price_params)
 
+    # 行内快速建行：默认发布时间与行号，创建后进编辑页补阶梯
+    if params[:inline]
+      @set_price.released_at ||= Time.current
+      @set_price.line_no ||= SetPrice.where(released_at: @set_price.released_at).maximum(:line_no).to_i + 1
+    end
+
     respond_to do |format|
       if @set_price.save
-        format.html { redirect_to @set_price, notice: "SetPrice was successfully created." }
+        format.html { redirect_to params[:inline] ? edit_set_price_path(@set_price) : @set_price, notice: "SetPrice was successfully created." }
         format.json { render json: @set_price, status: :created, location: @set_price }
       else
         format.html { render action: "new" }

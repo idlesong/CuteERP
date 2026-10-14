@@ -11,51 +11,60 @@
   </head>
 
   <body>
-    <div id="menu">
-      <ul>
-        <li class="nav_left"><a href="/"><i class="bi bi-briefcase"></i> CuteERP</a></li>
-        <% if current_user %>
-          <li class="nav_left"><%= link_to "@#{current_user.name}", "/admin" %></li>
-          <li class="nav_left"><%= link_to t(:logout), "/logout" %></li>
-        <% else %>
-          <li class="nav_left"><%= link_to t(:login), "/login" %></li>
-        <% end %>
-        <li class="nav_right"><a href="<%= users_path %>"><i class="bi bi-gear"></i> <%= t(:settings) %></a></li>
-        <li class="nav_right"><a href="<%= posts_path %>"><i class="bi bi-book"></i> <%= t(:document) %></a></li>
-        <li class="nav_right"><a href="<%= items_path %>"><i class="bi bi-tags"></i> <%= t(:product) %></a></li>
-        <li class="nav_right"><a href="<%= customers_path %>"><i class="bi bi-people"></i> <%= t(:customer) %></a></li>
-      </ul>
-    </div>
-
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-1">
-          <h1>&nbsp;</h1>
-          <ul id="side-nav" class="list-group">
-            <li class="list-group-item disabled"><%= t(:sales_group) %></li>
-            <li class="list-group-item"><%= link_to t(:admin), "/admin" %></li>
-            <li class="list-group-item"><a href="<%= orders_path %>"><%= t(:order) %></a></li>
-            <li class="list-group-item"><a href="<%= sales_orders_path %>"><%= t(:sales_orders) %></a></li>
-            <li class="list-group-item"><a href="<%= prices_path %>"><%= t(:price) %> - </a><a href="<%= set_prices_path %>"><%= t(:set_prices_list) %></a></li>
-            <li class="list-group-item disabled"><%= t(:tools) %></li>
-            <li class="list-group-item"><a href="<%= sales_orders_path %>"><%= t(:production) %></a></li>
-            <li class="list-group-item"><a href="<%= opportunities_path %>"><%= t(:opportunities) %></a></li>
-            <li class="list-group-item"><a href="<%= tasks_path %>"><%= t(:tasks) %></a></li>
-            <li class="list-group-item"><a href="<%= contacts_path %>"><i class="bi bi-person"></i> <%= t(:contact) %></a> - <a href="<%= new_contact_path %>"><i class="bi bi-person-plus"></i></a></li>
-            <li class="list-group-item"><a href="<%= new_customer_path %>"><i class="bi bi-person-plus"></i> <%= t(:new_customer) %></a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-11">
-          <% flash.each do |type, message| %>
-            <div class="alert alert-<%= type == "notice" ? "info" : "danger" %> alert-dismissible fade show" role="alert">
-              <%= message %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-erp px-3">
+      <a class="navbar-brand" href="/"><i class="bi bi-briefcase"></i> CuteERP</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="导航">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><%= link_to "首页", "/admin", class: "nav-link" %></li>
+          <% if current_user %>
+            <li class="nav-item"><%= link_to "客户订单", orders_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "销售订单", sales_orders_path, class: "nav-link" %></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">价格</a>
+              <ul class="dropdown-menu">
+                <li><%= link_to "价格管理", prices_path, class: "dropdown-item" %></li>
+                <li><%= link_to "阶梯价目", set_prices_path, class: "dropdown-item" %></li>
+              </ul>
+            </li>
+            <li class="nav-item"><%= link_to "客户", customers_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "产品", items_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "文档", posts_path, class: "nav-link" %></li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">工具</a>
+              <ul class="dropdown-menu">
+                <li><%= link_to "业务机会", opportunities_path, class: "dropdown-item" %></li>
+                <li><%= link_to "工作动态", tasks_path, class: "dropdown-item" %></li>
+                <li><%= link_to "联系人", contacts_path, class: "dropdown-item" %></li>
+                <li><%= link_to "库存", inventory_path, class: "dropdown-item" %></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><%= link_to "汇率设置", exchange_rates_path, class: "dropdown-item" %></li>
+                <li><%= link_to "系统设置", users_path, class: "dropdown-item" %></li>
+              </ul>
+            </li>
           <% end %>
-          <%= yield %>
-        </div>
+        </ul>
+        <ul class="navbar-nav">
+          <% if current_user %>
+            <li class="nav-item"><span class="navbar-text me-3"><i class="bi bi-person"></i> @<%= current_user.name %></span></li>
+            <li class="nav-item"><%= link_to t(:logout), "/logout", class: "nav-link" %></li>
+          <% else %>
+            <li class="nav-item"><%= link_to t(:login), "/login", class: "nav-link" %></li>
+          <% end %>
+        </ul>
       </div>
+    </nav>
+
+    <div class="container-fluid px-3 py-3">
+      <% flash.each do |type, message| %>
+        <div class="alert alert-<%= type == "notice" ? "info" : "danger" %> alert-dismissible fade show" role="alert">
+          <%= message %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% end %>
+      <%= yield %>
     </div>
   </body>
 </html>

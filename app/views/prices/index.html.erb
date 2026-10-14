@@ -1,7 +1,7 @@
 <%- model_class = Price -%>
 <div class="page-header">
   <h1><%= t(:price) %><small>---UnitedQuotations</small></h1>
-  <%= link_to t(".new", default: t("helpers.links.new")), new_price_path, class: "btn btn-primary" %>
+  <%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
 
   <div class="btn-group" role="group" aria-label="...">
     <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "active") %>">active</a>
@@ -11,6 +11,22 @@
     <a role="button" class="btn btn-outline-secondary" href="<%= prices_path %>">all</a>
   </div>
 </div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <%= form_with model: Price.new, url: prices_path, html: { class: "row g-2 align-items-end" } do |f| %>
+      <%= f.hidden_field :inline, value: "1" %>
+      <div class="col-auto">
+        <%= f.collection_select :customer_id, Customer.order(:name), :id, :name, { prompt: "客户*" }, class: "form-select form-select-sm" %>
+      </div>
+      <div class="col-auto"><%= f.text_field :part_number, placeholder: "通用型号*", class: "form-control form-control-sm" %></div>
+      <div class="col-auto"><%= f.number_field :price, placeholder: "单价*", step: :any, class: "form-control form-control-sm", style: "width: 7rem;" %></div>
+      <div class="col-auto"><%= f.text_field :condition, placeholder: "数量条件*", class: "form-control form-control-sm", style: "width: 7rem;" %></div>
+      <div class="col-auto"><%= f.submit "快速创建", class: "btn btn-sm btn-primary" %></div>
+    <% end %>
+  </div>
+</div>
+
 <table class="table table-striped datatable">
   <thead>
     <tr>

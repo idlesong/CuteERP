@@ -2,6 +2,22 @@
 <div class="page-header">
   <h1><%= t(:product) %></h1>
 </div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <%= form_with model: Item.new(index: 1), url: items_path, html: { class: "row g-2 align-items-end" } do |f| %>
+      <%= f.hidden_field :inline, value: "1" %>
+      <div class="col-auto"><%= f.text_field :generic_part_no, placeholder: "通用型号*", class: "form-control form-control-sm" %></div>
+      <div class="col-auto"><%= f.text_field :suffix, placeholder: "后缀", class: "form-control form-control-sm", style: "width: 4.5rem;" %></div>
+      <div class="col-auto"><%= f.text_field :name, placeholder: "名称*", class: "form-control form-control-sm" %></div>
+      <div class="col-auto"><%= f.text_field :group, placeholder: "大类", class: "form-control form-control-sm" %></div>
+      <div class="col-auto"><%= f.text_field :family, placeholder: "家族", class: "form-control form-control-sm" %></div>
+      <div class="col-auto"><%= f.submit "快速创建", class: "btn btn-sm btn-primary" %></div>
+      <div class="col-auto"><%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-sm btn-outline-secondary" %></div>
+    <% end %>
+  </div>
+</div>
+
 <table class="table table-striped datatable">
   <thead>
     <tr>
@@ -39,7 +55,7 @@
   </tbody>
 </table>
 
-<%= link_to "New Item", new_item_path, class: "btn btn-primary" %>
+<%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-outline-secondary btn-sm" %>
 
 <p>
   <br />

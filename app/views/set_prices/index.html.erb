@@ -5,6 +5,24 @@
   <%= @latest_released_set_price.released_at.strftime("%F") if @latest_released_set_price %>
 </div>
 
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <%= form_with model: SetPrice.new, url: set_prices_path, html: { class: "row g-2 align-items-end" } do |f| %>
+      <%= f.hidden_field :inline, value: "1" %>
+      <div class="col-auto">
+        <%= f.collection_select :item_id, Item.all.order(:generic_part_no, :suffix), :id, :partNo, { prompt: "产品*" }, class: "form-select form-select-sm" %>
+      </div>
+      <div class="col-auto">
+        <%= f.select :sell_by, ["OEM", "ODM"], { prompt: "渠道*" }, class: "form-select form-select-sm" %>
+      </div>
+      <div class="col-auto">
+        <%= f.date_field :released_at, value: Date.today, class: "form-control form-control-sm" %>
+      </div>
+      <div class="col-auto"><%= f.submit "快速建行（后进编辑补阶梯）", class: "btn btn-sm btn-primary" %></div>
+    <% end %>
+  </div>
+</div>
+
 <table class="table table-striped">
   <thead>
     <tr>

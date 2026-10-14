@@ -134,9 +134,21 @@ class PricesController < ApplicationController
     @price = Price.new(price_params)
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
+    # 行内快速创建：自动单号、通用型号关联（缺失时惰性创建）、客户名带出
+    if params[:inline]
+      @price.price_number = @price.generate_price_number if @price.price_number.blank?
+      item = Item.find_by_any_part_no(@price.part_number.to_s)
+      unless item
+        base, sfx = Item.split_part_no(@price.part_number)
+        item = Item.create!(generic_part_no: base, suffix: sfx, name: base)
+      end
+      @price.item_id = item.id
+      @price.customer_name = @price.customer&.name
+    end
+
     respond_to do |format|
       if @price.save
-        format.html { redirect_to @price, notice: "Price was successfully created." }
+        format.html { redirect_to(params[:inline] ? prices_url : @price, notice: "Price was successfully created.") }
         format.json { render json: @price, status: :created, location: @price }
       else
         format.html { redirect_to proc { new_price_url(@price) }, notice: "Price was not valid: maybe duplicated." }
