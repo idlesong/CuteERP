@@ -7,6 +7,7 @@ class Item < ActiveRecord::Base
   has_many :set_prices
 
   before_validation :normalize_suffix
+  before_create { self.index = 1 if index.nil? } # 新产品默认可见（index 0 = 隐藏）
 
   validates :name, :generic_part_no, presence: true
   validates :suffix, uniqueness: { scope: :generic_part_no }

@@ -64,8 +64,12 @@ class CustomersController < ApplicationController
         format.html { redirect_to(params[:inline] ? customers_url : @customer, notice: "Customer was successfully created.") }
         format.json { render json: @customer, status: :created, location: @customer }
       else
-        format.html { render action: "new" }
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
+        if params[:inline]
+          redirect_to customers_url, alert: @customer.errors.full_messages.to_sentence
+        else
+          format.html { render action: "new" }
+          format.json { render json: @customer.errors, status: :unprocessable_entity }
+        end
       end
     end
   end

@@ -151,8 +151,12 @@ class PricesController < ApplicationController
         format.html { redirect_to(params[:inline] ? prices_url : @price, notice: "Price was successfully created.") }
         format.json { render json: @price, status: :created, location: @price }
       else
-        format.html { redirect_to proc { new_price_url(@price) }, notice: "Price was not valid: maybe duplicated." }
-        format.json { render json: @price.errors, status: :unprocessable_entity }
+        if params[:inline]
+          redirect_to prices_url, alert: "价格创建失败（#{@price.errors.full_messages.to_sentence}；也可能与现有报价重复）"
+        else
+          format.html { redirect_to proc { new_price_url(@price) }, notice: "Price was not valid: maybe duplicated." }
+          format.json { render json: @price.errors, status: :unprocessable_entity }
+        end
       end
     end
   end

@@ -5,24 +5,6 @@
   <%= @latest_released_set_price.released_at.strftime("%F") if @latest_released_set_price %>
 </div>
 
-<div class="card mb-3">
-  <div class="card-body py-2">
-    <%= form_with model: SetPrice.new, url: set_prices_path, html: { class: "row g-2 align-items-end" } do |f| %>
-      <%= f.hidden_field :inline, value: "1" %>
-      <div class="col-auto">
-        <%= f.collection_select :item_id, Item.all.order(:generic_part_no, :suffix), :id, :partNo, { prompt: "产品*" }, class: "form-select form-select-sm" %>
-      </div>
-      <div class="col-auto">
-        <%= f.select :sell_by, ["OEM", "ODM"], { prompt: "渠道*" }, class: "form-select form-select-sm" %>
-      </div>
-      <div class="col-auto">
-        <%= f.date_field :released_at, value: Date.today, class: "form-control form-control-sm" %>
-      </div>
-      <div class="col-auto"><%= f.submit "快速建行（后进编辑补阶梯）", class: "btn btn-sm btn-primary" %></div>
-    <% end %>
-  </div>
-</div>
-
 <table class="table table-striped">
   <thead>
     <tr>
@@ -100,6 +82,8 @@
 <div class="page-header">
   <h1><%= t(:set_price) %></h1>
 </div>
+
+<%= form_tag set_prices_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
@@ -155,8 +139,29 @@
       </tr>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速建行</button></th>
+      <th>
+        <select name="set_price[item_id]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>产品*</option>
+          <%= options_from_collection_for_select(Item.all.order(:generic_part_no, :suffix), :id, :partNo) %>
+        </select>
+      </th>
+      <th>
+        <select name="set_price[sell_by]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>渠道*</option>
+          <option>OEM</option>
+          <option>ODM</option>
+        </select>
+      </th>
+      <th><input name="set_price[released_at]" type="date" class="form-control form-control-sm" required></th>
+      <th colspan="18"></th>
+    </tr>
+  </tfoot>
 </table>
+<% end %>
 
-<%= link_to t(".new", default: t("helpers.links.new")), new_set_price_path, class: "btn btn-primary" %>
+<%= link_to "高级创建（完整字段）", new_set_price_path, class: "btn btn-outline-secondary btn-sm" %>
 
 <br />
