@@ -3,10 +3,10 @@ Rails.application.routes.draw do
 
   resources :quotations
 
-  resources :set_prices do
+  resources :price_lists, only: [:index] do
     collection do
+      post :create_entry
       post :import
-      get :quotate
     end
   end
 

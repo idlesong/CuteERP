@@ -57,12 +57,7 @@ class PricesController < ApplicationController
     @price.price_number = @price.generate_price_number
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
-    @latest_released_set_price = SetPrice.order(released_at: :asc).last
-    if @latest_released_set_price
-      @latest_set_prices_list = SetPrice.where("released_at" => @latest_released_set_price.released_at)
-    end
-
-    # clear cart and destroy associated line_items, when customer switched
+    # clear cart, when customer switched
     if params[:customer_id] && (params[:customer_id] != current_customer.id.to_s)
       session[:customer_id] = params[:customer_id]
       current_cart.line_items.clear
@@ -70,23 +65,14 @@ class PricesController < ApplicationController
 
     @customer = current_customer
     @price.customer = @customer
+    @price.currency = @customer.currency
 
-    # get set_price by quantity(params[:condition])
-    @step_quantities = current_user.settings(:step_values).quantities
-    @step_names = current_user.settings(:step_names).names
-
-    if params[:set_price_id] && params[:condition]
-      @set_price = SetPrice.find(params[:set_price_id])
-      @price.item_id = @set_price.item_id
-      step_index = @step_quantities.index(params[:condition]).to_i
-      step_index += 8 if @customer.sales_type == "ODM"
-      step_name = @step_names[step_index]
-
-      @price.price = @set_price[step_name]
-      logger.debug "==####@@@@==set_price step_name, value: #{step_name}, #{@set_price[step_name]}"
-      @price.base_price = @set_price[step_name] - @set_price.extra_price
-      @price.extra_price = @set_price.extra_price
-      @price.condition = params[:condition]
+    # 从最新阶梯批次快填（params[:part_number] + params[:qty]）
+    if params[:part_number].present? && params[:qty].present?
+      @price.part_number = params[:part_number]
+      @price.condition = params[:qty]
+      tier = PriceListEntry.tier_price(params[:part_number], @customer.sales_type, params[:qty])
+      @price.price = tier if tier
     end
 
     session[:current_path_action] = "new"
@@ -100,30 +86,14 @@ class PricesController < ApplicationController
   # GET /prices/1/edit
   def edit
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
-    @latest_release_set_price = SetPrice.order(released_at: :asc).last
-
     @customer = current_customer
 
-    @latest_released_set_price = SetPrice.order(released_at: :asc).last
-    if @latest_released_set_price
-      @latest_set_prices_list = SetPrice.where("released_at" => @latest_released_set_price.released_at)
-    end
-
-    # get set_price by quantity(params[:condition])
-    @step_quantities = current_user.settings(:step_values).quantities
-    @step_names = current_user.settings(:step_names).names
-
-    if params[:set_price_id] && params[:condition]
-      @set_price = SetPrice.find(params[:set_price_id])
-      @price.item_id = @set_price.item_id
-      step_index = @step_quantities.index(params[:condition]).to_i
-      step_index += 8 if @customer.sales_type == "ODM"
-      step_name = @step_names[step_index]
-      @price.price = @set_price[step_name]
-      logger.debug "==####@@@@==set_price step_name, value: #{step_name}, #{@set_price[step_name]}"
-      @price.base_price = @set_price[step_name] - @set_price.extra_price
-      @price.extra_price = @set_price.extra_price
-      @price.condition = params[:condition]
+    # 从最新阶梯批次快填（params[:part_number] + params[:qty]）
+    if params[:part_number].present? && params[:qty].present?
+      @price.part_number = params[:part_number]
+      @price.condition = params[:qty]
+      tier = PriceListEntry.tier_price(params[:part_number], @customer.sales_type, params[:qty])
+      @price.price = tier if tier
     end
 
     session[:current_path_action] = "edit"
@@ -134,15 +104,9 @@ class PricesController < ApplicationController
     @price = Price.new(price_params)
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
-    # 行内快速创建：自动单号、通用型号关联（缺失时惰性创建）、客户名带出
+    # 行内快速创建：自动单号 + 客户名带出
     if params[:inline]
       @price.price_number = @price.generate_price_number if @price.price_number.blank?
-      item = Item.find_by_any_part_no(@price.part_number.to_s)
-      unless item
-        base, sfx = Item.split_part_no(@price.part_number)
-        item = Item.create!(generic_part_no: base, suffix: sfx, name: base)
-      end
-      @price.item_id = item.id
       @price.customer_name = @price.customer&.name
     end
 
@@ -204,8 +168,8 @@ class PricesController < ApplicationController
 
   def price_params
     p = params.require(:price).permit(:boss_suggestion, :condition, :customer_id, :department_suggestion,
-                                      :finance_suggestion, :item_id, :payment_terms, :price, :sales_suggestion,
-                                      :status, :remark, :created_at, :base_price, :extra_price,
+                                      :finance_suggestion, :payment_terms, :price, :sales_suggestion,
+                                      :status, :remark, :created_at, :base_price, :v1_price, :v2_price,
                                       :price_number, :part_number, :customer_name, :is_prr)
     # status can also be updated via a top-level params[:status] (approval workflow)
     p[:status] = params[:status] if params[:status].present? && p[:status].blank?

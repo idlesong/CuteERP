@@ -57,17 +57,17 @@
       </thead>
       <tbody>
         <tr>
-          <% set_price = @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %>
+          <% set_price = PriceListEntry.tier_price(@price.part_number, @customer.sales_type, @price.condition) %>
           <td><%= 1 %></td>
-          <td><%= @price.item.partNo %></td>
-          <td><%= @price.item.name %></td>
+          <td><%= @price.part_number %></td>
+          <td><%= @price.part_number %></td>
           <% if set_price && @price.price < set_price - 1 %>
             <td class="bg-danger">RMB <%= @price.price %></td>
           <% else %>
             <td>RMB <%= @price.price %></td>
           <% end %>
           <td><%= @price.condition %> pcs</td>
-          <td>=<%= @price.base_price %> + <%= @price.extra_price %></td>
+          <td>=<%= @price.base_price %> + <%= @price.v1_price %> + <%= @price.v2_price %></td>
         </tr>
         <tr>
           <td></td>

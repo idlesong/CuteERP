@@ -78,10 +78,10 @@
       <tr>
         <td><%= link_to price.id, price_path(price) %></td>
         <td><%= price.customer.name %></td>
-        <td><%= price.item.partNo %></td>
+        <td><%= price.part_number %></td>
         <td><strong>¥<%= price.price %></strong></td>
         <td><%= price.condition %></td>
-        <td>¥<%= price.get_set_price(price.item_id, price.condition, @customer.sales_type) %></td>
+        <td>¥<%= PriceListEntry.tier_price(price.part_number, @customer.sales_type, price.condition) %></td>
         <td><%= price.payment_terms %></td>
         <td><%= price.created_at.strftime("%F") %></td>
         <td><%= price.status %></td>

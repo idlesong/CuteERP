@@ -1,0 +1,92 @@
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1>
+    阶梯价目
+    <% if @release %>
+      <small>发布批次：<%= @release.released_at.strftime("%F") %><%= "（历史批次，只读）" unless @latest %></small></h1>
+    <% end %>
+  </h1>
+  <%= form_tag price_lists_path, method: :get, class: "form-inline" do %>
+    <%= select_tag :release_id, options_from_collection_for_select(@releases, :id, ->(r) { r.released_at.strftime("%F") }, @release&.id), class: "form-select form-select-sm", onchange: "this.form.submit()" %>
+  <% end %>
+</div>
+
+<% if @entries.any? %>
+  <table class="table table-striped datatable">
+    <thead>
+      <tr>
+        <th>通用型号</th>
+        <th colspan="<%= @tiers.size %>">OEM</th>
+        <th colspan="<%= @tiers.size %>">ODM</th>
+      </tr>
+      <tr>
+        <th>数量档</th>
+        <% @tiers.each do |q| %><th><%= q %>+</th><% end %>
+        <% @tiers.each do |q| %><th><%= q %>+</th><% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @entries.group_by(&:generic_part_no).each do |gen, rows| %>
+        <tr>
+          <td><strong><%= gen %>*</strong></td>
+          <% [ "OEM", "ODM" ].each do |channel| %>
+            <% @tiers.each do |q| %>
+              <% e = rows.find { |r| r.sell_by == channel && r.min_qty == q } %>
+              <td><%= e ? number_to_currency(e.price, unit: "¥") : "-" %></td>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>暂无阶梯数据。请导入 Excel 或在下方增补。</p>
+<% end %>
+
+<% if @latest %>
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <%= form_tag create_entry_price_lists_path, html: { class: "row g-2 align-items-end" } do %>
+        <div class="col-auto">
+          <select name="price_list_entry[generic_part_no]" class="form-control form-control-sm" required>
+            <option value="" selected disabled>通用型号*</option>
+            <%= options_from_collection_for_select(Item.all.order(:generic_part_no).distinct, :generic_part_no, :generic_part_no) %>
+          </select>
+        </div>
+        <div class="col-auto">
+          <select name="price_list_entry[sell_by]" class="form-select form-select-sm" required>
+            <option value="" selected disabled>渠道*</option>
+            <option>OEM</option>
+            <option>ODM</option>
+          </select>
+        </div>
+        <div class="col-auto"><input name="price_list_entry[min_qty]" type="number" min="1" class="form-control form-control-sm" placeholder="数量档*" style="width: 7rem;" required></div>
+        <div class="col-auto"><input name="price_list_entry[price]" type="number" step="any" class="form-control form-control-sm" placeholder="单价*" style="width: 7rem;" required></div>
+        <div class="col-auto"><%= submit_tag "增补行", class: "btn btn-sm btn-primary" %></div>
+        <div class="col-auto"><span class="form-text">增补归入最新批次（<%= @release&.released_at&.strftime("%F") %>）</span></div>
+      <% end %>
+    </div>
+  </div>
+
+  <p>
+    <a class="btn btn-primary" data-bs-toggle="collapse" href="#importCollapse" role="button" aria-expanded="false">
+      导入整表 Excel（新建发布批次）
+    </a>
+  </p>
+  <div class="collapse" id="importCollapse">
+    <div class="card card-body">
+      <p class="form-text">整表导入会创建一个新的发布批次，不影响历史批次。Excel 首行需含 set_price_list released_at 标识（沿用现有发布表格式）。</p>
+      <%= form_tag import_price_lists_path, multipart: true do %>
+        <%= file_field_tag :file, class: "form-control" %>
+        <%= submit_tag "导入新批次", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <p class="text-muted">暂无发布批次：请通过“导入整表 Excel”创建第一个批次。</p>
+  <div class="card card-body">
+    <%= form_tag import_price_lists_path, multipart: true do %>
+      <%= file_field_tag :file, class: "form-control" %>
+      <%= submit_tag "导入新批次", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% end %>

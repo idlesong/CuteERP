@@ -3,5 +3,5 @@
   <h1><%= t ".title", default: [:"helpers.titles.edit", "Edit %{model}"], model: model_class.model_name.human.titleize %></h1>
 </div>
 <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
-<%= render "shared/set_prices_modal" %>
+<%= render "shared/price_list_modal" %>
 <%= render partial: "form" %>

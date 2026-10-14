@@ -13,7 +13,7 @@ class Quotation < ActiveRecord::Base
   def get_items_overview
     overview = ""
     prices.each do |price|
-      overview = overview + price.item.partNo + ";"
+      overview = overview + price.part_number + ";"
     end
     overview
   end

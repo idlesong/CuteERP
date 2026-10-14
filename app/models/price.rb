@@ -1,58 +1,46 @@
-class Price < ActiveRecord::Base
-  belongs_to :item
+class Price < ApplicationRecord
   belongs_to :customer
-  belongs_to :quotation
-
   has_many :line_items
 
-  validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :condition, presence: true
-  validates :part_number, presence: true
-  validates :customer_name, presence: true
-  validates :item_id, presence: true
-  validates :customer_id, presence: true
+  validates :customer_id, :customer_name, :part_number, :condition, :price, presence: true
+  validates :price, numericality: { greater_than_or_equal_to: 0 }
+  validates :condition, uniqueness: { scope: [:customer_name, :part_number] }
+  validates :currency, inclusion: { in: ["RMB", "USD"] }, allow_blank: true
 
-  before_save :ensure_price_is_unique?
+  before_validation :normalize
+  validate :components_sum_matches_price, if: -> { price.present? }
+  before_destroy :ensure_not_approved
   before_destroy :ensure_not_used_by_others
+
+  # 可用价（D8）：审批通过 且 在有效期内
+  scope :available, -> {
+    where(status: "active")
+      .where("effective_from IS NULL OR effective_from <= ?", Date.current)
+      .where("expired_at IS NULL OR expired_at >= ?", Date.current)
+  }
+
+  # 过渡期：通用型号对应的官方 item（正式型号未建时为 nil，P3 起订单行直接用通用型号）
+  def order_item
+    Item.find_by(generic_part_no: part_number)
+  end
+
+  # 过渡期：通用型号对应的官方 item（正式型号未建时为 nil，P3 起订单行直接用通用型号）
+  def order_item
+    Item.find_by(generic_part_no: part_number)
+  end
 
   def generate_price_number
     next_id = Price.where(created_at: DateTime.now.at_beginning_of_day..DateTime.now.at_end_of_day).count + 1
     "QO" + DateTime.now.strftime("%Y%m%d") + (next_id % 100).to_s.rjust(2, "0")
   end
 
-  def get_set_price(item_id, order_quantity, sell_by)
-    last_set_price = SetPrice.order(released_at: :asc).last
-    step_quantities = ["1", "1000", "2500", "5000", "10000", "20000", "50000", "100000"]
-    oem_labels = ["step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8"]
-    odm_labels = ["step9", "step10", "step11", "step12", "step13", "step14", "step15", "step16"]
-
-    step_labels = oem_labels
-    step_labels = odm_labels if sell_by == "ODM"
-
-    index = step_quantities.index(order_quantity)
-    index = 1 if index.nil?
-
-    step = step_labels.at(index)
-
-    return unless last_set_price
-
-    @latest_set_prices = SetPrice.order("item_id ASC").where("released_at" => last_set_price.released_at)
-    if @latest_set_prices.where(item_id: item_id).first.nil?
-      0
-    else
-      set_price = @latest_set_prices.where(item_id: item_id).first
-      set_price.attributes[step]
-    end
-  end
-
   def self.export_to_csv(options = {})
+    header = ["price_number", "customer_name", "part_number", "price", "condition",
+              "base_price", "v1_price", "v2_price", "remark", "status", "created_at"]
     CSV.generate(**options) do |csv|
-      header = ["price_number", "customer_name", "part_number", "price", "condition",
-                "base_price", "extra_price", "remark", "status", "created_at"]
       csv << header
-
-      all.each do |item|
-        csv << item.attributes.values_at(*header)
+      all.each do |p|
+        csv << p.attributes.values_at(*header)
       end
     end
   end
@@ -61,7 +49,7 @@ class Price < ActiveRecord::Base
     spreadsheet = open_spreadsheet(file)
 
     header = ["price_number", "customer_name", "part_number", "price", "condition",
-              "base_price", "extra_price", "remark", "status", "created_at"]
+              "base_price", "v1_price", "v2_price", "remark", "status", "created_at"]
 
     (2..spreadsheet.last_row).each do |i|
       row = Hash[[header, spreadsheet.row(i)].transpose]
@@ -69,15 +57,12 @@ class Price < ActiveRecord::Base
       price = find_by(price_number: row["price_number"]) || new
       row_attributes = row.to_hash.slice(*header)
 
-      # part_number and customer_name are fixed; auto link to id when import
-      import_item = Item.find_by_any_part_no(row_attributes["part_number"])
       import_customer = Customer.find_by(name: row_attributes["customer_name"])
-      next if import_item.nil? || import_customer.nil?
+      next if import_customer.nil?
 
-      row_attributes.store("item_id", import_item.id)
-      row_attributes.store("customer_id", import_customer.id)
+      row_attributes["customer_id"] = import_customer.id
 
-      (header + ["item_id", "customer_id"]).each do |attr|
+      (header + ["customer_id"]).each do |attr|
         price.update_attribute(attr, row_attributes[attr])
       end
     end
@@ -92,23 +77,30 @@ class Price < ActiveRecord::Base
     end
   end
 
-  before_destroy :price_request_approved?
-
   private
 
-  def ensure_price_is_unique?
-    duplicate = Price.where(customer_name: customer_name)
-                     .where(part_number: part_number)
-                     .where(condition: condition)
-                     .where.not(id: id)
-                     .first
-    return if duplicate.nil?
-
-    errors.add(:base, "price already exists for this customer/part/condition")
-    throw :abort
+  def normalize
+    self.part_number = part_number.presence
+    self.currency = currency.presence || "RMB"
+    self.base_price = base_price.presence
+    self.v1_price = v1_price.presence
+    self.v2_price = v2_price.presence
+    # 成分均空时，全额计入基本款（D3：可不区分）
+    if price.present? && base_price.blank? && v1_price.blank? && v2_price.blank?
+      self.base_price = price
+    end
   end
 
-  def price_request_approved?
+  def components_sum_matches_price
+    return if [base_price, v1_price, v2_price].all?(&:blank?)
+
+    total = [base_price, v1_price, v2_price].compact.sum
+    if (price.to_d - total.to_d).abs > 0.001
+      errors.add(:price, "必须等于 基本款 + 附加1 + 附加2（当前合计 #{total}）")
+    end
+  end
+
+  def ensure_not_approved
     return unless status_was == "approved"
 
     errors.add(:base, "price has been approved, cannot update!")

@@ -4,7 +4,6 @@ class Item < ActiveRecord::Base
   has_many :line_items
   has_many :orders, through: :line_items
   has_many :prices
-  has_many :set_prices
 
   before_validation :normalize_suffix
   before_create { self.index = 1 if index.nil? } # 新产品默认可见（index 0 = 隐藏）
@@ -104,9 +103,9 @@ class Item < ActiveRecord::Base
   end
 
   def ensure_not_used_by_others
-    return if prices.empty? && set_prices.empty?
+    return if prices.empty?
 
-    errors.add(:base, "prices or set_prices exist")
+    errors.add(:base, "prices exist")
     throw :abort
   end
 end

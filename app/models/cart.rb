@@ -3,7 +3,7 @@ class Cart < ActiveRecord::Base
 
   def add_po_line_item(price_id, full_part_number, item_quantity, fixed_price, reverse_po_line_id)
     price = Price.find(price_id)
-    item = Item.find(price.item_id)
+    item = price.order_item
     line_number = 1
     line_number += LineItem.maximum(:id) if LineItem.exists?
 
@@ -14,7 +14,7 @@ class Cart < ActiveRecord::Base
       current_item = line_items.build(
                     price_id: price_id,
                     line_number: line_number,
-                    item_id: price.item_id,
+                    item_id: item&.id,
                     full_name: item.name,
                     full_part_number: full_part_number,
                     quantity: item_quantity,

@@ -21,11 +21,12 @@
           <tbody>
             <% @customer.prices.where(status: "active").each do |price| %>
               <tr class="<%= cycle("list_line_odd", "list_line_even") %>">
-                <%= form_tag line_items_path(item_id: price.item) do %>
-                  <td><%= price.item.name %></td>
-                  <td><strong><%= price.item.partNo %></strong></td>
-                  <td><%= select_tag "suffix", options_for_select(Item::FW_MARK_TYPES), class: "form-select form-select-sm" if price.item.assembled == "main" %></td>
-                  <td><%= price.item.package %></td>
+                <% oi = price.order_item %>
+                <%= form_tag line_items_path(item_id: oi&.id), class: (oi ? "" : "disabled-block") do %>
+                  <td><%= price.part_number %></td>
+                  <td><strong><%= price.part_number %></strong></td>
+                  <td><%= select_tag "suffix", options_for_select(Item::FW_MARK_TYPES), class: "form-select form-select-sm" if oi&.assembled == "main" %></td>
+                  <td><%= oi&.package %></td>
                   <td>¥<%= link_to price.price, price %> - <%= hidden_field_tag(:price_id, price.id) %></td>
                   <td><%= text_field_tag(:quantity, price.condition, placeholder: price.condition, size: 10, class: "form-control form-control-sm") %></td>
                   <td><%= submit_tag(t(:add), class: "btn btn-sm btn-primary") %></td>

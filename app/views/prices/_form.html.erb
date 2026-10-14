@@ -28,6 +28,9 @@
               <h5 class="text-right"><%= t(:request_date) %><%= f.date_select :created_at, class: "form-select" %></h5>
               <h5 class="text-right"><%= t(:sheet_number) %>#:<%= f.text_field :price_number, class: "form-control d-inline-block", style: "width: 12rem;" %></h5>
               <h5 class="text-right"><%= t(:payment_term) %>:<%= f.select :payment_terms, Order::PAYMENT_TYPES, {}, class: "form-select d-inline-block", style: "width: auto;" %></h5>
+              <h5 class="text-right">币别:<%= f.select :currency, ["RMB", "USD"], {}, class: "form-select d-inline-block", style: "width: auto;" %></h5>
+              <h5 class="text-right">生效日:<%= f.date_field :effective_from, class: "form-control d-inline-block", style: "width: auto;" %>（空 = 未生效）</h5>
+              <h5 class="text-right">失效日:<%= f.date_field :expired_at, class: "form-control d-inline-block", style: "width: auto;" %></h5>
             </td>
           </tr>
         </thead>
@@ -57,7 +60,7 @@
             <td><%= t(:unit_price_with_VAT) %></td>
             <td><%= t(:order_quantity) %></td>
             <td><%= t(:base_price) %></td>
-            <td><%= t(:extra_price) %></td>
+            <td>附加2</td>
             <td><%= t(:remark) %></td>
           </tr>
         </thead>
@@ -67,19 +70,20 @@
             <td>
               <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#setPricesModal">
                 <%= t(:select_set_price) %></a>
-              <%= @price.item.partNo if not @price.item.nil? %></td>
-            <td><%= @price.item.name if not @price.item.nil? %></td>
+              <%= @price.part_number %></td>
+            <td><%= @price.order_item&.name %></td>
             <td><%= f.text_field :price, class: "form-control" %></td>
             <td><%= f.text_field :condition, class: "form-control d-inline-block", style: "width: 8rem;" %> pcs</td>
-            <td><%= f.text_field :base_price, class: "form-control" %></td>
-            <td><%= f.text_field :extra_price, class: "form-control" %></td>
+            <td><%= f.text_field :base_price, class: "form-control", placeholder: "基本款" %></td>
+            <td><%= f.text_field :v1_price, class: "form-control", placeholder: "附加1" %></td>
+            <td><%= f.text_field :v2_price, class: "form-control", placeholder: "附加2" %></td>
             <td><%= f.text_field :remark, class: "form-control" %></td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
-            <td>¥<%= @price.get_set_price(@price.item_id, @price.condition, @customer.sales_type) %></td>
+            <td>¥<%= PriceListEntry.tier_price(@price.part_number, @customer.sales_type, @price.condition).to_s %></td>
             <td><%= @price.condition %> pcs</td>
             <td colspan="3">（保密）公司默认参考价格，报价单不显示</td>
           </tr>
@@ -94,9 +98,9 @@
     </div>
   </div>
 
-  <%= f.hidden_field :item_id, value: @price.item_id %>
-  <%= f.hidden_field :customer_id, value: @price.customer_id %>
-  <%= f.hidden_field :part_number, value: @price.item.partNo if not @price.item.nil? %>
+    <%= f.hidden_field :customer_id, value: @price.customer_id %>
+  <%= f.hidden_field :currency, value: @customer.currency if @price.currency.blank? %>
+  <%= f.hidden_field :part_number, value: @price.part_number %>
   <%= f.hidden_field :customer_name, value: @price.customer.name if not @price.customer.nil? %>
   <%= f.hidden_field :status, value: "requested" %>
   <br />

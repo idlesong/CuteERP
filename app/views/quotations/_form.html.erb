@@ -64,7 +64,7 @@
         <tbody>
           <% @unquotated_prices.each_with_index do |price, index| %>
             <tr>
-              <td><%= price.item.partNo %></td>
+              <td><%= price.part_number %></td>
               <td><%= price.price %></td>
               <td><%= price.condition %></td>
               <td><%= f.check_box :prices, { multiple: true }, price.id, nil %></td>

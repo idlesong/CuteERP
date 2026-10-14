@@ -149,7 +149,7 @@
   <tbody>
     <% @yearly_uniq_prices.each_with_index do |price, row_n| %>
       <tr class="<%= cycle("list_line_odd", "list_line_even") %>">
-        <td><%= price.item.partNo %></td>
+        <td><%= price.part_number %></td>
         <td></td>
         <td></td>
         <td></td>

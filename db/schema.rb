@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -199,18 +199,39 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000001) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "price_list_entries", force: :cascade do |t|
+    t.datetime "amended_at"
+    t.datetime "created_at", null: false
+    t.string "generic_part_no", null: false
+    t.integer "min_qty", null: false
+    t.decimal "price", precision: 8, scale: 2, null: false
+    t.bigint "price_list_release_id", null: false
+    t.string "sell_by", default: "OEM", null: false
+    t.datetime "updated_at", null: false
+    t.index ["price_list_release_id", "generic_part_no", "sell_by", "min_qty"], name: "idx_pl_entries_lookup", unique: true
+    t.index ["price_list_release_id"], name: "index_price_list_entries_on_price_list_release_id"
+  end
+
+  create_table "price_list_releases", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "note"
+    t.date "released_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "prices", force: :cascade do |t|
     t.decimal "base_price", precision: 8, scale: 2
     t.string "boss_suggestion"
     t.string "condition"
     t.datetime "created_at", null: false
+    t.string "currency", default: "RMB"
     t.integer "customer_id"
     t.string "customer_name"
     t.string "department_suggestion"
-    t.decimal "extra_price", precision: 8, scale: 2
+    t.date "effective_from"
+    t.date "expired_at"
     t.string "finance_suggestion"
     t.integer "is_prr"
-    t.integer "item_id"
     t.string "part_number"
     t.string "payment_terms"
     t.decimal "price"
@@ -220,6 +241,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000001) do
     t.string "sales_suggestion"
     t.string "status"
     t.datetime "updated_at", null: false
+    t.decimal "v1_price", precision: 8, scale: 2
+    t.decimal "v2_price", precision: 8, scale: 2
   end
 
   create_table "quotations", force: :cascade do |t|
@@ -246,32 +269,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000001) do
     t.text "ship_address"
     t.string "ship_contact"
     t.string "ship_telephone"
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "set_prices", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.decimal "extra_price", precision: 8, scale: 2
-    t.integer "item_id"
-    t.integer "line_no"
-    t.datetime "released_at"
-    t.string "sell_by"
-    t.decimal "step1", precision: 8, scale: 2
-    t.decimal "step10", precision: 8, scale: 2
-    t.decimal "step11", precision: 8, scale: 2
-    t.decimal "step12", precision: 8, scale: 2
-    t.decimal "step13", precision: 8, scale: 2
-    t.decimal "step14", precision: 8, scale: 2
-    t.decimal "step15", precision: 8, scale: 2
-    t.decimal "step16", precision: 8, scale: 2
-    t.decimal "step2", precision: 8, scale: 2
-    t.decimal "step3", precision: 8, scale: 2
-    t.decimal "step4", precision: 8, scale: 2
-    t.decimal "step5", precision: 8, scale: 2
-    t.decimal "step6", precision: 8, scale: 2
-    t.decimal "step7", precision: 8, scale: 2
-    t.decimal "step8", precision: 8, scale: 2
-    t.decimal "step9", precision: 8, scale: 2
     t.datetime "updated_at", null: false
   end
 
@@ -306,4 +303,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000001) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attachments", "posts"
+  add_foreign_key "price_list_entries", "price_list_releases"
 end

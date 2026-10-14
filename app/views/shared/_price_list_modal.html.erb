@@ -1,0 +1,50 @@
+<div class="modal fade" id="setPricesModal" tabindex="-1" aria-labelledby="setPricesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="setPricesModalLabel">阶梯价快选（最新批次）</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <% release = PriceListRelease.ordered.first %>
+        <% if release %>
+          <% tiers = [1, 1000, 2500, 5000, 10000, 20000, 50000, 100000] %>
+          <table class="table table-striped table-sm">
+            <thead>
+              <tr>
+                <th>通用型号</th>
+                <th>渠道</th>
+                <% tiers.each do |q| %><th><%= q %>+</th><% end %>
+              </tr>
+            </thead>
+            <tbody>
+              <% release.entries.ordered.group_by(&:generic_part_no).each do |gen, rows| %>
+                <% ["OEM", "ODM"].each do |ch| %>
+                  <tr>
+                    <td><%= gen %></td>
+                    <td><%= ch %></td>
+                    <% tiers.each do |q| %>
+                      <% e = rows.find { |r| r.sell_by == ch && r.min_qty == q } %>
+                      <td>
+                        <% if e %>
+                          <%= link_to e.price.to_f, url_for(request.parameters.merge(part_number: gen, qty: q)) %>
+                        <% else %>
+                          -
+                        <% end %>
+                      </td>
+                    <% end %>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p>暂无阶梯发布批次。</p>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
