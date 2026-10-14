@@ -27,10 +27,17 @@
 </table>
 
 <h3 class="mt-4">新增当月汇率</h3>
+<% if @exchange_rate.errors.any? %>
+  <div class="alert alert-danger">
+    <% @exchange_rate.errors.full_messages.each do |msg| %>
+      <div><%= msg %></div>
+    <% end %>
+  </div>
+<% end %>
 <%= form_with model: @exchange_rate, html: { class: "row g-3 align-items-end" } do |f| %>
   <div class="col-md-3">
-    <%= f.label :month, "月份", class: "form-label" %>
-    <%= f.month_field :month, class: "form-control" %>
+    <%= f.label :month, "月份（如 2026-10）", class: "form-label" %>
+    <%= f.text_field :month, class: "form-control", placeholder: "2026-10" %>
   </div>
   <div class="col-md-3">
     <%= f.label :currency, "币种", class: "form-label" %>
