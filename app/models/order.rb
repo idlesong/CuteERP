@@ -77,7 +77,7 @@ class Order < ApplicationRecord
   def self.export_to_csv(options = {})
     header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
               "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",
-              "quantity", "quantity_issued", "version", "required_delivery_date", "remark"]
+              "quantity", "allocated_qty", "version", "required_delivery_date", "remark"]
 
     CSV.generate(**options) do |csv|
       csv << header
@@ -87,7 +87,7 @@ class Order < ApplicationRecord
             order.po_number, order.customer.name, order.end_customer&.name, order.currency,
             order.exchange_rate, order.status, order.kind,
             line.line_no, line.generic_part_no, line.base_price, line.v1_price, line.v2_price,
-            line.quantity, line.quantity_issued, line.version, line.required_delivery_date, line.remark
+            line.quantity, line.allocated_qty, line.version, line.required_delivery_date, line.remark
           ]
         end
       end
@@ -99,7 +99,7 @@ class Order < ApplicationRecord
     spreadsheet = open_spreadsheet(file)
     header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
               "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",
-              "quantity", "quantity_issued", "version", "required_delivery_date", "remark"]
+              "quantity", "allocated_qty", "version", "required_delivery_date", "remark"]
 
     (2..spreadsheet.last_row).each do |i|
       row = Hash[[header, spreadsheet.row(i)].transpose].slice(*header)
@@ -123,7 +123,7 @@ class Order < ApplicationRecord
       line.assign_attributes(
         generic_part_no: row["generic_part_no"],
         base_price: row["base_price"], v1_price: row["v1_price"], v2_price: row["v2_price"],
-        quantity: row["quantity"], quantity_issued: row["quantity_issued"],
+        quantity: row["quantity"],
         version: row["version"], remark: row["remark"],
         required_delivery_date: row["required_delivery_date"]
       )

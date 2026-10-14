@@ -24,6 +24,10 @@ Rails.application.routes.draw do
 
   resources :shipments, only: [:index, :destroy]
 
+  resources :sales_plans, only: [:index, :create, :destroy] do
+    collection { post :import }
+  end
+
   resources :attachments
 
   resources :prices do

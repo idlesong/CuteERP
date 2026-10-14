@@ -57,7 +57,7 @@
       <th><%= t(:part_number) %></th>
       <th><%= t(:price) %></th>
       <th><%= t(:quantity) %></th>
-      <th><%= t(:quantity_issued) %></th>
+      <th>已分配</th>
       <th><%= t(:suble_total) %></th>
       <th><%= t(:delivery_date) %></th>
       <th>版本</th>
@@ -79,7 +79,7 @@
           <% end %>
         </td>
         <td>x<%= line.quantity %></td>
-        <td><%= line.quantity_issued %></td>
+        <td><%= line.allocated_qty %></td>
         <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
         <td><%= line.required_delivery_date %></td>
         <td><%= line.version %></td>

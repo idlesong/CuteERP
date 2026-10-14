@@ -49,6 +49,11 @@ class OrderLine < ApplicationRecord
     net_qty - allocated_qty
   end
 
+  # 剩余数量（列表显示口径）= 可分配
+  def quantity_left
+    allocatable_qty
+  end
+
   # 可冲销余额 = 原行数量 - 已被冲销数量
   def reversible_qty
     quantity - returned_qty

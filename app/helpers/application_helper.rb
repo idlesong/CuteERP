@@ -4,6 +4,11 @@ module ApplicationHelper
     content_tag("div", attributes, &block)
   end
 
+  # 计划分节：按客户币别判断美元段
+  def usd_customer?(customer_name)
+    Customer.find_by(name: customer_name)&.currency == "USD"
+  end
+
   def find_order_number_from_reference(refer_line_id)
     OrderLine.find(refer_line_id)&.order&.po_number
   end
