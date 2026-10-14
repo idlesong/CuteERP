@@ -5,19 +5,6 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def current_issue_cart
-    Cart.find(session[:issue_cart_id])
-  rescue ActiveRecord::RecordNotFound
-    cart = Cart.create
-    session[:issue_cart_id] = cart.id
-    cart
-  end
-
-  def current_cart_currency
-    session[:cart_currency] = "RMB" if session[:cart_currency].nil?
-    session[:cart_currency]
-  end
-
   def monthly_exchange_rate
     rate = ExchangeRate.rate_for(Date.current, "USD")
     rate ||= legacy_monthly_rate
@@ -56,7 +43,6 @@ class ApplicationController < ActionController::Base
     session[:current_path_action]
   end
 
-  helper_method :current_cart_currency
   helper_method :monthly_exchange_rate
   helper_method :current_customer
   helper_method :current_user

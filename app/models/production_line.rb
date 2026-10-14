@@ -1,0 +1,40 @@
+# 六联单行：正式型号（item = 转产时确定后缀）+ 生产数量
+# 需求来源通过 production_allocations 台账关联客户订单行（可跨单、可拆量、可调整，D2）
+class ProductionLine < ApplicationRecord
+  belongs_to :sales_order
+  belongs_to :item, optional: true
+  has_many :production_allocations, dependent: :destroy
+  has_many :order_lines, through: :production_allocations
+  has_many :shipment_lines, dependent: :destroy
+
+  validates :quantity, numericality: { greater_than: 0 }
+
+  def part_number
+    item&.partNo
+  end
+
+  def product_name
+    item&.name || full_name
+  end
+
+  def shipped_qty
+    shipment_lines.sum(:quantity)
+  end
+
+  def unshipped_qty
+    quantity - shipped_qty
+  end
+
+  # 价格快照取自分配的客户订单行（加权平均；同型号通常同价）
+  def unit_price
+    allocs = production_allocations.includes(:order_line)
+    return nil if allocs.empty?
+
+    total_alloc = allocs.sum(&:quantity).to_f
+    allocs.sum { |a| a.quantity * (a.order_line&.unit_price || 0) } / total_alloc
+  end
+
+  def total_price
+    (unit_price || 0) * quantity
+  end
+end

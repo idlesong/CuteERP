@@ -1,5 +1,90 @@
-<%- model_class = SalesOrder -%>
 <div class="page-header">
-  <h1><%= t ".title", default: [:"helpers.titles.new", "New %{model}"], model: model_class.model_name.human.titleize %></h1>
+  <h1><%= t(:sales_order) %><small>---签发（选客户订单行，拆量分配）</small></h1>
 </div>
-<%= render partial: "form" %>
+
+<% if @pool.empty? %>
+  <div class="alert alert-info">该客户没有待签发的订单行。</div>
+  <%= link_to "返回", orders_path, class: "btn btn-outline-secondary" %>
+<% else %>
+  <%= form_with model: @sales_order, html: { class: "card" } do |f| %>
+    <% if @sales_order.errors.any? %>
+      <div class="alert alert-danger">
+        <ul><% @sales_order.errors.full_messages.each { |m| %><li><%= m %></li><% } %></ul>
+      </div>
+    <% end %>
+
+    <div class="card-body">
+      <div class="row g-3 mb-3">
+        <div class="col-md-3">
+          <%= f.label :customer_id, t(:customer), class: "form-label" %>
+          <%= f.select :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name, @customer.id), {}, class: "form-select" %>
+        </div>
+        <div class="col-md-3">
+          <%= f.label :end_customer_id, t(:end_customer), class: "form-label" %>
+          <%= f.select :end_customer_id,
+                       options_from_collection_for_select(Customer.order(:name), :id, :name,
+                                                          (@pool.first&.order&.end_customer_id || @customer.id)),
+                       { include_blank: true }, class: "form-select" %>
+        </div>
+        <div class="col-md-2">
+          <%= f.label :payment_term, t(:payment_term), class: "form-label" %>
+          <%= f.select :payment_term, Order::PAYMENT_TYPES, { include_blank: true }, class: "form-select" %>
+        </div>
+        <div class="col-md-2">
+          <%= f.label :required_date, t(:required_date), class: "form-label" %>
+          <%= f.date_field :required_date, class: "form-control",
+                           value: @pool.first&.required_delivery_date&.to_date %>
+        </div>
+        <div class="col-md-2">
+          <%= f.label :remark, t(:remark), class: "form-label" %>
+          <%= f.text_field :remark, class: "form-control" %>
+        </div>
+        <div class="col-12 small text-muted">
+          账单/收货联系人地址已按客户默认带出（可在此单创建后编辑）；数量留空或 0 的行不签发。
+        </div>
+      </div>
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th><%= t(:po_line_number) %></th>
+            <th>通用型号</th>
+            <th>正式型号（=选后缀，无则自动新建）</th>
+            <th>可分配</th>
+            <th>本次数量</th>
+            <th>版本</th>
+            <th>统一编号</th>
+            <th><%= t(:remark) %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pool.each do |ol| %>
+            <tr>
+              <td><%= link_to ol.display_no, order_path(ol.order) %></td>
+              <td><%= ol.generic_part_no %></td>
+              <td>
+                <select name="lines[<%= ol.id %>][item_id]" class="form-select form-select-sm">
+                  <% if ol.item_candidates.any? %>
+                    <%= options_for_select(ol.item_candidates.map { |i| [i.partNo, i.id] }) %>
+                  <% else %>
+                    <option value="new"><%= ol.generic_part_no %>（新建）</option>
+                  <% end %>
+                </select>
+              </td>
+              <td><strong><%= ol.allocatable_qty %></strong></td>
+              <td><input name="lines[<%= ol.id %>][quantity]" type="number" min="0" max="<%= ol.allocatable_qty %>"
+                         value="<%= ol.allocatable_qty %>" class="form-control form-control-sm" style="width: 6rem;"></td>
+              <td><input name="lines[<%= ol.id %>][version]" class="form-control form-control-sm" style="width: 6rem;"></td>
+              <td><input name="lines[<%= ol.id %>][full_name]" class="form-control form-control-sm" style="width: 10rem;"></td>
+              <td><input name="lines[<%= ol.id %>][remark]" class="form-control form-control-sm" style="width: 10rem;"></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer text-center">
+      <%= link_to "取消", orders_path, class: "btn btn-outline-secondary" %>
+      <%= f.submit "签发生成六联单", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+<% end %>

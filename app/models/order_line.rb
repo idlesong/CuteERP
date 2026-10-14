@@ -1,9 +1,12 @@
 # 客户订单行：唯一编号 = order.po_number + line_no（如 IBM2006001-1）
 # 行号在 PO 内自增（max+1），删除行不回收编号（被生产订单/台账引用，不可变）
 # 冲销行：quantity 为负，refer_order_line_id 指向被冲销的正数行（D1）
+# 签发关系：production_allocations 台账（D2），已签发/可分配均由台账聚合派生
 class OrderLine < ApplicationRecord
   belongs_to :order
   has_many :return_lines, class_name: "OrderLine", foreign_key: :refer_order_line_id
+  has_many :production_allocations, dependent: :destroy
+  has_many :production_lines, through: :production_allocations
   belongs_to :refer_line, class_name: "OrderLine", foreign_key: :refer_order_line_id, optional: true, counter_cache: false
 
   validates :generic_part_no, :quantity, presence: true
@@ -12,8 +15,6 @@ class OrderLine < ApplicationRecord
   validate :return_quantity_within_balance, if: -> { order&.kind == "return" }
 
   before_validation :assign_line_no, on: :create
-
-  scope :unissued, -> { where("quantity > quantity_issued") }
 
   def display_no
     order ? "#{order.po_number}-#{line_no}" : line_no.to_s
@@ -28,13 +29,29 @@ class OrderLine < ApplicationRecord
     unit_price * quantity
   end
 
-  def quantity_left
-    quantity - quantity_issued.to_i
+  # 已冲销数量
+  def returned_qty
+    return_lines.sum(:quantity).abs
+  end
+
+  # 已分配（签发）数量 —— 台账聚合
+  def allocated_qty
+    production_allocations.sum(:quantity)
+  end
+
+  # 净需求 = 数量 - 冲销（DemandQuery 口径）
+  def net_qty
+    quantity - returned_qty
+  end
+
+  # 可分配余额 = 净需求 - 已分配
+  def allocatable_qty
+    net_qty - allocated_qty
   end
 
   # 可冲销余额 = 原行数量 - 已被冲销数量
   def reversible_qty
-    quantity - return_lines.sum(:quantity).abs
+    quantity - returned_qty
   end
 
   # 从客户可用报价快照价格成分；无报价则留空（后续可手工补）
@@ -53,25 +70,18 @@ class OrderLine < ApplicationRecord
     line
   end
 
-  # ---- 签发流兼容（P4 由分配台账 D2 替代）----
+  # ---- 展示/转产辅助 ----
   def order_item
     Item.find_by(generic_part_no: generic_part_no)
-  end
-
-  def item_id
-    order_item&.id
   end
 
   def full_part_number
     order_item&.partNo || generic_part_no
   end
 
-  def full_name
-    order_item&.name || generic_part_no
-  end
-
-  def fixed_price
-    unit_price
+  # 供生产端选择正式型号：同通用型号组内的 item（= 选后缀）
+  def item_candidates
+    Item.where(generic_part_no: generic_part_no).order(:suffix)
   end
 
   private

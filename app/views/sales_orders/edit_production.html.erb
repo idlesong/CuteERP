@@ -1,128 +1,53 @@
-<%= render "shared/delivery_status_modal" %>
+<h1>生产编排 <%= @sales_order.serial_number %></h1>
 
-<h1><%= t(:sales_order) %></h1>
+<%= content_for :doc_title, "生产编排" %>
+<%= render "doc_header" %>
 
-<div class="card">
+<%= form_tag update_production_sales_order_path(@sales_order), method: :patch, class: "card" do %>
   <div class="card-body">
-    <h2>
-      <%= image_tag("sicomm_logo.jpg") %><%= current_user.settings(:company).name_zh %>
-    </h2>
-    <table class="table">
+    <table class="table table-striped">
       <thead>
         <tr>
-          <td>
-            <h5>Wuxi Sicomm Communication Tech</h5>
-            <h5>Address: B building #21 road, Wuxi</h5>
-            <h5>Tel:051066682208 Fax: 051066682208</h5>
-          </td>
-          <td>
-            <h4 class="text-right"><%= t(:show_date) %>:<%= @sales_order.created_at.to_date %></h4>
-            <h4 class="text-right"><%= t(:sales_order_number) %>#:<%= @sales_order.serial_number %></h4>
-            <h4 class="text-right"><%= t(:payment_term) %>:<%= @sales_order.payment_term %></h4>
-            <h4 class="text-right">
-              <% unless @sales_order.delivery_date.nil? %>
-                <%= t(:ship_date) %>:<%= @sales_order.delivery_date.to_date %>
-              <% else %>
-                <%= t(:plan_ship_date) %>:
-                <% ship_plan_text = "0000-00-00" %>
-                <% if @sales_order.delivery_plan %>
-                  <% ship_plan_text = @sales_order.delivery_plan.to_date %>
-                <% end %>
-                <% if not @sales_order.delivery_date %>
-                  <a class="shipLink" href="" data-bs-toggle="modal" data-bs-target="#rescheduleModal" data-id="<%= @sales_order.id %>"> <%= ship_plan_text %> &#x21bb </a>
-                <% end %>
-
-                <br />
-                <%= link_to(t(:edit_order), edit_sales_order_path(@sales_order)) %> &gt;
-                <%= link_to(t(:produce_order), production_sales_order_path(@sales_order)) %> &gt;
-                <%= link_to(t(:ship_now), confirm_sales_order_path(@sales_order)) %>
-              <% end %>
-            </h4>
-          </td>
-        </tr>
-      </thead>
-      <tr><td colspan="2"><h3 class="text-center"><%= t(:sales_order) %></h3></td></tr>
-      <tr>
-        <td><h4><%= t(:bill_to) %>: <%= @sales_order.customer.name %></h4></td>
-        <td><h4><%= t(:ship_to) %>: <%= @sales_order.customer.name %></h4></td>
-      </tr>
-      <tr>
-        <td><strong><%= t(:contact) %>:</strong><%= @sales_order.bill_contact %></td>
-        <td><strong><%= t(:contact) %>:</strong><%= @sales_order.ship_contact %></td>
-      </tr>
-      <tr>
-        <td><strong><%= t(:address) %>:</strong><%= @sales_order.bill_address %></td>
-        <td><strong><%= t(:address) %>:</strong><%= @sales_order.ship_address %></td>
-      </tr>
-      <tr>
-        <td><strong><%= t(:telephone) %>:</strong><%= @sales_order.bill_telephone %></td>
-        <td><strong><%= t(:telephone) %>:</strong><%= @sales_order.ship_telephone %></td>
-      </tr>
-    </table>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-body">
-    <h5><%= t(:order_details) %></h5>
-    <table class="table">
-      <thead>
-        <tr>
-          <th><h4>#</h4></th>
-          <th><h4><%= t(:uniform_number) %></h4></th>
-          <th><h4><%= t(:part_number) %></h4></th>
-          <th><h4><%= t(:quantity) %></h4></th>
-          <th><h4><%= t(:property) %>/<%= t(:remark) %></h4></th>
-          <th><h4><%= t(:plan_ship_date) %></h4></th>
+          <th>#</th>
+          <th>通用型号</th>
+          <th>正式型号（转产选后缀）</th>
+          <th><%= t(:quantity) %></th>
+          <th>版本</th>
+          <th><%= t(:uniform_number) %></th>
+          <th><%= t(:remark) %></th>
         </tr>
       </thead>
       <tbody>
-        <% @sales_order.line_items.each_with_index do |line_item, index| %>
+        <% @sales_order.production_lines.each_with_index do |line, i| %>
+          <% generic = line.item&.generic_part_no %>
+          <% candidates = generic ? Item.where(generic_part_no: generic).order(:suffix) : Item.none %>
           <tr>
-            <td><%= link_to index + 1, line_item_path(line_item.id) %></td>
-            <%= form_with model: line_item do |f| %>
-              <td><%= f.text_field(:full_name, placeholder: "XS2024-000", class: "form-control") %></td>
-              <td><%= line_item.full_part_number %></td>
-              <td><%= line_item.quantity %></td>
-              <td><%= f.text_field(:remark, placeholder: "V0.00.000", class: "form-control") %></td>
-              <td><%= ship_plan_text %></td>
-              <td><%= f.submit(t(:place_uniform_order), class: "btn btn-sm btn-primary") %></td>
-            <% end %>
+            <td><%= i + 1 %></td>
+            <td><%= generic || "—" %></td>
+            <td>
+              <select name="lines[<%= line.id %>][item_id]" class="form-select form-select-sm">
+                <% if candidates.any? %>
+                  <%= options_for_select(candidates.map { |it| ["#{it.partNo}#{' ★' if it.id == line.item_id}", it.id] }, line.item_id) %>
+                <% else %>
+                  <option value=""><%= line.part_number || "未定型" %></option>
+                <% end %>
+              </select>
+            </td>
+            <td><input name="lines[<%= line.id %>][quantity]" type="number" min="1" value="<%= line.quantity %>"
+                       class="form-control form-control-sm" style="width: 6rem;"></td>
+            <td><input name="lines[<%= line.id %>][version]" value="<%= line.version %>"
+                       class="form-control form-control-sm" style="width: 6rem;"></td>
+            <td><input name="lines[<%= line.id %>][full_name]" value="<%= line.full_name %>"
+                       class="form-control form-control-sm" style="width: 12rem;"></td>
+            <td><input name="lines[<%= line.id %>][remark]" value="<%= line.remark %>"
+                       class="form-control form-control-sm" style="width: 12rem;"></td>
           </tr>
         <% end %>
       </tbody>
     </table>
   </div>
-
-  <div class="card-footer">
-    <% if not @sales_order.delivery_date %>
-      | <%= link_to t(".edit", default: t("helpers.links.edit")), edit_sales_order_path(@sales_order) %> |
-    <% end %>
-
-    | <a href="<%= "#{invoice_sales_order_path(@sales_order)}.pdf" %>" target="_blank"><%= t(:invoice) %></a>
-    | <a href="<%= "#{packing_list_sales_order_path(@sales_order)}.pdf" %>" target="_blank"><%= t(:packing_list) %></a>
-
-    | <% if @sales_order.delivery_status %>
-      <%= "ship:#{@sales_order.delivery_status}" %>
-    <% else %>
-      <a class="shipLink" href="" data-bs-toggle="modal" data-bs-target="#deliveryStatusModal" data-id="<%= @sales_order.id %>"><%= t(:ship_status) %></a>
-    <% end %>
+  <div class="card-footer text-center">
+    <%= link_to "取消", production_sales_order_path(@sales_order), class: "btn btn-outline-secondary" %>
+    <%= submit_tag "保存编排", class: "btn btn-primary" %>
   </div>
-</div>
-
-<%= render "packing_list" %>
-
-<!-- Large modal Invoice-->
-<div class="modal fade bs-invoice-modal-lg" tabindex="-1" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-body">
-        <%= render "invoice" %>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <a href="<%= "#{invoice_sales_order_path(@sales_order)}.pdf" %>" class="btn btn-primary" target="_blank">Print Invoice</a>
-      </div>
-    </div>
-  </div>
-</div>
+<% end %>

@@ -42,11 +42,6 @@ document.addEventListener("turbo:load", () => {
     })
   })
 
-  // ship status modal: point its form at the selected sales order
-  $(".shipLink").on("click", function () {
-    const orderId = $(this).data("id")
-    $(".modal-body #ship_status").attr("action", "/sales_orders/" + orderId)
-  })
 
   // quick "new" buttons: POST a minimal JSON payload then reload
   $(".ajax-new").on("click", function () {

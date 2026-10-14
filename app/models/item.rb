@@ -1,8 +1,7 @@
 class Item < ActiveRecord::Base
   FW_MARK_TYPES = ["", "S", "M", "D", "C"]
 
-  has_many :line_items
-  has_many :orders, through: :line_items
+  has_many :production_lines
   has_many :prices
 
   before_validation :normalize_suffix
@@ -11,7 +10,7 @@ class Item < ActiveRecord::Base
   validates :name, :generic_part_no, presence: true
   validates :suffix, uniqueness: { scope: :generic_part_no }
 
-  before_destroy :ensure_not_referenced_by_any_line_item
+  before_destroy :ensure_not_referenced_by_any_production_line
   before_destroy :ensure_not_used_by_others
 
   # 完整型号（派生）：generic_part_no + suffix（D4，partNo 列已移除）
@@ -94,11 +93,11 @@ class Item < ActiveRecord::Base
     self.suffix = suffix.presence
   end
 
-  # ensure that there are no line items referencing this item
-  def ensure_not_referenced_by_any_line_item
-    return if line_items.count.zero?
+  # 生产行引用检查
+  def ensure_not_referenced_by_any_production_line
+    return if production_lines.count.zero?
 
-    errors.add(:base, "Line Items present")
+    errors.add(:base, "Production lines present")
     throw :abort
   end
 

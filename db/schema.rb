@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,11 +49,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
     t.bigint "post_id"
     t.datetime "updated_at", null: false
     t.index ["post_id"], name: "index_attachments_on_post_id"
-  end
-
-  create_table "carts", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "contacts", force: :cascade do |t|
@@ -130,25 +125,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
     t.index ["generic_part_no"], name: "index_items_on_generic_part_no"
   end
 
-  create_table "line_items", force: :cascade do |t|
-    t.integer "cart_id"
-    t.datetime "created_at", null: false
-    t.decimal "fixed_price", precision: 8, scale: 2
-    t.string "full_name"
-    t.string "full_part_number"
-    t.integer "item_id"
-    t.integer "line_id"
-    t.string "line_number"
-    t.string "line_type"
-    t.integer "price_id"
-    t.integer "quantity", default: 1
-    t.integer "quantity_issued", default: 0
-    t.integer "refer_line_id"
-    t.string "remark"
-    t.datetime "updated_at", null: false
-    t.index ["line_id"], name: "index_line_items_on_line_id"
-  end
-
   create_table "opportunities", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "customer_id"
@@ -179,7 +155,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
     t.bigint "order_id", null: false
     t.bigint "price_id"
     t.integer "quantity", default: 1
-    t.integer "quantity_issued", default: 0
     t.bigint "refer_order_line_id"
     t.string "remark"
     t.date "required_delivery_date"
@@ -271,6 +246,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
     t.decimal "v2_price", precision: 8, scale: 2
   end
 
+  create_table "production_allocations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "order_line_id", null: false
+    t.bigint "production_line_id", null: false
+    t.integer "quantity", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_line_id"], name: "index_production_allocations_on_order_line_id"
+    t.index ["production_line_id"], name: "index_production_allocations_on_production_line_id"
+    t.check_constraint "quantity > 0", name: "chk_allocation_qty_positive"
+  end
+
+  create_table "production_lines", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "full_name"
+    t.bigint "item_id"
+    t.integer "quantity", default: 1, null: false
+    t.string "remark"
+    t.bigint "sales_order_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "version"
+    t.index ["item_id"], name: "index_production_lines_on_item_id"
+    t.index ["sales_order_id"], name: "index_production_lines_on_sales_order_id"
+  end
+
   create_table "quotations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "customer_id"
@@ -285,17 +284,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
     t.string "bill_telephone"
     t.datetime "created_at", null: false
     t.integer "customer_id"
-    t.datetime "delivery_date"
-    t.datetime "delivery_plan"
-    t.string "delivery_status"
+    t.integer "end_customer_id"
     t.decimal "exchange_rate", precision: 8, scale: 2
     t.string "payment_term"
     t.string "remark"
+    t.datetime "required_date"
     t.string "serial_number"
     t.text "ship_address"
     t.string "ship_contact"
     t.string "ship_telephone"
     t.datetime "updated_at", null: false
+    t.index ["serial_number"], name: "index_sales_orders_on_serial_number", unique: true
   end
 
   create_table "settings", force: :cascade do |t|
@@ -306,6 +305,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
     t.text "value"
     t.string "var", null: false
     t.index ["target_type", "target_id", "var"], name: "index_settings_on_target_type_and_target_id_and_var", unique: true
+  end
+
+  create_table "shipment_lines", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "production_line_id", null: false
+    t.integer "quantity", null: false
+    t.bigint "shipment_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["production_line_id"], name: "index_shipment_lines_on_production_line_id"
+    t.index ["shipment_id"], name: "index_shipment_lines_on_shipment_id"
+  end
+
+  create_table "shipments", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "note"
+    t.bigint "sales_order_id", null: false
+    t.datetime "shipped_at", null: false
+    t.string "tracking_no"
+    t.datetime "updated_at", null: false
+    t.index ["sales_order_id"], name: "index_shipments_on_sales_order_id"
   end
 
   create_table "tasks", force: :cascade do |t|

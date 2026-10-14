@@ -15,12 +15,14 @@ Rails.application.routes.draw do
       get :edit_production
       get :production
       get :confirm
+      patch :update_production
+      post :create_shipment
       get :invoice
       get :packing_list
-      put :reschedule
-      put :update_production
     end
   end
+
+  resources :shipments, only: [:index, :destroy]
 
   resources :attachments
 
@@ -61,8 +63,6 @@ Rails.application.routes.draw do
     end
     resources :order_lines, only: [:create, :destroy]
   end
-
-  resources :line_items
 
   resources :items do
     member { get :who_bought }

@@ -1,6 +1,6 @@
 class Price < ApplicationRecord
   belongs_to :customer
-  has_many :line_items
+  has_many :order_lines
 
   validates :customer_id, :customer_name, :part_number, :condition, :price, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
@@ -131,9 +131,9 @@ class Price < ApplicationRecord
   end
 
   def ensure_not_used_by_others
-    return if line_items.empty?
+    return if order_lines.empty?
 
-    errors.add(:base, "line_items exist")
+    errors.add(:base, "order_lines exist")
     throw :abort
   end
 end

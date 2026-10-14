@@ -1,0 +1,30 @@
+<div class="page-header"><h1>出库单</h1></div>
+
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>六联单</th>
+      <th>客户</th>
+      <th>出库时间</th>
+      <th>数量</th>
+      <th>快递号</th>
+      <th>备注</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @shipments.each do |sh| %>
+      <tr>
+        <td><%= sh.id %></td>
+        <td><%= link_to sh.sales_order.serial_number, sales_order_path(sh.sales_order) %></td>
+        <td><%= sh.sales_order.customer.name %></td>
+        <td><%= sh.shipped_at.strftime("%F %H:%M") %></td>
+        <td><%= sh.shipment_lines.sum(:quantity) %></td>
+        <td><%= sh.tracking_no %></td>
+        <td><%= sh.note %></td>
+        <td><%= link_to "✘", shipment_path(sh), data: { turbo_method: :delete, turbo_confirm: "删除该出库单？" }, class: "btn btn-link text-danger" %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

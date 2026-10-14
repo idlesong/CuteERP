@@ -1,0 +1,51 @@
+<%# 六联单类页面公共单头（production/edit_production/confirm 复用） %>
+<div class="card">
+  <div class="card-body">
+    <h2>
+      <%= image_tag("sicomm_logo.jpg") %><%= current_user.settings(:company).name_zh %>
+    </h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <td>
+            <h5>Wuxi Sicomm Communication Tech</h5>
+            <h5>Address: B building #21 road, Wuxi</h5>
+            <h5>Tel:051066682208 Fax: 051066682208</h5>
+          </td>
+          <td>
+            <h4 class="text-right"><%= t(:show_date) %>:<%= @sales_order.created_at.to_date %></h4>
+            <h4 class="text-right"><%= t(:sales_order_number) %>#:<%= @sales_order.serial_number %></h4>
+            <h4 class="text-right"><%= t(:payment_term) %>:<%= @sales_order.payment_term %></h4>
+            <h4 class="text-right">
+              <% if @sales_order.shipped? %>
+                <%= t(:ship_date) %>:<%= @sales_order.delivery_date.to_date %>
+              <% else %>
+                <%= t(:plan_ship_date) %>:
+                <%= link_to(@sales_order.required_date&.to_date || "0000-00-00", edit_sales_order_path(@sales_order),
+                            title: "修改要求交期") %> &#x21bb
+              <% end %>
+            </h4>
+          </td>
+        </tr>
+      </thead>
+      <tr><td colspan="2"><h3 class="text-center"><%= yield :doc_title %></h3></td></tr>
+      <tr>
+        <td><h4><%= t(:bill_to) %>: <%= @sales_order.customer.name %></h4>
+          <h4><%= t(:end_customer) %>: <%= @sales_order.end_customer&.name || "—" %></h4></td>
+        <td><h4><%= t(:ship_to) %>: <%= @sales_order.customer.name %></h4></td>
+      </tr>
+      <tr>
+        <td><strong><%= t(:contact) %>:</strong><%= @sales_order.bill_contact %></td>
+        <td><strong><%= t(:contact) %>:</strong><%= @sales_order.ship_contact %></td>
+      </tr>
+      <tr>
+        <td><strong><%= t(:address) %>:</strong><%= @sales_order.bill_address %></td>
+        <td><strong><%= t(:address) %>:</strong><%= @sales_order.ship_address %></td>
+      </tr>
+      <tr>
+        <td><strong><%= t(:telephone) %>:</strong><%= @sales_order.bill_telephone %></td>
+        <td><strong><%= t(:telephone) %>:</strong><%= @sales_order.ship_telephone %></td>
+      </tr>
+    </table>
+  </div>
+</div>

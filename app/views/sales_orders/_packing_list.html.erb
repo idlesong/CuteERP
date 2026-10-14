@@ -50,7 +50,17 @@
             </tr>
           </thead>
           <tbody>
-            <%= render(@sales_order.line_items) %>
+          <% currency_unit = @sales_order.customer.currency == "USD" ? "$" : "¥" %>
+            <% @sales_order.production_lines.each_with_index do |line, line_index| %>
+              <tr>
+                <td><%= line_index + 1 %></td>
+                <td><%= line.product_name %></td>
+                <td><%= line.part_number %></td>
+                <td><%= line.quantity %></td>
+                <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+                <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+              </tr>
+<% end %>
           </tbody>
         </table>
 

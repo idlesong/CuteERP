@@ -1,7 +1,4 @@
-<h1>Editing sales_order</h1>
-
-<% if notice %>
-  <br /><p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
-<% end %>
-
+<div class="page-header">
+  <h1><%= t(:sales_order) %><small>---编辑单头 <%= @sales_order.serial_number %></small></h1>
+</div>
 <%= render "form" %>

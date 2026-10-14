@@ -49,16 +49,15 @@
       </thead>
       <tbody>
         <% currency_unit = @sales_order.customer.currency == "RMB" ? "¥" : "$" %>
-        <% @sales_order.line_items.each do |line_item| %>
+        <% @sales_order.production_lines.each do |line| %>
           <tr>
             <td>1</td>
-            <td><%= line_item.full_name %></td>
-            <td><%= line_item.full_part_number %></td>
-            <td><%= line_item.quantity %></td>
-            <% line_price = line_item.show_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency) %>
-            <td><%= number_to_currency(line_price, unit: currency_unit) %></td>
-            <td><%= number_to_currency(line_item.total_currency_price(@sales_order.exchange_rate, @sales_order.customer.currency), unit: currency_unit) %></td>
-            <td></td>
+            <td><%= line.product_name %></td>
+            <td><%= line.part_number %></td>
+            <td><%= line.quantity %></td>
+            <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+            <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+            <td><%= line.remark %></td>
           </tr>
         <% end %>
         <tr>

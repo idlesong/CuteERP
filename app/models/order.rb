@@ -71,7 +71,7 @@ class Order < ApplicationRecord
   end
 
   def not_issued?
-    order_lines.where("quantity_issued > 0").none?
+    order_lines.joins(:production_allocations).none?
   end
 
   def self.export_to_csv(options = {})
