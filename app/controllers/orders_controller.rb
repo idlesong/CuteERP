@@ -1,151 +1,126 @@
+# 客户订单（P3）：
+# - 单据主标识 = 客户订单号 po_number；行唯一编号 = po_number + line_no
+# - 快速创建（列表页 tfoot）：相同 po_number 追加行到同一张单，行号自动 +1
+# - 草稿态（D10）：新建即 draft，show 页加行，submit 后进入签发池
+# - 冲销（D1）：kind=return 的单据，行引用原行、数量为负
 class OrdersController < ApplicationController
-  skip_before_action :authorize, only: [:new, :create]
-
-  before_action :set_order, only: [:show, :edit, :update, :destroy]
+  before_action :set_order, only: [:show, :edit, :update, :destroy, :submit, :new_return, :create_return]
 
   # GET /orders
   def index
-    @orders = Order.all
+    @orders = Order.normal.includes(:order_lines, :customer, :end_customer).ordered_by_po
 
     respond_to do |format|
       format.html
       format.json { render json: @orders }
-
-      format.csv { send_data @orders.export_to_csv }
-      format.xls { send_data @orders.export_to_csv(col_sep: "\t") }
+      format.csv { send_data Order.export_to_csv }
+      format.xls { send_data Order.export_to_csv(col_sep: "\t") }
     end
   end
 
   # GET /orders/1
   def show
-    @end_customer = Customer.find(@order.end_customer_id) unless @order.end_customer_id.nil?
+    @generic_options = priced_generic_options(@order.customer)
+  end
 
-    respond_to do |format|
-      format.html
-      format.json { render json: @order }
+  # GET /orders/next_line_no?po_number=IBM2006001
+  def next_line_no
+    po = params[:po_number].to_s.strip
+    order = Order.find_by(po_number: po)
+    if order
+      render json: { exists: true, line_no: order.next_line_no, display_no: "#{po}-#{order.next_line_no}",
+                     customer_id: order.customer_id, end_customer_id: order.end_customer_id,
+                     currency: order.currency, status: order.status, kind: order.kind }
+    else
+      render json: { exists: false, display_no: "#{po}-1" }
     end
   end
 
-  # GET /orders/new
+  # GET /orders/new —— 高级创建（完整单头字段）
   def new
-    # customers with active prices (available)
-    @customers = Customer.joins(:prices).where(prices: { status: "active" }).distinct.where("credit > ?", 0)
-
-    # clear cart and destroy associated line_items, when customer switched
-    if params[:customer_id] && (params[:customer_id] != current_customer.id.to_s)
-      session[:customer_id] = params[:customer_id]
-      current_cart.line_items.clear
-    end
-
-    @customer = current_customer
-    # initialize orders with selected customer
-    @order = Order.new
-    @order.initialize_order_header(current_customer)
-    @order.exchange_rate = monthly_exchange_rate
-
-    @cart = current_cart
-    @cart.line_items.clear
-    session[:cart_order_type] = "Order"
-    session[:cart_currency] = @order.customer.currency
-
-    respond_to do |format|
-      format.html
-      format.json { render json: @order }
-    end
+    @order = Order.build_with_customer(current_customer, po_number: params[:po_number])
+    @order.snapshot_exchange_rate!
+    @customers = Customer.order(:name)
   end
 
-  # GET /orders/reverse?customer_id=1
-  def reverse
-    # initialize orders with selected customer
-    @customer = params[:customer_id] ? Customer.find(params[:customer_id]) : current_customer
-    @orders = Order.where(customer_id: @customer.id)
-
-    @order = Order.new
-    @order.initialize_order_header(current_customer)
-    @order.exchange_rate = monthly_exchange_rate
-
-    @cart = current_cart
-    @cart.line_items.clear
-    session[:cart_order_type] = "Order"
-    session[:cart_currency] = @order.customer.currency
-
-    respond_to do |format|
-      format.html
-      format.json { render json: @order }
-    end
-  end
-
-  # GET /orders/1/edit
-  def edit
-    @customer = current_customer
-
-    if @order.not_issued?
-      # customers with active prices (available)
-      @customers = Customer.joins(:prices).where(prices: { status: "active" }).distinct.where("credit > ?", 0)
-
-      @cart = current_cart
-      @cart.copy_line_items_from_customer_order(@order)
-
-      session[:cart_order_type] = "Order"
-      session[:cart_currency] = @order.customer.currency
-    end
-
-    respond_to do |format|
-      if @order.not_issued?
-        format.html
-        format.json
-      else
-        format.html { redirect_to @order, notice: "Can not edit this order, order been issued!" }
-        format.json { render json: @order.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # POST /orders
+  # POST /orders          —— 高级创建
+  # POST /orders?inline=1 —— 快速创建（tfoot 行）
   def create
-    @order = Order.new(order_params)
+    return create_inline if params[:inline]
 
-    if current_cart.line_items.exists?
-      @order.add_line_items_from_cart(current_cart, params["reverse_order"])
+    @order = Order.build_with_customer(Customer.find(order_params[:customer_id]))
+    @order.assign_attributes(order_params.except(:customer_id))
+    @order.snapshot_exchange_rate!
+
+    if @order.save
+      redirect_to @order, notice: "草稿订单 #{@order.po_number} 已创建，请在详情页添加行"
+    else
+      @customers = Customer.order(:name)
+      render :new, status: :unprocessable_entity
     end
+  end
 
-    respond_to do |format|
-      if @order.save
-        Cart.destroy(session[:cart_id])
-        session[:cart_id] = nil
-        format.html { redirect_to @order, notice: "Order was created." }
-        format.js
-      else
-        @main_items = Item.where(assembled: %w[no yes])
-        @option_items = Item.where(assembled: "addition")
-
-        @customer = current_customer
-        @customers = Customer.all
-        @cart = current_cart
-
-        format.html { render action: "new", notice: "Errors when save order." }
-        format.js
-      end
-    end
+  # GET /orders/1/edit —— 编辑单头
+  def edit
+    @customers = Customer.order(:name)
   end
 
   # PATCH/PUT /orders/1
   def update
-    respond_to do |format|
-      if current_cart.line_items.exists? # can't update without cart.line_items
-        if @order.update(order_params)
-          @order.line_items.clear
-          @order.add_line_items_from_cart(current_cart, params["reverse_order"])
+    if @order.update(order_params)
+      redirect_to @order, notice: "订单已更新"
+    else
+      @customers = Customer.order(:name)
+      render :edit, status: :unprocessable_entity
+    end
+  end
 
-          format.html { redirect_to @order, notice: "Order was successfully updated." }
-          format.json { head :no_content }
-        end
-      else
-        @customer = current_customer
-        @cart = current_cart
-        format.html { render action: "edit", notice: "Errors when update order, make sure line_items." }
-        format.json { render json: @order.errors, status: :unprocessable_entity }
-      end
+  # PATCH /orders/1/submit —— 草稿提交
+  def submit
+    if @order.submit!
+      redirect_to @order, notice: "订单 #{@order.po_number} 已提交"
+    else
+      redirect_to @order, alert: @order.errors.full_messages.to_sentence
+    end
+  end
+
+  # GET /orders/1/new_return —— 冲销：选行录数量
+  def new_return
+    if @order.return? || @order.draft?
+      redirect_to @order, alert: "草稿单和冲销单不能再冲销"
+      return
+    end
+    @returnable = @order.order_lines.select { |l| l.reversible_qty.positive? }
+    redirect_to @order, alert: "该订单没有可冲销余额" if @returnable.empty?
+  end
+
+  # POST /orders/1/create_return
+  def create_return
+    base_po = @order.po_number
+    seq = Order.where(kind: "return").where("po_number LIKE ?", "#{base_po}-%").count + 1
+    return_order = Order.new(kind: "return", status: "submitted", po_number: "#{base_po}-R#{seq}",
+                             customer: @order.customer, end_customer_id: @order.end_customer_id,
+                             currency: @order.currency, exchange_rate: @order.exchange_rate,
+                             pay_type: @order.pay_type, name: @order.name, address: @order.address,
+                             ship_contact: @order.ship_contact, ship_address: @order.ship_address,
+                             ship_telephone: @order.ship_telephone, remark: "冲销 #{@order.po_number}")
+
+    lines_params.to_h.each do |line_id, attrs|
+      source = @order.order_lines.find(line_id)
+      qty = attrs[:quantity].to_i
+      next if qty <= 0
+
+      return_order.order_lines.build(generic_part_no: source.generic_part_no,
+                                     base_price: source.base_price, v1_price: source.v1_price,
+                                     v2_price: source.v2_price, price_id: source.price_id,
+                                     quantity: -qty, refer_order_line_id: source.id,
+                                     remark: attrs[:remark].presence || "冲销 #{source.display_no}")
+    end
+
+    if return_order.save
+      redirect_to return_order, notice: "冲销单 #{return_order.po_number} 已生成"
+    else
+      redirect_to new_return_order_path(@order), alert: return_order.errors.full_messages.to_sentence
     end
   end
 
@@ -157,14 +132,11 @@ class OrdersController < ApplicationController
 
   # DELETE /orders/1
   def destroy
-    respond_to do |format|
-      if @order.destroy
-        format.html { redirect_to orders_url }
-        format.json { head :no_content }
-      else
-        format.html { redirect_to order_url(@order), notice: "Can not destroy, this order has been issued!" }
-        format.json { head :no_content }
-      end
+    po = @order.po_number
+    if @order.destroy
+      redirect_to orders_url, notice: "订单 #{po} 已删除"
+    else
+      redirect_to order_url(@order), alert: @order.errors.full_messages.to_sentence
     end
   end
 
@@ -174,9 +146,48 @@ class OrdersController < ApplicationController
     @order = Order.find(params[:id])
   end
 
+  # 快速创建：PO 已存在（草稿或已提交）→ 追加行；不存在 → 按所选客户建草稿单
+  def create_inline
+    po = params.dig(:order, :po_number).to_s.strip
+    raise "客户订单号不能为空" if po.blank?
+
+    order = Order.transaction do
+      found = Order.lock.find_by(po_number: po)
+      if found.nil?
+        customer = Customer.find_by(id: params.dig(:order, :customer_id)) || current_customer
+        found = Order.build_with_customer(customer, po_number: po)
+        found.snapshot_exchange_rate!
+        found.save!
+      end
+      found
+    end
+
+    line = OrderLine.build_with_price_snapshot(order, line_params)
+    line.save!
+    redirect_to orders_url, notice: "#{line.display_no} 已创建（#{order.status == 'draft' ? '草稿' : '已提交'}单追加行）"
+  rescue ActiveRecord::RecordInvalid, RuntimeError => e
+    redirect_to orders_url, alert: "快速创建失败：#{e.message}"
+  end
+
+  # 客户有可用报价的通用型号 + 全部产品型号，用于行选择
+  def priced_generic_options(customer)
+    priced = Price.available.where(customer_id: customer.id).distinct.pluck(:part_number)
+    all = Item.where.not(generic_part_no: nil).distinct.pluck(:generic_part_no)
+    (priced | all).sort
+  end
+
+  def line_params
+    params.require(:order).permit(:generic_part_no, :quantity, :version, :required_delivery_date,
+                                  :base_price, :v1_price, :v2_price, :remark)
+  end
+
+  def lines_params
+    params.permit(lines: [:quantity, :remark])[:lines] || {}
+  end
+
   def order_params
-    params.require(:order).permit(:customer_id, :order_number, :name, :address, :telephone,
+    params.require(:order).permit(:customer_id, :end_customer_id, :po_number, :name, :address, :telephone,
                                   :ship_contact, :ship_address, :ship_telephone, :pay_type,
-                                  :exchange_rate, :remark, :end_customer_id, :po_number)
+                                  :exchange_rate, :remark)
   end
 end

@@ -1,60 +1,139 @@
 <% if notice %>
-  <br /><p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+  <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
+<% end %>
+<% if alert %>
+  <p id="alert" class="alert alert-warning" role="alert"><%= alert %></p>
 <% end %>
 
-<h1><%= t(:order) %></h1>
-
-<div class="card">
+<div class="card mb-3">
   <div class="card-body">
-    <h2>
-      <%= link_to @order.customer.name, customer_path(@order.customer) %>
-      <%= @end_customer.name if not @end_customer.nil? %>
-    </h2>
-    <table class="table">
-      <thead>
-        <tr>
-          <td></td>
-          <td>
-            <h4 class="text-right"><%= t(:show_date) %>: <%= @order.created_at.to_date %></h4>
-            <h4 class="text-right"><%= t(:order_number) %>#:
-              <% if @order.document.attached? %>
-                <%= link_to(@order.order_number, url_for(@order.document), target: "_blank") %>
-              <% else %>
-                <%= @order.order_number %>
-              <% end %>
-            </h4>
-            <h4 class="text-right"><%= t(:payment_term) %>:<%= @order.pay_type %></h4>
-          </td>
-        </tr>
-      </thead>
-      <tr><td colspan="2"><h3 class="text-center"><%= t(:order) %></h3></td></tr>
-      <% customer_name = @order.customer.full_name || @order.customer.name %>
+    <div class="d-flex justify-content-between">
+      <h2>
+        <%= t(:po_number) %>:
+        <% if @order.document.attached? %>
+          <%= link_to(@order.po_number, url_for(@order.document), target: "_blank") %>
+        <% else %>
+          <%= @order.po_number %>
+        <% end %>
+        <% if @order.return? %>
+          <span class="badge bg-danger">冲销单（冲销 <%= @order.remark.to_s.sub("冲销 ", "") %>）</span>
+        <% elsif @order.draft? %>
+          <span class="badge bg-secondary">草稿</span>
+        <% else %>
+          <span class="badge bg-success">已提交</span>
+        <% end %>
+      </h2>
+      <div class="text-end small">
+        <div><%= t(:show_date) %>: <%= @order.created_at.to_date %></div>
+        <div><%= t(:payment_term) %>: <%= @order.pay_type %></div>
+        <div>
+          <%= t(:currency) %>: <%= @order.currency %>
+          <% unless @order.exchange_rate == 1 %>（汇率 <%= @order.exchange_rate %>）<% end %>
+        </div>
+      </div>
+    </div>
+    <table class="table table-sm mb-0">
       <tr>
-        <td><h4><%= t(:bill_to) %>: <%= customer_name %></h4></td>
-        <td><h4><%= t(:ship_to) %>: <%= customer_name %></h4></td>
+        <td><%= t(:customer) %>: <%= link_to @order.customer.name, @order.customer %></td>
+        <td><%= t(:end_customer) %>: <%= @order.end_customer&.name || "—" %></td>
       </tr>
-      <tr><td><%= t(:contact) %>:<%= @order.name %></td><td><%= t(:contact) %>:<%= @order.ship_contact %></td></tr>
-      <tr><td><%= t(:address) %>:<%= @order.address %></td><td><%= t(:address) %>:<%= @order.ship_address %></td></tr>
-      <tr><td><%= t(:telephone) %>:<%= @order.telephone %></td><td><%= t(:telephone) %>:<%= @order.ship_telephone %></td></tr>
+      <tr>
+        <td><%= t(:contact) %>: <%= @order.name %> / <%= @order.telephone %></td>
+        <td><%= t(:ship_contact) %>: <%= @order.ship_contact %> / <%= @order.ship_telephone %></td>
+      </tr>
+      <tr>
+        <td><%= t(:address) %>: <%= @order.address %></td>
+        <td><%= t(:address) %>: <%= @order.ship_address %></td>
+      </tr>
     </table>
   </div>
 </div>
 
-<div class="card">
-  <div class="card-header"><h5><%= t(:po_number) %>:<%= @order.po_number %></h5></div>
-  <div class="card-body">
-    <%= render @order %>
-  </div>
+<%= form_tag order_order_lines_path(@order), method: :post do %>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= t(:po_line_number) %></th>
+      <th><%= t(:part_number) %></th>
+      <th><%= t(:price) %></th>
+      <th><%= t(:quantity) %></th>
+      <th><%= t(:quantity_issued) %></th>
+      <th><%= t(:suble_total) %></th>
+      <th><%= t(:delivery_date) %></th>
+      <th>版本</th>
+      <th><%= t(:remark) %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% currency_unit = @order.currency == "USD" ? "$" : "¥" %>
+    <% @order.order_lines.each do |line| %>
+      <tr class="<%= 'table-danger' if line.quantity.negative? %>">
+        <td><%= line.display_no %></td>
+        <td><%= line.generic_part_no %><span class="small text-muted"> <%= line.full_part_number %></span></td>
+        <td>
+          <% if line.price_id %>
+            <%= link_to number_to_currency(line.unit_price, unit: currency_unit), price_path(line.price_id) %>
+          <% else %>
+            <%= number_to_currency(line.unit_price, unit: currency_unit) %>
+          <% end %>
+        </td>
+        <td>x<%= line.quantity %></td>
+        <td><%= line.quantity_issued %></td>
+        <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+        <td><%= line.required_delivery_date %></td>
+        <td><%= line.version %></td>
+        <td><%= line.remark %></td>
+        <td>
+          <% if @order.draft? %>
+            <%= link_to "✘", order_line_path(@order, line), data: { turbo_method: :delete,
+                        turbo_confirm: "删除 #{line.display_no}？" }, class: "btn btn-sm btn-link text-danger" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+  <% if @order.draft? %>
+    <tfoot>
+      <tr class="inline-new-row">
+        <th><button type="submit" class="btn btn-sm btn-primary">加行</button></th>
+        <th>
+          <input name="order[generic_part_no]" class="form-control form-control-sm" list="show_generic_options"
+                 placeholder="通用型号*" required>
+          <datalist id="show_generic_options">
+            <%= options_for_select(@generic_options) %>
+          </datalist>
+        </th>
+        <th>
+          =<input name="order[base_price]" class="form-control form-control-sm d-inline-block" style="width: 4rem;"
+                  placeholder="基本">+
+          <input name="order[v1_price]" class="form-control form-control-sm d-inline-block" style="width: 3.5rem;"
+                  placeholder="附加1">+
+          <input name="order[v2_price]" class="form-control form-control-sm d-inline-block" style="width: 3.5rem;"
+                  placeholder="附加2">
+          <div class="small text-muted">全空 = 按报价带出</div>
+        </th>
+        <th><input name="order[quantity]" type="number" min="1" class="form-control form-control-sm" placeholder="数量*" required></th>
+        <th></th><th></th>
+        <th><input name="order[required_delivery_date]" type="date" class="form-control form-control-sm"></th>
+        <th><input name="order[version]" class="form-control form-control-sm" placeholder="版本"></th>
+        <th><input name="order[remark]" class="form-control form-control-sm" placeholder="特殊要求"></th>
+        <th></th>
+      </tr>
+    </tfoot>
+  <% end %>
+</table>
+<% end %>
 
-  <div class="card-footer">
-    <%= link_to t(".edit", default: t("helpers.links.edit")), edit_order_path(@order) %>
-
-    <%= link_to t(".destroy", default: t("helpers.links.destroy")), order_path(@order),
-                data: { turbo_method: :delete, turbo_confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
-                class: "btn btn-sm btn-danger" %>
-
-    <%= link_to t(:issue_sales_order), new_sales_order_path(customer_id: @order.customer.id) %>
-    <%= link_to t(:reverse_order), reverse_orders_path(customer_id: @order.customer.id),
-                class: "btn btn-sm btn-danger float-end" %>
-  </div>
+<div class="d-flex gap-2">
+  <%= link_to "返回列表", orders_path, class: "btn btn-outline-secondary" %>
+  <%= link_to "编辑单头", edit_order_path(@order), class: "btn btn-outline-secondary" %>
+  <% if @order.draft? %>
+    <%= button_to "提交订单", submit_order_path(@order), method: :patch, class: "btn btn-primary" %>
+    <%= link_to "删除草稿", order_path(@order), data: { turbo_method: :delete, turbo_confirm: "删除整张草稿单 #{@order.po_number}？" },
+                class: "btn btn-outline-danger" %>
+  <% elsif @order.submitted? && !@order.return? %>
+    <%= link_to "创建冲销单", new_return_order_path(@order), class: "btn btn-outline-danger" %>
+    <%= link_to t(:issue_sales_order), new_sales_order_path(customer_id: @order.customer.id), class: "btn btn-outline-primary" %>
+  <% end %>
 </div>

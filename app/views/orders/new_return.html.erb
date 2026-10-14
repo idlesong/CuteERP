@@ -1,0 +1,44 @@
+<div class="page-header">
+  <h1>创建冲销单<small>---原单 <%= @order.po_number %>（数量留空或 0 表示该行不冲销）</small></h1>
+</div>
+
+<%= form_tag create_return_order_path(@order), class: "card" do %>
+  <div class="card-body">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th><%= t(:po_line_number) %></th>
+          <th><%= t(:part_number) %></th>
+          <th><%= t(:price) %></th>
+          <th><%= t(:quantity) %></th>
+          <th>已冲销</th>
+          <th>可冲销余额</th>
+          <th>本次冲销数量</th>
+          <th><%= t(:remark) %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% currency_unit = @order.currency == "USD" ? "$" : "¥" %>
+        <% @returnable.each do |line| %>
+          <tr>
+            <td><%= line.display_no %></td>
+            <td><%= line.generic_part_no %></td>
+            <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+            <td>x<%= line.quantity %></td>
+            <td><%= line.return_lines.sum(:quantity).abs %></td>
+            <td><strong><%= line.reversible_qty %></strong></td>
+            <td>
+              <input name="lines[<%= line.id %>][quantity]" type="number" min="0" max="<%= line.reversible_qty %>"
+                     value="0" class="form-control form-control-sm" style="width: 6rem;">
+            </td>
+            <td><input name="lines[<%= line.id %>][remark]" class="form-control form-control-sm" placeholder="冲销原因（可空）"></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-center">
+    <%= link_to "取消", order_path(@order), class: "btn btn-outline-secondary" %>
+    <%= submit_tag "生成冲销单", class: "btn btn-danger" %>
+  </div>
+<% end %>

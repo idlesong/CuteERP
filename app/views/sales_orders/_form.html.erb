@@ -8,9 +8,8 @@
     <table class="table">
       <thead>
         <tr>
-          <th><h4>#</h4></th>
           <th><h4><%= t(:customer) %></h4></th>
-          <th><h4><%= t(:order_number) %></h4></th>
+          <th><h4><%= t(:po_line_number) %></h4></th>
           <th><h4><%= t(:show_date) %></h4></th>
           <th><h4><%= t(:product_name) %></h4></th>
           <th><h4><%= t(:part_number) %></h4></th>
@@ -22,29 +21,23 @@
         </tr>
       </thead>
       <tbody>
-        <% @orders.each do |order| %>
-          <% unless order.line_items.nil? then %>
-            <% order.line_items.each do |line_item| %>
-              <% quantity_left = line_item.quantity - line_item.quantity_issued %>
-              <% if quantity_left > 0 then %>
-                <tr>
-                  <td>#<%= link_to(order.id, order_path(order.id)) %></td>
-                  <td><%= order.customer.name %></td>
-                  <td><%= order.order_number %></td>
-                  <td><%= order.created_at.strftime("%m-%d") %></td>
-                  <td><%= line_item.full_name %></td>
-                  <td><%= line_item.full_part_number %></td>
-                  <td>¥<%= line_item.fixed_price %></td>
-                  <td>x<%= line_item.quantity %></td>
-                  <td>x<%= line_item.quantity_issued %></td>
-                  <%= form_tag line_items_path(line_id: line_item.id) do %>
-                    <td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left, class: "form-control form-control-sm") %></td>
-                    <td><%= submit_tag(t(:issue_to_cart), class: "btn btn-sm btn-primary") %></td>
-                  <% end %>
-                </tr>
-              <% end %>
+        <% @lines.each do |line| %>
+          <% order = line.order %>
+          <% quantity_left = line.quantity_left %>
+          <tr>
+            <td><%= order.customer.name %></td>
+            <td><%= link_to line.display_no, order_path(order) %></td>
+            <td><%= order.created_at.strftime("%m-%d") %></td>
+            <td><%= line.full_name %></td>
+            <td><%= line.full_part_number %></td>
+            <td>¥<%= line.fixed_price %></td>
+            <td>x<%= line.quantity %></td>
+            <td>x<%= line.quantity_issued %></td>
+            <%= form_tag line_items_path(line_id: line.id) do %>
+              <td><%= text_field_tag(:quantity, quantity_left, placeholder: quantity_left, class: "form-control form-control-sm") %></td>
+              <td><%= submit_tag(t(:issue_to_cart), class: "btn btn-sm btn-primary") %></td>
             <% end %>
-          <% end %>
+          </tr>
         <% end %>
       </tbody>
     </table>

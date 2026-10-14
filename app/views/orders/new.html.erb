@@ -1,8 +1,4 @@
-<h1><%= t(:order) %></h1>
-<%= render "customers_modal" %>
-<%= render "shared/products_modal", locals: { order: @order } %>
-
-<div id="orderHeaderDiv">
-  <%= render partial: "orderHeader" %>
+<div class="page-header">
+  <h1><%= t(:order) %><small>---高级创建</small></h1>
 </div>
-<%= render partial: "form" %>
+<%= render "form" %>

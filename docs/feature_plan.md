@@ -61,6 +61,13 @@
 - 价格快照：`base_price / v1_price / v2_price`（下单时从价格带出，本币）
 - `remark` 只表特殊要求
 
+**单号规则（v2）**
+- 取消 `order_number` 内部编号；订单唯一标识 = `po_number`（客户订单号）+ `line_no`（行号），如 IBM2006001-1、IBM2006001-2
+- `po_number` 全局唯一（strip 归一）；`line_no` 在 PO 内自增（max+1），删除行不回收编号（行号被生产订单/台账引用，不可变）
+- 快速创建输入相同客户订单号 = 往同一张 draft 单追加行，行号自动 +1；失焦时 `GET /orders/next_line_no?po_number=` 预显完整编号并带出上次该 PO 的客户/币别
+- 唯一索引：`orders.po_number`、`order_lines (order_id, line_no)`；并发用事务 + 唯一索引兜底（RecordNotUnique 重试）
+- 存量迁移：po_number 为空用 order_number 回填；旧行 line_number 按 PO 分组重排为 line_no；CSV 导入导出主键同步改为 po_number+line_no
+
 **orders**
 - 新增 `kind`（normal / return，冲销单据，D1）
 - 新增 `currency`（从客户快照）、`exchange_rate`（创建时快照当月汇率，RMB 单 = 1）

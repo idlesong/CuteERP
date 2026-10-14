@@ -25,7 +25,7 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.new
 
     @customer = Customer.find(params[:customer_id])
-    @orders = Order.where(customer_id: params[:customer_id])
+    @lines = unissued_po_lines.where(orders: { customer_id: @customer.id })
 
     @sales_order.initialize_order_header(@customer)
     @sales_order.exchange_rate = monthly_exchange_rate
@@ -41,7 +41,7 @@ class SalesOrdersController < ApplicationController
 
   # GET /sales_orders/1/edit
   def edit
-    @orders = Order.where(customer_id: @sales_order.customer_id)
+    @lines = unissued_po_lines.where(orders: { customer_id: @sales_order.customer_id })
 
     @cart = current_issue_cart
     @cart.copy_line_items_from_sales_order(@sales_order)
@@ -181,6 +181,14 @@ class SalesOrdersController < ApplicationController
       format.html { redirect_to sales_orders_url }
       format.json { head :no_content }
     end
+  end
+
+  # 未签发客户订单行池（quantity > quantity_issued），含单头信息
+  def unissued_po_lines
+    OrderLine.joins(:order)
+             .where(orders: { kind: "normal", status: "submitted" })
+             .where("order_lines.quantity > order_lines.quantity_issued")
+             .order("orders.po_number", "order_lines.line_no")
   end
 
   private

@@ -23,30 +23,22 @@
     </tr>
   </thead>
   <tbody>
-    <% @open_orders.each do |order| %>
-      <% currency_unit = order.customer.currency == "RMB" ? "¥" : "$" %>
-      <% if not order.line_items.nil? then %>
-        <% order.line_items.each do |line_item| %>
-          <% if line_item.quantity > line_item.quantity_issued %>
-            <tr>
-              <td>#<%= link_to(order.order_number, order_path(order.id)) %>-<%= link_to(order.id, order_path(order.id)) %></td>
-              <td><%= link_to order.customer.name, order.customer %></td>
-              <td><%= order.created_at.strftime("%F") %></td>
-              <td><%= line_item.full_part_number %></td>
-              <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
-              <td class="text-right"><%= number_to_currency(line_price, unit: currency_unit) %></td>
-              <td class="text-right"><%= line_item.quantity %></td>
-              <td class="text-right"><%= line_item.quantity - line_item.quantity_issued %></td>
-              <td class="text-right"><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
-              <td>
-                <% if line_item.quantity > line_item.quantity_issued then %>
-                  <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        <% end %>
-      <% end %>
+    <% @open_lines.each do |line| %>
+      <% order = line.order %>
+      <% currency_unit = order.currency == "USD" ? "$" : "¥" %>
+      <tr>
+        <td><%= link_to line.display_no, order_path(order.id) %></td>
+        <td><%= link_to order.customer.name, order.customer %></td>
+        <td><%= order.created_at.strftime("%F") %></td>
+        <td><%= line.full_part_number %></td>
+        <td class="text-right"><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+        <td class="text-right"><%= line.quantity %></td>
+        <td class="text-right"><%= line.quantity_left %></td>
+        <td class="text-right"><%= number_to_currency(line.quantity_left * line.unit_price, unit: currency_unit) %></td>
+        <td>
+          <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
+        </td>
+      </tr>
     <% end %>
   </tbody>
 </table>

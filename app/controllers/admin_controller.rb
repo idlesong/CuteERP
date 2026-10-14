@@ -5,7 +5,11 @@ class AdminController < ApplicationController
     this_year = Time.now.beginning_of_year..Time.now
     @orders = Order.order(:name).where(created_at: this_year)
     @sales_orders = SalesOrder.where(created_at: this_year).order(Arel.sql("delivery_date IS NULL, delivery_date ASC"))
-    @open_orders = Order.order(:name)
+    # 未签发完的客户订单行（含行信息，供仪表盘直接按行列出）
+    @open_lines = OrderLine.joins(:order)
+                           .where(orders: { kind: "normal", status: "submitted" })
+                           .where("order_lines.quantity > order_lines.quantity_issued")
+                           .order("orders.po_number", "order_lines.line_no")
 
     this_month = Time.now.beginning_of_month..Time.now
     last_month = 1.month.ago.beginning_of_month..Time.now.beginning_of_month

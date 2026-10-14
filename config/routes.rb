@@ -51,13 +51,18 @@ Rails.application.routes.draw do
 
   resources :orders do
     collection do
-      get :reverse
+      get :next_line_no
       post :import
     end
+    member do
+      patch :submit
+      get :new_return
+      post :create_return
+    end
+    resources :order_lines, only: [:create, :destroy]
   end
 
   resources :line_items
-  resources :carts
 
   resources :items do
     member { get :who_bought }

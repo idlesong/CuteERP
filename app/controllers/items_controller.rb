@@ -94,7 +94,7 @@ class ItemsController < ApplicationController
   def who_bought
     @item = Item.find(params[:id])
     # Item has no has_many :orders through line_items (polymorphic line), so query directly
-    @orders = Order.where(id: @item.line_items.where(line_type: "Order").select(:line_id)).distinct
+    @orders = Order.where(id: OrderLine.where(generic_part_no: @item.generic_part_no).select(:order_id)).distinct
 
     respond_to do |format|
       format.atom

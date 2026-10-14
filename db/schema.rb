@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -171,23 +171,49 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000003) do
     t.integer "user_id"
   end
 
+  create_table "order_lines", force: :cascade do |t|
+    t.decimal "base_price", precision: 8, scale: 2
+    t.datetime "created_at", null: false
+    t.string "generic_part_no", null: false
+    t.integer "line_no", null: false
+    t.bigint "order_id", null: false
+    t.bigint "price_id"
+    t.integer "quantity", default: 1
+    t.integer "quantity_issued", default: 0
+    t.bigint "refer_order_line_id"
+    t.string "remark"
+    t.date "required_delivery_date"
+    t.datetime "updated_at", null: false
+    t.decimal "v1_price", precision: 8, scale: 2
+    t.decimal "v2_price", precision: 8, scale: 2
+    t.string "version"
+    t.index ["generic_part_no"], name: "index_order_lines_on_generic_part_no"
+    t.index ["order_id", "line_no"], name: "index_order_lines_on_order_id_and_line_no", unique: true
+    t.index ["order_id"], name: "index_order_lines_on_order_id"
+    t.index ["price_id"], name: "index_order_lines_on_price_id"
+    t.index ["refer_order_line_id"], name: "index_order_lines_on_refer_order_line_id"
+  end
+
   create_table "orders", force: :cascade do |t|
     t.text "address"
     t.datetime "created_at", null: false
+    t.string "currency"
     t.integer "customer_id"
     t.string "email"
     t.integer "end_customer_id"
     t.decimal "exchange_rate", precision: 8, scale: 2
+    t.string "kind", default: "normal"
     t.string "name"
-    t.string "order_number"
     t.string "pay_type"
-    t.string "po_number"
+    t.string "po_number", null: false
     t.string "remark"
     t.text "ship_address"
     t.string "ship_contact"
     t.string "ship_telephone"
+    t.string "status", default: "draft"
     t.string "telephone"
     t.datetime "updated_at", null: false
+    t.index ["po_number"], name: "index_orders_on_po_number", unique: true
   end
 
   create_table "posts", force: :cascade do |t|

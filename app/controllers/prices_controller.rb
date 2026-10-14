@@ -57,10 +57,9 @@ class PricesController < ApplicationController
     @price.price_number = @price.generate_price_number
     @customers = Customer.order("credit DESC").where("credit > ?", 0)
 
-    # clear cart, when customer switched
+    # 切换客户会话
     if params[:customer_id] && (params[:customer_id] != current_customer.id.to_s)
       session[:customer_id] = params[:customer_id]
-      current_cart.line_items.clear
     end
 
     @customer = current_customer

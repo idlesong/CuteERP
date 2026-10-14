@@ -8,8 +8,8 @@
       <id><%= url_for(controller: "orders", action: "show", id: order) %></id>
       <link href="<%= url_for(controller: "orders", action: "show", id: order) %>"/>
       <updated><%= order.updated_at.xmlschema %></updated>
-      <title><%= order.order_number %> (<%= order.customer.name %>)</title>
-      <content type="html"><%= order.line_items.where(item_id: @item.id).sum(:quantity) %> pcs</content>
+      <title><%= order.po_number %> (<%= order.customer.name %>)</title>
+      <content type="html"><%= order.order_lines.where(generic_part_no: @item.generic_part_no).sum(:quantity) %> pcs</content>
       <author><name><%= order.customer.name %></name></author>
     </entry>
   <% end %>

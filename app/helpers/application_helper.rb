@@ -5,7 +5,7 @@ module ApplicationHelper
   end
 
   def find_order_number_from_reference(refer_line_id)
-    LineItem.find(refer_line_id).line.order_number
+    OrderLine.find(refer_line_id)&.order&.po_number
   end
 
   def markdown(content)

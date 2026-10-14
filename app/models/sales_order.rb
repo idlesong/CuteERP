@@ -62,7 +62,7 @@ class SalesOrder < ActiveRecord::Base
   # issue refer po's line items, after save; and then clear cart
   def issue_refer_line_items
     line_items.each do |line|
-      po_line = LineItem.find(line.refer_line_id)
+      po_line = OrderLine.find(line.refer_line_id)
       po_line.update_attribute(:quantity_issued, po_line.quantity_issued + line.quantity)
 
       line.update_attribute(:cart_id, nil)
@@ -70,12 +70,12 @@ class SalesOrder < ActiveRecord::Base
   end
 
   def issue_refer_line_item(line_item, quantity)
-    po_line = LineItem.find(line_item.refer_line_id)
+    po_line = OrderLine.find(line_item.refer_line_id)
     po_line.update_attribute(:quantity_issued, po_line.quantity_issued + quantity)
   end
 
   def issue_back_refer_line_item(line_item, quantity)
-    po_line = LineItem.find(line_item.refer_line_id)
+    po_line = OrderLine.find(line_item.refer_line_id)
     if quantity <= po_line.quantity_issued
       po_line.update_attribute(:quantity_issued, po_line.quantity_issued - quantity)
     end

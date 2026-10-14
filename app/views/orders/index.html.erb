@@ -1,71 +1,132 @@
-<% if true %>
-  <h3><%= t(:order) %>(<%= t(:show_as_lines) %>)</h3>
-  <%= form_tag new_order_path, method: :get do %>
-  <table class="table datatable">
-    <thead>
-      <tr>
-        <th><h4><%= t(:id) %></h4></th>
-        <th><h4><%= t(:po_line_number) %></h4></th>
-        <th><h4><%= t(:customer) %> / <%= t(:end_customer) %></h4></th>
-        <th><h4><%= t(:po_number) %></h4></th>
-        <th><h4><%= t(:part_number) %></h4></th>
-        <th><h4><%= t(:price) %></h4></th>
-        <th><h4><%= t(:quantity) %></h4></th>
-        <th><h4><%= t(:quantity_left) %></h4></th>
-        <th><h4><%= t(:suble_total) %></h4></th>
-        <th><h4><%= t(:show_date) %></h4></th>
-        <th><h4><%= t(:actions) %></h4></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @orders.each do |order| %>
-        <% currency_unit = order.customer.currency == "RMB" ? "¥" : "$" %>
-        <% if not order.line_items.nil? then %>
-          <% order.line_items.each do |line_item| %>
-            <tr>
-              <td><%= line_item.id %></td>
-              <td><%= link_to(line_item.line_number, order_path(order.id)) %></td>
-              <td><%= order.customer.name %>
-                <% if order.end_customer_id %>
-                  / <%= Customer.find(order.end_customer_id).name %>
-                <% end %>
-              </td>
-              <td><%= order.po_number %></td>
-              <td><%= line_item.full_part_number %></td>
-              <% line_price = line_item.show_currency_price(order.exchange_rate, order.customer.currency) %>
-              <% if line_item.price.nil? then %>
-                <td><%= number_to_currency(line_price, unit: currency_unit) %></td>
-              <% else %>
-                <td><%= link_to(number_to_currency(line_price, unit: currency_unit), price_path(line_item.price_id)) %></td>
-              <% end %>
-              <td>x<%= line_item.quantity %></td>
-              <td><%= line_item.quantity - line_item.quantity_issued %></td>
-              <td><%= number_to_currency(line_item.total_currency_price(order.exchange_rate, order.customer.currency), unit: currency_unit) %></td>
-              <td><%= order.created_at.strftime("%F") %></td>
-              <td>
-                <% if line_item.quantity > line_item.quantity_issued then %>
-                  <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        <% end %>
-      <% end %>
-    </tbody>
-    <tfoot>
-      <tr class="inline-new-row">
-        <td colspan="3">
-          <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name), class: "form-select form-select-sm", style: "width: 14rem;" %>
-          <%= submit_tag "选客户开单", class: "btn btn-sm btn-primary" %>
-        </td>
-        <td colspan="8"></td>
-      </tr>
-    </tfoot>
-  </table>
-  <% end %>
+<%- model_class = Order -%>
+<div class="page-header">
+  <h1><%= t(:order) %><small>---按行显示（编号 = 客户订单号-行号）</small></h1>
+  <%= link_to "高级创建（完整单头）", new_order_path, class: "btn btn-outline-secondary btn-sm" %>
+</div>
 
-  <%= link_to "New Order", new_order_path, class: "btn btn-primary" %>
+<% if notice %>
+  <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
 <% end %>
+<% if alert %>
+  <p id="alert" class="alert alert-warning" role="alert"><%= alert %></p>
+<% end %>
+
+<%= form_tag orders_path(inline: 1) do %>
+<table class="table table-striped datatable">
+  <thead>
+    <tr>
+      <th><%= t(:po_line_number) %></th>
+      <th><%= t(:customer) %> / <%= t(:end_customer) %></th>
+      <th><%= t(:po_number) %></th>
+      <th><%= t(:part_number) %></th>
+      <th><%= t(:price) %></th>
+      <th><%= t(:quantity) %></th>
+      <th><%= t(:quantity_left) %></th>
+      <th><%= t(:suble_total) %></th>
+      <th><%= t(:delivery_date) %></th>
+      <th><%= t(:status) %></th>
+      <th><%= t(:show_date) %></th>
+      <th><%= t(:actions) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @orders.each do |order| %>
+      <% currency_unit = order.currency == "USD" ? "$" : "¥" %>
+      <% order.order_lines.each do |line| %>
+        <tr class="<%= 'table-warning' if order.draft? %> <%= 'table-danger' if order.return? %>">
+          <td><%= link_to line.display_no, order_path(order) %></td>
+          <td>
+            <%= link_to order.customer.name, order.customer %>
+            <% if order.end_customer %>/ <%= order.end_customer.name %><% end %>
+          </td>
+          <td><%= order.po_number %></td>
+          <td><%= line.generic_part_no %></td>
+          <td>
+            <% if line.price_id %>
+              <%= link_to number_to_currency(line.unit_price, unit: currency_unit), price_path(line.price_id) %>
+            <% else %>
+              <%= number_to_currency(line.unit_price, unit: currency_unit) %>
+            <% end %>
+          </td>
+          <td>x<%= line.quantity %></td>
+          <td><%= line.quantity_left %></td>
+          <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+          <td><%= line.required_delivery_date %></td>
+          <td>
+            <% if order.return? %>
+              <span class="badge bg-danger">冲销</span>
+            <% elsif order.draft? %>
+              <span class="badge bg-secondary">草稿</span>
+            <% else %>
+              <span class="badge bg-success">已提交</span>
+            <% end %>
+          </td>
+          <td><%= order.created_at.strftime("%F") %></td>
+          <td>
+            <% if order.submitted? && line.quantity_left > 0 %>
+              <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+  <tfoot>
+    <tr class="inline-new-row">
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button>
+          <div id="po-preview" class="small text-muted"></div></th>
+      <th></th>
+      <th><input name="order[po_number]" id="order_po_number" class="form-control form-control-sm"
+                 placeholder="客户订单号*" required></th>
+      <th>
+        <input name="order[generic_part_no]" class="form-control form-control-sm" list="order_generic_options"
+               placeholder="通用型号*" required>
+        <datalist id="order_generic_options">
+          <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
+        </datalist>
+      </th>
+      <th><input name="order[base_price]" class="form-control form-control-sm" placeholder="单价(空=报价带出)"></th>
+      <th><input name="order[quantity]" type="number" min="1" class="form-control form-control-sm" placeholder="数量*" required></th>
+      <th></th>
+      <th></th>
+      <th><input name="order[required_delivery_date]" type="date" class="form-control form-control-sm"></th>
+      <th>
+        <select name="order[customer_id]" id="order_customer_id" class="form-select form-select-sm">
+          <option value="" selected>客户(新PO必选)</option>
+          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
+        </select>
+      </th>
+      <th></th>
+      <th></th>
+    </tr>
+  </tfoot>
+</table>
+<% end %>
+
+<script>
+  // 客户订单号失焦：预显完整编号（PO-行号），已有 PO 自动带出客户
+  document.addEventListener("turbo:load", () => {
+    const poInput = document.getElementById("order_po_number")
+    if (!poInput) return
+    poInput.addEventListener("blur", () => {
+      const po = poInput.value.trim()
+      const preview = document.getElementById("po-preview")
+      const customerSelect = document.getElementById("order_customer_id")
+      if (!po) { preview.textContent = ""; return }
+      fetch(`/orders/next_line_no?po_number=${encodeURIComponent(po)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          preview.textContent = data.exists
+            ? `${data.display_no}（追加到${data.status === "draft" ? "草稿" : "已提交"}单）`
+            : `${data.display_no}（新单，请选客户）`
+          if (data.exists && customerSelect) {
+            customerSelect.value = data.customer_id
+          }
+        }).catch(() => {})
+    })
+  })
+</script>
+
 <p>
   <br />
   <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -78,12 +139,10 @@
     <%= link_to "Export CSV", orders_path(format: "csv"), class: "btn btn-primary" %> |
     <%= link_to "Export Excel", orders_path(format: "xls"), class: "btn btn-primary" %>
 
-    <h4>Import Products</h4>
+    <h4>Import Orders（主键 = 客户订单号 + 行号）</h4>
     <%= form_tag import_orders_path, multipart: true do %>
       <%= file_field_tag :file, class: "form-control" %>
       <%= submit_tag "Import", class: "btn btn-primary" %>
     <% end %>
   </div>
 </div>
-<br />
-<br />

@@ -35,35 +35,15 @@ class LineItemsController < ApplicationController
   def edit
   end
 
-  # POST /line_items?item_id=3  ;po_cart: add line_item
-  # POST /line_items?line_id=3  ;so_cart: add issue_line_item
-  # POST /line_items?line_id=3&reverse_order=true ; po_cart add line_item
+  # POST /line_items?line_id=3 —— 签发流：PO 行(OrderLine)加入签发暂存（P4 由分配台账替代）
   def create
-    if params[:line_id] # issue, unissue, reverse po according refer line_id
-      if params[:reverse_order] # reverse po
-        @cart = current_cart
-        so_line = LineItem.find(params[:line_id])
-
-        logger.debug "=====##reverse##cart.add_po_line_item:item, quantity==
-                      #{so_line.full_part_number}, #{params[:quantity]}"
-        @line_item = @cart.add_po_line_item(so_line.price_id,
-                                            so_line.full_part_number, 0 - params[:quantity].to_i, so_line.fixed_price, so_line.id)
-      else # cart.add_so_line_item & issue, unissue po
-        @cart = current_issue_cart
-        po_line = LineItem.find(params[:line_id])
-        logger.debug "=====cart.add_so_line_item, quantity==  #{params[:quantity]}"
-        @line_item = @cart.add_so_line_item(po_line, params[:quantity].to_i)
-      end
-    else # cart.add_po_line_item
-      @cart = current_cart
-      item = Item.find(params[:item_id])
-      item_suffix = "" if params[:suffix].blank?
-      full_part_number = item.partNo + item_suffix
-      fixed_price = Price.find(params[:price_id]).price
-
-      logger.debug "=====cart.add_po_line_item:item, quantity== #{full_part_number}, #{params[:quantity]}"
-      @line_item = @cart.add_po_line_item(params[:price_id],
-                                          full_part_number, params[:quantity].to_i, fixed_price, nil)
+    if params[:line_id]
+      @cart = current_issue_cart
+      po_line = OrderLine.find(params[:line_id])
+      logger.debug "=====cart.add_so_line_item, quantity==  #{params[:quantity]}"
+      @line_item = @cart.add_so_line_item(po_line, params[:quantity].to_i)
+    else
+      redirect_to orders_url, alert: "无效的加行请求" and return
     end
 
     respond_to do |format|
@@ -104,11 +84,7 @@ class LineItemsController < ApplicationController
   def destroy
     @line_item.destroy
 
-    if session[:cart_order_type] == "SalesOrder"
-      @cart = current_issue_cart
-    else
-      @cart = current_cart
-    end
+    @cart = current_issue_cart
 
     respond_to do |format|
       format.html { redirect_to line_items_url }

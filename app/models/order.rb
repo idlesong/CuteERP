@@ -1,124 +1,133 @@
-class Order < ActiveRecord::Base
-  has_many :line_items, as: :line, dependent: :destroy
-  belongs_to :customer
-
-  PAYMENT_TYPES = ["款到发货", "T.T in advance", "COD", "T.T 30days"]
+# 客户订单：客户订单号（po_number）即单据主标识（P3 起取消内部编号）
+# kind: normal/return（冲销，D1）；status: draft/submitted（草稿态，D10）
+class Order < ApplicationRecord
+  KINDS = %w[normal return].freeze
+  STATUSES = %w[draft submitted].freeze
+  PAYMENT_TYPES = ["款到发货", "T.T in advance", "COD", "T.T 30days"].freeze
 
   include DocumentAttachment
 
-  validates :order_number, presence: true
-  validates :pay_type, presence: true
-  # validates :pay_type, inclusion: PAYMENT_TYPES
-  validates :line_items, presence: true
-  validates :customer_id, presence: true
-  validates :exchange_rate, presence: true
-  # validates :name, :address, presence: true # can fill when ship
+  has_many :order_lines, -> { order(:line_no) }, dependent: :destroy
+  belongs_to :customer
+  belongs_to :end_customer, class_name: "Customer", optional: true
 
-  # before_update :not_issued?
-  before_destroy :ensure_not_issued
+  validates :po_number, presence: true, uniqueness: { case_sensitive: false }
+  validates :kind, inclusion: { in: KINDS }
+  validates :status, inclusion: { in: STATUSES }
+  validates :customer_id, :exchange_rate, presence: true
 
-  def initialize_order_header(new_customer)
-    self.customer = new_customer
-    # set bill_to and ship_to contact by default, then confirm it in sales order
-    self.name = new_customer.contact
-    self.address = new_customer.address
-    self.telephone = new_customer.telephone
-    self.ship_contact = new_customer.ship_contact
-    self.ship_address = new_customer.ship_address
-    self.ship_telephone = new_customer.ship_telephone
+  before_validation :normalize_po_number
+  before_destroy :ensure_not_issued, unless: :draft?
 
-    self.exchange_rate = 1 # default for rmb
-    self.pay_type = new_customer.payment
-    self.order_number = generate_order_number
+  scope :draft, -> { where(status: "draft") }
+  scope :submitted, -> { where(status: "submitted") }
+  scope :normal, -> { where(kind: "normal") }
+  scope :ordered_by_po, -> { order(:po_number) }
+
+  def draft? = status == "draft"
+
+  def submitted? = status == "submitted"
+
+  def return? = kind == "return"
+
+  # 新单头：联系人/收发货信息从客户默认带出（发货时可改）
+  def self.build_with_customer(customer, po_number: nil)
+    new(customer: customer, po_number: po_number, pay_type: customer.payment,
+        currency: customer.currency.presence || "RMB",
+        name: customer.contact, address: customer.address, telephone: customer.telephone,
+        ship_contact: customer.ship_contact, ship_address: customer.ship_address,
+        ship_telephone: customer.ship_telephone)
   end
 
-  def add_line_items_from_cart(cart, reverse_order)
-    cart.line_items.each_with_index do |line, index|
-      line.cart_id = nil
-      line.line_number = order_number + "-" + (index + 1).to_s.rjust(2, "0")
-
-      if line.quantity < 0
-        if reverse_order
-          # issue po order before create reverse po
-          po_line = LineItem.find(line.refer_line_id)
-          po_line.update_attribute(:quantity_issued, po_line.quantity_issued - line.quantity)
-          line.quantity_issued = line.quantity
-        else
-          return
-        end
+  # 汇率快照：RMB=1，外币取当月汇率
+  def snapshot_exchange_rate!
+    self.exchange_rate =
+      if currency == "RMB"
+        1
+      else
+        ExchangeRate.rate_for(Date.current, currency) || ExchangeRate.rate_for(Date.current, "USD") || 1
       end
-
-      line_items << line
-    end
   end
 
-  def generate_order_number
-    next_id = Order.where(created_at: DateTime.now.at_beginning_of_day..DateTime.now.at_end_of_day).count + 1
-    "PO" + DateTime.now.strftime("%Y%m%d") + "-" + (next_id % 100).to_s.rjust(2, "0")
+  def next_line_no
+    (order_lines.maximum(:line_no) || 0) + 1
   end
 
-  # Cancel issued order left quantity
-  def cancel
+  # 草稿 → 已提交；ODM 客户必须指定最终客户（D7）
+  def submit!
+    errors.add(:base, "订单没有行，不能提交") if order_lines.empty?
+    errors.add(:base, "ODM 客户订单必须指定最终客户") if customer.sales_type == "ODM" && end_customer.nil?
+    return false if errors.any?
+
+    update(status: "submitted")
+  end
+
+  def total_price
+    order_lines.sum(&:total_price)
+  end
+
+  def total_price_rmb
+    (total_price * exchange_rate).round(2)
+  end
+
+  def not_issued?
+    order_lines.where("quantity_issued > 0").none?
   end
 
   def self.export_to_csv(options = {})
-    order_header = ["order_number", "customer_id", "end_customer_id", "po_number", "created_at"]
-    line_item_header = ["line_number", "full_part_number", "fixed_price", "quantity", "quantity_issued", "remark"]
+    header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
+              "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",
+              "quantity", "quantity_issued", "version", "required_delivery_date", "remark"]
 
     CSV.generate(**options) do |csv|
-      csv << order_header + line_item_header
-
-      all.each do |order|
-        row_order_info = order.attributes.values_at(*order_header)
-        row_order_info[1] = Customer.find(row_order_info[1]).name if Customer.find(row_order_info[1])
-        if row_order_info[2] && Customer.find(row_order_info[2])
-          row_order_info[2] = Customer.find(row_order_info[2]).name
-        end
-
-        order.line_items.each do |line_item|
-          row_line_item = line_item.attributes.values_at(*line_item_header)
-
-          csv << (row_order_info + row_line_item)
+      csv << header
+      includes(:order_lines, :customer, :end_customer).ordered_by_po.find_each do |order|
+        order.order_lines.each do |line|
+          csv << [
+            order.po_number, order.customer.name, order.end_customer&.name, order.currency,
+            order.exchange_rate, order.status, order.kind,
+            line.line_no, line.generic_part_no, line.base_price, line.v1_price, line.v2_price,
+            line.quantity, line.quantity_issued, line.version, line.required_delivery_date, line.remark
+          ]
         end
       end
     end
   end
 
+  # 主键 = po_number + line_no，存在即更新
   def self.import(file)
     spreadsheet = open_spreadsheet(file)
-
-    order_header = ["order_number", "customer_id", "end_customer_id", "po_number", "created_at"]
-    line_item_header = ["line_number", "full_part_number", "fixed_price",
-                        "quantity", "quantity_issued", "remark"]
-    header = order_header + line_item_header
+    header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
+              "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",
+              "quantity", "quantity_issued", "version", "required_delivery_date", "remark"]
 
     (2..spreadsheet.last_row).each do |i|
-      row = Hash[[header, spreadsheet.row(i)].transpose]
-      # primary key: line_number, update existing, or create new one
-      line_item = LineItem.find_by(line_number: row["line_number"]) || LineItem.new
+      row = Hash[[header, spreadsheet.row(i)].transpose].slice(*header)
+      po = row["po_number"].to_s.strip
+      next if po.blank?
 
-      row_attributes = row.to_hash.slice(*header)
-      # update order_header attr
-      if line_item.line_type.nil?
-        # line_item.build_order
-      elsif line_item.line_type == "Order"
-        order_header.each do |attr|
-          line_item_order = Order.find(line_item.line_id)
+      customer = Customer.find_by(name: row["customer"]) || Customer.first
+      order = Order.find_by(po_number: po) ||
+              begin
+                o = build_with_customer(customer, po_number: po)
+                o.currency = row["currency"].presence || o.currency
+                o.snapshot_exchange_rate!
+                o.status = row["status"].presence || "submitted"
+                o.kind = row["kind"].presence || "normal"
+                o.save!
+                o
+              end
+      order.update(end_customer_id: Customer.find_by(name: row["end_customer"])&.id) if row["end_customer"].present?
 
-          if (customer = Customer.find_by(name: row_attributes["customer_id"]))
-            row_attributes.store("customer_id", customer.id)
-          end
-          if (end_customer = Customer.find_by(name: row_attributes["end_customer_id"]))
-            row_attributes.store("end_customer_id", end_customer.id)
-          end
-          line_item_order.update_attribute(attr, row_attributes[attr])
-        end
-      end
-
-      # update line_item_header attr
-      line_item_header.each do |attr|
-        line_item.update_attribute(attr, row_attributes[attr])
-      end
+      line = order.order_lines.find_by(line_no: row["line_no"]) || order.order_lines.build(line_no: row["line_no"])
+      line.assign_attributes(
+        generic_part_no: row["generic_part_no"],
+        base_price: row["base_price"], v1_price: row["v1_price"], v2_price: row["v2_price"],
+        quantity: row["quantity"], quantity_issued: row["quantity_issued"],
+        version: row["version"], remark: row["remark"],
+        required_delivery_date: row["required_delivery_date"]
+      )
+      line.save!
     end
   end
 
@@ -131,17 +140,17 @@ class Order < ActiveRecord::Base
     end
   end
 
-  # true when this order has not been issued by any sales order
-  def not_issued?
-    line_items.where("quantity_issued > 0").none?
-  end
-
   private
 
+  def normalize_po_number
+    self.po_number = po_number.to_s.strip
+  end
+
+  # 已提交且已被生产订单签发的单不可删（草稿自由删）
   def ensure_not_issued
     return true if not_issued?
 
-    errors.add(:base, "Order has been used by sales orders")
+    errors.add(:base, "订单已被生产订单使用")
     throw :abort
   end
 end
