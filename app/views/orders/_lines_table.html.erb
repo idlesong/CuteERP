@@ -244,7 +244,8 @@
       const suffix = modal.querySelector("#qi_suffix")
       const qty = modal.querySelector("#qi_quantity")
       const ver = modal.querySelector("#qi_version")
-      ;[suffix, qty, ver].forEach((el) => { el.name = el.name.replace(/lines\[\d+\]/, "lines[" + d.olId + "]") })
+      ;[suffix, qty, ver].forEach((el) => { el.name = el.name.replace(/lines\[[^\]]*\]/, "lines[" + d.olId + "]") })
+
       suffix.value = ""
       qty.value = d.qty
       qty.max = d.qty
