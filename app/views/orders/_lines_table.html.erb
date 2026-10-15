@@ -2,6 +2,7 @@
     locals: lines —— OrderLine 集合（需含 order => customer/end_customer）；
             paging —— false 时 DataTables 关闭分页 %>
 <%= form_tag orders_path(inline: 1) do %>
+  <%= hidden_field_tag :return_to, local_assigns[:back] %>
 <table class="table table-striped datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
   <thead>
     <tr>
@@ -131,7 +132,7 @@
       })
     }
 
-    // 价格下拉 = 已批准/生效价格，按已选客户 + 型号过滤
+    // 价格下拉 = 已批准/生效价格，按已选客户 + 型号过滤；唯一价格自动选中
     function loadPrices() {
       if (!priceSelect) return
       const params = new URLSearchParams()
@@ -153,9 +154,32 @@
             opt.textContent = p.label
             priceSelect.appendChild(opt)
           })
+          if (list.length === 1) priceSelect.value = list[0].id
         }).catch(() => {})
     }
-    if (customerSelect) customerSelect.addEventListener("change", loadPrices)
+
+    // 选客户后：型号下拉只显示该客户有报价的型号
+    function loadParts() {
+      if (!partSelect || !customerSelect) return
+      partSelect.innerHTML = '<option value="" selected disabled>型号*</option>'
+      if (!customerSelect.value) return
+      fetch(`/prices/options?customer_id=${encodeURIComponent(customerSelect.value)}&parts_only=1`)
+        .then((r) => r.json())
+        .then((parts) => {
+          partSelect.innerHTML = '<option value="" selected disabled>型号*</option>'
+          if (parts.length === 0) {
+            partSelect.innerHTML = '<option value="" selected disabled>该客户暂无报价型号</option>'
+            return
+          }
+          parts.forEach((pn) => {
+            const opt = document.createElement("option")
+            opt.value = pn
+            opt.textContent = pn
+            partSelect.appendChild(opt)
+          })
+        }).catch(() => {})
+    }
+    if (customerSelect) customerSelect.addEventListener("change", () => { loadParts(); loadPrices() })
     if (partSelect) partSelect.addEventListener("change", loadPrices)
   })
 </script>

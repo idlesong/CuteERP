@@ -12,7 +12,7 @@
       <th>含税单价</th>
       <th>版本</th>
       <th>约定发货日期</th>
-      <th>已发数量</th>
+      <th><%= local_assigns[:remaining] ? "剩余数量" : "已发数量" %></th>
       <th><%= t(:actions) %></th>
     </tr>
   </thead>
@@ -38,8 +38,15 @@
           <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
           <td><%= line.version %></td>
           <td><%= order.required_date&.to_date || "—" %></td>
-          <td><%= line.shipped_qty %></td>
-          <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
+          <td><%= local_assigns[:remaining] ? line.unshipped_qty : line.shipped_qty %></td>
+          <% if local_assigns[:quick_ship] %>
+            <td><%= link_to "快捷出货", quick_ship_sales_order_path(order),
+                            data: { turbo_method: :post,
+                                    turbo_confirm: "整单出库：#{order.serial_number} 全部未出数量一次出完？" },
+                            class: "text-primary" %></td>
+          <% else %>
+            <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
+          <% end %>
         </tr>
       <% end %>
     <% end %>

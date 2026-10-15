@@ -162,6 +162,11 @@ class PricesController < ApplicationController
     scope = scope.where(customer_id: params[:customer_id]) if params[:customer_id].present?
     scope = scope.where(part_number: params[:part_number]) if params[:part_number].present?
 
+    if params[:parts_only]
+      render json: scope.distinct.order(:part_number).pluck(:part_number)
+      return
+    end
+
     data = scope.order(:price).map do |p|
       unit = p.currency == "USD" ? "$" : "\u00a5"
       components = [p.base_price, p.v1_price, p.v2_price].compact

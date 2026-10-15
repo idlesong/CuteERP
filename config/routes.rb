@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       get :confirm
       patch :update_production
       post :create_shipment
+      post :quick_ship
       get :invoice
       get :packing_list
     end

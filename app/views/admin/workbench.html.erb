@@ -9,7 +9,7 @@
 
 <h4 class="mt-4">未全部发货六联单 <small><%= link_to(t(:more), sales_orders_path) %></small></h4>
 <% if @unshipped_orders.any? %>
-  <%= render "sales_orders/orders_table", orders: @unshipped_orders, paging: false %>
+  <%= render "sales_orders/orders_table", orders: @unshipped_orders, paging: false, remaining: true, quick_ship: true %>
 <% else %>
   <p class="text-muted">没有未全部发货的六联单。</p>
 <% end %>

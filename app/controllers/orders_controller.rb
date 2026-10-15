@@ -176,7 +176,8 @@ class OrdersController < ApplicationController
       OrderLine.apply_price_snapshot(line)
     end
     line.save!
-    redirect_to orders_url, notice: "#{line.display_no} 已创建（#{order.status == 'draft' ? '草稿' : '已提交'}单追加行）"
+    target = params[:return_to] == "workbench" ? workbench_path : orders_url
+    redirect_to target, notice: "#{line.display_no} 已创建（#{order.status == 'draft' ? '草稿' : '已提交'}单追加行）"
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, RuntimeError => e
     redirect_to orders_url, alert: "快速创建失败：#{e.message}"
   end

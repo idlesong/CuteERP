@@ -5,7 +5,7 @@
 class SalesOrdersController < ApplicationController
   before_action :set_sales_order, only: [:show, :edit, :update, :destroy,
                                          :production, :edit_production, :update_production,
-                                         :confirm, :create_shipment, :invoice, :packing_list]
+                                         :confirm, :create_shipment, :quick_ship, :invoice, :packing_list]
 
   # GET /sales_orders
   def index
@@ -117,6 +117,23 @@ class SalesOrdersController < ApplicationController
     else
       flash.now[:alert] = @shipment.errors.full_messages.to_sentence
       render :confirm, status: :unprocessable_entity
+    end
+  end
+
+  # POST /sales_orders/1/quick_ship —— 整单快捷出库（全部未出数量一次出完）
+  def quick_ship
+    shipment = Shipment.new(sales_order: @sales_order, shipped_at: Time.current, note: "快捷出货")
+    @sales_order.production_lines.each do |pl|
+      qty = pl.unshipped_qty
+      shipment.shipment_lines.build(production_line: pl, quantity: qty) if qty.positive?
+    end
+
+    if shipment.save
+      redirect_back fallback_location: @sales_order,
+                    notice: "已快捷出库（#{@sales_order.serial_number}，共 #{shipment.shipment_lines.sum(:quantity)} 件）"
+    else
+      redirect_back fallback_location: @sales_order,
+                    alert: "快捷出库失败：#{shipment.errors.full_messages.to_sentence}"
     end
   end
 
