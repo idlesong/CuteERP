@@ -106,6 +106,8 @@ class OrderLine < ApplicationRecord
   end
 
   # ---- 展示/转产辅助 ----
+  public
+
   def order_item
     Item.find_by(generic_part_no: generic_part_no)
   end

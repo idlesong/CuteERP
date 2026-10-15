@@ -1,8 +1,10 @@
 require "caxlsx"
 
-# 按月导出工作簿：四表对齐现用 Excel（2.1）
-# 1 客户订单 2 生产订单-六联单（含分配对） 3 出库单 4 价格 + 最新阶梯批次
+# 按月导出工作簿（对账模板）：列序对齐财务对账用 Excel（2026-10 修订版）
+# 未税 = 含税 ÷ 1.13；声码名称 = 产品档案 extra_item/extra_item2 对应 Item 名称
 class MonthlyWorkbook
+  TAX_FACTOR = 1.13 # 增值税 13%，含税 → 未税
+
   def self.generate(month_date)
     new(month_date).call
   end
@@ -10,6 +12,7 @@ class MonthlyWorkbook
   def initialize(month_date)
     @month = month_date.beginning_of_month
     @range = @month.all_month
+    @item_name_cache = {}
   end
 
   def call
@@ -35,21 +38,36 @@ class MonthlyWorkbook
     end
   end
 
+  # ---- 1 客户订单（含未税拆分 + 未交订单） ----
   def customer_orders_sheet(wb, style)
-    sheet(wb, style, "客户订单",
-          %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别]) do |ws|
+    headers = %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别
+                 未税单价 未税金额 声码1名称 声码名称2 芯片未税金额 声码1未税金额 声码2未税金额
+                 未交订单数 未交芯片金额(未税) 未交声码1金额 未交声码2金额]
+
+    sheet(wb, style, "客户订单", headers) do |ws|
       OrderLine.joins(:order)
-               .includes(order: :customer)
+               .includes(order: :customer, production_allocations: :order_line)
                .where(orders: { kind: "normal", created_at: @range })
                .order("orders.po_number", "order_lines.line_no").find_each do |line|
         o = line.order
+        item = line.order_item
         ws.add_row [o.created_at.to_date, cust_name(o.customer), o.po_number, line.generic_part_no,
                     line.version, line.quantity, line.unit_price,
-                    line.required_delivery_date&.to_date, line.remark, o.currency]
+                    line.required_delivery_date&.to_date, line.remark, o.currency,
+                    ex_tax(line.unit_price), (ex_tax(line.unit_price) * line.quantity).round(2),
+                    component_name(item, :extra_item), component_name(item, :extra_item2),
+                    ex_tax(line.quantity * (line.base_price || 0)).round(2),
+                    ex_tax(line.quantity * (line.v1_price || 0)).round(2),
+                    ex_tax(line.quantity * (line.v2_price || 0)).round(2),
+                    line.open_qty.to_f.round(2),
+                    ex_tax(line.open_qty * (line.base_price || 0)).round(2),
+                    ex_tax(line.open_qty * (line.v1_price || 0)).round(2),
+                    ex_tax(line.open_qty * (line.v2_price || 0)).round(2)]
       end
     end
   end
 
+  # ---- 2 生产订单-六联单（含分配对） ----
   def six_part_sheet(wb, style)
     max_allocs = 0
     rows = []
@@ -76,19 +94,44 @@ class MonthlyWorkbook
     end
   end
 
+  # ---- 3 出库单（RMB 含税单价 + 不含税销售额 + 成分销售额） ----
   def shipments_sheet(wb, style)
-    sheet(wb, style, "出库单", %w[日期 客户 六联单号 产品 数量 快递号]) do |ws|
+    headers = %w[日期 客户 六联单号 产品 数量 快递号 RMB单价含税 销售额（不含税）
+                 声码器1 声码器2 芯片销售额(不含税) 声码1销售额(不含税) 声码2销售额(不含税)]
+
+    sheet(wb, style, "出库单", headers) do |ws|
       ShipmentLine.joins(shipment: { sales_order: :customer })
-                  .includes(shipment: { sales_order: :customer }, production_line: :item)
+                  .includes(shipment: { sales_order: :customer },
+                            production_line: { item: [], production_allocations: { order_line: :order } })
                   .where(shipments: { shipped_at: @range })
                   .order("shipments.shipped_at").find_each do |sl|
+        pl = sl.production_line
+        currency = pl&.production_allocations&.first&.order_line&.order&.currency || "RMB"
+        rate = currency == "RMB" ? 1 : (ExchangeRate.rate_for(sl.shipment.shipped_at.beginning_of_month, currency) || 1)
+
+        unit_rmb = ((pl&.unit_price || 0) * rate).round(2)
+        qty = sl.quantity
+        allocs = pl&.production_allocations || []
+        total_alloc = allocs.sum(&:quantity).to_f
+        chip = soft1 = soft2 = 0.0
+        if total_alloc.positive?
+          chip  = allocs.sum { |a| a.quantity * (a.order_line&.base_price || 0).to_f } / total_alloc
+          soft1 = allocs.sum { |a| a.quantity * (a.order_line&.v1_price || 0).to_f } / total_alloc
+          soft2 = allocs.sum { |a| a.quantity * (a.order_line&.v2_price || 0).to_f } / total_alloc
+        end
+        item = pl&.item
+
         ws.add_row [sl.shipment.shipped_at.to_date, cust_name(sl.shipment.sales_order.customer),
-                    sl.shipment.sales_order.serial_number, sl.production_line&.part_number,
-                    sl.quantity, sl.shipment.tracking_no]
+                    sl.shipment.sales_order.serial_number, pl&.part_number, qty,
+                    sl.shipment.tracking_no, unit_rmb,
+                    ex_tax(qty * unit_rmb),
+                    component_name(item, :extra_item), component_name(item, :extra_item2),
+                    ex_tax(qty * chip * rate), ex_tax(qty * soft1 * rate), ex_tax(qty * soft2 * rate)]
       end
     end
   end
 
+  # ---- 4 价格 + 5 阶梯 ----
   def prices_sheet(wb, style)
     sheet(wb, style, "价格",
           %w[客户 通用型号 芯片 声码1 声码2 总单价 订单量 生效日期 失效日期 币别 状态]) do |ws|
@@ -118,6 +161,20 @@ class MonthlyWorkbook
         end
       end
     end
+  end
+
+  # ---- 工具 ----
+  def ex_tax(amount_including_tax)
+    (amount_including_tax.to_f / TAX_FACTOR).round(2)
+  end
+
+  def component_name(item, field)
+    return nil if item.nil?
+
+    part_no = item.public_send(field).to_s.strip
+    return nil if part_no.empty?
+
+    @item_name_cache[part_no] ||= Item.find_by(generic_part_no: part_no)&.name || part_no
   end
 
   def cust_name(record)
