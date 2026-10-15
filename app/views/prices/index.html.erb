@@ -58,9 +58,11 @@
             <td><%= price.v2_price %></td>
             <td><input name="price[condition]" value="<%= price.condition %>" class="form-control form-control-sm" style="width: 6rem;"></td>
             <td><%= price.customer&.sales_type %></td>
-            <td colspan="2"><input name="price[remark]" value="<%= price.remark %>" class="form-control form-control-sm"></td>
+            <td></td>
+            <td></td>
+            <td><input name="price[remark]" value="<%= price.remark %>" class="form-control form-control-sm"></td>
             <td><%= price.status %></td>
-            <td colspan="2" class="text-nowrap">
+            <td class="text-nowrap">
               <button type="submit" class="btn btn-sm btn-primary">保存</button>
               <%= link_to "取消", prices_path, class: "btn btn-sm btn-outline-secondary" %>
             </td>

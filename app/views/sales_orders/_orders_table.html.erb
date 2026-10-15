@@ -24,7 +24,8 @@
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
           <td><%= order.created_at.strftime("%F") %></td>
           <td><%= order.customer.name %></td>
-          <td colspan="7" class="text-muted">无行（异常，请检查）</td>
+          <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          <td></td><td></td><td class="text-muted">无行（异常，请检查）</td>
         </tr>
       <% end %>
       <% order.production_lines.each do |line| %>
