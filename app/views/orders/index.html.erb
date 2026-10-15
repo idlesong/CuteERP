@@ -3,6 +3,8 @@
   <h1><%= t(:order) %><small>---按行显示</small></h1>
 </div>
 
+
+<%= render "lines_table", lines: @lines, paging: true %>
 <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
   <%= link_to "高级创建（完整表头）", new_order_path, class: "btn btn-outline-secondary btn-sm" %>
   <%= link_to "导出 CSV", orders_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
@@ -13,4 +15,3 @@
   <% end %>
 </div>
 
-<%= render "lines_table", lines: @lines, paging: true %>

@@ -23,7 +23,7 @@
         <tr>
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
           <td><%= order.created_at.strftime("%F") %></td>
-          <td><%= order.customer.name %></td>
+          <td><%= cust_name(order.customer) %></td>
           <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
           <td></td><td></td><td class="text-muted">无行（异常，请检查）</td>
         </tr>
@@ -32,7 +32,7 @@
         <tr>
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
           <td><%= order.created_at.strftime("%F") %></td>
-          <td><%= order.customer.name %></td>
+          <td><%= cust_name(order.customer) %></td>
           <td><%= line.part_number %></td>
           <td>x<%= line.quantity %></td>
           <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>

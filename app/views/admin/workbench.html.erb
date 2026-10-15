@@ -1,13 +1,13 @@
 <div class="page-header"><h1>工作台 <small>---未执行订单汇总（销售操作起点页）</small></h1></div>
 
-<h4>未签发客户订单 <small><%= link_to(t(:more), orders_path) %></small></h4>
+<h4>客户订单(待签发) <small><%= link_to(t(:more), orders_path) %></small></h4>
 <% if @unissued_lines.any? %>
   <%= render "orders/lines_table", lines: @unissued_lines, paging: false, back: "workbench" %>
 <% else %>
   <p class="text-muted">没有待签发的客户订单行。</p>
 <% end %>
 
-<h4 class="mt-4">未全部发货六联单 <small><%= link_to(t(:more), sales_orders_path) %></small></h4>
+<h4 class="mt-4">六联单(待发货) <small><%= link_to(t(:more), sales_orders_path) %></small></h4>
 <% if @unshipped_orders.any? %>
   <%= render "sales_orders/orders_table", orders: @unshipped_orders, paging: false, remaining: true, quick_ship: true %>
 <% else %>

@@ -43,7 +43,7 @@ class SalesOrder < ApplicationRecord
   def generate_serial_number
     year = Date.current.year
     seq = self.class.where(created_at: Time.zone.local(year)..).count + 1
-    self.serial_number = "XS#{year}-#{seq}"
+    self.serial_number = "XS#{year}-#{seq.to_s.rjust(3, "0")}" # XS2026-005
   end
 
   # 发货时间 = 末次出库单（派生，不再落列）

@@ -13,7 +13,7 @@
   <div class="card-body">
     <table class="table table-sm mb-0">
       <tr>
-        <td><%= t(:customer) %>: <%= link_to @sales_order.customer.name, @sales_order.customer %></td>
+        <td><%= t(:customer) %>: <%= link_to cust_name(@sales_order.customer), @sales_order.customer %></td>
         <td><%= t(:end_customer) %>: <%= @sales_order.end_customer&.name || "—" %></td>
         <td><%= t(:payment_term) %>: <%= @sales_order.payment_term %></td>
       </tr>

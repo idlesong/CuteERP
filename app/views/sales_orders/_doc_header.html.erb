@@ -30,7 +30,7 @@
       </thead>
       <tr><td colspan="2"><h3 class="text-center"><%= yield :doc_title %></h3></td></tr>
       <tr>
-        <td><h4><%= t(:bill_to) %>: <%= @sales_order.customer.name %></h4>
+        <td><h4><%= t(:bill_to) %>: <%= cust_name(@sales_order.customer) %></h4>
           <h4><%= t(:end_customer) %>: <%= @sales_order.end_customer&.name || "—" %></h4></td>
         <td><h4><%= t(:ship_to) %>: <%= @sales_order.customer.name %></h4></td>
       </tr>

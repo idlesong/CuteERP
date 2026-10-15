@@ -20,7 +20,7 @@
       <% order.production_lines.each do |line| %>
         <tr>
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
-          <td><%= order.customer.name %></td>
+          <td><%= cust_name(order.customer) %></td>
           <td><%= line.order_lines.map(&:display_no).join(", ") %></td>
           <td><%= line.product_name %></td>
           <td><%= line.part_number %></td>

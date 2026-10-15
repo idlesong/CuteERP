@@ -28,8 +28,8 @@
       <tr class="<%= 'table-warning' if order.draft? %> <%= 'table-danger' if order.return? %>">
         <td><%= order.created_at.strftime("%F") %></td>
         <td>
-          <%= link_to order.customer.name, order.customer %>
-          <% if order.end_customer %>/ <%= order.end_customer.name %><% end %>
+          <%= link_to cust_name(order.customer), order.customer %>
+          <% if order.end_customer %>/ <%= cust_name(order.end_customer) %><% end %>
         </td>
         <td><%= order.po_number %></td>
         <td><%= link_to line.line_no, order_path(order) %></td>
@@ -61,7 +61,16 @@
                         data: { turbo_method: :patch, turbo_confirm: "提交订单 #{order.po_number}（共 #{order.order_lines.size} 行）？" },
                         class: "text-primary" %>
           <% elsif order.submitted? && line.quantity_left > 0 %>
-            <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id, return_to: local_assigns[:back]) %>
+            <% if local_assigns[:back] == "workbench" %>
+              <button type="button" class="btn btn-link btn-sm text-primary p-0"
+                      data-bs-toggle="modal" data-bs-target="#quickIssueModal"
+                      data-ol-id="<%= line.id %>" data-generic="<%= line.generic_part_no %>"
+                      data-display="<%= line.display_no %>" data-qty="<%= line.quantity_left %>"
+                      data-customer="<%= order.customer_id %>"
+                      data-suffixes="<%= line.item_candidates.map(&:suffix).compact.reject(&:empty?).join(',') %>">分解</button>
+            <% else %>
+              <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
+            <% end %>
           <% end %>
         </td>
       </tr>
@@ -183,3 +192,71 @@
     if (partSelect) partSelect.addEventListener("change", loadPrices)
   })
 </script>
+
+<% if local_assigns[:back] == "workbench" %>
+<div class="modal fade" id="quickIssueModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <%= form_tag sales_orders_path, class: "modal-content" do %>
+      <input type="hidden" name="return_to" value="workbench">
+      <input type="hidden" name="sales_order[customer_id]" id="qi_customer">
+      <div class="modal-header">
+        <h5 class="modal-title">快捷签发 <span id="qi_display" class="text-primary"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">通用型号：<strong id="qi_generic"></strong></div>
+        <div class="mb-2">
+          <label class="form-label">后缀（拼成正式型号，可手输新后缀）</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text" id="qi_generic_prefix"></span>
+            <input name="lines[__OLID__][suffix]" id="qi_suffix" class="form-control" style="width: 5rem;"
+                   list="qi_suffix_options" placeholder="如 C">
+          </div>
+          <datalist id="qi_suffix_options"></datalist>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">数量</label>
+          <input name="lines[__OLID__][quantity]" id="qi_quantity" type="number" min="1" class="form-control form-control-sm" required>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">版本</label>
+          <input name="lines[__OLID__][version]" id="qi_version" class="form-control form-control-sm">
+        </div>
+        <div class="small text-muted">签发后回到本页；数量默认为该行全部可分配数。</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+        <%= submit_tag "签发", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<script>
+  document.addEventListener("turbo:load", () => {
+    const modal = document.getElementById("quickIssueModal")
+    if (!modal) return
+    modal.addEventListener("show.bs.modal", (e) => {
+      const d = e.relatedTarget.dataset
+      modal.querySelector("#qi_display").textContent = d.display
+      modal.querySelector("#qi_generic").textContent = d.generic
+      modal.querySelector("#qi_generic_prefix").textContent = d.generic
+      modal.querySelector("#qi_customer").value = d.customer
+      const suffix = modal.querySelector("#qi_suffix")
+      const qty = modal.querySelector("#qi_quantity")
+      const ver = modal.querySelector("#qi_version")
+      ;[suffix, qty, ver].forEach((el) => { el.name = el.name.replace(/lines\[\d+\]/, "lines[" + d.olId + "]") })
+      suffix.value = ""
+      qty.value = d.qty
+      qty.max = d.qty
+      ver.value = ""
+      const dl = modal.querySelector("#qi_suffix_options")
+      dl.innerHTML = ""
+      ;(d.suffixes || "").split(",").filter(Boolean).forEach((sx) => {
+        const o = document.createElement("option")
+        o.value = sx
+        dl.appendChild(o)
+      })
+    })
+  })
+</script>
+<% end %>

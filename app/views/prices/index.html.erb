@@ -3,15 +3,6 @@
   <h1><%= t(:price) %><small>---报价管理</small></h1>
 </div>
 
-<div class="d-flex gap-2 align-items-center flex-wrap mb-2">
-  <%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
-  <%= link_to "导出 CSV", prices_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
-  <%= link_to "导出 Excel", prices_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
-  <%= form_tag import_prices_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
-    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
-    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
-  <% end %>
-</div>
 
 <%= form_tag prices_path(inline: 1), id: "price-new-form" do end %>
 <table class="table table-striped datatable">
@@ -72,7 +63,7 @@
         <td><%= price.expired_at %></td>
         <td>
           <% if price.customer %>
-            <%= link_to price.customer_name, price.customer %>
+            <%= link_to cust_name(price.customer), price.customer %>
           <% else %>
             <%= price.customer_name %>
           <% end %>
@@ -131,3 +122,13 @@
     </tr>
   </tfoot>
 </table>
+<div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+  <%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 CSV", prices_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 Excel", prices_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= form_tag import_prices_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
+    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
+    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
+</div>
+

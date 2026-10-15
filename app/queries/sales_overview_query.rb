@@ -63,9 +63,10 @@ class SalesOverviewQuery
               end
 
       group = pl.item&.group.presence || "未分类"
-      customer = sl.shipment.sales_order.customer.name
+      customer = sl.shipment.sales_order.customer
+      display = customer.name_zh.presence || customer.name
       # 键统一为 Date（视图按 Date 查）
-      matrix[group][customer][sl.shipment.shipped_at.to_date.beginning_of_month] += value
+      matrix[group][display][sl.shipment.shipped_at.to_date.beginning_of_month] += value
     end
     matrix
   end

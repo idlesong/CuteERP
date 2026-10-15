@@ -4,9 +4,16 @@ module ApplicationHelper
     content_tag("div", attributes, &block)
   end
 
-  # 计划分节：按客户币别判断美元段
-  def usd_customer?(customer_name)
-    Customer.find_by(name: customer_name)&.currency == "USD"
+  # 客户显示名：中文简称优先，缺省回退英文简称
+  def cust_name(customer)
+    return "" if customer.nil?
+
+    customer.name_zh.presence || customer.name
+  end
+
+  # 计划分节：按客户币别判断美元段（名称可能是中文简称或英文名）
+  def usd_customer?(display_name)
+    Customer.where("name = :n OR name_zh = :n", n: display_name).take&.currency == "USD"
   end
 
   def find_order_number_from_reference(refer_line_id)

@@ -18,7 +18,7 @@
       <% sh.shipment_lines.includes(:production_line).each do |sl| %>
         <tr>
           <td><%= sh.shipped_at.strftime("%F") %></td>
-          <td><%= sh.sales_order.customer.name %></td>
+          <td><%= cust_name(sh.sales_order.customer) %></td>
           <td><%= link_to sh.sales_order.serial_number, sales_order_path(sh.sales_order) %></td>
           <td><%= sl.production_line&.part_number %></td>
           <td><%= sl.quantity %></td>

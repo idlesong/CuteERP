@@ -26,8 +26,8 @@
                 </thead>
                 <tr><td colspan="2"><h3 class="text-center">Packing List</h3></td></tr>
                 <tr>
-                  <td><h4>Bill to: <%= @sales_order.customer.name %></h4></td>
-                  <td><h4>Ship to: <%= @sales_order.customer.name %></h4></td>
+                  <td><h4>Bill to: <%= cust_name(@sales_order.customer) %></h4></td>
+                  <td><h4>Ship to: <%= cust_name(@sales_order.customer) %></h4></td>
                 </tr>
                 <tr><td>Contact:<%= @sales_order.bill_contact %></td><td>Contact:<%= @sales_order.ship_contact %></td></tr>
                 <tr><td>Address:<%= @sales_order.bill_address %></td><td>Address:<%= @sales_order.ship_address %></td></tr>
@@ -91,7 +91,7 @@
                 <h4>Received and checked by</h4>
               </div>
               <div class="card-body">
-                <p><%= @sales_order.customer.name %></p>
+                <p><%= cust_name(@sales_order.customer) %></p>
                 <p>_</p>
               </div>
             </div>
