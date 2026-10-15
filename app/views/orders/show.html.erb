@@ -92,7 +92,7 @@
       </tr>
     <% end %>
   </tbody>
-  <% if @order.draft? %>
+  <% if @order.editable? %>
     <tfoot>
       <tr class="inline-new-row">
         <th></th>
