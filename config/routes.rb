@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       get :production
       get :confirm
       patch :update_production
+      patch :submit
       post :add_line
       delete :remove_line
       post :create_shipment

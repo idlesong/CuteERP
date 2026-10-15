@@ -6,7 +6,7 @@ class SalesOrdersController < ApplicationController
   before_action :set_sales_order, only: [:show, :edit, :update, :destroy,
                                          :production, :update_production,
                                          :add_line, :remove_line,
-                                         :confirm, :create_shipment, :quick_ship, :invoice, :packing_list]
+                                         :confirm, :create_shipment, :quick_ship, :submit, :invoice, :packing_list]
 
   # GET /sales_orders
   def index
@@ -19,6 +19,16 @@ class SalesOrdersController < ApplicationController
   end
 
   def production
+  end
+
+  # PATCH /sales_orders/1/submit —— 草稿提交
+  def submit
+    if @sales_order.submit!
+      target = params[:return_to] == "workbench" ? workbench_path : @sales_order
+      redirect_to target, notice: "六联单 #{@sales_order.serial_number} 已提交"
+    else
+      redirect_to @sales_order, alert: @sales_order.errors.full_messages.to_sentence
+    end
   end
 
   # PATCH /sales_orders/1/update_production
@@ -68,7 +78,7 @@ class SalesOrdersController < ApplicationController
       @sales_order.save!
     end
     target = params[:return_to] == "workbench" ? workbench_path : @sales_order
-    redirect_to target, notice: "六联单 #{@sales_order.serial_number} 已创建"
+    redirect_to target, notice: "六联单 #{@sales_order.serial_number} 已创建（草稿，请在列表或详情页提交）"
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     @customer = (Customer.find_by(id: sales_order_params[:customer_id]) if params[:sales_order].present?) || current_customer
     @sales_order ||= SalesOrder.new
@@ -126,11 +136,19 @@ class SalesOrdersController < ApplicationController
 
   # GET /sales_orders/1/confirm —— 创建出库单
   def confirm
+    if @sales_order.draft?
+      redirect_to @sales_order, alert: "草稿六联单请先提交后再出库"
+      return
+    end
     @shipment = Shipment.new(sales_order: @sales_order)
   end
 
   # POST /sales_orders/1/create_shipment
   def create_shipment
+    if @sales_order.draft?
+      redirect_to @sales_order, alert: "草稿六联单请先提交后再出库"
+      return
+    end
     @shipment = Shipment.new(sales_order: @sales_order,
                              shipped_at: shipment_params[:shipped_at].presence || Time.current,
                              tracking_no: shipment_params[:tracking_no].presence,
@@ -153,6 +171,10 @@ class SalesOrdersController < ApplicationController
 
   # POST /sales_orders/1/quick_ship —— 整单快捷出库（全部未出数量一次出完）
   def quick_ship
+    if @sales_order.draft?
+      redirect_to @sales_order, alert: "草稿六联单请先提交后再出库"
+      return
+    end
     shipment = Shipment.new(sales_order: @sales_order, shipped_at: Time.current, note: "快捷出货")
     @sales_order.production_lines.each do |pl|
       qty = pl.unshipped_qty

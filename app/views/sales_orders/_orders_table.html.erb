@@ -13,6 +13,7 @@
       <th>版本</th>
       <th>约定发货日期</th>
       <th><%= local_assigns[:remaining] ? "剩余数量" : "已发数量" %></th>
+      <th><%= t(:status) %></th>
       <th><%= t(:actions) %></th>
     </tr>
   </thead>
@@ -25,7 +26,7 @@
           <td><%= order.created_at.strftime("%F") %></td>
           <td><%= cust_name(order.customer) %></td>
           <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td class="text-muted">无行（异常，请检查）</td>
+          <td></td><td></td><td></td><td class="text-muted">无行（异常，请检查）</td>
         </tr>
       <% end %>
       <% order.production_lines.each do |line| %>
@@ -39,7 +40,19 @@
           <td><%= line.version %></td>
           <td><%= order.required_date&.to_date || "—" %></td>
           <td><%= local_assigns[:remaining] ? line.unshipped_qty : line.shipped_qty %></td>
-          <% if local_assigns[:quick_ship] %>
+          <td>
+            <% if order.draft? %>
+              <span class="badge bg-secondary">草稿</span>
+            <% else %>
+              <span class="badge bg-success">已提交</span>
+            <% end %>
+          </td>
+          <% if order.draft? %>
+            <td><%= link_to "提交", submit_sales_order_path(order, return_to: local_assigns[:back]),
+                            data: { turbo_method: :patch,
+                                    turbo_confirm: "提交六联单 #{order.serial_number}（共 #{order.production_lines.size} 行）？" },
+                            class: "text-primary" %></td>
+          <% elsif local_assigns[:quick_ship] %>
             <td><%= link_to "快捷出货", quick_ship_sales_order_path(order),
                             data: { turbo_method: :post,
                                     turbo_confirm: "整单出库：#{order.serial_number} 全部未出数量一次出完？" },
@@ -60,6 +73,7 @@
           <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name),
                          prompt: "客户*", class: "form-select form-select-sm", style: "width: 12rem;", required: true %>
         </th>
+        <th></th>
         <th></th>
         <th></th>
         <th></th>

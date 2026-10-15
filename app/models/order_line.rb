@@ -34,9 +34,12 @@ class OrderLine < ApplicationRecord
     return_lines.sum(:quantity).abs
   end
 
-  # 已分配（签发）数量 —— 台账聚合
+  # 已分配（签发）数量 —— 台账聚合（仅统计已提交六联单；草稿单不占池）
   def allocated_qty
-    production_allocations.sum(:quantity)
+    production_allocations
+      .joins(production_line: :sales_order)
+      .where(sales_orders: { status: "submitted" })
+      .sum(:quantity)
   end
 
   # 净需求 = 数量 - 冲销（DemandQuery 口径）

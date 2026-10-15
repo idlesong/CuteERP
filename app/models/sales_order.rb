@@ -8,7 +8,10 @@ class SalesOrder < ApplicationRecord
 
   include DocumentAttachment
 
+  STATUSES = %w[draft submitted].freeze
+
   validates :serial_number, presence: true, uniqueness: true
+  validates :status, inclusion: { in: STATUSES }
   validates :customer_id, :payment_term, presence: true
   validates :exchange_rate, presence: true
   validates :production_lines, presence: true, on: :create
@@ -44,6 +47,18 @@ class SalesOrder < ApplicationRecord
     year = Date.current.year
     seq = self.class.where(created_at: Time.zone.local(year)..).count + 1
     self.serial_number = "XS#{year}-#{seq.to_s.rjust(3, "0")}" # XS2026-005
+  end
+
+  def draft? = status == "draft"
+
+  def submitted? = status == "submitted"
+
+  # 草稿 → 已提交（须有行）
+  def submit!
+    errors.add(:base, "六联单没有行，不能提交") if production_lines.empty?
+    return false if errors.any?
+
+    update(status: "submitted")
   end
 
   # 发货时间 = 末次出库单（派生，不再落列）

@@ -8,12 +8,18 @@
     <%= t(:sales_order) %> <%= @sales_order.serial_number %>
     <% if @sales_order.shipped? %>
       <span class="badge bg-success">已出库</span>
+    <% elsif @sales_order.draft? %>
+      <span class="badge bg-secondary">草稿（可修改，提交后可出库）</span>
     <% else %>
-      <span class="badge bg-secondary">已提交（未出库，可修改）</span>
+      <span class="badge bg-success">已提交（未出库，可修改）</span>
     <% end %>
   </h1>
   <div>
-    <%= link_to "出库", confirm_sales_order_path(@sales_order), class: "btn btn-primary btn-sm" %>
+    <% if @sales_order.draft? %>
+      <%= button_to "提交", submit_sales_order_path(@sales_order), method: :patch, class: "btn btn-primary btn-sm" %>
+    <% else %>
+      <%= link_to "出库", confirm_sales_order_path(@sales_order), class: "btn btn-primary btn-sm" %>
+    <% end %>
   </div>
 </div>
 

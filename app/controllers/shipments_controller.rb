@@ -9,6 +9,10 @@ class ShipmentsController < ApplicationController
   # POST /shipments?inline=1 —— 整单出库（该六联单全部未出库数量一次出完）
   def create
     so = SalesOrder.find(params[:sales_order_id])
+    if so.draft?
+      redirect_to shipments_path, alert: "草稿六联单请先提交后再出库"
+      return
+    end
     shipment = Shipment.new(sales_order: so,
                             shipped_at: params[:shipped_at].presence || Time.current,
                             tracking_no: params[:tracking_no].presence,

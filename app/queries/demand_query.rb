@@ -3,7 +3,10 @@
 class DemandQuery
   # SQL 片段：某 order_line 的已冲销/已分配数量（可嵌入 SELECT 或 WHERE）
   RETURNED_SQL = "COALESCE((SELECT -SUM(r.quantity) FROM order_lines r WHERE r.refer_order_line_id = order_lines.id), 0)".freeze
-  ALLOCATED_SQL = "COALESCE((SELECT SUM(pa.quantity) FROM production_allocations pa WHERE pa.order_line_id = order_lines.id), 0)".freeze
+  ALLOCATED_SQL = "COALESCE((SELECT SUM(pa.quantity) FROM production_allocations pa " \
+                  "JOIN production_lines pl ON pl.id = pa.production_line_id " \
+                  "JOIN sales_orders so ON so.id = pl.sales_order_id " \
+                  "WHERE pa.order_line_id = order_lines.id AND so.status = 'submitted'), 0)".freeze
 
   # 未分配完的客户订单行（净需求 > 已分配），供签发池（仅已提交）
   def self.allocatable_lines(customer_id: nil)

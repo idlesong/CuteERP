@@ -13,7 +13,10 @@ class ProductionAllocation < ApplicationRecord
   def within_allocatable_balance
     return if order_line.nil?
 
-    others = order_line.production_allocations.where.not(id: id).sum(:quantity)
+    others = order_line.production_allocations
+                       .joins(production_line: :sales_order)
+                       .where(sales_orders: { status: "submitted" })
+                       .where.not(id: id).sum(:quantity)
     balance = order_line.quantity - order_line.return_lines.sum(:quantity).abs - others
     errors.add(:quantity, "超过该订单行可分配余额（#{balance}）") if quantity > balance
   end
