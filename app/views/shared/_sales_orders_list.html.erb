@@ -24,9 +24,9 @@
           <td><%= line.order_lines.map(&:display_no).join(", ") %></td>
           <td><%= line.product_name %></td>
           <td><%= line.part_number %></td>
-          <td><%= money(line.unit_price, order.currency) %></td>
+          <td><%= money(line.unit_price, order.customer.currency) %></td>
           <td class="text-end"><%= line.quantity %></td>
-          <td><%= money(line.total_price, order.currency) %></td>
+          <td><%= money(line.total_price, order.customer.currency) %></td>
           <td>
             <% if order.shipped? %>
               <%= order.delivery_date.to_date %>
