@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000008) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000008) do
     t.decimal "rate", precision: 10, scale: 4, null: false
     t.datetime "updated_at", null: false
     t.index ["month", "currency"], name: "index_exchange_rates_on_month_and_currency", unique: true
+  end
+
+  create_table "imports", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "filename"
+    t.bigint "imported_by_id", null: false
+    t.string "kind", null: false
+    t.date "month"
+    t.jsonb "stats", default: {}
+    t.datetime "updated_at", null: false
+    t.index ["imported_by_id"], name: "index_imports_on_imported_by_id"
   end
 
   create_table "items", force: :cascade do |t|
@@ -264,6 +275,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000008) do
     t.integer "quantity", default: 1, null: false
     t.string "remark"
     t.bigint "sales_order_id", null: false
+    t.string "source", default: "manual"
     t.datetime "updated_at", null: false
     t.string "version"
     t.index ["item_id"], name: "index_production_lines_on_item_id"
