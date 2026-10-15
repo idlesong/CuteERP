@@ -19,7 +19,7 @@
     <div class="btn-group mb-2">
       <% { qty: "数量", chip: "芯片额", software: "软件额", total: "总额" }.each do |key, label| %>
         <%= link_to label, admin_path(fy: @fy, shipped_metric: key),
-                    class: "btn btn-sm #{@shipped_metric == AdminController::METRICS[key] ? 'btn-primary' : 'btn-outline-secondary'}" %>
+                    class: "btn btn-sm #{@shipped_metric == AdminController::SHIPPED_METRICS[key] ? 'btn-primary' : 'btn-outline-secondary'}" %>
       <% end %>
     </div>
     <% shipped_rmb = @shipped_matrix.reject { |_, cs| cs.keys.all? { |cn| usd_customer?(cn) } } %>
