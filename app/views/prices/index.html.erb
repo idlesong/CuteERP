@@ -141,6 +141,7 @@
     const tier = document.getElementById("pc_tier")
     if (!customer || !part || !cond) return
 
+    let timer = null
     function loadInfo() {
       const params = new URLSearchParams()
       if (customer.value) params.set("customer_id", customer.value)
@@ -151,9 +152,18 @@
         .then((r) => r.json())
         .then((d) => {
           sellBy.textContent = d.sales_type || ""
-          tier.textContent = d.tier ? `参考阶梯 ¥${d.tier}` : ""
+          if (d.tier) {
+            const v = parseFloat(d.tier)
+            tier.textContent = "参考阶梯 ¥" + v.toFixed(2).replace(/\.00$/, "")
+          } else {
+            tier.textContent = ""
+          }
         }).catch(() => {})
     }
-    ;[customer, part, cond].forEach((el) => el.addEventListener("change", loadInfo))
+    function debounced() { clearTimeout(timer); timer = setTimeout(loadInfo, 250) }
+    customer.addEventListener("change", loadInfo)
+    part.addEventListener("change", loadInfo)
+    cond.addEventListener("input", debounced)   // 数量输入实时刷新（防抖 250ms）
+    cond.addEventListener("change", loadInfo)
   })
 </script>
