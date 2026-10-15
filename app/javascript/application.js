@@ -23,9 +23,12 @@ document.addEventListener("turbo:load", () => {
   document.querySelectorAll(".datatable").forEach((table) => {
     if (!DataTable.isDataTable(table)) {
       const columnCount = table.querySelectorAll("thead th").length
+      const noPaging = table.dataset.paging === "off" // data-paging="off"：工作台整表直出
       const dt = new DataTable(table, {
         pageLength: 50,
-        paging: table.dataset.paging !== "off", // data-paging="off" 关闭分页（仪表盘用）
+        paging: !noPaging,
+        lengthChange: !noPaging, // v3 中 paging:false 仍会显示每页条数下拉，须一并关掉
+        info: !noPaging,
         orderCellsTop: true, // 排序绑定第一行标题；第二行=快速创建，第三行=筛选
         order: [[0, "asc"]] // 默认首列升序
       })
