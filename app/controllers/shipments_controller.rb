@@ -13,15 +13,11 @@ class ShipmentsController < ApplicationController
       redirect_to shipments_path, alert: "草稿六联单请先提交后再出库"
       return
     end
-    shipment = Shipment.new(sales_order: so,
-                            shipped_at: params[:shipped_at].presence || Time.current,
-                            tracking_no: params[:tracking_no].presence,
-                            note: params[:note].presence)
-    so.production_lines.each do |pl|
-      qty = pl.unshipped_qty
-      shipment.shipment_lines.build(production_line: pl, quantity: qty) if qty.positive?
-    end
-
+    shipment = Shipment.build_for(so,
+                                  shipped_at: params[:shipped_at].presence || Time.current,
+                                  tracking_no: params[:tracking_no].presence,
+                                  note: params[:note].presence,
+                                  total_qty: params[:quantity].present? ? params[:quantity].to_i : nil)
     if shipment.save
       redirect_to shipments_path, notice: "出库单已创建（#{so.serial_number}，共 #{shipment.shipment_lines.sum(:quantity)} 件）"
     else

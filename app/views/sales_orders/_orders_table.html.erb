@@ -53,10 +53,11 @@
                                     turbo_confirm: "提交六联单 #{order.serial_number}（共 #{order.production_lines.size} 行）？" },
                             class: "text-primary" %></td>
           <% elsif local_assigns[:quick_ship] %>
-            <td><%= link_to "快捷出货", quick_ship_sales_order_path(order),
-                            data: { turbo_method: :post,
-                                    turbo_confirm: "整单出库：#{order.serial_number} 全部未出数量一次出完？" },
-                            class: "text-primary" %></td>
+            <td><button type="button" class="btn btn-link btn-sm text-primary p-0"
+                        data-bs-toggle="modal" data-bs-target="#quickShipModal"
+                        data-so-id="<%= order.id %>" data-serial="<%= order.serial_number %>"
+                        data-customer="<%= cust_name(order.customer) %>"
+                        data-lines="<%= order.production_lines.map { |l| "#{l.id}:#{l.part_number}:#{l.unshipped_qty}" }.join('|') %>">快捷出货</button></td>
           <% else %>
             <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
           <% end %>
@@ -85,3 +86,54 @@
     </tfoot>
   <% end %>
 </table>
+
+<% if local_assigns[:quick_ship] %>
+<div class="modal fade" id="quickShipModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <%= form_tag "", method: :post, class: "modal-content", id: "quickShipForm" do %>
+      <input type="hidden" name="return_to" value="workbench">
+      <div class="modal-header">
+        <h5 class="modal-title">快捷出货 <span id="qh_serial" class="text-primary"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">客户：<strong id="qh_customer"></strong></div>
+        <div id="qh_line_rows"></div>
+        <div class="mb-2">
+          <label class="form-label">快递号</label>
+          <input name="tracking_no" class="form-control form-control-sm">
+        </div>
+        <div class="small text-muted">各行的出库数量默认为剩余数量，可修改；0 表示该行不出。</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+        <%= submit_tag "出库", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+<script>
+  document.addEventListener("turbo:load", () => {
+    const modal = document.getElementById("quickShipModal")
+    if (!modal) return
+    modal.addEventListener("show.bs.modal", (e) => {
+      const d = e.relatedTarget.dataset
+      modal.querySelector("#qh_serial").textContent = d.serial
+      modal.querySelector("#qh_customer").textContent = d.customer
+      const form = modal.querySelector("#quickShipForm")
+      form.action = "/sales_orders/" + d.soId + "/create_shipment"
+      const rows = modal.querySelector("#qh_line_rows")
+      rows.innerHTML = ""
+      d.lines.split("|").forEach((item) => {
+        const [id, part, unshipped] = item.split(":")
+        const row = document.createElement("div")
+        row.className = "d-flex align-items-center gap-2 mb-1"
+        row.innerHTML = `<span class="flex-grow-1">${part}</span>` +
+          `<span class="text-muted small">剩 ${unshipped}</span>` +
+          `<input name="lines[${id}][quantity]" type="number" min="0" max="${unshipped}" value="${unshipped}" class="form-control form-control-sm" style="width: 5.5rem;">`
+        rows.appendChild(row)
+      })
+    })
+  })
+</script>
+<% end %>

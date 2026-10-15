@@ -167,6 +167,16 @@ class PricesController < ApplicationController
       return
     end
 
+    if params[:info]
+      customer = Customer.find_by(id: params[:customer_id])
+      tier = nil
+      if customer && params[:part_number].present?
+        tier = PriceListEntry.tier_price(params[:part_number], customer.sales_type, params[:condition].to_i)
+      end
+      render json: { sales_type: customer&.sales_type, tier: tier }
+      return
+    end
+
     data = scope.order(:price).map do |p|
       unit = p.currency == "USD" ? "$" : "\u00a5"
       components = [p.base_price, p.v1_price, p.v2_price].compact

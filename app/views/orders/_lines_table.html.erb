@@ -31,8 +31,8 @@
           <%= link_to cust_name(order.customer), order.customer %>
           <% if order.end_customer %>/ <%= cust_name(order.end_customer) %><% end %>
         </td>
-        <td><%= order.po_number %></td>
-        <td><%= link_to line.line_no, order_path(order) %></td>
+        <td><%= link_to order.po_number, order_path(order) %></td>
+        <td><%= line.line_no %></td>
         <td><%= line.generic_part_no %></td>
         <td class="text-end"><%= line.quantity %></td>
         <td>

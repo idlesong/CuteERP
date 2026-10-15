@@ -14,9 +14,9 @@
       <th><%= t(:customer) %></th>
       <th><%= t(:part_number) %></th>
       <th>总单价</th>
-      <th>base_price</th>
-      <th>v1_price</th>
-      <th>v2_price</th>
+      <th>芯片</th>
+      <th>声码1</th>
+      <th>声码2</th>
       <th>数量</th>
       <th>ODM/OEM</th>
       <th><%= t(:default_price) %></th>
@@ -112,9 +112,9 @@
       <th></th>
       <th></th>
       <th></th>
-      <th><input name="price[condition]" form="price-new-form" class="form-control form-control-sm" placeholder="订单量*" required></th>
-      <th></th>
-      <th></th>
+      <th><input name="price[condition]" id="price_condition" form="price-new-form" class="form-control form-control-sm" placeholder="订单量*" required></th>
+      <th><span id="pc_sell_by" class="small text-muted"></span></th>
+      <th><span id="pc_tier" class="small text-muted"></span></th>
       <th></th>
       <th></th>
       <th></th>
@@ -132,3 +132,28 @@
   <% end %>
 </div>
 
+<script>
+  document.addEventListener("turbo:load", () => {
+    const customer = document.querySelector('select[name="price[customer_id]"]')
+    const part = document.querySelector('select[name="price[part_number]"]')
+    const cond = document.getElementById("price_condition")
+    const sellBy = document.getElementById("pc_sell_by")
+    const tier = document.getElementById("pc_tier")
+    if (!customer || !part || !cond) return
+
+    function loadInfo() {
+      const params = new URLSearchParams()
+      if (customer.value) params.set("customer_id", customer.value)
+      if (part.value) params.set("part_number", part.value)
+      if (cond.value) params.set("condition", cond.value)
+      if (!params.toString()) { sellBy.textContent = ""; tier.textContent = ""; return }
+      fetch(`/prices/options?${params}&info=1`)
+        .then((r) => r.json())
+        .then((d) => {
+          sellBy.textContent = d.sales_type || ""
+          tier.textContent = d.tier ? `参考阶梯 ¥${d.tier}` : ""
+        }).catch(() => {})
+    }
+    ;[customer, part, cond].forEach((el) => el.addEventListener("change", loadInfo))
+  })
+</script>

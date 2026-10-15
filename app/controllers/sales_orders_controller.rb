@@ -149,20 +149,15 @@ class SalesOrdersController < ApplicationController
       redirect_to @sales_order, alert: "草稿六联单请先提交后再出库"
       return
     end
-    @shipment = Shipment.new(sales_order: @sales_order,
-                             shipped_at: shipment_params[:shipped_at].presence || Time.current,
-                             tracking_no: shipment_params[:tracking_no].presence,
-                             note: shipment_params[:note].presence)
-
-    shipment_params[:lines].to_h.each do |pl_id, attrs|
-      qty = attrs[:quantity].to_i
-      next if qty <= 0
-
-      @shipment.shipment_lines.build(production_line_id: pl_id, quantity: qty)
-    end
+    @shipment = Shipment.build_for(@sales_order,
+                                   shipped_at: shipment_params[:shipped_at].presence || Time.current,
+                                   tracking_no: shipment_params[:tracking_no].presence,
+                                   note: shipment_params[:note].presence,
+                                   lines_params: shipment_params[:lines].to_h)
 
     if @shipment.save
-      redirect_to @sales_order, notice: "出库单已创建（#{@shipment.shipment_lines.size} 行）"
+      target = params[:return_to] == "workbench" ? workbench_path : @sales_order
+      redirect_to target, notice: "出库单已创建（#{@shipment.shipment_lines.sum(:quantity)} 件）"
     else
       flash.now[:alert] = @shipment.errors.full_messages.to_sentence
       render :confirm, status: :unprocessable_entity
