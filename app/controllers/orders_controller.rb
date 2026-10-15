@@ -10,7 +10,7 @@ class OrdersController < ApplicationController
   def index
     @lines = OrderLine.joins(:order)
                       .includes(order: [:customer, :end_customer])
-                      .where(orders: { kind: "normal" })
+                      .where(orders: { kind: %w[normal return] })
                       .order("orders.po_number", "order_lines.line_no")
 
     respond_to do |format|
