@@ -9,6 +9,7 @@ class ProductionLine < ApplicationRecord
 
   validates :quantity, numericality: { greater_than: 0 }
   validate :quantity_not_below_shipped, on: :update
+  after_update :release_excess_allocations, if: :saved_change_to_quantity?
 
   # 已出库后数量只能增不能减（减少走冲销/退货）
   def quantity_not_below_shipped
@@ -21,6 +22,24 @@ class ProductionLine < ApplicationRecord
 
   def product_name
     item&.name || full_name
+  end
+
+  # 数量减少时，超额分配自动释放回客户订单行池（保持台账与池一致）
+  def release_excess_allocations
+    excess = production_allocations.sum(:quantity) - quantity
+    return if excess <= 0
+
+    production_allocations.order(id: :desc).each do |a|
+      break if excess <= 0
+
+      take = [a.quantity, excess].min
+      if take == a.quantity
+        a.destroy
+      else
+        a.update_columns(quantity: a.quantity - take)
+      end
+      excess -= take
+    end
   end
 
   def shipped_qty

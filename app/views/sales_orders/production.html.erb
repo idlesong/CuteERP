@@ -33,7 +33,6 @@
   </div>
 
   <div class="card-footer">
-    | <%= link_to t(:produce_order), edit_production_sales_order_path(@sales_order) %>
     | <%= link_to t(:ship_now), confirm_sales_order_path(@sales_order) %>
     | <a href="<%= invoice_sales_order_path(@sales_order) %>.pdf" target="_blank"><%= t(:invoice) %></a>
     | <a href="<%= packing_list_sales_order_path(@sales_order) %>.pdf" target="_blank"><%= t(:packing_list) %></a>

@@ -4,7 +4,7 @@
 # - 发货 = 出库单 shipments（可多次，末次派生发货时间）
 class SalesOrdersController < ApplicationController
   before_action :set_sales_order, only: [:show, :edit, :update, :destroy,
-                                         :production, :edit_production, :update_production,
+                                         :production, :update_production,
                                          :add_line, :remove_line,
                                          :confirm, :create_shipment, :quick_ship, :invoice, :packing_list]
 
@@ -21,10 +21,6 @@ class SalesOrdersController < ApplicationController
   def production
   end
 
-  # GET /sales_orders/1/edit_production —— 生产编排（选正式型号）
-  def edit_production
-  end
-
   # PATCH /sales_orders/1/update_production
   def update_production
     lines_params.to_h.each do |id, attrs|
@@ -33,9 +29,9 @@ class SalesOrdersController < ApplicationController
                    version: attrs[:version].presence, full_name: attrs[:full_name].presence,
                    remark: attrs[:remark].presence)
     end
-    redirect_to production_sales_order_path(@sales_order), notice: "生产编排已保存"
+    redirect_to @sales_order, notice: "行已保存"
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to edit_production_sales_order_path(@sales_order), alert: e.message
+    redirect_to @sales_order, alert: e.message
   end
 
   # GET /sales_orders/new?customer_id= —— 签发：客户维度未分配 PO 行池
@@ -108,24 +104,24 @@ class SalesOrdersController < ApplicationController
     line.production_allocations.build(order_line: order_line, quantity: qty)
 
     if line.save
-      redirect_to edit_production_sales_order_path(@sales_order), notice: "已追加 #{line.part_number} x#{qty}"
+      redirect_to @sales_order, notice: "已追加 #{line.part_number} x#{qty}"
     else
-      redirect_to edit_production_sales_order_path(@sales_order), alert: "追加失败：#{line.errors.full_messages.to_sentence}"
+      redirect_to @sales_order, alert: "追加失败：#{line.errors.full_messages.to_sentence}"
     end
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, RuntimeError => e
-    redirect_to edit_production_sales_order_path(@sales_order), alert: "追加失败：#{e.message}"
+    redirect_to @sales_order, alert: "追加失败：#{e.message}"
   end
 
   # DELETE /sales_orders/1/remove_line?line_id= —— 删行：仅未出库行（分配随之释放回池）
   def remove_line
     line = @sales_order.production_lines.find(params.require(:line_id))
     if line.shipped_qty.positive?
-      redirect_to edit_production_sales_order_path(@sales_order), alert: "该行已出库，不能删除"
+      redirect_to @sales_order, alert: "该行已出库，不能删除"
       return
     end
     po_ref = line.order_lines.map(&:display_no).join(", ")
     line.destroy
-    redirect_to edit_production_sales_order_path(@sales_order), notice: "已删除该行#{po_ref.present? ? "（#{po_ref} 需求已释放回池）" : ""}"
+    redirect_to @sales_order, notice: "已删除该行#{po_ref.present? ? "（#{po_ref} 需求已释放回池）" : ""}"
   end
 
   # GET /sales_orders/1/confirm —— 创建出库单

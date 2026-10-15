@@ -1,12 +1,22 @@
-<div class="page-header d-flex justify-content-between">
-  <h1><%= t(:sales_order) %> <%= @sales_order.serial_number %></h1>
+<% edit_line = nil %>
+<% if params[:edit_line_id].present? %>
+  <% edit_line = @sales_order.production_lines.find_by(id: params[:edit_line_id]) %>
+<% end %>
+
+<div class="page-header d-flex justify-content-between align-items-center">
+  <h1>
+    <%= t(:sales_order) %> <%= @sales_order.serial_number %>
+    <% if @sales_order.shipped? %>
+      <span class="badge bg-success">已出库</span>
+    <% else %>
+      <span class="badge bg-secondary">已提交（未出库，可修改）</span>
+    <% end %>
+  </h1>
   <div>
-    <%= link_to "生产编排", edit_production_sales_order_path(@sales_order), class: "btn btn-outline-primary btn-sm" %>
     <%= link_to "出库", confirm_sales_order_path(@sales_order), class: "btn btn-primary btn-sm" %>
   </div>
 </div>
 
-<% if notice %><p class="alert alert-info"><%= notice %></p><% end %>
 <% if alert %><p class="alert alert-warning"><%= alert %></p><% end %>
 
 <div class="card mb-3">
@@ -14,7 +24,7 @@
     <table class="table table-sm mb-0">
       <tr>
         <td><%= t(:customer) %>: <%= link_to cust_name(@sales_order.customer), @sales_order.customer %></td>
-        <td><%= t(:end_customer) %>: <%= @sales_order.end_customer&.name || "—" %></td>
+        <td><%= t(:end_customer) %>: <%= @sales_order.end_customer ? cust_name(@sales_order.end_customer) : "—" %></td>
         <td><%= t(:payment_term) %>: <%= @sales_order.payment_term %></td>
       </tr>
       <tr>
@@ -41,6 +51,37 @@
   </div>
 </div>
 
+<%# 追加行：从未分配 PO 行池挑选 %>
+<% pool = DemandQuery.allocatable_lines(customer_id: @sales_order.customer_id) %>
+<%= form_tag add_line_sales_order_path(@sales_order), class: "card mb-3" do %>
+  <div class="card-body py-2">
+    <div class="row g-2 align-items-end">
+      <div class="col-auto">
+        <label class="form-label small mb-0">加行（选客户订单行）</label>
+        <select name="order_line_id" class="form-select form-select-sm" required>
+          <option value="" selected disabled>订单行*</option>
+          <% pool.each do |ol| %>
+            <option value="<%= ol.id %>"><%= ol.display_no %>｜<%= ol.generic_part_no %>｜可分配 <%= ol.allocatable_qty %></option>
+          <% end %>
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-0">后缀</label>
+        <input name="suffix" class="form-control form-control-sm" style="width: 5rem;" placeholder="如 C">
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-0">数量</label>
+        <input name="quantity" type="number" min="1" class="form-control form-control-sm" style="width: 6rem;" required>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-0">版本</label>
+        <input name="version" class="form-control form-control-sm" style="width: 6rem;">
+      </div>
+      <div class="col-auto"><button type="submit" class="btn btn-sm btn-primary">加行</button></div>
+    </div>
+  </div>
+<% end %>
+
 <div class="card mb-3">
   <div class="card-header"><h5><%= t(:order_details) %></h5></div>
   <div class="card-body">
@@ -48,56 +89,108 @@
       <thead>
         <tr>
           <th>#</th>
-          <th><%= t(:product_name) %></th>
-          <th><%= t(:part_number) %></th>
+          <th>正式型号</th>
           <th><%= t(:quantity) %></th>
           <th>已出库</th>
           <th>来源客户订单</th>
           <th><%= t(:price) %></th>
           <th><%= t(:suble_total) %></th>
           <th>版本</th>
+          <th>统一编号</th>
           <th><%= t(:remark) %></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <% currency_unit = @sales_order.customer.currency == "USD" ? "$" : "¥" %>
         <% @sales_order.production_lines.each_with_index do |line, i| %>
-          <tr>
-            <td><%= i + 1 %></td>
-            <td><%= line.product_name %></td>
-            <td><%= line.part_number %></td>
-            <td>x<%= line.quantity %></td>
-            <td><%= line.shipped_qty %></td>
-            <td>
-              <% line.order_lines.each do |ol| %>
-                <%= link_to ol.display_no, order_path(ol.order) %>
+          <% if edit_line == line %>
+            <tr class="table-warning">
+              <%= form_tag update_production_sales_order_path(@sales_order), method: :patch do %>
+                <input type="hidden" name="inline_edit" value="1">
+                <% generic = line.item&.generic_part_no %>
+                <% candidates = generic ? Item.where(generic_part_no: generic).order(:suffix) : Item.none %>
+                <td><%= i + 1 %></td>
+                <td>
+                  <select name="lines[<%= line.id %>][item_id]" class="form-select form-select-sm">
+                    <% if candidates.any? %>
+                      <%= options_for_select(candidates.map { |it| [it.partNo, it.id] }, line.item_id) %>
+                    <% else %>
+                      <option value=""><%= line.part_number || "未定型" %></option>
+                    <% end %>
+                  </select>
+                </td>
+                <td><input name="lines[<%= line.id %>][quantity]" type="number" min="<%= line.shipped_qty + 1 %>"
+                           value="<%= line.quantity %>" class="form-control form-control-sm" style="width: 6rem;"></td>
+                <td><%= line.shipped_qty %></td>
+                <td><%= line.order_lines.map(&:display_no).join(", ") %></td>
+                <td colspan="2"><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+                <td><input name="lines[<%= line.id %>][version]" value="<%= line.version %>" class="form-control form-control-sm" style="width: 5rem;"></td>
+                <td><input name="lines[<%= line.id %>][full_name]" value="<%= line.full_name %>" class="form-control form-control-sm" style="width: 9rem;"></td>
+                <td><input name="lines[<%= line.id %>][remark]" value="<%= line.remark %>" class="form-control form-control-sm" style="width: 9rem;"></td>
+                <td class="text-nowrap">
+                  <button type="submit" class="btn btn-sm btn-primary">保存</button>
+                  <%= link_to "取消", sales_order_path(@sales_order), class: "btn btn-sm btn-outline-secondary" %>
+                </td>
+              <% end %>
+            </tr>
+          <% else %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td>
+                <%= line.part_number %>
+                <span class="small text-muted"><%= line.product_name %></span>
+              </td>
+              <td>x<%= line.quantity %></td>
+              <td><%= line.shipped_qty %></td>
+              <td>
+                <% line.order_lines.each do |ol| %>
+                  <%= link_to ol.display_no, order_path(ol.order) %>
                 <% end %>
-            </td>
-            <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
-            <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
-            <td><%= line.version %></td>
-            <td><%= line.remark %></td>
-          </tr>
+              </td>
+              <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+              <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+              <td><%= line.version %></td>
+              <td><%= line.full_name %></td>
+              <td><%= line.remark %></td>
+              <td class="text-nowrap">
+                <%= link_to "改", sales_order_path(@sales_order, edit_line_id: line.id), class: "btn btn-link btn-sm" %>
+                <% if line.shipped_qty.zero? %>
+                  <%= link_to "✘", remove_line_sales_order_path(@sales_order, line_id: line.id),
+                              data: { turbo_method: :delete, turbo_confirm: "删除该行？其客户订单需求将释放回待签发池" },
+                              class: "btn btn-link text-danger" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
         <% end %>
       </tbody>
     </table>
     合计：<%= number_to_currency(@sales_order.total_price, unit: currency_unit) %>
+    <div class="small text-muted mt-1">未出库的行可随意修改（型号后缀/数量/版本/统一编号/备注）或删除（需求释放回待签发池）；已出库行数量只能增不能减。</div>
+  </div>
+  <div class="card-footer">
+    <%= link_to "编辑单头", edit_sales_order_path(@sales_order), class: "btn btn-outline-secondary btn-sm" %>
+    <a href="<%= invoice_sales_order_path(@sales_order) %>.pdf" target="_blank" class="btn btn-outline-primary btn-sm"><%= t(:invoice) %></a>
+    <a href="<%= packing_list_sales_order_path(@sales_order) %>.pdf" target="_blank" class="btn btn-outline-primary btn-sm"><%= t(:packing_list) %></a>
+    <%= link_to "六联单", production_sales_order_path(@sales_order), class: "btn btn-outline-primary btn-sm" %>
+    <%= link_to "删除", sales_order_path(@sales_order), data: { turbo_method: :delete, turbo_confirm: "删除 #{@sales_order.serial_number}？" }, class: "btn btn-outline-danger btn-sm" %>
   </div>
 </div>
 
 <div class="card mb-3">
-  <div class="card-header"><h5>出库单</h5></div>
+  <div class="card-header"><h5>出库记录</h5></div>
   <div class="card-body">
     <% if @sales_order.shipments.any? %>
       <table class="table table-sm">
         <thead>
-          <tr><th>#</th><th>出库时间</th><th>快递号</th><th>数量</th><th>备注</th><th></th></tr>
+          <tr><th>#</th><th>出库日期</th><th>快递号</th><th>数量</th><th>备注</th><th></th></tr>
         </thead>
         <tbody>
           <% @sales_order.shipments.order(:shipped_at).each do |sh| %>
             <tr>
               <td><%= sh.id %></td>
-              <td><%= sh.shipped_at.strftime("%F %H:%M") %></td>
+              <td><%= sh.shipped_at.strftime("%F") %></td>
               <td><%= sh.tracking_no %></td>
               <td><%= sh.shipment_lines.sum(:quantity) %></td>
               <td><%= sh.note %></td>
@@ -110,12 +203,5 @@
       <span class="text-muted">暂无出库记录</span>
     <% end %>
   </div>
-  <div class="card-footer">
-    <%= link_to "返回列表", sales_orders_path, class: "btn btn-outline-secondary" %>
-    <%= link_to "编辑单头", edit_sales_order_path(@sales_order), class: "btn btn-outline-secondary" %>
-    <a href="<%= invoice_sales_order_path(@sales_order) %>.pdf" target="_blank" class="btn btn-outline-primary"><%= t(:invoice) %></a>
-    <a href="<%= packing_list_sales_order_path(@sales_order) %>.pdf" target="_blank" class="btn btn-outline-primary"><%= t(:packing_list) %></a>
-    <%= link_to "六联单", production_sales_order_path(@sales_order), class: "btn btn-outline-primary" %>
-    <%= link_to "删除", sales_order_path(@sales_order), data: { turbo_method: :delete, turbo_confirm: "删除 #{@sales_order.serial_number}？" }, class: "btn btn-outline-danger" %>
-  </div>
+  <div class="card-footer"><%= link_to "返回列表", sales_orders_path, class: "btn btn-outline-secondary btn-sm" %></div>
 </div>

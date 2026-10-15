@@ -13,7 +13,6 @@ Rails.application.routes.draw do
 
   resources :sales_orders do
     member do
-      get :edit_production
       get :production
       get :confirm
       patch :update_production
