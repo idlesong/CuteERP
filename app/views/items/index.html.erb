@@ -13,7 +13,9 @@
   <% end %>
 </div>
 
-<%= form_tag items_path(inline: 1) do %>
+<%# 快速创建独立表单：tfoot 控件通过 form= 属性挂接 %>
+<%= form_tag items_path(inline: 1), id: "item-new-form" do end %>
+
 <table class="table table-striped datatable">
   <thead>
     <tr>
@@ -29,40 +31,60 @@
   </thead>
   <tbody>
     <% @items.each do |item| %>
-      <tr>
-        <td><%= link_to item.partNo, item_path(item) %></td>
-        <td><%= item.name %></td>
-        <td><%= item.description %></td>
-        <td><%= item.group %></td>
-        <td><%= item.base_item %></td>
-        <td><%= item.extra_item %></td>
-        <td><%= item.extra_item2 %></td>
-        <td><%= link_to "编辑", edit_item_path(item), class: "btn btn-link btn-sm" %></td>
-      </tr>
+      <% if params[:edit_id].to_i == item.id %>
+        <tr class="table-warning">
+          <%= form_tag item_path(item), method: :patch do %>
+            <input type="hidden" name="inline_edit" value="1">
+            <td class="text-nowrap">
+              <input name="item[generic_part_no]" value="<%= item.generic_part_no %>" class="form-control form-control-sm d-inline-block" style="width: 8rem;" required> -
+              <input name="item[suffix]" value="<%= item.suffix %>" class="form-control form-control-sm d-inline-block" style="width: 3.5rem;">
+            </td>
+            <td><input name="item[name]" value="<%= item.name %>" class="form-control form-control-sm" required></td>
+            <td><input name="item[description]" value="<%= item.description %>" class="form-control form-control-sm"></td>
+            <td>
+              <input name="item[group]" value="<%= item.group %>" class="form-control form-control-sm" list="item_group_options_edit">
+              <datalist id="item_group_options_edit">
+                <%= options_for_select(Item.where.not(group: nil).distinct.order(:group).pluck(:group)) %>
+              </datalist>
+            </td>
+            <td><input name="item[base_item]" value="<%= item.base_item %>" class="form-control form-control-sm"></td>
+            <td><input name="item[extra_item]" value="<%= item.extra_item %>" class="form-control form-control-sm"></td>
+            <td><input name="item[extra_item2]" value="<%= item.extra_item2 %>" class="form-control form-control-sm"></td>
+            <td class="text-nowrap">
+              <button type="submit" class="btn btn-sm btn-primary">保存</button>
+              <%= link_to "取消", items_path, class: "btn btn-sm btn-outline-secondary" %>
+            </td>
+          <% end %>
+        </tr>
+      <% else %>
+        <tr>
+          <td><%= link_to item.partNo, item_path(item) %></td>
+          <td><%= item.name %></td>
+          <td><%= item.description %></td>
+          <td><%= item.group %></td>
+          <td><%= item.base_item %></td>
+          <td><%= item.extra_item %></td>
+          <td><%= item.extra_item2 %></td>
+          <td><%= link_to "编辑", items_path(edit_id: item.id), class: "btn btn-link btn-sm" %></td>
+        </tr>
+      <% end %>
     <% end %>
   </tbody>
   <tfoot>
     <tr class="inline-new-row">
+      <th><input name="item[generic_part_no]" form="item-new-form" class="form-control form-control-sm" placeholder="型号*" required></th>
+      <th><input name="item[name]" form="item-new-form" class="form-control form-control-sm" placeholder="产品名称*" required></th>
+      <th><input name="item[description]" form="item-new-form" class="form-control form-control-sm" placeholder="描述"></th>
       <th>
-        <input name="item[generic_part_no]" class="form-control form-control-sm d-inline-block" style="width: 8rem;"
-               placeholder="型号*" required> -
-        <select name="item[suffix]" class="form-select form-select-sm d-inline-block" style="width: 4rem;">
-          <%= options_for_select(Item::FW_MARK_TYPES) %>
-        </select>
-      </th>
-      <th><input name="item[name]" class="form-control form-control-sm" placeholder="产品名称*" required></th>
-      <th><input name="item[description]" class="form-control form-control-sm" placeholder="描述"></th>
-      <th>
-        <input name="item[group]" class="form-control form-control-sm" list="item_group_options" placeholder="类别">
+        <input name="item[group]" form="item-new-form" class="form-control form-control-sm" list="item_group_options" placeholder="类别">
         <datalist id="item_group_options">
           <%= options_for_select(Item.where.not(group: nil).distinct.order(:group).pluck(:group)) %>
         </datalist>
       </th>
-      <th><input name="item[base_item]" class="form-control form-control-sm" placeholder="base"></th>
-      <th><input name="item[extra_item]" class="form-control form-control-sm" placeholder="extra1"></th>
-      <th><input name="item[extra_item2]" class="form-control form-control-sm" placeholder="extra2"></th>
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th><input name="item[base_item]" form="item-new-form" class="form-control form-control-sm" placeholder="base"></th>
+      <th><input name="item[extra_item]" form="item-new-form" class="form-control form-control-sm" placeholder="extra1"></th>
+      <th><input name="item[extra_item2]" form="item-new-form" class="form-control form-control-sm" placeholder="extra2"></th>
+      <th><button type="submit" form="item-new-form" class="btn btn-sm btn-primary">快速创建</button></th>
     </tr>
   </tfoot>
 </table>
-<% end %>

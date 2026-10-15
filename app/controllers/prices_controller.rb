@@ -132,7 +132,10 @@ class PricesController < ApplicationController
 
     respond_to do |format|
       if @price.update(price_params)
-        if params[:status]
+        if params[:inline_edit]
+          format.html { redirect_to prices_url, notice: "价格已更新（#{@price.price_number}）" }
+          format.json { head :no_content }
+        elsif params[:status]
           format.html { redirect_to prices_url }
         else
           format.html { redirect_to @price, notice: "Price was successfully updated." }

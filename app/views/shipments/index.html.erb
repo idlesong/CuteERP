@@ -17,7 +17,7 @@
     <% @shipments.order(:shipped_at).each do |sh| %>
       <% sh.shipment_lines.includes(:production_line).each do |sl| %>
         <tr>
-          <td><%= sh.shipped_at.strftime("%F %H:%M") %></td>
+          <td><%= sh.shipped_at.strftime("%F") %></td>
           <td><%= sh.sales_order.customer.name %></td>
           <td><%= link_to sh.sales_order.serial_number, sales_order_path(sh.sales_order) %></td>
           <td><%= sl.production_line&.part_number %></td>
@@ -30,8 +30,8 @@
   </tbody>
   <tfoot>
     <tr class="inline-new-row">
-      <th><input name="shipped_at" type="datetime-local" class="form-control form-control-sm"
-                 value="<%= Time.current.strftime("%Y-%m-%dT%H:%M") %>"></th>
+      <th><input name="shipped_at" type="date" class="form-control form-control-sm"
+                 value="<%= Date.current %>"></th>
       <th></th>
       <th>
         <select name="sales_order_id" class="form-select form-select-sm" required>

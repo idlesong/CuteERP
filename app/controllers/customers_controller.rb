@@ -78,7 +78,8 @@ class CustomersController < ApplicationController
   def update
     respond_to do |format|
       if @customer.update(customer_params)
-        format.html { redirect_to @customer, notice: "Customer was successfully updated." }
+        notice = "Customer was successfully updated."
+        format.html { redirect_to(params[:inline_edit] ? customers_url : @customer, notice: notice) }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }

@@ -56,11 +56,11 @@
         </td>
         <td>
           <% if order.draft? %>
-            <%= link_to "提交", submit_order_path(order),
+            <%= link_to "提交", submit_order_path(order, return_to: local_assigns[:back]),
                         data: { turbo_method: :patch, turbo_confirm: "提交订单 #{order.po_number}（共 #{order.order_lines.size} 行）？" },
                         class: "text-primary" %>
           <% elsif order.submitted? && line.quantity_left > 0 %>
-            <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
+            <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id, return_to: local_assigns[:back]) %>
           <% end %>
         </td>
       </tr>

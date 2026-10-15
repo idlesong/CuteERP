@@ -27,7 +27,7 @@ document.addEventListener("turbo:load", () => {
         pageLength: 50,
         paging: table.dataset.paging !== "off", // data-paging="off" 关闭分页（仪表盘用）
         orderCellsTop: true, // 排序绑定第一行标题；第二行=快速创建，第三行=筛选
-        order: columnCount > 1 ? [[1, "asc"]] : []
+        order: [[0, "asc"]] // 默认首列升序
       })
       initColumnFilters(table, dt)
     }

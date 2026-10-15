@@ -1,0 +1,65 @@
+<%# 六联单行级表格（列表页/工作台复用）
+    locals: orders —— SalesOrder 集合（含 production_lines、customer）；
+            show_tfoot —— 列表页快速选客户行；paging —— false 关闭分页 %>
+<table class="table table-striped datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
+  <thead>
+    <tr>
+      <th>六联单号</th>
+      <th>下单日期</th>
+      <th><%= t(:customer) %></th>
+      <th><%= t(:product_name) %></th>
+      <th><%= t(:quantity) %></th>
+      <th>含税单价</th>
+      <th>版本</th>
+      <th>约定发货日期</th>
+      <th>已发数量</th>
+      <th><%= t(:actions) %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% orders.each do |order| %>
+      <% currency_unit = order.customer.currency == "USD" ? "$" : "¥" %>
+      <% if order.production_lines.empty? %>
+        <tr>
+          <td><%= link_to order.serial_number, sales_order_path(order) %></td>
+          <td><%= order.created_at.strftime("%F") %></td>
+          <td><%= order.customer.name %></td>
+          <td colspan="7" class="text-muted">无行（异常，请检查）</td>
+        </tr>
+      <% end %>
+      <% order.production_lines.each do |line| %>
+        <tr>
+          <td><%= link_to order.serial_number, sales_order_path(order) %></td>
+          <td><%= order.created_at.strftime("%F") %></td>
+          <td><%= order.customer.name %></td>
+          <td><%= line.part_number %></td>
+          <td>x<%= line.quantity %></td>
+          <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+          <td><%= line.version %></td>
+          <td><%= order.required_date&.to_date || "—" %></td>
+          <td><%= line.shipped_qty %></td>
+          <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+  <% if local_assigns[:show_tfoot] %>
+    <tfoot>
+      <tr class="inline-new-row">
+        <th></th>
+        <th></th>
+        <th>
+          <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name),
+                         prompt: "客户*", class: "form-select form-select-sm", style: "width: 12rem;", required: true %>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th><%= submit_tag "选客户开六联单", class: "btn btn-sm btn-primary" %></th>
+      </tr>
+    </tfoot>
+  <% end %>
+</table>

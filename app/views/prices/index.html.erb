@@ -19,7 +19,7 @@
   <% end %>
 </div>
 
-<%= form_tag prices_path(inline: 1) do %>
+<%= form_tag prices_path(inline: 1), id: "price-new-form" do end %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
@@ -43,6 +43,31 @@
   </thead>
   <tbody>
     <% @prices.each do |price| %>
+      <% if params[:edit_id].to_i == price.id %>
+        <tr class="table-warning">
+          <%= form_tag price_path(price), method: :patch do %>
+            <input type="hidden" name="inline_edit" value="1">
+            <td><%= link_to(price.price_number || "—", price_path(price)) %></td>
+            <td><input name="price[effective_from]" type="date" value="<%= price.effective_from %>" class="form-control form-control-sm"></td>
+            <td><input name="price[expired_at]" type="date" value="<%= price.expired_at %>" class="form-control form-control-sm"></td>
+            <td><%= price.customer_name %></td>
+            <td><%= price.part_number %></td>
+            <td><input name="price[price]" value="<%= price.price %>" class="form-control form-control-sm" placeholder="=50+50 或 单价" required></td>
+            <td><%= price.base_price %></td>
+            <td><%= price.v1_price %></td>
+            <td><%= price.v2_price %></td>
+            <td><input name="price[condition]" value="<%= price.condition %>" class="form-control form-control-sm" style="width: 6rem;"></td>
+            <td><%= price.customer&.sales_type %></td>
+            <td colspan="2"><input name="price[remark]" value="<%= price.remark %>" class="form-control form-control-sm"></td>
+            <td><%= price.status %></td>
+            <td colspan="2" class="text-nowrap">
+              <button type="submit" class="btn btn-sm btn-primary">保存</button>
+              <%= link_to "取消", prices_path, class: "btn btn-sm btn-outline-secondary" %>
+            </td>
+          <% end %>
+        </tr>
+        <% next %>
+      <% end %>
       <% currency_unit = price.currency == "USD" ? "$" : "¥" %>
       <% set_price = PriceListEntry.tier_price(price.part_number, price.customer&.sales_type, price.condition) %>
       <tr>
@@ -75,7 +100,7 @@
             <span class="badge bg-secondary">失效</span>
           <% end %>
         </td>
-        <td><%= link_to "编辑", edit_price_path(price), class: "btn btn-link btn-sm" %></td>
+        <td><%= link_to "编辑", prices_path(edit_id: price.id), class: "btn btn-link btn-sm" %></td>
       </tr>
     <% end %>
   </tbody>
@@ -85,29 +110,28 @@
       <th></th>
       <th></th>
       <th>
-        <select name="price[customer_id]" class="form-select form-select-sm" required>
+        <select name="price[customer_id]" form="price-new-form" class="form-select form-select-sm" required>
           <option value="" selected disabled>客户*</option>
           <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
         </select>
       </th>
       <th>
-        <select name="price[part_number]" class="form-select form-select-sm" required>
+        <select name="price[part_number]" form="price-new-form" class="form-select form-select-sm" required>
           <option value="" selected disabled>通用型号*</option>
           <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
         </select>
       </th>
-      <th><input name="price[price]" class="form-control form-control-sm" placeholder="=50+50 或 单价*" required></th>
+      <th><input name="price[price]" form="price-new-form" class="form-control form-control-sm" placeholder="=50+50 或 单价*" required></th>
       <th></th>
       <th></th>
       <th></th>
-      <th><input name="price[condition]" class="form-control form-control-sm" placeholder="订单量*" required></th>
+      <th><input name="price[condition]" form="price-new-form" class="form-control form-control-sm" placeholder="订单量*" required></th>
       <th></th>
       <th></th>
       <th></th>
       <th></th>
       <th></th>
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th><button type="submit" form="price-new-form" class="btn btn-sm btn-primary">快速创建</button></th>
     </tr>
   </tfoot>
 </table>
-<% end %>

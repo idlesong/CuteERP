@@ -45,7 +45,7 @@
         </ul>
         <ul class="navbar-nav">
           <% if current_user %>
-            <li class="nav-item"><span class="navbar-text me-3"><i class="bi bi-person"></i> @<%= current_user.name %></span></li>
+            <li class="nav-item"><%= link_to workbench_path, class: "nav-link me-2" do %><i class="bi bi-person"></i> @<%= current_user.name %><% end %></li>
             <li class="nav-item"><%= link_to t(:logout), "/logout", class: "nav-link" %></li>
           <% else %>
             <li class="nav-item"><%= link_to t(:login), "/login", class: "nav-link" %></li>

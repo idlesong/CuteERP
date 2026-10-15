@@ -81,7 +81,8 @@ class OrdersController < ApplicationController
   # PATCH /orders/1/submit —— 草稿提交
   def submit
     if @order.submit!
-      redirect_to @order, notice: "订单 #{@order.po_number} 已提交"
+      target = params[:return_to] == "workbench" ? workbench_path : @order
+      redirect_to target, notice: "订单 #{@order.po_number} 已提交"
     else
       redirect_to @order, alert: @order.errors.full_messages.to_sentence
     end

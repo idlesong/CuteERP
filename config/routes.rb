@@ -74,6 +74,8 @@ Rails.application.routes.draw do
     collection { post :import }
   end
 
+  get "workbench", to: "admin#workbench", as: :workbench
+
   get "inventory", to: "inventory#index", as: :inventory
 
   root "admin#index", as: :admin

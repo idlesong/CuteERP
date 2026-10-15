@@ -83,6 +83,7 @@
         </tbody>
       </table>
     </div>
+    <%= hidden_field_tag :return_to, params[:return_to] %>
     <div class="card-footer text-center">
       <%= link_to "取消", orders_path, class: "btn btn-outline-secondary" %>
       <%= f.submit "签发生成六联单", class: "btn btn-primary" %>

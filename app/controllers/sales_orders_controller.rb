@@ -70,7 +70,8 @@ class SalesOrdersController < ApplicationController
       end
       @sales_order.save!
     end
-    redirect_to @sales_order, notice: "六联单 #{@sales_order.serial_number} 已创建"
+    target = params[:return_to] == "workbench" ? workbench_path : @sales_order
+    redirect_to target, notice: "六联单 #{@sales_order.serial_number} 已创建"
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     @customer = (Customer.find_by(id: sales_order_params[:customer_id]) if params[:sales_order].present?) || current_customer
     @sales_order ||= SalesOrder.new

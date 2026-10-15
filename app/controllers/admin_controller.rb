@@ -2,6 +2,24 @@
 # - 未签发客户订单 = 复用客户订单行表格（仅含可分配行，不分页）
 # - 未发货六联单（含出货列）
 class AdminController < ApplicationController
+  # 工作台（用户页）：销售操作起点——未签发客户订单 + 未发货六联单
+  def workbench
+    @unissued_lines = DemandQuery.allocatable_lines
+                                 .includes(order: [:customer, :end_customer])
+    @unshipped_orders = SalesOrder.includes(:customer, :production_lines)
+                                  .where.missing(:shipments)
+                                  .order(created_at: :desc)
+  end
+
+  # 工作台（用户页）：销售操作起点——未签发客户订单 + 未发货六联单
+  def workbench
+    @unissued_lines = DemandQuery.allocatable_lines
+                                 .includes(order: [:customer, :end_customer])
+    @unshipped_orders = SalesOrder.includes(:customer, :production_lines)
+                                  .where.missing(:shipments)
+                                  .order(created_at: :desc)
+  end
+
   METRICS = { qty: :quantity, chip: :chip_amount, software: :software_amount, total: :total_amount }.freeze
 
   def index
