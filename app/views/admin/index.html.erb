@@ -16,56 +16,44 @@
 <div class="tab-content">
   <!-- ① 实际出货：大类 → 客户，对比全年/当月 Plan -->
   <div class="tab-pane fade show active" id="tabShipped">
-    <table class="table table-striped table-sm">
-      <thead>
-        <tr>
-          <th>大类</th><th>客户</th>
-          <th class="text-end">出库数量</th>
-          <th class="text-end">芯片额(¥)</th>
-          <th class="text-end">软件额(¥)</th>
-          <th class="text-end">合计(¥)</th>
-          <th class="text-end">全年Plan</th>
-          <th class="text-end">当月Plan</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @shipped.each do |group, customers| %>
-          <% group_row = { qty: 0, chip: 0.0, soft: 0.0, total: 0.0 } %>
-          <% customers.each do |cname, r| %>
-            <% group_row[:qty] += r.qty; group_row[:chip] += r.chip; group_row[:soft] += r.software; group_row[:total] += r.total %>
-            <% plan = @plan_lookup.dig(group, cname) || { all_year: 0, this_month: 0 } %>
-            <tr>
-              <td class="text-muted"><%= group %></td>
-              <td><%= cname %></td>
-              <td class="text-end"><%= r.qty %></td>
-              <td class="text-end"><%= number_with_precision(r.chip, precision: 0) %></td>
-              <td class="text-end"><%= number_with_precision(r.software, precision: 0) %></td>
-              <td class="text-end"><strong><%= number_with_precision(r.total, precision: 0) %></strong></td>
-              <td class="text-end"><%= plan[:all_year].positive? ? plan[:all_year] : "—" %></td>
-              <td class="text-end"><%= plan[:this_month].positive? ? plan[:this_month] : "—" %></td>
-            </tr>
-          <% end %>
-          <tr class="table-secondary fw-bold">
-            <td colspan="2"><%= group %> 小计</td>
-            <td class="text-end"><%= group_row[:qty] %></td>
-            <td class="text-end"><%= number_with_precision(group_row[:chip], precision: 0) %></td>
-            <td class="text-end"><%= number_with_precision(group_row[:soft], precision: 0) %></td>
-            <td class="text-end"><%= number_with_precision(group_row[:total], precision: 0) %></td>
-            <td class="text-end">
-              <% subtotal_plan = @plan_lookup[group]&.values&.sum { |v| v[:all_year] } %>
-              <%= subtotal_plan.to_i.positive? ? subtotal_plan : "—" %>
-            </td>
-            <td class="text-end">
-              <% subtotal_pm = @plan_lookup[group]&.values&.sum { |v| v[:this_month] } %>
-              <%= subtotal_pm.to_i.positive? ? subtotal_pm : "—" %>
-            </td>
+    <div class="btn-group mb-2">
+      <% { qty: "数量", chip: "芯片额", software: "软件额", total: "总额" }.each do |key, label| %>
+        <%= link_to label, admin_path(fy: @fy, shipped_metric: key),
+                    class: "btn btn-sm #{@shipped_metric == AdminController::METRICS[key] ? 'btn-primary' : 'btn-outline-secondary'}" %>
+      <% end %>
+    </div>
+    <% shipped_rmb = @shipped_matrix.reject { |_, cs| cs.keys.all? { |cn| usd_customer?(cn) } } %>
+    <% shipped_usd = @shipped_matrix.select { |_, cs| cs.keys.all? { |cn| usd_customer?(cn) } } %>
+    <% { "人民币" => shipped_rmb, "美元" => shipped_usd }.each do |section, rows| %>
+      <h5 class="mt-2"><%= section %>段</h5>
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th>大类</th><th>客户</th>
+            <% @fy_months.each { |m| %><th><%= m.strftime("%y-%m") %></th><% } %>
+            <th>全年</th>
           </tr>
-        <% end %>
-        <% if @shipped.empty? %>
-          <tr><td colspan="8" class="text-muted">FY<%= @fy %> 暂无出货数据</td></tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% rows.each do |group, customers| %>
+            <% customers.each do |cname, cells| %>
+              <tr>
+                <td class="text-muted"><%= group %></td>
+                <td><%= cname %></td>
+                <% year_total = 0 %>
+                <% @fy_months.each do |m| %>
+                  <% v = cells[m.beginning_of_month].to_f; year_total += v %>
+                  <td class="text-end"><%= v.positive? ? number_with_precision(v, precision: (v % 1).zero? ? 0 : 1) : "" %></td>
+                <% end %>
+                <td class="text-end fw-bold"><%= number_with_precision(year_total, precision: 0) %></td>
+              </tr>
+            <% end %>
+          <% end %>
+          <% if rows.empty? %><tr><td colspan="15" class="text-muted">FY<%= @fy %> 暂无出货数据</td></tr><% end %>
+        </tbody>
+      </table>
+    <% end %>
+    <div class="small text-muted">实际口径：按出库单记账；金额为原币（人民币段=¥，美元段=$），数量=出库 pcs；定价按分配台账加权（芯片额=base_price 口径，软件额=v1+v2 口径）。</div>
   </div>
 
   <!-- ② Plan 视图：货币段 → 大类 → 客户 -->

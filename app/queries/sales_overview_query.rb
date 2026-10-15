@@ -35,6 +35,38 @@ class SalesOverviewQuery
     end
   end
 
+  # ① 实际出货月度矩阵（Plan/Budget 同版式，原币口径）：{group => {customer => {月首日 => 值}}}
+  def self.shipped_matrix(fy, metric: :quantity)
+    scope = ShipmentLine.joins(:shipment)
+                        .where(shipments: { shipped_at: SalesPlanEntry.fy_range(fy) })
+                        .includes(shipment: { sales_order: :customer },
+                                  production_line: [:item, { production_allocations: { order_line: :order } }])
+
+    matrix = Hash.new { |h, k| h[k] = Hash.new { |h2, k2| h2[k2] = Hash.new(0.0) } }
+    scope.find_each do |sl|
+      pl = sl.production_line
+      next unless pl
+
+      allocs = pl.production_allocations
+      total_alloc = allocs.sum(&:quantity).to_f
+      next if total_alloc.zero?
+
+      unit_chip = allocs.sum { |a| a.quantity * (a.order_line&.base_price || 0).to_f } / total_alloc
+      unit_soft = allocs.sum { |a| a.quantity * ((a.order_line&.v1_price || 0) + (a.order_line&.v2_price || 0)).to_f } / total_alloc
+      value = case metric
+              when :chip then sl.quantity * unit_chip
+              when :software then sl.quantity * unit_soft
+              when :total then sl.quantity * (unit_chip + unit_soft)
+              else sl.quantity
+              end
+
+      group = pl.item&.group.presence || "未分类"
+      customer = sl.shipment.sales_order.customer.name
+      matrix[group][customer][sl.shipment.shipped_at.beginning_of_month] += value
+    end
+    matrix
+  end
+
   # ③ 产品视图：product_family 实际出货（折 RMB）
   # 返回 {family => Row}
   def self.shipped_by_family(fy: nil)

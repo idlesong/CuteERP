@@ -30,9 +30,9 @@ class AdminController < ApplicationController
     @fy = params[:fy].to_i.positive? ? params[:fy].to_i : SalesPlanEntry.current_fy
     @this_month = Date.current.beginning_of_month
 
-    # ① 实际出货（FY）
-    @shipped = SalesOverviewQuery.shipped_by_group(fy: @fy)
-    @plan_lookup = SalesOverviewQuery.plan_qty_lookup(@fy, @this_month)
+    # ① 实际出货（FY，Plan 式月度矩阵，四度量切换）
+    @shipped_metric = METRICS.fetch(params[:shipped_metric].to_s.to_sym, :quantity)
+    @shipped_matrix = SalesOverviewQuery.shipped_matrix(@fy, metric: @shipped_metric)
 
     # ② Plan 视图
     @metric = METRICS.fetch(params[:metric].to_s.to_sym, :quantity)
