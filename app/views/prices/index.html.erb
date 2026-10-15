@@ -112,7 +112,10 @@
       <th></th>
       <th></th>
       <th></th>
-      <th><input name="price[condition]" id="price_condition" form="price-new-form" class="form-control form-control-sm" placeholder="订单量*" required></th>
+      <th><select name="price[condition]" id="price_condition" form="price-new-form" class="form-select form-select-sm" required>
+          <option value="" selected disabled>订单量*</option>
+          <%= options_for_select(PriceListEntry::TIERS) %>
+        </select></th>
       <th><span id="pc_sell_by" class="small text-muted"></span></th>
       <th><span id="pc_tier" class="small text-muted"></span></th>
       <th></th>
@@ -133,24 +136,26 @@
 </div>
 
 <script>
-  document.addEventListener("turbo:load", () => {
-    const customer = document.querySelector('select[name="price[customer_id]"]')
-    const part = document.querySelector('select[name="price[part_number]"]')
-    const cond = document.getElementById("price_condition")
-    const sellBy = document.getElementById("pc_sell_by")
-    const tier = document.getElementById("pc_tier")
-    if (!customer || !part || !cond) return
-
+  (function () {
     let timer = null
+
     function loadInfo() {
+      const customer = document.querySelector('select[name="price[customer_id]"]')
+      const part = document.querySelector('select[name="price[part_number]"]')
+      const cond = document.getElementById("price_condition")
+      const sellBy = document.getElementById("pc_sell_by")
+      const tier = document.getElementById("pc_tier")
+      if (!customer || !part || !cond) return
+
       const params = new URLSearchParams()
       if (customer.value) params.set("customer_id", customer.value)
       if (part.value) params.set("part_number", part.value)
       if (cond.value) params.set("condition", cond.value)
       if (!params.toString()) { sellBy.textContent = ""; tier.textContent = ""; return }
-      fetch(`/prices/options?${params}&info=1`)
-        .then((r) => r.json())
-        .then((d) => {
+
+      fetch("/prices/options?" + params.toString() + "&info=1")
+        .then(function (r) { return r.json() })
+        .then(function (d) {
           sellBy.textContent = d.sales_type || ""
           if (d.tier) {
             const v = parseFloat(d.tier)
@@ -158,12 +163,19 @@
           } else {
             tier.textContent = ""
           }
-        }).catch(() => {})
+        }).catch(function () {})
     }
-    function debounced() { clearTimeout(timer); timer = setTimeout(loadInfo, 250) }
-    customer.addEventListener("change", loadInfo)
-    part.addEventListener("change", loadInfo)
-    cond.addEventListener("input", debounced)   // 数量输入实时刷新（防抖 250ms）
-    cond.addEventListener("change", loadInfo)
-  })
+
+    function debounced() { clearTimeout(timer); timer = setTimeout(loadInfo, 200) }
+
+    document.addEventListener("change", function (e) {
+      const n = (e.target.name || "") + "|" + (e.target.id || "")
+      if (n.indexOf("price[customer_id]") >= 0 || n.indexOf("price[part_number]") >= 0 || n.indexOf("price_condition") >= 0) {
+        loadInfo()
+      }
+    })
+    document.addEventListener("input", function (e) {
+      if (e.target.id === "price_condition") debounced()
+    })
+  })()
 </script>

@@ -1,4 +1,5 @@
 class PriceListEntry < ApplicationRecord
+  TIERS = [1, 1000, 2500, 5000, 10000, 20000, 50000, 100000].freeze
   belongs_to :price_list_release
 
   validates :generic_part_no, :sell_by, :min_qty, :price, presence: true

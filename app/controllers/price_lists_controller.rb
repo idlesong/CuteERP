@@ -4,7 +4,7 @@ class PriceListsController < ApplicationController
     @release = params[:release_id] ? PriceListRelease.find(params[:release_id]) : PriceListRelease.latest
     @latest = @release&.id == PriceListRelease.latest&.id
     @releases = PriceListRelease.ordered
-    @tiers = [1, 1000, 2500, 5000, 10000, 20000, 50000, 100000]
+    @tiers = PriceListEntry::TIERS
     @entries = @release ? @release.entries.ordered : PriceListEntry.none
   end
 
