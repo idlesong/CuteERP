@@ -20,10 +20,11 @@
         <ul class="navbar-nav me-auto">
           <% if current_user %>
             <li class="nav-item"><%= link_to "客户订单", orders_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "销售订单", sales_orders_path, class: "nav-link" %></li>
-            <li class="nav-item"><%= link_to "价格", prices_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "六联单", sales_orders_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "销售出货", shipments_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "客户", customers_path, class: "nav-link" %></li>
             <li class="nav-item"><%= link_to "产品", items_path, class: "nav-link" %></li>
+            <li class="nav-item"><%= link_to "价格", prices_path, class: "nav-link" %></li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">更多</a>
               <ul class="dropdown-menu">
@@ -34,7 +35,6 @@
                 <li><%= link_to "工作动态", tasks_path, class: "dropdown-item" %></li>
                 <li><%= link_to "联系人", contacts_path, class: "dropdown-item" %></li>
                 <li><%= link_to "年度计划", sales_plans_path, class: "dropdown-item" %></li>
-                <li><%= link_to "出库单", shipments_path, class: "dropdown-item" %></li>
                 <li><%= link_to "库存", inventory_path, class: "dropdown-item" %></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><%= link_to "汇率设置", exchange_rates_path, class: "dropdown-item" %></li>
@@ -55,12 +55,22 @@
     </nav>
 
     <div class="container-fluid px-3 py-3">
-      <% flash.each do |type, message| %>
-        <div class="alert alert-<%= type == "notice" ? "info" : "danger" %> alert-dismissible fade show" role="alert">
-          <%= message %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      <% end %>
+      <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 2000;">
+        <% flash.each do |type, message| %>
+          <div class="toast align-items-center text-bg-<%= type == "notice" ? "primary" : "danger" %> border-0"
+               role="alert" data-bs-autohide="<%= type == "notice" %>" data-bs-delay="4000">
+            <div class="d-flex">
+              <div class="toast-body"><%= message %></div>
+              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="关闭"></button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <script>
+        document.addEventListener("turbo:load", () => {
+          document.querySelectorAll(".toast-container .toast").forEach((el) => Bootstrap.Toast.getOrCreateInstance(el).show())
+        })
+      </script>
       <%= yield %>
     </div>
   </body>

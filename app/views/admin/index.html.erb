@@ -132,25 +132,43 @@
 </div>
 
 <h3 class="mt-4">未签发客户订单 <small><%= link_to(t(:more), orders_path) %></small></h3>
-<table class="table table-sm">
+<% if @unissued_lines.any? %>
+  <%= render "orders/lines_table", lines: @unissued_lines, paging: false %>
+<% else %>
+  <p class="text-muted">没有待签发的客户订单行。</p>
+<% end %>
+
+<h3 class="mt-4">未发货六联单 <small><%= link_to(t(:more), sales_orders_path) %></small></h3>
+<table class="table table-striped table-sm">
   <thead>
     <tr>
-      <th>行编号</th><th>客户</th><th>通用型号</th>
-      <th class="text-right">净需求</th><th class="text-right">已分配</th><th class="text-right">可分配</th>
+      <th>六联单号</th>
+      <th>下单日期</th>
+      <th><%= t(:customer) %></th>
+      <th><%= t(:product_name) %></th>
+      <th><%= t(:quantity) %></th>
+      <th>版本</th>
+      <th>约定发货日期</th>
       <th></th>
     </tr>
   </thead>
   <tbody>
-    <% DemandQuery.allocatable_lines.limit(20).each do |line| %>
-      <tr>
-        <td><%= link_to line.display_no, order_path(line.order) %></td>
-        <td><%= line.order.customer.name %></td>
-        <td><%= line.generic_part_no %></td>
-        <td class="text-right"><%= line.net_qty %></td>
-        <td class="text-right"><%= line.allocated_qty %></td>
-        <td class="text-right"><strong><%= line.allocatable_qty %></strong></td>
-        <td><%= link_to t(:issue), new_sales_order_path(customer_id: line.order.customer_id) %></td>
-      </tr>
+    <% @unshipped_orders.each do |order| %>
+      <% order.production_lines.each do |line| %>
+        <tr>
+          <td><%= link_to order.serial_number, sales_order_path(order) %></td>
+          <td><%= order.created_at.strftime("%F") %></td>
+          <td><%= order.customer.name %></td>
+          <td><%= line.part_number %></td>
+          <td>x<%= line.quantity %></td>
+          <td><%= line.version %></td>
+          <td><%= order.required_date&.to_date || "—" %></td>
+          <td><%= link_to "出货", confirm_sales_order_path(order), class: "text-primary" %></td>
+        </tr>
+      <% end %>
+    <% end %>
+    <% if @unshipped_orders.empty? %>
+      <tr><td colspan="8" class="text-muted">没有未发货的六联单。</td></tr>
     <% end %>
   </tbody>
 </table>

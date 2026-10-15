@@ -49,7 +49,7 @@
           <tr>
             <th><%= t(:po_line_number) %></th>
             <th>通用型号</th>
-            <th>正式型号（=选后缀，无则自动新建）</th>
+            <th>正式型号（=通用型号+后缀，可手输新后缀）</th>
             <th>可分配</th>
             <th>本次数量</th>
             <th>版本</th>
@@ -63,13 +63,14 @@
               <td><%= link_to ol.display_no, order_path(ol.order) %></td>
               <td><%= ol.generic_part_no %></td>
               <td>
-                <select name="lines[<%= ol.id %>][item_id]" class="form-select form-select-sm">
-                  <% if ol.item_candidates.any? %>
-                    <%= options_for_select(ol.item_candidates.map { |i| [i.partNo, i.id] }) %>
-                  <% else %>
-                    <option value="new"><%= ol.generic_part_no %>（新建）</option>
-                  <% end %>
-                </select>
+                <div class="input-group input-group-sm" style="width: 15rem;">
+                  <span class="input-group-text"><%= ol.generic_part_no %></span>
+                  <input name="lines[<%= ol.id %>][suffix]" class="form-control" style="width: 4rem;"
+                         placeholder="后缀" list="suffix_options_<%= ol.id %>">
+                  <datalist id="suffix_options_<%= ol.id %>">
+                    <%= options_for_select(ol.item_candidates.map(&:suffix).compact) %>
+                  </datalist>
+                </div>
               </td>
               <td><strong><%= ol.allocatable_qty %></strong></td>
               <td><input name="lines[<%= ol.id %>][quantity]" type="number" min="0" max="<%= ol.allocatable_qty %>"

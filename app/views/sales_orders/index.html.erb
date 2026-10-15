@@ -13,6 +13,7 @@
       <th>版本</th>
       <th>约定发货日期</th>
       <th>已发数量</th>
+      <th><%= t(:actions) %></th>
     </tr>
   </thead>
   <tbody>
@@ -23,7 +24,7 @@
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
           <td><%= order.created_at.strftime("%F") %></td>
           <td><%= order.customer.name %></td>
-          <td colspan="6" class="text-muted">无行（异常，请检查）</td>
+          <td colspan="7" class="text-muted">无行（异常，请检查）</td>
         </tr>
       <% end %>
       <% order.production_lines.each do |line| %>
@@ -37,6 +38,7 @@
           <td><%= line.version %></td>
           <td><%= order.required_date&.to_date || "—" %></td>
           <td><%= line.shipped_qty %></td>
+          <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
         </tr>
       <% end %>
     <% end %>

@@ -59,7 +59,7 @@ class SalesOrdersController < ApplicationController
     SalesOrder.transaction do
       entries.each do |ol_id, attrs|
         order_line = OrderLine.find(ol_id)
-        item = resolve_item(order_line, attrs[:item_id])
+        item = resolve_item(order_line, attrs[:suffix])
         line = @sales_order.production_lines.build(
           item: item, quantity: attrs[:quantity].to_i,
           version: attrs[:version].presence,
@@ -70,7 +70,7 @@ class SalesOrdersController < ApplicationController
       end
       @sales_order.save!
     end
-    redirect_to @sales_order, notice: "生产订单 #{@sales_order.serial_number} 已创建"
+    redirect_to @sales_order, notice: "六联单 #{@sales_order.serial_number} 已创建"
   rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     @customer = (Customer.find_by(id: sales_order_params[:customer_id]) if params[:sales_order].present?) || current_customer
     @sales_order ||= SalesOrder.new
@@ -86,7 +86,7 @@ class SalesOrdersController < ApplicationController
   # PATCH/PUT /sales_orders/1
   def update
     if @sales_order.update(sales_order_params)
-      redirect_to @sales_order, notice: "生产订单已更新"
+      redirect_to @sales_order, notice: "六联单已更新"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -140,7 +140,7 @@ class SalesOrdersController < ApplicationController
   # DELETE /sales_orders/1
   def destroy
     if @sales_order.destroy
-      redirect_to sales_orders_url, notice: "生产订单已删除"
+      redirect_to sales_orders_url, notice: "六联单已删除"
     else
       redirect_to sales_order_url(@sales_order), alert: @sales_order.errors.full_messages.to_sentence
     end
@@ -152,18 +152,17 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.find(params[:id])
   end
 
-  # 转产定型：选同 generic 组 item（= 选后缀）；item_id="new" 或组内为空时就地新建
-  def resolve_item(order_line, item_id)
-    if item_id == "new"
-      Item.create!(generic_part_no: order_line.generic_part_no, name: order_line.generic_part_no, index: 1)
-    else
-      Item.find_by(id: item_id) || order_line.order_item ||
-        Item.create!(generic_part_no: order_line.generic_part_no, name: order_line.generic_part_no, index: 1)
+  # 转产定型：按后缀拼正式型号（generic + suffix）；不存在就就地新建
+  def resolve_item(order_line, suffix)
+    suffix = suffix.to_s.strip
+    Item.find_or_create_by!(generic_part_no: order_line.generic_part_no, suffix: suffix.presence) do |item|
+      item.name = "#{order_line.generic_part_no}#{suffix}"
+      item.index = 1
     end
   end
 
   def lines_params
-    params.permit(lines: [:item_id, :quantity, :version, :full_name, :remark])[:lines] || {}
+    params.permit(lines: [:item_id, :suffix, :quantity, :version, :full_name, :remark])[:lines] || {}
   end
 
   def shipment_params

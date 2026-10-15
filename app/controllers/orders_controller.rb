@@ -8,7 +8,10 @@ class OrdersController < ApplicationController
 
   # GET /orders
   def index
-    @orders = Order.normal.includes(:order_lines, :customer, :end_customer).ordered_by_po
+    @lines = OrderLine.joins(:order)
+                      .includes(order: [:customer, :end_customer])
+                      .where(orders: { kind: "normal" })
+                      .order("orders.po_number", "order_lines.line_no")
 
     respond_to do |format|
       format.html
