@@ -1,6 +1,6 @@
 <div class="page-header"><h1>导出当月 <small>---月度工作簿（客户订单 / 六联单 / 出库单 / 价格）</small></h1></div>
 
-<%= form_tag monthly_export_path, method: :get, class: "card" do %>
+<%= form_tag monthly_export_path, method: :get, class: "card", data: { turbo: false } do %>
   <div class="card-body">
     <div class="row g-2 align-items-end">
       <div class="col-auto">

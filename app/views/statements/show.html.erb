@@ -83,7 +83,7 @@
   </table>
 
   <div class="mt-2">
-    <%= link_to "导出 CSV", export_statement_path(customer_id: @customer.id, month: @month.strftime('%Y-%m')), class: "btn btn-outline-primary btn-sm" %>
+    <%= link_to "导出 CSV", export_statement_path(customer_id: @customer.id, month: @month.strftime('%Y-%m')), data: { turbo: false }, class: "btn btn-outline-primary btn-sm" %>
     <span class="small text-muted ms-2">差异处理：关账前修改源单据后重新生成本页；关账后走冲销单（D1）。</span>
   </div>
 <% end %>

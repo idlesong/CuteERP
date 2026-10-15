@@ -82,8 +82,8 @@
 
 <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
   <%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-outline-secondary btn-sm" %>
-  <%= link_to "导出 CSV", items_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
-  <%= link_to "导出 Excel", items_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 CSV", items_path(format: "csv"), data: { turbo: false }, class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 Excel", items_path(format: "xls"), data: { turbo: false }, class: "btn btn-outline-secondary btn-sm" %>
   <%= form_tag import_items_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
     <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
     <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
