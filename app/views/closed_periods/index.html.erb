@@ -1,0 +1,49 @@
+<div class="page-header"><h1>关账与归档 <small>---月末对账后锁定单据（D12/D13）</small></h1></div>
+
+<%= form_tag closed_periods_path, class: "card mb-3" do %>
+  <div class="card-body py-2">
+    <div class="row g-2 align-items-end">
+      <div class="col-auto">
+        <label class="form-label small mb-0">关账月份</label>
+        <input type="month" name="month" value="<%= @month %>" class="form-control form-control-sm" required>
+      </div>
+      <div class="col-auto"><button type="submit" class="btn btn-sm btn-danger">关账并归档</button></div>
+      <div class="col-auto small text-muted">
+        关账后该月单据不可修改/删除；自动产生 pg_dump 压缩归档 + 当月工作簿（storage/backups/）。重开需再次操作并留痕。
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<table class="table table-striped table-sm">
+  <thead>
+    <tr><th>月份</th><th>状态</th><th>关账人</th><th>关账时间</th><th>重开人 / 时间</th><th></th></tr>
+  </thead>
+  <tbody>
+    <% @closed_periods.each do |p| %>
+      <tr>
+        <td><%= p.month.strftime("%Y-%m") %></td>
+        <td>
+          <% if p.open? %>
+            <span class="badge bg-danger">已关账</span>
+          <% else %>
+            <span class="badge bg-secondary">已重开</span>
+          <% end %>
+        </td>
+        <td><%= p.closed_by&.name %></td>
+        <td><%= p.closed_at.strftime("%F %H:%M") %></td>
+        <td><%= p.reopened_at ? "#{p.reopened_by&.name} / #{p.reopened_at.strftime('%F %H:%M')}" : "—" %></td>
+        <td>
+          <% if p.open? %>
+            <%= link_to "重开", closed_period_path(p), data: { turbo_method: :delete,
+                        turbo_confirm: "重开 #{p.month.strftime('%Y-%m')}？重开期间单据可修改，修改后请重新关账。" },
+                        class: "btn btn-link btn-sm text-warning" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+    <% if @closed_periods.empty? %>
+      <tr><td colspan="6" class="text-muted">还没有关账记录</td></tr>
+    <% end %>
+  </tbody>
+</table>

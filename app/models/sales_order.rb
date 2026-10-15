@@ -7,6 +7,8 @@ class SalesOrder < ApplicationRecord
   has_many :shipments, dependent: :destroy
 
   include DocumentAttachment
+  include ClosedPeriodGuard
+  locks_closed_periods_on :created_at
 
   STATUSES = %w[draft submitted].freeze
 

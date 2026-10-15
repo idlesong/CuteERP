@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000009) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_000010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000009) do
     t.bigint "post_id"
     t.datetime "updated_at", null: false
     t.index ["post_id"], name: "index_attachments_on_post_id"
+  end
+
+  create_table "closed_periods", force: :cascade do |t|
+    t.datetime "closed_at", default: -> { "now()" }, null: false
+    t.bigint "closed_by_id", null: false
+    t.datetime "created_at", null: false
+    t.date "month", null: false
+    t.datetime "reopened_at"
+    t.bigint "reopened_by_id"
+    t.datetime "updated_at", null: false
+    t.index ["closed_by_id"], name: "index_closed_periods_on_closed_by_id"
+    t.index ["month"], name: "index_closed_periods_on_month", unique: true
+    t.index ["reopened_by_id"], name: "index_closed_periods_on_reopened_by_id"
   end
 
   create_table "contacts", force: :cascade do |t|

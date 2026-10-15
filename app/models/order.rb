@@ -6,6 +6,8 @@ class Order < ApplicationRecord
   PAYMENT_TYPES = ["款到发货", "T.T in advance", "COD", "T.T 30days"].freeze
 
   include DocumentAttachment
+  include ClosedPeriodGuard
+  locks_closed_periods_on :created_at
 
   has_many :order_lines, -> { order(:line_no) }, dependent: :destroy
   belongs_to :customer

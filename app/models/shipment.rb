@@ -11,6 +11,9 @@ class Shipment < ApplicationRecord
 
   before_validation { self.shipped_at ||= Time.current }
 
+  include ClosedPeriodGuard
+  locks_closed_periods_on :shipped_at
+
   attr_accessor :overflow_message
 
   validate :no_overflow
