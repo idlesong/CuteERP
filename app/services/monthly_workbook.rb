@@ -25,6 +25,8 @@ class MonthlyWorkbook
     shipments_sheet(wb, title)
     prices_sheet(wb, title)
     tiers_sheet(wb, title)
+    customers_sheet(wb, title)
+    products_sheet(wb, title)
 
     package.to_stream.read
   end
@@ -159,6 +161,33 @@ class MonthlyWorkbook
           end
           ws.add_row row
         end
+      end
+    end
+  end
+
+  # ---- 6 客户（主数据） ----
+  def customers_sheet(wb, style)
+    headers = %w[英文名 中文名 公司全称 区域 销售类型 代理商 币别 付款方式 联系人 电话 地址
+                 收货联系人 收货地址 收货电话 建立日期 信用额]
+    sheet(wb, style, "客户", headers) do |ws|
+      Customer.order(:name).find_each do |c|
+        ws.add_row [c.name, c.name_zh, c.full_name, c.territory, c.sales_type,
+                    c.disty&.name, c.currency, c.payment, c.contact, c.telephone, c.address,
+                    c.ship_contact, c.ship_address, c.ship_telephone,
+                    c.since&.to_date, c.credit]
+      end
+    end
+  end
+
+  # ---- 7 产品（主数据） ----
+  def products_sheet(wb, style)
+    headers = %w[型号 产品名称 中文名 描述 类别 产品族 base_item extra_item extra_item2
+                 包装 最小起订量 组装方式 状态]
+    sheet(wb, style, "产品", headers) do |ws|
+      Item.order(:generic_part_no, :suffix).find_each do |i|
+        ws.add_row [i.partNo, i.name, i.name_zh, i.description, i.group, i.family,
+                    i.base_item, i.extra_item, i.extra_item2,
+                    i.package, i.moq, i.assembled, i.index.positive? ? "active" : "隐藏"]
       end
     end
   end
