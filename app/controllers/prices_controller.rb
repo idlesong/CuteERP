@@ -199,7 +199,8 @@ class PricesController < ApplicationController
     p = params.require(:price).permit(:boss_suggestion, :condition, :customer_id, :department_suggestion,
                                       :finance_suggestion, :payment_terms, :price, :sales_suggestion,
                                       :status, :remark, :created_at, :base_price, :v1_price, :v2_price,
-                                      :price_number, :part_number, :customer_name, :is_prr)
+                                      :price_number, :part_number, :customer_name, :is_prr,
+                                      :effective_from, :expired_at)
     # status can also be updated via a top-level params[:status] (approval workflow)
     p[:status] = params[:status] if params[:status].present? && p[:status].blank?
     p
