@@ -49,10 +49,12 @@ class SalesOverviewQuery
 
       allocs = pl.production_allocations
       total_alloc = allocs.sum(&:quantity).to_f
-      next if total_alloc.zero?
-
-      unit_chip = allocs.sum { |a| a.quantity * (a.order_line&.base_price || 0).to_f } / total_alloc
-      unit_soft = allocs.sum { |a| a.quantity * ((a.order_line&.v1_price || 0) + (a.order_line&.v2_price || 0)).to_f } / total_alloc
+      # 数量不依赖台账；金额需按台账加权定价，无台账记 0
+      unit_chip = unit_soft = 0.0
+      if total_alloc.positive?
+        unit_chip = allocs.sum { |a| a.quantity * (a.order_line&.base_price || 0).to_f } / total_alloc
+        unit_soft = allocs.sum { |a| a.quantity * ((a.order_line&.v1_price || 0) + (a.order_line&.v2_price || 0)).to_f } / total_alloc
+      end
       value = case metric
               when :chip then sl.quantity * unit_chip
               when :software then sl.quantity * unit_soft
@@ -62,7 +64,8 @@ class SalesOverviewQuery
 
       group = pl.item&.group.presence || "未分类"
       customer = sl.shipment.sales_order.customer.name
-      matrix[group][customer][sl.shipment.shipped_at.beginning_of_month] += value
+      # 键统一为 Date（视图按 Date 查）
+      matrix[group][customer][sl.shipment.shipped_at.to_date.beginning_of_month] += value
     end
     matrix
   end
