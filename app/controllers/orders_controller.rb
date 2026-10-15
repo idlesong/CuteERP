@@ -147,6 +147,7 @@ class OrdersController < ApplicationController
   end
 
   # 快速创建：PO 已存在（草稿或已提交）→ 追加行；不存在 → 按所选客户建草稿单
+  # 价格必须从已批准/生效价格中选择（price_id），服务端校验型号一致后快照成分
   def create_inline
     po = params.dig(:order, :po_number).to_s.strip
     raise "客户订单号不能为空" if po.blank?
@@ -162,10 +163,17 @@ class OrdersController < ApplicationController
       found
     end
 
-    line = OrderLine.build_with_price_snapshot(order, line_params)
+    line = order.order_lines.new(line_params.except(:price_id))
+    if (price = Price.find_by(id: params.dig(:order, :price_id)))
+      raise "所选价格与型号不符" unless price.part_number == line.generic_part_no
+      line.assign_attributes(base_price: price.base_price, v1_price: price.v1_price,
+                             v2_price: price.v2_price, price_id: price.id)
+    else
+      OrderLine.apply_price_snapshot(line)
+    end
     line.save!
     redirect_to orders_url, notice: "#{line.display_no} 已创建（#{order.status == 'draft' ? '草稿' : '已提交'}单追加行）"
-  rescue ActiveRecord::RecordInvalid, RuntimeError => e
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, RuntimeError => e
     redirect_to orders_url, alert: "快速创建失败：#{e.message}"
   end
 

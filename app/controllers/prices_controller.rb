@@ -147,6 +147,25 @@ class PricesController < ApplicationController
     end
   end
 
+  # GET /prices/options?customer_id=&part_number= —— 下单快速创建的价格下拉（生效/已批准价格）
+  def options
+    scope = Price.where(status: %w[active approved])
+                 .where("effective_from IS NULL OR effective_from <= ?", Date.current)
+                 .where("expired_at IS NULL OR expired_at >= ?", Date.current)
+    scope = scope.where(customer_id: params[:customer_id]) if params[:customer_id].present?
+    scope = scope.where(part_number: params[:part_number]) if params[:part_number].present?
+
+    data = scope.order(:price).map do |p|
+      unit = p.currency == "USD" ? "$" : "\u00a5"
+      components = [p.base_price, p.v1_price, p.v2_price].compact
+      label = "#{unit}#{p.price}"
+      label += " (=#{components.join('+')})" if components.size > 1
+      label += " /#{p.condition}pcs" if p.condition.present?
+      { id: p.id, label: label }
+    end
+    render json: data
+  end
+
   # POST /prices/import
   def import
     Price.import(params[:file])

@@ -59,19 +59,23 @@ class OrderLine < ApplicationRecord
     quantity - returned_qty
   end
 
-  # 从客户可用报价快照价格成分；无报价则留空（后续可手工补）
+  # 构建行并从客户可用报价快照价格成分；无报价则留空（后续可手工补）
   def self.build_with_price_snapshot(order, attrs)
     line = order.order_lines.build(attrs)
-    if line.base_price.nil? && line.v1_price.nil? && line.v2_price.nil?
-      price = Price.available.find_by(customer_id: order.customer_id, part_number: line.generic_part_no) ||
-              Price.available.where(part_number: line.generic_part_no).order(:condition).first
-      if price
-        line.base_price = price.base_price
-        line.v1_price = price.v1_price
-        line.v2_price = price.v2_price
-        line.price_id = price.id
-      end
-    end
+    apply_price_snapshot(line)
+    line
+  end
+
+  # 就地快照：行尚无成分价格时按客户+型号取可用报价
+  def self.apply_price_snapshot(line)
+    return line if line.base_price.present? || line.v1_price.present? || line.v2_price.present?
+
+    price = Price.available.find_by(customer_id: line.order.customer_id, part_number: line.generic_part_no) ||
+            Price.available.where(part_number: line.generic_part_no).order(:condition).first
+    return line unless price
+
+    line.assign_attributes(base_price: price.base_price, v1_price: price.v1_price,
+                           v2_price: price.v2_price, price_id: price.id)
     line
   end
 

@@ -32,7 +32,7 @@ Rails.application.routes.draw do
 
   resources :prices do
     member { get :apply }
-    collection { post :import }
+    collection { get :options; post :import }
   end
 
   resources :posts

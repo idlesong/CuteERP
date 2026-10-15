@@ -1,31 +1,34 @@
 <%- model_class = Order -%>
 <div class="page-header">
-  <h1><%= t(:order) %><small>---按行显示（编号 = 客户订单号-行号）</small></h1>
-  <%= link_to "高级创建（完整单头）", new_order_path, class: "btn btn-outline-secondary btn-sm" %>
+  <h1><%= t(:order) %><small>---按行显示</small></h1>
 </div>
 
-<% if notice %>
-  <p id="notice" class="alert alert-info" role="alert"><%= notice %></p>
-<% end %>
-<% if alert %>
-  <p id="alert" class="alert alert-warning" role="alert"><%= alert %></p>
-<% end %>
+<div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+  <%= link_to "高级创建（完整表头）", new_order_path, class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 CSV", orders_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 Excel", orders_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= form_tag import_orders_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
+    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
+    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
+</div>
 
 <%= form_tag orders_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th><%= t(:po_line_number) %></th>
+      <th><%= t(:show_date) %></th>
       <th><%= t(:customer) %> / <%= t(:end_customer) %></th>
       <th><%= t(:po_number) %></th>
+      <th>#</th>
       <th><%= t(:part_number) %></th>
-      <th><%= t(:price) %></th>
       <th><%= t(:quantity) %></th>
-      <th><%= t(:quantity_left) %></th>
+      <th><%= t(:price) %></th>
       <th><%= t(:suble_total) %></th>
+      <th>版本</th>
+      <th><%= t(:quantity_left) %></th>
       <th><%= t(:delivery_date) %></th>
       <th><%= t(:status) %></th>
-      <th><%= t(:show_date) %></th>
       <th><%= t(:actions) %></th>
     </tr>
   </thead>
@@ -34,13 +37,15 @@
       <% currency_unit = order.currency == "USD" ? "$" : "¥" %>
       <% order.order_lines.each do |line| %>
         <tr class="<%= 'table-warning' if order.draft? %> <%= 'table-danger' if order.return? %>">
-          <td><%= link_to line.display_no, order_path(order) %></td>
+          <td><%= order.created_at.strftime("%F") %></td>
           <td>
             <%= link_to order.customer.name, order.customer %>
             <% if order.end_customer %>/ <%= order.end_customer.name %><% end %>
           </td>
           <td><%= order.po_number %></td>
+          <td><%= link_to line.line_no, order_path(order) %></td>
           <td><%= line.generic_part_no %></td>
+          <td>x<%= line.quantity %></td>
           <td>
             <% if line.price_id %>
               <%= link_to number_to_currency(line.unit_price, unit: currency_unit), price_path(line.price_id) %>
@@ -48,9 +53,9 @@
               <%= number_to_currency(line.unit_price, unit: currency_unit) %>
             <% end %>
           </td>
-          <td>x<%= line.quantity %></td>
-          <td><%= line.quantity_left %></td>
           <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+          <td><%= line.version %></td>
+          <td><%= line.quantity_left %></td>
           <td><%= line.required_delivery_date %></td>
           <td>
             <% if order.return? %>
@@ -61,7 +66,6 @@
               <span class="badge bg-success">已提交</span>
             <% end %>
           </td>
-          <td><%= order.created_at.strftime("%F") %></td>
           <td>
             <% if order.submitted? && line.quantity_left > 0 %>
               <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
@@ -73,76 +77,94 @@
   </tbody>
   <tfoot>
     <tr class="inline-new-row">
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button>
-          <div id="po-preview" class="small text-muted"></div></th>
       <th></th>
-      <th><input name="order[po_number]" id="order_po_number" class="form-control form-control-sm"
-                 placeholder="客户订单号*" required></th>
-      <th>
-        <input name="order[generic_part_no]" class="form-control form-control-sm" list="order_generic_options"
-               placeholder="通用型号*" required>
-        <datalist id="order_generic_options">
-          <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
-        </datalist>
-      </th>
-      <th><input name="order[base_price]" class="form-control form-control-sm" placeholder="单价(空=报价带出)"></th>
-      <th><input name="order[quantity]" type="number" min="1" class="form-control form-control-sm" placeholder="数量*" required></th>
-      <th></th>
-      <th></th>
-      <th><input name="order[required_delivery_date]" type="date" class="form-control form-control-sm"></th>
       <th>
         <select name="order[customer_id]" id="order_customer_id" class="form-select form-select-sm">
           <option value="" selected>客户(新PO必选)</option>
           <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
         </select>
       </th>
+      <th>
+        <input name="order[po_number]" id="order_po_number" class="form-control form-control-sm"
+               placeholder="客户订单号*" required>
+      </th>
+      <th></th>
+      <th>
+        <select name="order[generic_part_no]" id="order_generic_part_no" class="form-select form-select-sm" required>
+          <option value="" selected disabled>型号*</option>
+          <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
+        </select>
+      </th>
+      <th><input name="order[quantity]" type="number" min="1" class="form-control form-control-sm" placeholder="数量*" required></th>
+      <th>
+        <select name="order[price_id]" id="order_price_id" class="form-select form-select-sm">
+          <option value="" selected disabled>价格*</option>
+        </select>
+      </th>
       <th></th>
       <th></th>
+      <th></th>
+      <th><input name="order[required_delivery_date]" type="date" class="form-control form-control-sm"></th>
+      <th></th>
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button>
+          <div id="po-preview" class="small text-muted"></div></th>
     </tr>
   </tfoot>
 </table>
 <% end %>
 
 <script>
-  // 客户订单号失焦：预显完整编号（PO-行号），已有 PO 自动带出客户
   document.addEventListener("turbo:load", () => {
     const poInput = document.getElementById("order_po_number")
-    if (!poInput) return
-    poInput.addEventListener("blur", () => {
-      const po = poInput.value.trim()
-      const preview = document.getElementById("po-preview")
-      const customerSelect = document.getElementById("order_customer_id")
-      if (!po) { preview.textContent = ""; return }
-      fetch(`/orders/next_line_no?po_number=${encodeURIComponent(po)}`)
+    const preview = document.getElementById("po-preview")
+    const customerSelect = document.getElementById("order_customer_id")
+    const partSelect = document.getElementById("order_generic_part_no")
+    const priceSelect = document.getElementById("order_price_id")
+
+    // 客户订单号失焦：预显完整编号（PO-行号），已有 PO 自动带出客户
+    if (poInput) {
+      poInput.addEventListener("blur", () => {
+        const po = poInput.value.trim()
+        if (!po) { preview.textContent = ""; return }
+        fetch(`/orders/next_line_no?po_number=${encodeURIComponent(po)}`)
+          .then((r) => r.json())
+          .then((data) => {
+            preview.textContent = data.exists
+              ? `${data.display_no}（追加到${data.status === "draft" ? "草稿" : "已提交"}单）`
+              : `${data.display_no}（新单，请选客户）`
+            if (data.exists && customerSelect) {
+              customerSelect.value = data.customer_id
+              loadPrices()
+            }
+          }).catch(() => {})
+      })
+    }
+
+    // 价格下拉 = 已批准/生效价格，按已选客户 + 型号过滤
+    function loadPrices() {
+      if (!priceSelect) return
+      const params = new URLSearchParams()
+      if (customerSelect && customerSelect.value) params.set("customer_id", customerSelect.value)
+      if (partSelect && partSelect.value) params.set("part_number", partSelect.value)
+      priceSelect.innerHTML = '<option value="" selected disabled>价格*</option>'
+      if (!params.toString()) return
+      fetch(`/prices/options?${params}`)
         .then((r) => r.json())
-        .then((data) => {
-          preview.textContent = data.exists
-            ? `${data.display_no}（追加到${data.status === "draft" ? "草稿" : "已提交"}单）`
-            : `${data.display_no}（新单，请选客户）`
-          if (data.exists && customerSelect) {
-            customerSelect.value = data.customer_id
+        .then((list) => {
+          priceSelect.innerHTML = '<option value="" selected disabled>价格*</option>'
+          if (list.length === 0) {
+            priceSelect.innerHTML = '<option value="" selected disabled>无可用价格</option>'
+            return
           }
+          list.forEach((p) => {
+            const opt = document.createElement("option")
+            opt.value = p.id
+            opt.textContent = p.label
+            priceSelect.appendChild(opt)
+          })
         }).catch(() => {})
-    })
+    }
+    if (customerSelect) customerSelect.addEventListener("change", loadPrices)
+    if (partSelect) partSelect.addEventListener("change", loadPrices)
   })
 </script>
-
-<p>
-  <br />
-  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Advanced: Export, Import orders
-  </a>
-</p>
-<div class="collapse" id="collapseExample">
-  <div class="card card-body">
-    <h4>Export Orders:</h4>
-    <%= link_to "Export CSV", orders_path(format: "csv"), class: "btn btn-primary" %> |
-    <%= link_to "Export Excel", orders_path(format: "xls"), class: "btn btn-primary" %>
-
-    <h4>Import Orders（主键 = 客户订单号 + 行号）</h4>
-    <%= form_tag import_orders_path, multipart: true do %>
-      <%= file_field_tag :file, class: "form-control" %>
-      <%= submit_tag "Import", class: "btn btn-primary" %>
-    <% end %>
-  </div>
-</div>
