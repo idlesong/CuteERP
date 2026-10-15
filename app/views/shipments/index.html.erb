@@ -1,30 +1,52 @@
 <div class="page-header"><h1>出库单</h1></div>
 
+<%= form_tag shipments_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th>#</th>
-      <th>六联单</th>
-      <th>客户</th>
-      <th>出库时间</th>
-      <th>数量</th>
+      <th>出库日期</th>
+      <th><%= t(:customer) %></th>
+      <th>六联单号</th>
+      <th><%= t(:product_name) %></th>
+      <th><%= t(:quantity) %></th>
       <th>快递号</th>
-      <th>备注</th>
-      <th></th>
+      <th><%= t(:actions) %></th>
     </tr>
   </thead>
   <tbody>
-    <% @shipments.each do |sh| %>
-      <tr>
-        <td><%= sh.id %></td>
-        <td><%= link_to sh.sales_order.serial_number, sales_order_path(sh.sales_order) %></td>
-        <td><%= sh.sales_order.customer.name %></td>
-        <td><%= sh.shipped_at.strftime("%F %H:%M") %></td>
-        <td><%= sh.shipment_lines.sum(:quantity) %></td>
-        <td><%= sh.tracking_no %></td>
-        <td><%= sh.note %></td>
-        <td><%= link_to "✘", shipment_path(sh), data: { turbo_method: :delete, turbo_confirm: "删除该出库单？" }, class: "btn btn-link text-danger" %></td>
-      </tr>
+    <% @shipments.order(:shipped_at).each do |sh| %>
+      <% sh.shipment_lines.includes(:production_line).each do |sl| %>
+        <tr>
+          <td><%= sh.shipped_at.strftime("%F %H:%M") %></td>
+          <td><%= sh.sales_order.customer.name %></td>
+          <td><%= link_to sh.sales_order.serial_number, sales_order_path(sh.sales_order) %></td>
+          <td><%= sl.production_line&.part_number %></td>
+          <td><%= sl.quantity %></td>
+          <td><%= sh.tracking_no %></td>
+          <td><%= link_to "✘", shipment_path(sh), data: { turbo_method: :delete, turbo_confirm: "删除整张出库单？" }, class: "btn btn-link text-danger" %></td>
+        </tr>
+      <% end %>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr class="inline-new-row">
+      <th><input name="shipped_at" type="datetime-local" class="form-control form-control-sm"
+                 value="<%= Time.current.strftime("%Y-%m-%dT%H:%M") %>"></th>
+      <th></th>
+      <th>
+        <select name="sales_order_id" class="form-select form-select-sm" required>
+          <option value="" selected disabled>六联单*</option>
+          <% SalesOrder.includes(:production_lines).order(created_at: :desc).each do |so| %>
+            <% next if so.production_lines.sum(&:unshipped_qty) <= 0 %>
+            <option value="<%= so.id %>"><%= so.serial_number %>（待出 <%= so.production_lines.sum(&:unshipped_qty) %>）</option>
+          <% end %>
+        </select>
+      </th>
+      <th class="small text-muted">整单出库（全部未出数量一次出完）</th>
+      <th></th>
+      <th><input name="tracking_no" class="form-control form-control-sm" placeholder="快递号"></th>
+      <th><button type="submit" class="btn btn-sm btn-primary">快速出库</button></th>
+    </tr>
+  </tfoot>
 </table>
+<% end %>

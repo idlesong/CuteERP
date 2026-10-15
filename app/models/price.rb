@@ -13,12 +13,23 @@ class Price < ApplicationRecord
   before_destroy :ensure_not_approved
   before_destroy :ensure_not_used_by_others
 
-  # 可用价（D8）：审批通过 且 在有效期内
+  # 可用价（D8）：已批准（active 视同已批准）且在有效期内
   scope :available, -> {
-    where(status: "active")
+    where(status: %w[approved active])
       .where("effective_from IS NULL OR effective_from <= ?", Date.current)
       .where("expired_at IS NULL OR expired_at >= ?", Date.current)
   }
+
+  # 在有效期内（D8：默认空=不生效的补充：无日期限制视为长期有效）
+  def in_valid_window?
+    (effective_from.nil? || effective_from <= Date.current) &&
+      (expired_at.nil? || expired_at >= Date.current)
+  end
+
+  # 生效 = 有效期内 + 已批准（active 为历史已批准状态，视同 approved）
+  def effective?
+    in_valid_window? && status.in?(%w[approved active])
+  end
 
   # 过渡期：通用型号对应的官方 item（正式型号未建时为 nil，P3 起订单行直接用通用型号）
   def order_item
@@ -105,6 +116,7 @@ class Price < ApplicationRecord
   def normalize
     self.part_number = part_number.presence
     self.currency = currency.presence || "RMB"
+    self.status = status.presence || "requested"
     self.base_price = base_price.presence
     self.v1_price = v1_price.presence
     self.v2_price = v2_price.presence

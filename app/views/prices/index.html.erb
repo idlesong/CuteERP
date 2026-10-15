@@ -1,92 +1,88 @@
 <%- model_class = Price -%>
 <div class="page-header">
-  <h1><%= t(:price) %><small>---UnitedQuotations</small></h1>
-  <%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
-
+  <h1><%= t(:price) %><small>---报价管理</small></h1>
   <div class="btn-group" role="group" aria-label="...">
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "active") %>">active</a>
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "active_approved") %>">active & approved</a>
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "requested") %>">requested</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "effective") %>">生效</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "requested") %>">待批准</a>
     <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(is_prr: 1) %>">PRR</a>
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path %>">all</a>
+    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path %>">全部</a>
   </div>
+</div>
+
+<div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+  <%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 CSV", prices_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 Excel", prices_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= form_tag import_prices_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
+    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
+    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
 </div>
 
 <%= form_tag prices_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th><%= model_class.human_attribute_name(:id) %></th>
       <th><%= t(:price_number) %></th>
+      <th>生效日期</th>
+      <th>失效日期</th>
       <th><%= t(:customer) %></th>
-      <th><%= t(:sell_by) %></th>
       <th><%= t(:part_number) %></th>
-      <th><%= t(:price) %></th>
-      <th><%= t(:condition) %></th>
+      <th>总单价</th>
+      <th>base_price</th>
+      <th>v1_price</th>
+      <th>v2_price</th>
+      <th>数量</th>
+      <th>ODM/OEM</th>
       <th><%= t(:default_price) %></th>
-      <th><%= t(:price1) %></th>
       <th>PRR</th>
       <th><%= t(:remark) %></th>
       <th><%= t(:status) %></th>
-      <th><%= t(:activate) %></th>
-      <th><%= t(:archive) %></th>
+      <th><%= t(:actions) %></th>
     </tr>
   </thead>
   <tbody>
     <% @prices.each do |price| %>
+      <% currency_unit = price.currency == "USD" ? "$" : "¥" %>
+      <% set_price = PriceListEntry.tier_price(price.part_number, price.customer&.sales_type, price.condition) %>
       <tr>
-        <td><%= link_to price.id, price_path(price) %></td>
-        <% price_number = price.price_number || "no price number" %>
-        <td><%= link_to price_number, price_path(price) %></td>
-        <% if price.customer != nil %>
-          <td><%= link_to price.customer_name, price.customer %></td>
-          <td><%= price.customer.sales_type %></td>
-        <% end %>
-        <td><%= price.part_number %></td>
-        <% set_price = PriceListEntry.tier_price(price.part_number, Customer.find(price.customer_id)&.sales_type, price.condition) %>
-        <% if set_price && price.price < set_price - 1 %>
-          <td class="bg-danger"><strong>¥<%= price.price %></strong></td>
-        <% else %>
-          <td><strong>¥<%= price.price %></strong></td>
-        <% end %>
-        <td><%= price.condition %></td>
-        <td>¥<%= set_price %></td>
+        <td><%= link_to(price.price_number || "—", price_path(price)) %></td>
+        <td><%= price.effective_from %></td>
+        <td><%= price.expired_at %></td>
         <td>
-          <% if not price.base_price.blank? %>
-            =<%= price.base_price %>+<%= price.v1_price %>
+          <% if price.customer %>
+            <%= link_to price.customer_name, price.customer %>
+          <% else %>
+            <%= price.customer_name %>
           <% end %>
         </td>
+        <td><%= price.part_number %></td>
+        <td><strong><%= number_to_currency(price.price, unit: currency_unit) %></strong></td>
+        <td><%= price.base_price %></td>
+        <td><%= price.v1_price %></td>
+        <td><%= price.v2_price %></td>
+        <td><%= price.condition %></td>
+        <td><%= price.customer&.sales_type %></td>
+        <td><%= set_price ? number_to_currency(set_price, unit: currency_unit) : "" %></td>
         <td><%= "✂" if price.is_prr == 1 %></td>
         <td><%= price.remark %></td>
         <td>
-          <% if price.status == "archived" %>
-            <del>✘ <%= price.status %></del>
-          <% elsif price.status == "approved" %>
-            ✔ <%= price.status %>
-          <% elsif price.status == "active" %>
-            ☑ <%= price.status %>
+          <% if price.effective? %>
+            <span class="badge bg-success">生效</span>
+          <% elsif price.in_valid_window? %>
+            <%= button_to "批准", price, method: :put, params: { status: "approved" }, class: "btn btn-sm btn-outline-primary" %>
           <% else %>
-            ○ <%= price.status %>
+            <span class="badge bg-secondary">失效</span>
           <% end %>
         </td>
-        <td>
-          <% if price.status == "approved" %>
-            <%= button_to "★", price, method: :put, params: { status: "active" }, class: "btn btn-link" %>
-          <% elsif price.status == "active" %>
-            <%= button_to "☆", price, method: :put, params: { status: "approved" }, class: "btn btn-link" %>
-          <% end %>
-        </td>
-        <td>
-          <% if price.status == "approved" || price.status == "active" %>
-            <%= button_to "✘", price, method: :put, params: { status: "archived" }, class: "btn btn-link" %>
-          <% end %>
-        </td>
+        <td><%= link_to "编辑", edit_price_path(price), class: "btn btn-link btn-sm" %></td>
       </tr>
     <% end %>
   </tbody>
   <tfoot>
     <tr class="inline-new-row">
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+      <th></th>
+      <th></th>
       <th></th>
       <th>
         <select name="price[customer_id]" class="form-select form-select-sm" required>
@@ -94,42 +90,24 @@
           <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
         </select>
       </th>
-      <th></th>
-      <th><input name="price[part_number]" class="form-control form-control-sm" placeholder="通用型号*" required></th>
+      <th>
+        <select name="price[part_number]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>通用型号*</option>
+          <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
+        </select>
+      </th>
       <th><input name="price[price]" class="form-control form-control-sm" placeholder="=50+50 或 单价*" required></th>
+      <th></th>
+      <th></th>
+      <th></th>
       <th><input name="price[condition]" class="form-control form-control-sm" placeholder="订单量*" required></th>
       <th></th>
       <th></th>
       <th></th>
       <th></th>
       <th></th>
-      <th></th>
-      <th></th>
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
     </tr>
   </tfoot>
 </table>
 <% end %>
-
-<%= link_to "高级创建（完整字段）", new_price_path, class: "btn btn-outline-secondary btn-sm" %>
-
-<p>
-  <br />
-  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Advanced: Export, Import set prices
-  </a>
-</p>
-<div class="collapse" id="collapseExample">
-  <div class="card card-body">
-    <h4>Export Customers:</h4>
-    <%= link_to "export csv", prices_path(format: "csv"), class: "btn btn-primary" %>|
-    <%= link_to "export Excel", prices_path(format: "xls"), class: "btn btn-primary" %>
-
-    <h4>Import Customers</h4>
-    <%= form_tag import_prices_path, multipart: true do %>
-      <%= file_field_tag :file, class: "form-control" %>
-      <%= submit_tag "Import prices", class: "btn btn-primary" %>
-    <% end %>
-    <br />
-  </div>
-</div>
-<br />

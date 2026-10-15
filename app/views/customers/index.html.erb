@@ -3,62 +3,78 @@
   <h1><%= t(:customer) %></h1>
 </div>
 
+<div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+  <%= link_to "高级创建（完整字段）", new_customer_path, class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 CSV", customers_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 Excel", customers_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= form_tag import_customers_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
+    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
+    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
+</div>
+
 <%= form_tag customers_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th><%= model_class.human_attribute_name(:id) %></th>
-      <th><%= t(:territory) %></th>
       <th><%= t(:name) %></th>
+      <th>中文名</th>
       <th><%= t(:full_name) %></th>
+      <th><%= t(:territory) %></th>
       <th><%= t(:sales_type) %></th>
       <th><%= t(:disty) %></th>
-      <th><%= t(:payment_term) %></th>
       <th><%= t(:currency) %></th>
-      <th><%= t(:since) %></th>
-      <th><%= t(:credit) %></th>
+      <th><%= t(:actions) %></th>
     </tr>
   </thead>
   <tbody>
     <% @customers.each do |customer| %>
       <tr>
-        <td><%= customer.id %></td>
-        <td><%= customer.territory %></td>
         <td><%= link_to customer.name, customer_path(customer) %></td>
+        <td><%= customer.name_zh %></td>
         <td><%= customer.full_name %></td>
+        <td><%= customer.territory %></td>
         <td><%= customer.sales_type %></td>
         <td><%= customer.disty&.name %></td>
-        <td><%= customer.payment %></td>
         <td><%= customer.currency %></td>
-        <td><%= customer.since %></td>
-        <td><%= customer.credit.to_i %></td>
+        <td><%= link_to "编辑", edit_customer_path(customer), class: "btn btn-link btn-sm" %></td>
       </tr>
     <% end %>
   </tbody>
   <tfoot>
+    <tr class="inline-new-row">
+      <th><input name="customer[name]" class="form-control form-control-sm" placeholder="英文名*" required></th>
+      <th><input name="customer[name_zh]" class="form-control form-control-sm" placeholder="中文名"></th>
+      <th><input name="customer[full_name]" class="form-control form-control-sm" placeholder="公司全称"></th>
+      <th><input name="customer[territory]" class="form-control form-control-sm" placeholder="区域"></th>
+      <th>
+        <select name="customer[sales_type]" class="form-select form-select-sm" required>
+          <option value="" selected disabled>销售类型*</option>
+          <option value="OEM">OEM</option>
+          <option value="ODM">ODM</option>
+        </select>
+      </th>
+      <th>
+        <select name="customer[disty_id]" class="form-select form-select-sm">
+          <option value="" selected>代理商</option>
+          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
+        </select>
+      </th>
+      <th>
+        <select name="customer[currency]" class="form-select form-select-sm" required>
+          <option value="RMB" selected>RMB</option>
+          <option value="USD">USD</option>
+        </select>
+        <select name="customer[payment]" class="form-select form-select-sm mt-1" required>
+          <option value="" selected disabled>付款*</option>
+          <option value="COD">COD</option>
+          <option value="款到发货">款到发货</option>
+          <option value="T.T in advance">T.T in advance</option>
+          <option value="T.T 30days">T.T 30days</option>
+        </select>
+      </th>
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+    </tr>
   </tfoot>
 </table>
 <% end %>
-
-<%= link_to "高级创建（完整字段）", new_customer_path, class: "btn btn-outline-secondary btn-sm" %>
-
-<p>
-  <br />
-  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Advanced: Export, Import customers
-  </a>
-</p>
-<div class="collapse" id="collapseExample">
-  <div class="card card-body">
-    <h4>Export Customers:</h4>
-    <%= link_to "export csv", customers_path(format: "csv"), class: "btn btn-primary" %>|
-    <%= link_to "export Excel", customers_path(format: "xls"), class: "btn btn-primary" %>
-
-    <h4>Import Customers</h4>
-    <%= form_tag import_customers_path, multipart: true do %>
-      <%= file_field_tag :file, class: "form-control" %>
-      <%= submit_tag "Import customers", class: "btn btn-primary" %>
-    <% end %>
-  </div>
-</div>
-<br />

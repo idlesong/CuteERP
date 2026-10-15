@@ -3,67 +3,66 @@
   <h1><%= t(:product) %></h1>
 </div>
 
+<div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+  <%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 CSV", items_path(format: "csv"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "导出 Excel", items_path(format: "xls"), class: "btn btn-outline-secondary btn-sm" %>
+  <%= form_tag import_items_path, multipart: true, class: "d-flex gap-1 align-items-center" do %>
+    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
+    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
+  <% end %>
+</div>
+
 <%= form_tag items_path(inline: 1) do %>
 <table class="table table-striped datatable">
   <thead>
     <tr>
-      <th>id</th>
-      <th><%= model_class.human_attribute_name(:partNo) %></th>
-      <th><%= t(:product_group) %></th>
-      <th><%= t(:product_family) %></th>
+      <th>型号</th>
       <th><%= t(:product_name) %></th>
       <th><%= t(:description) %></th>
-      <th><%= t(:package) %></th>
-      <th><%= t(:mpq) %></th>
-      <th><%= t(:assembled) %></th>
-      <th><%= t(:base_item) %></th>
-      <th><%= t(:extra_item) %></th>
-      <th>active</th>
+      <th>类别</th>
+      <th>base_item</th>
+      <th>extra_item</th>
+      <th>extra_item2</th>
+      <th><%= t(:actions) %></th>
     </tr>
   </thead>
   <tbody>
     <% @items.each do |item| %>
       <tr>
-        <td><%= item.id %></td>
         <td><%= link_to item.partNo, item_path(item) %></td>
-        <td><%= item.group %></td>
-        <td><%= item.family %></td>
         <td><%= item.name %></td>
         <td><%= item.description %></td>
-        <td><%= item.package %></td>
-        <td><%= item.mop %></td>
-        <td><%= item.assembled %></td>
+        <td><%= item.group %></td>
         <td><%= item.base_item %></td>
         <td><%= item.extra_item %></td>
-        <td><%= item.index %></td>
+        <td><%= item.extra_item2 %></td>
+        <td><%= link_to "编辑", edit_item_path(item), class: "btn btn-link btn-sm" %></td>
       </tr>
     <% end %>
   </tbody>
   <tfoot>
+    <tr class="inline-new-row">
+      <th>
+        <input name="item[generic_part_no]" class="form-control form-control-sm d-inline-block" style="width: 8rem;"
+               placeholder="型号*" required> -
+        <select name="item[suffix]" class="form-select form-select-sm d-inline-block" style="width: 4rem;">
+          <%= options_for_select(Item::FW_MARK_TYPES) %>
+        </select>
+      </th>
+      <th><input name="item[name]" class="form-control form-control-sm" placeholder="产品名称*" required></th>
+      <th><input name="item[description]" class="form-control form-control-sm" placeholder="描述"></th>
+      <th>
+        <input name="item[group]" class="form-control form-control-sm" list="item_group_options" placeholder="类别">
+        <datalist id="item_group_options">
+          <%= options_for_select(Item.where.not(group: nil).distinct.order(:group).pluck(:group)) %>
+        </datalist>
+      </th>
+      <th><input name="item[base_item]" class="form-control form-control-sm" placeholder="base"></th>
+      <th><input name="item[extra_item]" class="form-control form-control-sm" placeholder="extra1"></th>
+      <th><input name="item[extra_item2]" class="form-control form-control-sm" placeholder="extra2"></th>
+      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button></th>
+    </tr>
   </tfoot>
 </table>
 <% end %>
-
-<%= link_to "高级创建（完整字段）", new_item_path, class: "btn btn-outline-secondary btn-sm" %>
-
-<p>
-  <br />
-  <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Advanced: Export, Import products
-  </a>
-</p>
-<div class="collapse" id="collapseExample">
-  <div class="card card-body">
-    <h4>Export Produts:</h4>
-    <%= link_to "Export CSV", items_path(format: "csv"), class: "btn btn-primary" %> |
-    <%= link_to "Export Excel", items_path(format: "xls"), class: "btn btn-primary" %>
-
-    <h4>Import Products</h4>
-    <%= form_tag import_items_path, multipart: true do %>
-      <%= file_field_tag :file, class: "form-control" %>
-      <%= submit_tag "Import", class: "btn btn-primary" %>
-    <% end %>
-  </div>
-</div>
-<br />
-<br />

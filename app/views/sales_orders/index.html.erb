@@ -1,18 +1,18 @@
-<div class="page-header"><h1><%= t(:sales_orders) %><small>---按行显示（六联单行）</small></h1></div>
+<div class="page-header"><h1><%= t(:sales_orders) %></h1></div>
+
 <%= form_tag new_sales_order_path, method: :get do %>
-<table class="table datatable">
+<table class="table table-striped datatable">
   <thead>
     <tr>
-      <th><h4><%= t(:sales_order_number) %>#</h4></th>
-      <th><h4><%= t(:customer) %></h4></th>
-      <th><h4><%= t(:refer_po) %>#</h4></th>
-      <th><h4><%= t(:part_number) %></h4></th>
-      <th><h4><%= t(:price) %></h4></th>
-      <th><h4><%= t(:quantity) %></h4></th>
-      <th><h4><%= t(:suble_total) %></h4></th>
-      <th><h4><%= t(:uniform_number) %></h4></th>
-      <th><h4><%= t(:required_date) %></h4></th>
-      <th><h4><%= t(:ship_date) %></h4></th>
+      <th>六联单号</th>
+      <th>下单日期</th>
+      <th><%= t(:customer) %></th>
+      <th><%= t(:product_name) %></th>
+      <th><%= t(:quantity) %></th>
+      <th>含税单价</th>
+      <th>版本</th>
+      <th>约定发货日期</th>
+      <th>已发数量</th>
     </tr>
   </thead>
   <tbody>
@@ -21,39 +21,40 @@
       <% if order.production_lines.empty? %>
         <tr>
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
+          <td><%= order.created_at.strftime("%F") %></td>
           <td><%= order.customer.name %></td>
-          <td colspan="9" class="text-muted">无行（异常，请检查）</td>
+          <td colspan="6" class="text-muted">无行（异常，请检查）</td>
         </tr>
       <% end %>
       <% order.production_lines.each do |line| %>
         <tr>
           <td><%= link_to order.serial_number, sales_order_path(order) %></td>
+          <td><%= order.created_at.strftime("%F") %></td>
           <td><%= order.customer.name %></td>
-          <td><%= line.order_lines.map(&:display_no).join(", ") %></td>
           <td><%= line.part_number %></td>
-          <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
           <td>x<%= line.quantity %></td>
-          <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
-          <td><%= line.full_name.presence || link_to("生产编排", edit_production_sales_order_path(order)) %></td>
+          <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+          <td><%= line.version %></td>
           <td><%= order.required_date&.to_date || "—" %></td>
-          <td>
-            <% if order.shipped? %>
-              <%= order.delivery_date.to_date %>
-            <% else %>
-              <%= link_to("出库", confirm_sales_order_path(order.id)) %>
-            <% end %>
-          </td>
+          <td><%= line.shipped_qty %></td>
         </tr>
       <% end %>
     <% end %>
   </tbody>
   <tfoot>
     <tr class="inline-new-row">
-      <td colspan="3">
-        <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name), class: "form-select form-select-sm", style: "width: 14rem;" %>
-        <%= submit_tag "选客户开六联单", class: "btn btn-sm btn-primary" %>
-      </td>
-      <td colspan="7"></td>
+      <th></th>
+      <th></th>
+      <th>
+        <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name),
+                       prompt: "客户*", class: "form-select form-select-sm", style: "width: 12rem;", required: true %>
+      </th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th><%= submit_tag "选客户开六联单", class: "btn btn-sm btn-primary" %></th>
     </tr>
   </tfoot>
 </table>

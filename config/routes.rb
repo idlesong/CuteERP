@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :shipments, only: [:index, :destroy]
+  resources :shipments, only: [:index, :create, :destroy]
 
   resources :sales_plans, only: [:index, :create, :destroy] do
     collection { post :import }

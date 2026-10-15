@@ -3,16 +3,10 @@ class PricesController < ApplicationController
 
   # GET /prices
   def index
-    if params[:status]
-      if params[:status] == "active"
-        @prices = Price.where(status: "active").order("created_at asc")
-      elsif params[:status] == "active_approved"
-        active_approved = ["active", "approved"]
-        @prices = Price.where(status: active_approved).order("created_at asc")
-      else
-        effective = ["active", "approved", "requested"]
-        @prices = Price.where(status: effective).order("created_at asc")
-      end
+    if params[:status] == "effective"
+      @prices = Price.where(status: %w[active approved]).order("created_at asc")
+    elsif params[:status] == "requested"
+      @prices = Price.where(status: [nil, "requested"]).order("created_at asc")
     else
       @prices = Price.order("created_at asc").all
     end
