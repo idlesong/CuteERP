@@ -34,15 +34,15 @@
         <td><%= order.po_number %></td>
         <td><%= link_to line.line_no, order_path(order) %></td>
         <td><%= line.generic_part_no %></td>
-        <td>x<%= line.quantity %></td>
+        <td class="text-end"><%= line.quantity %></td>
         <td>
           <% if line.price_id %>
-            <%= link_to number_to_currency(line.unit_price, unit: currency_unit), price_path(line.price_id) %>
+            <%= link_to money(line.unit_price, order.currency), price_path(line.price_id) %>
           <% else %>
-            <%= number_to_currency(line.unit_price, unit: currency_unit) %>
+            <%= money(line.unit_price, order.currency) %>
           <% end %>
         </td>
-        <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+        <td><%= money(line.total_price, order.currency) %></td>
         <td><%= line.version %></td>
         <td><%= line.quantity_left %></td>
         <td><%= line.required_delivery_date %></td>

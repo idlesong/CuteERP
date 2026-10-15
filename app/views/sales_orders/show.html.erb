@@ -130,7 +130,7 @@
                            value="<%= line.quantity %>" class="form-control form-control-sm" style="width: 6rem;"></td>
                 <td><%= line.shipped_qty %></td>
                 <td><%= line.order_lines.map(&:display_no).join(", ") %></td>
-                <td colspan="2"><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+                <td colspan="2"><%= money(line.total_price, @sales_order.customer.currency) %></td>
                 <td><input name="lines[<%= line.id %>][version]" value="<%= line.version %>" class="form-control form-control-sm" style="width: 5rem;"></td>
                 <td><input name="lines[<%= line.id %>][full_name]" value="<%= line.full_name %>" class="form-control form-control-sm" style="width: 9rem;"></td>
                 <td><input name="lines[<%= line.id %>][remark]" value="<%= line.remark %>" class="form-control form-control-sm" style="width: 9rem;"></td>
@@ -147,15 +147,15 @@
                 <%= line.part_number %>
                 <span class="small text-muted"><%= line.product_name %></span>
               </td>
-              <td>x<%= line.quantity %></td>
+              <td class="text-end"><%= line.quantity %></td>
               <td><%= line.shipped_qty %></td>
               <td>
                 <% line.order_lines.each do |ol| %>
                   <%= link_to ol.display_no, order_path(ol.order) %>
                 <% end %>
               </td>
-              <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
-              <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+              <td><%= money(line.unit_price, @sales_order.customer.currency) %></td>
+              <td><%= money(line.total_price, @sales_order.customer.currency) %></td>
               <td><%= line.version %></td>
               <td><%= line.full_name %></td>
               <td><%= line.remark %></td>
@@ -172,7 +172,7 @@
         <% end %>
       </tbody>
     </table>
-    合计：<%= number_to_currency(@sales_order.total_price, unit: currency_unit) %>
+    合计：<%= money(@sales_order.total_price, @sales_order.customer.currency) %>
     <div class="small text-muted mt-1">未出库的行可随意修改（型号后缀/数量/版本/统一编号/备注）或删除（需求释放回待签发池）；已出库行数量只能增不能减。</div>
   </div>
   <div class="card-footer">

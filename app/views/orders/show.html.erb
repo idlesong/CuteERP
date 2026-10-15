@@ -72,14 +72,14 @@
         <td><%= line.generic_part_no %><span class="small text-muted"> <%= line.full_part_number %></span></td>
         <td>
           <% if line.price_id %>
-            <%= link_to number_to_currency(line.unit_price, unit: currency_unit), price_path(line.price_id) %>
+            <%= link_to money(line.unit_price, @order.currency), price_path(line.price_id) %>
           <% else %>
-            <%= number_to_currency(line.unit_price, unit: currency_unit) %>
+            <%= money(line.unit_price, @order.currency) %>
           <% end %>
         </td>
-        <td>x<%= line.quantity %></td>
+        <td class="text-end"><%= line.quantity %></td>
         <td><%= line.allocated_qty %></td>
-        <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+        <td><%= money(line.total_price, @order.currency) %></td>
         <td><%= line.required_delivery_date %></td>
         <td><%= line.version %></td>
         <td><%= line.remark %></td>

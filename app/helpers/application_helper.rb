@@ -4,6 +4,14 @@ module ApplicationHelper
     content_tag("div", attributes, &block)
   end
 
+  # 金额格式：¥1,050.00 / $66.00（符号紧跟数字 + 千分位 + 固定 2 位小数）
+  def money(amount, currency = "RMB")
+    unit = currency == "USD" ? "$" : "¥"
+    return "-" if amount.nil?
+
+    "#{unit}#{number_with_precision(amount.to_f, precision: 2, delimiter: ",")}"
+  end
+
   # 客户显示名：中文简称优先，缺省回退英文简称
   def cust_name(customer)
     return "" if customer.nil?

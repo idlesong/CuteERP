@@ -24,7 +24,7 @@
             <td><%= line.display_no %></td>
             <td><%= line.generic_part_no %></td>
             <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
-            <td>x<%= line.quantity %></td>
+            <td class="text-end"><%= line.quantity %></td>
             <td><%= line.return_lines.sum(:quantity).abs %></td>
             <td><strong><%= line.reversible_qty %></strong></td>
             <td>

@@ -69,13 +69,13 @@
           <% end %>
         </td>
         <td><%= price.part_number %></td>
-        <td><strong><%= number_to_currency(price.price, unit: currency_unit) %></strong></td>
+        <td><strong><%= money(price.price, price.currency) %></strong></td>
         <td><%= price.base_price %></td>
         <td><%= price.v1_price %></td>
         <td><%= price.v2_price %></td>
         <td><%= price.condition %></td>
         <td><%= price.customer&.sales_type %></td>
-        <td><%= set_price ? number_to_currency(set_price, unit: currency_unit) : "" %></td>
+        <td><%= set_price ? money(set_price, price.currency) : "" %></td>
         <td><%= "✂" if price.is_prr == 1 %></td>
         <td><%= price.remark %></td>
         <td>

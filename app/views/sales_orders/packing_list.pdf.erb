@@ -54,8 +54,8 @@
             <td><%= line.product_name %></td>
             <td><%= line.part_number %></td>
             <td><%= line.quantity %></td>
-            <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
-            <td><%= number_to_currency(line.total_price, unit: currency_unit) %></td>
+            <td><%= money(line.unit_price, @sales_order.customer.currency) %></td>
+            <td><%= money(line.total_price, @sales_order.customer.currency) %></td>
           </tr>
 <% end %>
       </tbody>

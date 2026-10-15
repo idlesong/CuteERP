@@ -35,8 +35,8 @@
           <td><%= order.created_at.strftime("%F") %></td>
           <td><%= cust_name(order.customer) %></td>
           <td><%= line.part_number %></td>
-          <td>x<%= line.quantity %></td>
-          <td><%= number_to_currency(line.unit_price, unit: currency_unit) %></td>
+          <td class="text-end"><%= line.quantity %></td>
+          <td><%= money(line.unit_price, order.currency) %></td>
           <td><%= line.version %></td>
           <td><%= order.required_date&.to_date || "—" %></td>
           <td><%= local_assigns[:remaining] ? line.unshipped_qty : line.shipped_qty %></td>
