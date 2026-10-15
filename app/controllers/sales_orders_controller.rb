@@ -5,6 +5,7 @@
 class SalesOrdersController < ApplicationController
   before_action :set_sales_order, only: [:show, :edit, :update, :destroy,
                                          :production, :edit_production, :update_production,
+                                         :add_line, :remove_line,
                                          :confirm, :create_shipment, :quick_ship, :invoice, :packing_list]
 
   # GET /sales_orders
@@ -91,6 +92,40 @@ class SalesOrdersController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  # POST /sales_orders/1/add_line —— 追加行：从未分配 PO 行池再签一行到本六联单（未出库即可追加）
+  def add_line
+    order_line = OrderLine.find(params.require(:order_line_id))
+    qty = params.require(:quantity).to_i
+    raise "数量必须大于 0" if qty <= 0
+
+    item = resolve_item(order_line, params[:suffix])
+    line = @sales_order.production_lines.build(
+      item: item, quantity: qty, version: params[:version].presence,
+      full_name: params[:full_name].presence || item.name
+    )
+    line.production_allocations.build(order_line: order_line, quantity: qty)
+
+    if line.save
+      redirect_to edit_production_sales_order_path(@sales_order), notice: "已追加 #{line.part_number} x#{qty}"
+    else
+      redirect_to edit_production_sales_order_path(@sales_order), alert: "追加失败：#{line.errors.full_messages.to_sentence}"
+    end
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, RuntimeError => e
+    redirect_to edit_production_sales_order_path(@sales_order), alert: "追加失败：#{e.message}"
+  end
+
+  # DELETE /sales_orders/1/remove_line?line_id= —— 删行：仅未出库行（分配随之释放回池）
+  def remove_line
+    line = @sales_order.production_lines.find(params.require(:line_id))
+    if line.shipped_qty.positive?
+      redirect_to edit_production_sales_order_path(@sales_order), alert: "该行已出库，不能删除"
+      return
+    end
+    po_ref = line.order_lines.map(&:display_no).join(", ")
+    line.destroy
+    redirect_to edit_production_sales_order_path(@sales_order), notice: "已删除该行#{po_ref.present? ? "（#{po_ref} 需求已释放回池）" : ""}"
   end
 
   # GET /sales_orders/1/confirm —— 创建出库单

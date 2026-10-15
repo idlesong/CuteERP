@@ -8,6 +8,12 @@ class ProductionLine < ApplicationRecord
   has_many :shipment_lines, dependent: :destroy
 
   validates :quantity, numericality: { greater_than: 0 }
+  validate :quantity_not_below_shipped, on: :update
+
+  # 已出库后数量只能增不能减（减少走冲销/退货）
+  def quantity_not_below_shipped
+    errors.add(:quantity, "不能低于已出库数量（#{shipped_qty}）") if quantity < shipped_qty
+  end
 
   def part_number
     item&.partNo
