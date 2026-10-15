@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :price_lists, only: [:index] do
     collection do
       post :create_entry
+      delete :destroy_generic
       post :import
     end
   end

@@ -12,8 +12,8 @@ class Customer < ActiveRecord::Base
   belongs_to :disty, class_name: "Customer"
 
   validates :name, presence: true, uniqueness: true
+  before_validation { self.payment ||= "款到发货" }
   validates :sales_type, presence: true
-  validates :payment, presence: true
   validates :currency, presence: true
   validates :currency, inclusion: CURRENCY_TYPES
 

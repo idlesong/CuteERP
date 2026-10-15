@@ -120,6 +120,16 @@ class PricesController < ApplicationController
 
   # PATCH/PUT /prices/1
   def update
+    # 纯状态变更（批准）：不带 price 字段，直接更新状态
+    if params[:status].present?
+      if @price.update(status: params[:status])
+        redirect_to prices_url, notice: "价格已批准（#{@price.price_number}）"
+      else
+        redirect_to prices_url, alert: @price.errors.full_messages.to_sentence
+      end
+      return
+    end
+
     respond_to do |format|
       if @price.update(price_params)
         if params[:status]

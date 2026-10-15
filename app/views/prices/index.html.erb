@@ -70,7 +70,7 @@
           <% if price.effective? %>
             <span class="badge bg-success">生效</span>
           <% elsif price.in_valid_window? %>
-            <%= button_to "批准", price, method: :put, params: { status: "approved" }, class: "btn btn-sm btn-outline-primary" %>
+            <%= link_to "批准", price_path(price, status: "approved"), data: { turbo_method: :patch }, class: "text-primary" %>
           <% else %>
             <span class="badge bg-secondary">失效</span>
           <% end %>
