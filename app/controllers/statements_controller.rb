@@ -21,6 +21,7 @@ class StatementsController < ApplicationController
     csv = CSV.generate(write_headers: true, headers: %w[段 日期 单据号 型号 数量 单价 金额 金额折RMB 附加]) do |csv|
       st.order_rows.each { |r| csv << ["订单核对", r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
       st.shipment_rows.each { |r| csv << ["出货核对", r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
+      st.backlog_rows.each { |r| csv << ["未交订单", r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
     end
     filename = "对账单_#{customer.name_zh.presence || customer.name}_#{month.strftime('%Y%m')}.csv"
     send_data csv, filename: filename, type: "text/csv; charset=utf-8"

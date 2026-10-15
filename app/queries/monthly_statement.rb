@@ -3,7 +3,7 @@
 class MonthlyStatement
   Row = Struct.new(:date, :doc_no, :part, :quantity, :unit_price, :amount, :amount_rmb, :extra)
 
-  attr_reader :customer, :month, :order_rows, :shipment_rows, :currency
+  attr_reader :customer, :month, :order_rows, :shipment_rows, :backlog_rows, :currency
 
   def initialize(customer, month)
     @customer = customer
@@ -12,6 +12,7 @@ class MonthlyStatement
     @currency = customer.currency.presence || "RMB"
     @order_rows = []
     @shipment_rows = []
+    @backlog_rows = []
     build
   end
 
@@ -27,6 +28,7 @@ class MonthlyStatement
                              (line.total_price * rate).round(2), line.version)
     end
 
+    build_backlog
     # 出货核对段：当月出库明细
     ShipmentLine.joins(:shipment)
                 .includes(shipment: { sales_order: :customer }, production_line: :item)
@@ -39,6 +41,27 @@ class MonthlyStatement
                                 pl&.part_number, sl.quantity, pl&.unit_price || 0, amount,
                                 (amount * rate).round(2), sl.shipment.tracking_no)
     end
+  end
+
+  def build_backlog
+    cutoff = @range.last.end_of_day
+    OrderLine.joins(:order)
+             .where(orders: { kind: "normal", status: "submitted", customer_id: customer.id,
+                              created_at: Date.new(1970, 1, 1)..cutoff })
+             .order("orders.po_number", "order_lines.line_no").find_each do |line|
+      open = line.open_qty
+      next if open <= 0
+
+      rate = rate_for(cutoff.beginning_of_month, line.order.currency)
+      amount = open * line.unit_price
+      @backlog_rows << Row.new(cutoff.to_date, line.display_no, line.generic_part_no,
+                               open, line.unit_price, amount,
+                               (amount * rate).round(2), line.version)
+    end
+  end
+
+  def backlog_totals
+    totals_for(backlog_rows)
   end
 
   def order_totals

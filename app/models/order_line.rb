@@ -62,6 +62,29 @@ class OrderLine < ApplicationRecord
     quantity - returned_qty
   end
 
+  # 已出货数量（对账口径）：按分配比例分摊各生产行的出库
+  def delivered_qty
+    total = production_allocations.sum(:quantity)
+    return 0 if total.zero?
+
+    production_allocations.includes(production_line: :shipment_lines)
+                          .sum { |a| shipped_share(a) }.round(2)
+  end
+
+  # 未交数量 = 数量 - 冲销 - 已出货
+  def open_qty
+    quantity - returned_qty - delivered_qty
+  end
+
+  private
+
+  def shipped_share(allocation)
+    pl = allocation.production_line
+    return 0 if pl.nil? || pl.quantity.to_i.zero?
+
+    (pl.shipped_qty * allocation.quantity.to_f / pl.quantity).round(2)
+  end
+
   # 构建行并从客户可用报价快照价格成分；无报价则留空（后续可手工补）
   def self.build_with_price_snapshot(order, attrs)
     line = order.order_lines.build(attrs)
