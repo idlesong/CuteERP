@@ -82,6 +82,9 @@ Rails.application.routes.draw do
   get "exports", to: "exports#index", as: :exports
   get "exports/monthly", to: "exports#monthly", as: :monthly_export
 
+  get "statements", to: "statements#show", as: :statement
+  get "statements/export", to: "statements#export", as: :export_statement
+
   get "imports", to: "imports#index", as: :imports
   post "imports/customer_orders", to: "imports#import_customer_orders", as: :import_customer_orders_imports
   post "imports/sales_orders", to: "imports#import_sales_orders", as: :import_sales_orders_imports
