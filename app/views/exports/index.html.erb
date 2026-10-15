@@ -1,0 +1,18 @@
+<div class="page-header"><h1>导出当月 <small>---月度工作簿（客户订单 / 六联单 / 出库单 / 价格）</small></h1></div>
+
+<%= form_tag monthly_export_path, method: :get, class: "card" do %>
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-auto">
+        <label class="form-label small mb-0">月份</label>
+        <input type="month" name="month" value="<%= @month.strftime('%Y-%m') %>" class="form-control form-control-sm" required>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-sm btn-primary">导出工作簿</button>
+      </div>
+      <div class="col-auto small text-muted">
+        四表与现用 Excel 字段一一对应；六联单表含分配对（订单N/分配量N，来自分配台账）；价格表为现行生效价格 + 最新阶梯批次。
+      </div>
+    </div>
+  </div>
+<% end %>

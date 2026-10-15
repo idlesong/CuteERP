@@ -79,6 +79,9 @@ Rails.application.routes.draw do
 
   get "workbench", to: "admin#workbench", as: :workbench
 
+  get "exports", to: "exports#index", as: :exports
+  get "exports/monthly", to: "exports#monthly", as: :monthly_export
+
   get "inventory", to: "inventory#index", as: :inventory
 
   root "admin#index", as: :admin

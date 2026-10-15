@@ -24,6 +24,8 @@ gem "bcrypt", "~> 3.1.7"
 
 # Excel/CSV import [https://github.com/roo-rb/roo]
 gem "roo", "~> 2.10"
+# Excel workbook export (monthly statement / archive) [https://github.com/caxlsx/caxlsx]
+gem "caxlsx", "~> 4.4"
 gem "roo-xls", "~> 1.2"
 
 # Per-user settings storage [https://github.com/ledermann/rails-settings]
