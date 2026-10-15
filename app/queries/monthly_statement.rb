@@ -30,9 +30,9 @@ class MonthlyStatement
 
     build_backlog
     # 出货核对段：当月出库明细
-    ShipmentLine.joins(:shipment)
+    ShipmentLine.joins(shipment: { sales_order: :customer })
                 .includes(shipment: { sales_order: :customer }, production_line: :item)
-                .where(shipments: { sales_order_id: customer.id, shipped_at: @range })
+                .where(sales_orders: { customer_id: customer.id }, shipments: { shipped_at: @range })
                 .order("shipments.shipped_at").find_each do |sl|
       pl = sl.production_line
       rate = rate_for(sl.shipment.shipped_at.beginning_of_month, @currency)
