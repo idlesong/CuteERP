@@ -15,11 +15,11 @@ class OrderLinesController < ApplicationController
   # DELETE /orders/:order_id/order_lines/:id
   def destroy
     line = @order.order_lines.find(params[:id])
-    if @order.draft?
+    if @order.editable?
       line.destroy
       redirect_to @order, notice: "#{line.display_no} 已删除"
     else
-      redirect_to @order, alert: "只有草稿单可以删行"
+      redirect_to @order, alert: "订单已被生产订单签发，不能删行（请走冲销）"
     end
   end
 

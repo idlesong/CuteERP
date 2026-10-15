@@ -34,7 +34,7 @@
       <% if params[:edit_id].to_i == customer.id %>
         <tr class="table-warning">
           <%= form_tag customer_path(customer), method: :patch do %> <input type="hidden" name="inline_edit" value="1">
-            <td><input name="customer[name]" value="<%= customer.name %>" class="form-control form-control-sm" required></td>
+            <td data-order="<%= customer.name %>"><input name="customer[name]" value="<%= customer.name %>" class="form-control form-control-sm" required></td>
             <td><input name="customer[name_zh]" value="<%= customer.name_zh %>" class="form-control form-control-sm"></td>
             <td><input name="customer[full_name]" value="<%= customer.full_name %>" class="form-control form-control-sm"></td>
             <td><input name="customer[territory]" value="<%= customer.territory %>" class="form-control form-control-sm"></td>

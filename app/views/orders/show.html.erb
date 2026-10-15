@@ -84,7 +84,7 @@
         <td><%= line.version %></td>
         <td><%= line.remark %></td>
         <td>
-          <% if @order.draft? %>
+          <% if @order.editable? %>
             <%= link_to "✘", order_order_line_path(@order, line), data: { turbo_method: :delete,
                         turbo_confirm: "删除 #{line.display_no}？" }, class: "btn btn-sm btn-link text-danger" %>
           <% end %>

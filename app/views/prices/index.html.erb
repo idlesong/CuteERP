@@ -1,12 +1,6 @@
 <%- model_class = Price -%>
 <div class="page-header">
   <h1><%= t(:price) %><small>---报价管理</small></h1>
-  <div class="btn-group" role="group" aria-label="...">
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "effective") %>">生效</a>
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(status: "requested") %>">待批准</a>
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path(is_prr: 1) %>">PRR</a>
-    <a role="button" class="btn btn-outline-secondary" href="<%= prices_path %>">全部</a>
-  </div>
 </div>
 
 <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
@@ -47,7 +41,7 @@
         <tr class="table-warning">
           <%= form_tag price_path(price), method: :patch do %>
             <input type="hidden" name="inline_edit" value="1">
-            <td><%= link_to(price.price_number || "—", price_path(price)) %></td>
+            <td data-order="<%= price.price_number %>"><%= link_to(price.price_number || "—", price_path(price)) %></td>
             <td><input name="price[effective_from]" type="date" value="<%= price.effective_from %>" class="form-control form-control-sm"></td>
             <td><input name="price[expired_at]" type="date" value="<%= price.expired_at %>" class="form-control form-control-sm"></td>
             <td><%= price.customer_name %></td>

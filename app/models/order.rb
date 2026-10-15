@@ -74,6 +74,11 @@ class Order < ApplicationRecord
     order_lines.joins(:production_allocations).none?
   end
 
+  # 可编辑 = 未被生产订单签发（业界惯例：履约单据产生前可随意修改，签发后走冲销）
+  def editable?
+    not_issued?
+  end
+
   def self.export_to_csv(options = {})
     header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
               "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",

@@ -9,8 +9,6 @@ class SalesOrder < ApplicationRecord
   include DocumentAttachment
 
   validates :serial_number, presence: true, uniqueness: true
-  validates :bill_address, :bill_contact, :bill_telephone, :ship_contact, :ship_address,
-            :ship_telephone, presence: true
   validates :customer_id, :payment_term, presence: true
   validates :exchange_rate, presence: true
   validates :production_lines, presence: true, on: :create

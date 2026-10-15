@@ -35,7 +35,7 @@
         <tr class="table-warning">
           <%= form_tag item_path(item), method: :patch do %>
             <input type="hidden" name="inline_edit" value="1">
-            <td class="text-nowrap">
+            <td class="text-nowrap" data-order="<%= item.partNo %>">
               <input name="item[generic_part_no]" value="<%= item.generic_part_no %>" class="form-control form-control-sm d-inline-block" style="width: 8rem;" required> -
               <input name="item[suffix]" value="<%= item.suffix %>" class="form-control form-control-sm d-inline-block" style="width: 3.5rem;">
             </td>

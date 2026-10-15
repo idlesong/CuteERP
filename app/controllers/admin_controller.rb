@@ -4,8 +4,7 @@
 class AdminController < ApplicationController
   # 工作台（用户页）：销售操作起点——未签发客户订单 + 未发货六联单
   def workbench
-    @unissued_lines = DemandQuery.allocatable_lines
-                                 .includes(order: [:customer, :end_customer])
+    @unissued_lines = DemandQuery.actionable_lines
     # 未全部发货：还有未出完生产行的六联单（含发了部分没发完的）
     orders = SalesOrder.includes(:customer, :production_lines).order(created_at: :desc)
     @unshipped_orders = orders.reject do |so|
@@ -15,8 +14,7 @@ class AdminController < ApplicationController
 
   # 工作台（用户页）：销售操作起点——未签发客户订单 + 未发货六联单
   def workbench
-    @unissued_lines = DemandQuery.allocatable_lines
-                                 .includes(order: [:customer, :end_customer])
+    @unissued_lines = DemandQuery.actionable_lines
     # 未全部发货：还有未出完生产行的六联单（含发了部分没发完的）
     orders = SalesOrder.includes(:customer, :production_lines).order(created_at: :desc)
     @unshipped_orders = orders.reject do |so|
@@ -45,8 +43,7 @@ class AdminController < ApplicationController
     @family = SalesOverviewQuery.shipped_by_family(fy: @fy)
 
     # 快捷区：未签发行（复用客户订单行表格，不分页）+ 未发货六联单
-    @unissued_lines = DemandQuery.allocatable_lines
-                                 .includes(order: [:customer, :end_customer])
+    @unissued_lines = DemandQuery.actionable_lines
     # 未全部发货：还有未出完生产行的六联单（含发了部分没发完的）
     orders = SalesOrder.includes(:customer, :production_lines).order(created_at: :desc)
     @unshipped_orders = orders.reject do |so|
