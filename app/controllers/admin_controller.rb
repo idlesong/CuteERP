@@ -6,18 +6,22 @@ class AdminController < ApplicationController
   def workbench
     @unissued_lines = DemandQuery.allocatable_lines
                                  .includes(order: [:customer, :end_customer])
-    @unshipped_orders = SalesOrder.includes(:customer, :production_lines)
-                                  .where.missing(:shipments)
-                                  .order(created_at: :desc)
+    # 未全部发货：还有未出完生产行的六联单（含发了部分没发完的）
+    orders = SalesOrder.includes(:customer, :production_lines).order(created_at: :desc)
+    @unshipped_orders = orders.reject do |so|
+      so.production_lines.all? { |pl| pl.unshipped_qty <= 0 }
+    end
   end
 
   # 工作台（用户页）：销售操作起点——未签发客户订单 + 未发货六联单
   def workbench
     @unissued_lines = DemandQuery.allocatable_lines
                                  .includes(order: [:customer, :end_customer])
-    @unshipped_orders = SalesOrder.includes(:customer, :production_lines)
-                                  .where.missing(:shipments)
-                                  .order(created_at: :desc)
+    # 未全部发货：还有未出完生产行的六联单（含发了部分没发完的）
+    orders = SalesOrder.includes(:customer, :production_lines).order(created_at: :desc)
+    @unshipped_orders = orders.reject do |so|
+      so.production_lines.all? { |pl| pl.unshipped_qty <= 0 }
+    end
   end
 
   METRICS = { qty: :quantity, chip: :chip_amount, software: :software_amount, total: :total_amount }.freeze
@@ -41,8 +45,10 @@ class AdminController < ApplicationController
     # 快捷区：未签发行（复用客户订单行表格，不分页）+ 未发货六联单
     @unissued_lines = DemandQuery.allocatable_lines
                                  .includes(order: [:customer, :end_customer])
-    @unshipped_orders = SalesOrder.includes(:customer, :production_lines)
-                                  .where.missing(:shipments)
-                                  .order(created_at: :desc)
+    # 未全部发货：还有未出完生产行的六联单（含发了部分没发完的）
+    orders = SalesOrder.includes(:customer, :production_lines).order(created_at: :desc)
+    @unshipped_orders = orders.reject do |so|
+      so.production_lines.all? { |pl| pl.unshipped_qty <= 0 }
+    end
   end
 end

@@ -7,9 +7,9 @@
   <p class="text-muted">没有待签发的客户订单行。</p>
 <% end %>
 
-<h4 class="mt-4">未发货六联单 <small><%= link_to(t(:more), sales_orders_path) %></small></h4>
+<h4 class="mt-4">未全部发货六联单 <small><%= link_to(t(:more), sales_orders_path) %></small></h4>
 <% if @unshipped_orders.any? %>
   <%= render "sales_orders/orders_table", orders: @unshipped_orders, paging: false %>
 <% else %>
-  <p class="text-muted">没有未发货的六联单。</p>
+  <p class="text-muted">没有未全部发货的六联单。</p>
 <% end %>
