@@ -36,9 +36,19 @@ class Price < ApplicationRecord
     Item.find_by(generic_part_no: part_number)
   end
 
+  # 报价号：QO + 当日日期 + 3位流水（含占位0，如 QO20260310-011）
+  # 删除后不重用流水号（按当日已占用号最大值递增，避免重号）
   def generate_price_number
-    next_id = Price.where(created_at: DateTime.now.at_beginning_of_day..DateTime.now.at_end_of_day).count + 1
-    "QO" + DateTime.now.strftime("%Y%m%d") + (next_id % 100).to_s.rjust(2, "0")
+    prefix = "QO#{Date.current.strftime('%Y%m%d')}-"
+    used = Price.where("price_number LIKE ?", "#{prefix}%")
+                .pluck(:price_number)
+                .filter_map { |pn| pn[/\A#{prefix}(\d{3})\z/, 1]&.to_i }
+    n = used.any? ? used.max + 1 : 1
+    loop do
+      candidate = format("%s%03d", prefix, n)
+      break candidate unless Price.exists?(price_number: candidate)
+      n += 1
+    end
   end
 
   EXPORT_HEADERS = %w[报价号 客户 通用型号 芯片 声码1 声码2 总单价 订单量
