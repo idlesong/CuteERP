@@ -11,7 +11,6 @@ class Item < ActiveRecord::Base
   validates :suffix, uniqueness: { scope: :generic_part_no }
 
   before_destroy :ensure_not_referenced_by_any_production_line
-  before_destroy :ensure_not_used_by_others
 
   # 完整型号（派生）：generic_part_no + suffix（D4，partNo 列已移除）
   def partNo
@@ -55,39 +54,58 @@ class Item < ActiveRecord::Base
     Xlsx.generate(name: "产品", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
+  # 按表头名称解析（对齐导出工作簿「产品」表；容忍空列/多余列/列序变化）
   def self.import(file)
-    spreadsheet = open_spreadsheet(file)
+    sheet = open_spreadsheet(file)
+    each_data_row(sheet) do |row|
+      part = row["型号"].to_s.strip
+      next if part.blank?
 
-    header = ["partNo", "group", "family", "name", "description",
-              "package", "mop", "assembled", "base_item", "extra_item", "index"]
-
-    (2..spreadsheet.last_row).each do |i|
-      row = Hash[[header, spreadsheet.row(i)].transpose]
-
-      # Update existing item found by unique part number, or create a new one
-      base, sfx = split_part_no(row["partNo"])
-      item = find_by(generic_part_no: base, suffix: sfx) || new
-
-      item.generic_part_no = base
-      item.suffix = sfx
-
-      row_attributes = row.to_hash.slice(*header)
-
-      header.each do |attr|
-        next if attr == "partNo"
-
-        item.update_attribute(attr, row_attributes[attr])
+      # 优先按完整型号精确匹配（后缀长度任意）；仅全新型号才走兜底拆分新建
+      item = Item.all.find { |i| i.partNo == part }
+      if item.nil?
+        base, sfx = split_part_no(part)
+        item = new(generic_part_no: base, suffix: sfx.presence)
+        item.generic_part_no = base
+        item.suffix = sfx
       end
+      item.name = row["产品名称"].presence || item.name
+      item.description = row["描述"].presence || item.description
+      item.group = row["类别"].presence || item.group
+      item.family = row["产品族"].presence || item.family
+      item.assembled = row["组装方式"].presence || item.assembled
+      item.base_item = row["base_item"].presence || item.base_item
+      item.extra_item = row["extra_item"].presence || item.extra_item
+      item.extra_item2 = row["extra_item2"].presence || item.extra_item2
+      item.package = row["包装"].presence || item.package
+      item.moq = row["最小起订量"].presence || item.moq
+      item.index = row["状态"] == "隐藏" ? 0 : 1
+      item.save!
+    end
+  end
+  # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
+  def self.each_data_row(sheet, &block)
+    headers = (1..sheet.last_column).map { |c| sheet.cell(1, c).to_s.strip }
+    (2..sheet.last_row).each do |i|
+      row = {}
+      headers.each_with_index do |h, ci|
+        next if h.empty?
+
+        row[h] = sheet.cell(i, ci + 1)
+      end
+      yield row
     end
   end
 
   def self.open_spreadsheet(file)
-    case File.extname(file.original_filename)
-    when ".csv" then Roo::CSV.new(file.path, csv_options: { encoding: "iso-8859-1:utf-8" })
-    when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
-    when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
-    else raise "Unknown file type: #{file.original_filename}"
-    end
+    sheet = case File.extname(file.original_filename)
+            when ".csv" then Roo::CSV.new(file.path)
+            when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
+            when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
+            else raise "Unknown file type: #{file.original_filename}"
+            end
+    sheet.default_sheet = "产品" if sheet.sheets.include?("产品")
+    sheet
   end
 
   private
@@ -104,10 +122,4 @@ class Item < ActiveRecord::Base
     throw :abort
   end
 
-  def ensure_not_used_by_others
-    return if prices.empty?
-
-    errors.add(:base, "prices exist")
-    throw :abort
-  end
 end

@@ -56,36 +56,56 @@ class Price < ApplicationRecord
     Xlsx.generate(name: "价格", headers: EXPORT_HEADERS, rows: export_rows(relation))
   end
 
+  # 按表头名称解析（对齐导出工作簿「价格」表；容忍空列/多余列/列序变化）
   def self.import(file)
-    spreadsheet = open_spreadsheet(file)
+    sheet = open_spreadsheet(file)
+    each_data_row(sheet) do |row|
+      number = row["Price_number"].to_s.strip
+      next if number.blank?
 
-    header = ["price_number", "customer_name", "part_number", "price", "condition",
-              "base_price", "v1_price", "v2_price", "remark", "status", "created_at"]
-
-    (2..spreadsheet.last_row).each do |i|
-      row = Hash[[header, spreadsheet.row(i)].transpose]
-      # primary key: price_number, update existing, or create new one
-      price = find_by(price_number: row["price_number"]) || new
-      row_attributes = row.to_hash.slice(*header)
-
-      import_customer = Customer.find_by(name: row_attributes["customer_name"])
+      price = find_by(price_number: number) || new(price_number: number)
+      import_customer = Customer.find_by(name: row["客户"].to_s.strip) ||
+                        Customer.find_by(name_zh: row["客户"].to_s.strip)
       next if import_customer.nil?
 
-      row_attributes["customer_id"] = import_customer.id
+      price.customer = import_customer
+      price.customer_name = import_customer.name
+      price.part_number = row["通用型号"].presence || price.part_number
+      price.price = row["总单价"].presence || price.price
+      price.base_price = row["芯片"].presence || price.base_price
+      price.v1_price = row["声码1"].presence || price.v1_price
+      price.v2_price = row["声码2"].presence || price.v2_price
+      price.condition = row["订单量"].presence || price.condition
+      price.remark = row["remark"].presence || price.remark
+      price.currency = row["币别"].presence || price.currency
+      # 状态列（生效/失效/...）映射回系统状态：生效=approved
+      price.status = row["状态"] == "生效" ? "approved" : (row["状态"].presence || price.status)
+      price.save!
+    end
+  end
+  # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
+  def self.each_data_row(sheet, &block)
+    headers = (1..sheet.last_column).map { |c| sheet.cell(1, c).to_s.strip }
+    (2..sheet.last_row).each do |i|
+      row = {}
+      headers.each_with_index do |h, ci|
+        next if h.empty?
 
-      (header + ["customer_id"]).each do |attr|
-        price.update_attribute(attr, row_attributes[attr])
+        row[h] = sheet.cell(i, ci + 1)
       end
+      yield row
     end
   end
 
   def self.open_spreadsheet(file)
-    case File.extname(file.original_filename)
-    when ".csv" then Roo::CSV.new(file.path)
-    when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
-    when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
-    else raise "Unknown file type: #{file.original_filename}"
-    end
+    sheet = case File.extname(file.original_filename)
+            when ".csv" then Roo::CSV.new(file.path)
+            when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
+            when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
+            else raise "Unknown file type: #{file.original_filename}"
+            end
+    sheet.default_sheet = "价格" if sheet.sheets.include?("价格")
+    sheet
   end
 
   private

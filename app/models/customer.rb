@@ -35,33 +35,53 @@ class Customer < ActiveRecord::Base
     Xlsx.generate(name: "客户", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
+  # 按表头名称解析（对齐导出工作簿「客户」表；容忍空列/多余列/列序变化）
   def self.import(file)
-    spreadsheet = open_spreadsheet(file)
+    sheet = open_spreadsheet(file)
+    each_data_row(sheet) do |row|
+      name = row["英文名"].to_s.strip
+      next if name.blank?
 
-    header = ["territory", "name", "full_name", "sales_type", "disty_id",
-              "payment", "currency", "since", "address", "contact", "telephone", "credit"]
+      customer = find_by(name: name) || new(name: name)
+      customer.name_zh = row["中文名"].presence || customer.name_zh
+      customer.full_name = row["公司全称"].presence || customer.full_name
+      customer.territory = row["区域"].presence || customer.territory
+      customer.sales_type = row["销售类型"].presence || customer.sales_type
+      customer.disty = Customer.find_by(name: row["代理商"].to_s.strip) if row["代理商"].present?
+      customer.contact = row["联系人"].presence || customer.contact
+      customer.telephone = row["电话"].presence || customer.telephone
+      customer.address = row["地址"].presence || customer.address
+      customer.ship_contact = row["收货联系人"].presence || customer.ship_contact
+      customer.ship_address = row["收货地址"].presence || customer.ship_address
+      customer.ship_telephone = row["收货电话"].presence || customer.ship_telephone
+      customer.currency = row["币别"].presence || customer.currency
+      customer.payment = row["付款方式"].presence || customer.payment
+      customer.save!
+    end
+  end
+  # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
+  def self.each_data_row(sheet, &block)
+    headers = (1..sheet.last_column).map { |c| sheet.cell(1, c).to_s.strip }
+    (2..sheet.last_row).each do |i|
+      row = {}
+      headers.each_with_index do |h, ci|
+        next if h.empty?
 
-    (2..spreadsheet.last_row).each do |i|
-      row = Hash[[header, spreadsheet.row(i)].transpose]
-
-      # find existing by unique name, or create a new customer
-      customer = find_by_name(row["name"]) || new
-
-      row_attributes = row.to_hash.slice(*header)
-
-      header.each do |attr|
-        customer.update_attribute(attr, row_attributes[attr])
+        row[h] = sheet.cell(i, ci + 1)
       end
+      yield row
     end
   end
 
   def self.open_spreadsheet(file)
-    case File.extname(file.original_filename)
-    when ".csv" then Roo::CSV.new(file.path)
-    when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
-    when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
-    else raise "Unknown file type: #{file.original_filename}"
-    end
+    sheet = case File.extname(file.original_filename)
+            when ".csv" then Roo::CSV.new(file.path)
+            when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
+            when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
+            else raise "Unknown file type: #{file.original_filename}"
+            end
+    sheet.default_sheet = "客户" if sheet.sheets.include?("客户")
+    sheet
   end
 
   private
