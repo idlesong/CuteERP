@@ -1,7 +1,8 @@
 require "caxlsx"
 
-# 按月导出工作簿（对账模板）：列序对齐财务对账用 Excel（2026-10 修订版）
+# 按月导出工作簿（对账模板）：列序与列名严格对齐财务对账用 Excel（cute_erp_202610_new）
 # 未税 = 含税 ÷ 1.13；声码名称 = 产品档案 extra_item/extra_item2 对应 Item 名称
+# 空列 = 对账表保留列（供 Excel 侧手工填写，导出为空以保证可直接复制粘贴）
 class MonthlyWorkbook
   TAX_FACTOR = 1.13 # 增值税 13%，含税 → 未税
 
@@ -40,11 +41,12 @@ class MonthlyWorkbook
     end
   end
 
-  # ---- 1 客户订单（含未税拆分 + 未交订单） ----
+  # ---- 1 客户订单（25 列；10-12 为保留空列；含冲销单与未交订单） ----
   def customer_orders_sheet(wb, style)
-    headers = %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别
-                 未税单价 未税金额 声码1名称 声码名称2 芯片未税金额 声码1未税金额 声码2未税金额
-                 未交订单数 未交芯片金额(未税) 未交声码1金额 未交声码2金额 类型]
+    headers = ["接收日期", "客户", "订单号", "通用型号", "版本", "数量", "含税单价", "要求交期",
+               "特殊要求", "", "", "", "未税单价", "未税金额", "声码1名称", "声码名称2",
+               "芯片未税金额", "声码1未税金额", "声码2未税金额", "未交订单数",
+               "未交芯片金额(未税)", "未交声码1金额", "未交声码2金额", "币别", "类型"]
 
     sheet(wb, style, "客户订单", headers) do |ws|
       OrderLine.joins(:order)
@@ -56,7 +58,8 @@ class MonthlyWorkbook
         open = o.return? ? 0 : line.open_qty
         ws.add_row [o.created_at.to_date, cust_name(o.customer), o.po_number, line.generic_part_no,
                     line.version, line.quantity, line.unit_price,
-                    line.required_delivery_date&.to_date, line.remark, o.currency,
+                    line.required_delivery_date&.to_date, line.remark,
+                    nil, nil, nil,
                     ex_tax(line.unit_price), (ex_tax(line.unit_price) * line.quantity).round(2),
                     component_name(item, :extra_item), component_name(item, :extra_item2),
                     ex_tax(line.quantity * (line.base_price || 0)).round(2),
@@ -66,42 +69,39 @@ class MonthlyWorkbook
                     ex_tax(open * (line.base_price || 0)).round(2),
                     ex_tax(open * (line.v1_price || 0)).round(2),
                     ex_tax(open * (line.v2_price || 0)).round(2),
-                    o.return? ? "冲销" : "订单"]
+                    o.currency, o.return? ? "冲销" : "订单"]
       end
     end
   end
 
-  # ---- 2 生产订单-六联单（含分配对） ----
-  def six_part_sheet(wb, style)
-    max_allocs = 0
-    rows = []
-    SalesOrder.includes(:customer, :production_lines, { production_lines: { production_allocations: { order_line: :order } } })
-              .where(created_at: @range).order(:serial_number).find_each do |so|
-      so.production_lines.each do |line|
-        allocs = line.production_allocations.includes(order_line: :order)
-        max_allocs = [max_allocs, allocs.size].max
-        base = [so.serial_number, so.created_at.to_date, cust_name(so.customer), line.part_number,
-                line.quantity, line.unit_price, line.version,
-                so.required_date&.to_date, line.shipped_qty]
-        pairs = allocs.flat_map { |a| [a.order_line&.display_no, a.quantity] }
-        rows << base + pairs
-      end
-    end
+  # ---- 2 生产订单-六联单（9 列 + 保留空列 + 固定 5 组分配对） ----
+  ALLOC_PAIRS = 5
 
-    headers = %w[六联单号 下单日期 客户 产品 数量 含税单价 版本 约定发货日期 发货数量]
-    max_allocs.times do |i|
-      headers << "订单#{i + 1}" << "分配量#{i + 1}"
-    end
+  def six_part_sheet(wb, style)
+    headers = ["六联单号", "下单日期", "客户", "产品", "数量", "含税单价", "版本",
+               "约定发货日期", "发货数量", nil] +
+              ALLOC_PAIRS.times.flat_map { |i| ["订单#{i + 1}", "分配量#{i + 1}"] }
 
     sheet(wb, style, "生产订单-六联单", headers) do |ws|
-      rows.each { |r| ws.add_row r }
+      SalesOrder.includes(:customer, :production_lines, { production_lines: { production_allocations: { order_line: :order } } })
+                .where(created_at: @range).order(:serial_number).find_each do |so|
+        so.production_lines.each do |line|
+          allocs = line.production_allocations.includes(order_line: :order).first(ALLOC_PAIRS)
+          pairs = allocs.flat_map { |a| [a.order_line&.display_no, a.quantity] }
+          pairs += [nil] * (ALLOC_PAIRS * 2 - pairs.size)
+          ws.add_row [so.serial_number, so.created_at.to_date, cust_name(so.customer), line.part_number,
+                      line.quantity, line.unit_price, line.version,
+                      so.required_date&.to_date, line.shipped_qty, nil] + pairs
+        end
+      end
     end
   end
 
-  # ---- 3 出库单（RMB 含税单价 + 不含税销售额 + 成分销售额） ----
+  # ---- 3 出库单（16 列；6-8 为保留空列；快递号在末尾） ----
   def shipments_sheet(wb, style)
-    headers = %w[日期 客户 六联单号 产品 数量 快递号 RMB单价含税 销售额（不含税）
-                 声码器1 声码器2 芯片销售额(不含税) 声码1销售额(不含税) 声码2销售额(不含税)]
+    headers = ["日期", "客户", "六联单号", "产品", "数量", "", "", "",
+               "RMB单价含税", "销售额（不含税）", "声码器1", "声码器2",
+               "芯片销售额(不含税)", "声码1销售额(不含税)", "声码2销售额(不含税)", "快递号"]
 
     sheet(wb, style, "出库单", headers) do |ws|
       ShipmentLine.joins(shipment: { sales_order: :customer })
@@ -127,26 +127,34 @@ class MonthlyWorkbook
 
         ws.add_row [sl.shipment.shipped_at.to_date, cust_name(sl.shipment.sales_order.customer),
                     sl.shipment.sales_order.serial_number, pl&.part_number, qty,
-                    sl.shipment.tracking_no, unit_rmb,
-                    ex_tax(qty * unit_rmb),
+                    nil, nil, nil,
+                    unit_rmb, ex_tax(qty * unit_rmb),
                     component_name(item, :extra_item), component_name(item, :extra_item2),
-                    ex_tax(qty * chip * rate), ex_tax(qty * soft1 * rate), ex_tax(qty * soft2 * rate)]
+                    ex_tax(qty * chip * rate), ex_tax(qty * soft1 * rate), ex_tax(qty * soft2 * rate),
+                    sl.shipment.tracking_no]
       end
     end
   end
 
-  # ---- 4 价格 + 5 阶梯 ----
+  # ---- 4 价格（17 列） ----
   def prices_sheet(wb, style)
-    sheet(wb, style, "价格",
-          %w[客户 通用型号 芯片 声码1 声码2 总单价 订单量 生效日期 失效日期 币别 状态]) do |ws|
+    headers = ["Price_number", "生效日期", "失效日期", "客户", "通用型号", "总单价",
+               "芯片", "声码1", "声码2", "订单量", "ODM/OEM", "", "PRR", "", "remark",
+               "币别", "状态"]
+
+    sheet(wb, style, "价格", headers) do |ws|
       Price.where(status: %w[approved active]).order(:customer_name, :part_number, :condition).find_each do |pr|
-        ws.add_row [pr.customer_name, pr.part_number, pr.base_price, pr.v1_price, pr.v2_price,
-                    pr.price, pr.condition, pr.effective_from&.to_date, pr.expired_at&.to_date,
-                    pr.currency, "生效"]
+        ws.add_row [pr.price_number, pr.effective_from&.to_date, pr.expired_at&.to_date,
+                    pr.customer_name, pr.part_number, pr.price,
+                    pr.base_price, pr.v1_price, pr.v2_price, pr.condition,
+                    pr.customer&.sales_type, nil,
+                    pr.is_prr == 1 ? "✂" : nil, nil,
+                    pr.remark, pr.currency, "生效"]
       end
     end
   end
 
+  # ---- 5 阶梯（最新批次） ----
   def tiers_sheet(wb, style)
     tiers = PriceListEntry::TIERS
     release = PriceListRelease.latest
@@ -167,29 +175,32 @@ class MonthlyWorkbook
     end
   end
 
-  # ---- 6 客户（主数据） ----
+  # ---- 6 客户（15 列，主数据） ----
   def customers_sheet(wb, style)
-    headers = %w[英文名 中文名 公司全称 区域 销售类型 代理商 币别 付款方式 联系人 电话 地址
-                 收货联系人 收货地址 收货电话 建立日期 信用额]
+    headers = ["英文名", "中文名", "公司全称", "区域", "销售类型", "代理商", "联系人", "电话",
+               "地址", "收货联系人", "收货地址", "收货电话", "币别",
+               "<html><b>付款方式</b></html>", "建立日期"]
+
     sheet(wb, style, "客户", headers) do |ws|
       Customer.order(:name).find_each do |c|
         ws.add_row [c.name, c.name_zh, c.full_name, c.territory, c.sales_type,
-                    c.disty&.name, c.currency, c.payment, c.contact, c.telephone, c.address,
+                    c.disty&.name, c.contact, c.telephone, c.address,
                     c.ship_contact, c.ship_address, c.ship_telephone,
-                    c.since&.to_date, c.credit]
+                    c.currency, c.payment, c.since&.to_date]
       end
     end
   end
 
-  # ---- 7 产品（主数据） ----
+  # ---- 7 产品（14 列，主数据） ----
   def products_sheet(wb, style)
-    headers = %w[型号 产品名称 中文名 描述 类别 产品族 base_item extra_item extra_item2
-                 包装 最小起订量 组装方式 状态]
+    headers = ["型号", "产品名称", "描述", "类别", "产品族", "组装方式", "base_item",
+               "extra_item", "extra_item2", "", "", "状态", "包装", "最小起订量"]
+
     sheet(wb, style, "产品", headers) do |ws|
       Item.order(:generic_part_no, :suffix).find_each do |i|
-        ws.add_row [i.partNo, i.name, i.name_zh, i.description, i.group, i.family,
+        ws.add_row [i.partNo, i.name, i.description, i.group, i.family, i.assembled,
                     i.base_item, i.extra_item, i.extra_item2,
-                    i.package, i.moq, i.assembled, i.index.positive? ? "active" : "隐藏"]
+                    nil, nil, i.index.positive? ? "active" : "隐藏", i.package, i.moq]
       end
     end
   end
