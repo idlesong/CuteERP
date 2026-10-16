@@ -49,6 +49,17 @@ docker compose logs -f web        # 看到 Listening on 0.0.0.0:3000 即成功
 | /var/lib/postgresql/data | docker/cute_erp/db | 数据库 |
 | /app/storage | docker/cute_erp/storage | 附件 + pg_dump/工作簿归档 |
 
+## 3.5 初始化（首次启动后）
+
+容器首次启动后，数据库是空库（只有结构 + 初始用户），在容器内执行：
+
+
+
+- 默认密码 （可用  环境变量在 seed 时覆盖），登录后请修改
+- 业务数据二选一：从旧环境「导出当月 → 导入」带进来，或直接全新录入
+- 提醒： 已含在启动命令里（自动建表）；每次代码更新/新增迁移后
+  重启容器即可（compose 启动命令会再次 db:prepare）
+
 ## 4. 远程访问（HTTPS）
 
 **推荐：DSM 反向代理 + DDNS + Let's Encrypt**

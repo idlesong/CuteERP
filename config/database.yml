@@ -91,8 +91,10 @@ production:
   primary: &primary_production
     <<: *default
     database: cute_erp_production
-    username: cute_erp
-    password: <%= ENV["CUTE_ERP_DATABASE_PASSWORD"] %>
+    username: cute_erp_prod
+    password: <%= Rails.application.credentials.dig(:db_password) %>
+    host: 127.0.0.1
+    port: 5433
   cache:
     <<: *primary_production
     database: cute_erp_production_cache
