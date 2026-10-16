@@ -23,8 +23,8 @@
       </tr>
       <tr>
         <th>数量档</th>
-        <% @tiers.each do |q| %><th><%= q %>+</th><% end %>
-        <% @tiers.each do |q| %><th><%= q %>+</th><% end %>
+        <% PriceListEntry::TIER_LABELS.each do |lb| %><th><%= lb %></th><% end %>
+        <% PriceListEntry::TIER_LABELS.each do |lb| %><th><%= lb %></th><% end %>
         <th></th>
       </tr>
     </thead>
@@ -35,7 +35,7 @@
           <% [ "OEM", "ODM" ].each do |channel| %>
             <% @tiers.each do |q| %>
               <% e = rows.find { |r| r.sell_by == channel && r.min_qty == q } %>
-              <td><%= e ? number_to_currency(e.price, unit: "¥") : "-" %></td>
+              <td class="text-end"><%= e ? money(e.price) : "-" %></td>
             <% end %>
           <% end %>
           <td><%= link_to "删除", destroy_generic_price_lists_path(generic_part_no: gen),
@@ -76,8 +76,8 @@
       </tr>
       <tr>
         <th>数量档</th>
-        <% @tiers.each do |q| %><th><%= q %>+</th><% end %>
-        <% @tiers.each do |q| %><th><%= q %>+</th><% end %>
+        <% PriceListEntry::TIER_LABELS.each do |lb| %><th><%= lb %></th><% end %>
+        <% PriceListEntry::TIER_LABELS.each do |lb| %><th><%= lb %></th><% end %>
       </tr>
     </thead>
     <tbody>
@@ -87,7 +87,7 @@
           <% [ "OEM", "ODM" ].each do |channel| %>
             <% @tiers.each do |q| %>
               <% e = rows.find { |r| r.sell_by == channel && r.min_qty == q } %>
-              <td><%= e ? number_to_currency(e.price, unit: "¥") : "-" %></td>
+              <td class="text-end"><%= e ? money(e.price) : "-" %></td>
             <% end %>
           <% end %>
         </tr>
