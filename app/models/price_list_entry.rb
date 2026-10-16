@@ -37,8 +37,6 @@ class PriceListEntry < ApplicationRecord
         release_date = parse_release_date(sheet.cell(i, 2))
         next
       end
-      release.update(released_at: release_date) if release_date && release.released_at != release_date
-
       next if gen.blank?
 
       [["OEM", 4], ["ODM", 13]].each do |channel, col0|
@@ -57,6 +55,7 @@ class PriceListEntry < ApplicationRecord
         end
       end
     end
+    release.update(released_at: release_date) if release_date && release.released_at != release_date
     count
   end
 
