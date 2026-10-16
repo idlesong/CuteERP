@@ -108,7 +108,7 @@
   </p>
   <div class="collapse" id="importCollapse">
     <div class="card card-body">
-      <p class="form-text">导入对账模板的「阶梯价格」表格式：一行一个通用型号，OEM 8 档与 ODM 8 档左右并排（列：通用型号 | 空 | 渠道 | 1+…100000+ | 渠道 | 1+…100000+），空档跳过。整表导入会创建一个新的发布批次，不影响历史批次。</p>
+      <p class="form-text">导入对账模板的「阶梯价格」表格式：一行一个通用型号，OEM 8 档与 ODM 8 档左右并排（列：通用型号 | 空 | 空 | 1+ | 1K+ | 2.5K+ … 100K+ | 空 | 1+ | 1K+ | 2.5K+ … 100K+），空档跳过。整表导入会创建一个新的发布批次，不影响历史批次。表格末尾的「发布日期」行（如有）将作为批次日期。</p>
       <%= form_tag import_price_lists_path, multipart: true do %>
         <%= file_field_tag :file, class: "form-control" %>
         <%= submit_tag "导入新批次", class: "btn btn-primary" %>

@@ -28,8 +28,17 @@ class PriceListEntry < ApplicationRecord
     tiers = TIERS
     count = 0
 
+    release_date = nil
     (2..sheet.last_row).each do |i|
       gen = sheet.cell(i, 1).to_s.strip
+
+      # 末尾元数据行：发布日期
+      if gen == "发布日期"
+        release_date = parse_release_date(sheet.cell(i, 2))
+        next
+      end
+      release.update(released_at: release_date) if release_date && release.released_at != release_date
+
       next if gen.blank?
 
       [["OEM", 4], ["ODM", 13]].each do |channel, col0|
@@ -49,6 +58,14 @@ class PriceListEntry < ApplicationRecord
       end
     end
     count
+  end
+
+  def self.parse_release_date(cell)
+    return cell.to_date if cell.is_a?(Date) || cell.is_a?(Time)
+
+    Date.strptime(cell.to_s, "%Y-%m-%d")
+  rescue ArgumentError, TypeError
+    nil
   end
 
   # 在工作簿中定位阶梯表（表头含 通用型号 且有 5 个以上 "+" 结尾的档位列），缺省用第一张

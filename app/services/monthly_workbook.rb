@@ -173,6 +173,10 @@ class MonthlyWorkbook
         end
         ws.add_row [gen, nil, nil] + oem + [nil] + odm
       end
+
+      # 发布日期行（导入时作为批次日期）
+      ws.add_row [nil]
+      ws.add_row ["发布日期", release.released_at&.to_date]
     end
   end  # ---- 6 客户（15 列，主数据） ----
   def customers_sheet(wb, style)
