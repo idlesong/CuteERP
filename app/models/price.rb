@@ -41,15 +41,19 @@ class Price < ApplicationRecord
     "QO" + DateTime.now.strftime("%Y%m%d") + (next_id % 100).to_s.rjust(2, "0")
   end
 
-  def self.export_to_csv(options = {})
-    header = ["price_number", "customer_name", "part_number", "price", "condition",
-              "base_price", "v1_price", "v2_price", "remark", "status", "created_at"]
-    CSV.generate(**options) do |csv|
-      csv << header
-      all.each do |p|
-        csv << p.attributes.values_at(*header)
-      end
+  EXPORT_HEADERS = %w[报价号 客户 通用型号 芯片 声码1 声码2 总单价 订单量
+                      生效日期 失效日期 币别 状态].freeze
+
+  def self.export_rows(relation)
+    relation.includes(:customer).order(:customer_name, :part_number, :condition).map do |pr|
+      [pr.price_number, pr.customer_name, pr.part_number, pr.base_price, pr.v1_price,
+       pr.v2_price, pr.price, pr.condition, pr.effective_from&.to_date,
+       pr.expired_at&.to_date, pr.currency, pr.status]
     end
+  end
+
+  def self.export_xlsx(relation)
+    Xlsx.generate(name: "价格", headers: EXPORT_HEADERS, rows: export_rows(relation))
   end
 
   def self.import(file)

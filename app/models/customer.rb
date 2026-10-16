@@ -20,16 +20,19 @@ class Customer < ActiveRecord::Base
   before_save :copy_ship_to_from_bill_to
   before_destroy :ensure_not_used_by_others
 
-  def self.export_to_csv(options = {})
-    CSV.generate(**options) do |csv|
-      header = ["territory", "name", "full_name", "sales_type", "disty_id",
-                "payment", "currency", "since", "address", "contact", "telephone", "credit"]
+  EXPORT_HEADERS = %w[英文名 中文名 公司全称 区域 销售类型 代理商 币别 付款方式
+                      联系人 电话 地址 收货联系人 收货地址 收货电话 建立日期 信用额].freeze
 
-      csv << header
-      all.each do |customer|
-        csv << customer.attributes.values_at(*header)
-      end
+  def self.export_rows
+    includes(:disty).order(:name).map do |c|
+      [c.name, c.name_zh, c.full_name, c.territory, c.sales_type, c.disty&.name,
+       c.currency, c.payment, c.contact, c.telephone, c.address,
+       c.ship_contact, c.ship_address, c.ship_telephone, c.since&.to_date, c.credit]
     end
+  end
+
+  def self.export_xlsx
+    Xlsx.generate(name: "客户", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
   def self.import(file)

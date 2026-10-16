@@ -40,16 +40,19 @@ class Item < ActiveRecord::Base
     find_by(generic_part_no: base, suffix: sfx)
   end
 
-  def self.export_to_csv(options = {})
-    CSV.generate(**options) do |csv|
-      header = ["partNo", "group", "family", "name", "description",
-                "package", "mop", "assembled", "base_item", "extra_item", "index"]
+  EXPORT_HEADERS = %w[型号 产品名称 中文名 描述 类别 产品族 base_item extra_item extra_item2
+                      包装 最小起订量 组装方式 状态].freeze
 
-      csv << header
-      all.each do |item|
-        csv << header.map { |h| h == "partNo" ? item.partNo : item.attributes[h] }
-      end
+  def self.export_rows
+    order(:generic_part_no, :suffix).map do |i|
+      [i.partNo, i.name, i.name_zh, i.description, i.group, i.family,
+       i.base_item, i.extra_item, i.extra_item2,
+       i.package, i.moq, i.assembled, i.index.positive? ? "active" : "隐藏"]
     end
+  end
+
+  def self.export_xlsx
+    Xlsx.generate(name: "产品", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
   def self.import(file)

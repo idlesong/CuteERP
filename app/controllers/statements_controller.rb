@@ -18,13 +18,17 @@ class StatementsController < ApplicationController
     month = parse_month(params[:month]) || Date.current.beginning_of_month
     st = MonthlyStatement.new(customer, month)
 
-    csv = CSV.generate(write_headers: true, headers: %w[段 日期 单据号 型号 数量 单价 金额 金额折RMB 附加]) do |csv|
-      st.order_rows.each { |r| csv << ["订单核对", r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
-      st.shipment_rows.each { |r| csv << ["出货核对", r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
-      st.backlog_rows.each { |r| csv << ["未交订单", r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
-    end
-    filename = "对账单_#{customer.name_zh.presence || customer.name}_#{month.strftime('%Y%m')}.csv"
-    send_data csv, filename: filename, type: "text/csv; charset=utf-8"
+    row_to_a = lambda { |seg, r| [seg, r.date, r.doc_no, r.part, r.quantity, r.unit_price, r.amount, r.amount_rmb, r.extra] }
+    xlsx = Xlsx.generate([
+      { name: "订单核对", headers: %w[日期 单据号 型号 数量 单价 金额 金额折RMB 版本],
+        rows: st.order_rows.map { |r| row_to_a.call("订单核对", r)[1..] } },
+      { name: "出货核对", headers: %w[出库日期 六联单号 型号 数量 单价 金额 金额折RMB 快递号],
+        rows: st.shipment_rows.map { |r| row_to_a.call("出货核对", r)[1..] } },
+      { name: "未交订单", headers: %w[截至日期 订单行 型号 未交数量 单价 未交金额 折RMB 版本],
+        rows: st.backlog_rows.map { |r| row_to_a.call("未交订单", r)[1..] } }
+    ])
+    filename = "对账单_#{customer.name_zh.presence || customer.name}_#{month.strftime('%Y%m')}.xlsx"
+    send_data xlsx, filename: filename, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 
   private

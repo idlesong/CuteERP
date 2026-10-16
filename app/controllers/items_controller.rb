@@ -9,8 +9,7 @@ class ItemsController < ApplicationController
       format.html
       format.json { render json: ItemsDatatable.new(view_context) }
 
-      format.csv { send_data @items.export_to_csv }
-      format.xls { send_data @items.export_to_csv(col_sep: "\t") }
+      format.xlsx { send_data Item.export_xlsx, filename: "产品_#{Date.current.strftime("%Y%m%d")}.xlsx" }
     end
   end
 

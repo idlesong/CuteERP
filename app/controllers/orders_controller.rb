@@ -16,8 +16,7 @@ class OrdersController < ApplicationController
     respond_to do |format|
       format.html
       format.json { render json: @orders }
-      format.csv { send_data Order.export_to_csv }
-      format.xls { send_data Order.export_to_csv(col_sep: "\t") }
+      format.xlsx { send_data Order.export_xlsx, filename: "客户订单_#{Date.current.strftime("%Y%m%d")}.xlsx" }
     end
   end
 

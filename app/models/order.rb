@@ -81,24 +81,24 @@ class Order < ApplicationRecord
     not_issued?
   end
 
-  def self.export_to_csv(options = {})
-    header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
-              "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",
-              "quantity", "allocated_qty", "version", "required_delivery_date", "remark"]
+  EXPORT_HEADERS = %w[订单号 客户 最终客户 币别 汇率 状态 类型
+                      行号 通用型号 芯片 声码1 声码2 数量 已分配 版本 要求交期 备注].freeze
 
-    CSV.generate(**options) do |csv|
-      csv << header
-      includes(:order_lines, :customer, :end_customer).ordered_by_po.find_each do |order|
-        order.order_lines.each do |line|
-          csv << [
-            order.po_number, order.customer.name, order.end_customer&.name, order.currency,
-            order.exchange_rate, order.status, order.kind,
-            line.line_no, line.generic_part_no, line.base_price, line.v1_price, line.v2_price,
-            line.quantity, line.allocated_qty, line.version, line.required_delivery_date, line.remark
-          ]
-        end
+  def self.export_rows
+    includes(:order_lines, :customer, :end_customer).ordered_by_po.flat_map do |order|
+      order.order_lines.map do |line|
+        [order.po_number, order.customer.name_zh.presence || order.customer.name,
+         order.end_customer&.name_zh.presence || order.end_customer&.name, order.currency,
+         order.exchange_rate, order.status, order.kind,
+         line.line_no, line.generic_part_no, line.base_price, line.v1_price, line.v2_price,
+         line.quantity, line.allocated_qty, line.version, line.required_delivery_date&.to_date,
+         line.remark]
       end
     end
+  end
+
+  def self.export_xlsx
+    Xlsx.generate(name: "客户订单", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
   # 主键 = po_number + line_no，存在即更新

@@ -9,8 +9,7 @@ class CustomersController < ApplicationController
       format.html
       format.json { render json: CustomersDatatable.new(view_context) }
 
-      format.csv { send_data @customers.export_to_csv }
-      format.xls { send_data @customers.export_to_csv(col_sep: "\t") }
+      format.xlsx { send_data Customer.export_xlsx, filename: "客户_#{Date.current.strftime("%Y%m%d")}.xlsx" }
     end
   end
 

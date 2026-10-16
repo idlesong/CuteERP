@@ -17,8 +17,7 @@ class PricesController < ApplicationController
       format.html
       format.json { render json: @prices }
 
-      format.csv { send_data @prices.export_to_csv }
-      format.xls { send_data @prices.export_to_csv(col_sep: "\t") }
+      format.xlsx { send_data Price.export_xlsx(@prices), filename: "价格_#{Date.current.strftime("%Y%m%d")}.xlsx" }
     end
   end
 
