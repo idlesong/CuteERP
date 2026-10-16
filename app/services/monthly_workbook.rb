@@ -44,15 +44,16 @@ class MonthlyWorkbook
   def customer_orders_sheet(wb, style)
     headers = %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别
                  未税单价 未税金额 声码1名称 声码名称2 芯片未税金额 声码1未税金额 声码2未税金额
-                 未交订单数 未交芯片金额(未税) 未交声码1金额 未交声码2金额]
+                 未交订单数 未交芯片金额(未税) 未交声码1金额 未交声码2金额 类型]
 
     sheet(wb, style, "客户订单", headers) do |ws|
       OrderLine.joins(:order)
                .includes(order: :customer, production_allocations: :order_line)
-               .where(orders: { kind: "normal", created_at: @range })
+               .where(orders: { kind: %w[normal return], created_at: @range })
                .order("orders.po_number", "order_lines.line_no").find_each do |line|
         o = line.order
         item = line.order_item
+        open = o.return? ? 0 : line.open_qty
         ws.add_row [o.created_at.to_date, cust_name(o.customer), o.po_number, line.generic_part_no,
                     line.version, line.quantity, line.unit_price,
                     line.required_delivery_date&.to_date, line.remark, o.currency,
@@ -61,10 +62,11 @@ class MonthlyWorkbook
                     ex_tax(line.quantity * (line.base_price || 0)).round(2),
                     ex_tax(line.quantity * (line.v1_price || 0)).round(2),
                     ex_tax(line.quantity * (line.v2_price || 0)).round(2),
-                    line.open_qty.to_f.round(2),
-                    ex_tax(line.open_qty * (line.base_price || 0)).round(2),
-                    ex_tax(line.open_qty * (line.v1_price || 0)).round(2),
-                    ex_tax(line.open_qty * (line.v2_price || 0)).round(2)]
+                    open.to_f.round(2),
+                    ex_tax(open * (line.base_price || 0)).round(2),
+                    ex_tax(open * (line.v1_price || 0)).round(2),
+                    ex_tax(open * (line.v2_price || 0)).round(2),
+                    o.return? ? "冲销" : "订单"]
       end
     end
   end
