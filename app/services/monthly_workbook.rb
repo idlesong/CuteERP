@@ -154,28 +154,27 @@ class MonthlyWorkbook
     end
   end
 
-  # ---- 5 阶梯（最新批次，OEM/ODM 并排） ----
+  # ---- 5 阶梯（最新批次，OEM/ODM 并排，缩写档位表头） ----
   def tiers_sheet(wb, style)
     tiers = PriceListEntry::TIERS
+    labels = PriceListEntry::TIER_LABELS
     release = PriceListRelease.latest
-    headers = ["通用型号", "", "渠道"] + tiers.map { |t| "#{t}+" } +
-              ["渠道"] + tiers.map { |t| "#{t}+" }
+    headers = ["通用型号", "", ""] + labels + [""] + labels
 
     sheet(wb, style, "阶梯(最新批次)", headers) do |ws|
       next unless release
 
       release.entries.ordered.group_by(&:generic_part_no).each do |gen, entries|
         oem = tiers.map do |t|
-          (e = entries.find { |x| x.sell_by == "OEM" && x.min_qty == t }) ? e.price : nil
+          (e = entries.find { |x| x.sell_by == "OEM" && x.min_qty == t }) ? e.price.to_f.round(2) : nil
         end
         odm = tiers.map do |t|
-          (e = entries.find { |x| x.sell_by == "ODM" && x.min_qty == t }) ? e.price : nil
+          (e = entries.find { |x| x.sell_by == "ODM" && x.min_qty == t }) ? e.price.to_f.round(2) : nil
         end
-        ws.add_row [gen, nil, "OEM"] + oem + ["ODM"] + odm
+        ws.add_row [gen, nil, nil] + oem + [nil] + odm
       end
     end
-  end
-  # ---- 6 客户（15 列，主数据） ----
+  end  # ---- 6 客户（15 列，主数据） ----
   def customers_sheet(wb, style)
     headers = ["英文名", "中文名", "公司全称", "区域", "销售类型", "代理商", "联系人", "电话",
                "地址", "收货联系人", "收货地址", "收货电话", "币别",

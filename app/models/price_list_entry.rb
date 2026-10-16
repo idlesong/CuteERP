@@ -1,5 +1,6 @@
 class PriceListEntry < ApplicationRecord
   TIERS = [1, 1000, 2500, 5000, 10000, 20000, 50000, 100000].freeze
+  TIER_LABELS = %w[1+ 1K+ 2.5K+ 5K+ 10K+ 20K+ 50K+ 100K+].freeze
   belongs_to :price_list_release
 
   validates :generic_part_no, :sell_by, :min_qty, :price, presence: true
@@ -50,12 +51,12 @@ class PriceListEntry < ApplicationRecord
     count
   end
 
-  # 在工作簿中定位阶梯表（表头含 通用型号+渠道），缺省用第一张
+  # 在工作簿中定位阶梯表（表头含 通用型号 且有 5 个以上 "+" 结尾的档位列），缺省用第一张
   def self.open_tier_sheet(file)
     sheet = Roo::Excelx.new(file.path)
     name = sheet.sheets.find do |s|
       h = (1..sheet.last_column(s)).map { |c| sheet.cell(1, c, s).to_s.strip }
-      h.include?("通用型号") && h.include?("渠道")
+      h.include?("通用型号") && h.count { |x| x.end_with?("+") } >= 5
     end
     sheet.default_sheet = name if name
     sheet
