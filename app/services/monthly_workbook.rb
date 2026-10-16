@@ -159,7 +159,7 @@ class MonthlyWorkbook
     tiers = PriceListEntry::TIERS
     labels = PriceListEntry::TIER_LABELS
     release = PriceListRelease.latest
-    headers = ["通用型号", "", ""] + labels + [""] + labels
+    headers = ["通用型号", "发布日期", release&.released_at&.to_date&.strftime("%Y-%m-%d")] + labels + [""] + labels
 
     sheet(wb, style, "阶梯(最新批次)", headers) do |ws|
       next unless release

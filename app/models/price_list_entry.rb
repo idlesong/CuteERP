@@ -28,11 +28,16 @@ class PriceListEntry < ApplicationRecord
     tiers = TIERS
     count = 0
 
+    # 发布日期优先取首行 B/C 列（对账模板标准位置）；旧版末尾日期行也兼容
     release_date = nil
+    if sheet.cell(1, 2).to_s.strip.include?("发布日期")
+      release_date = parse_release_date(sheet.cell(1, 3))
+    end
+
     (2..sheet.last_row).each do |i|
       gen = sheet.cell(i, 1).to_s.strip
 
-      # 末尾元数据行：发布日期
+      # 旧版格式：末尾元数据行
       if gen == "发布日期"
         release_date = parse_release_date(sheet.cell(i, 2))
         next
