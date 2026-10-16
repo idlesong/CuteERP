@@ -20,35 +20,44 @@ class PriceListEntry < ApplicationRecord
 
   # 定期 Excel 整表导入：旧 set_price_list 版式（行首 set_price_list released_at）
   # 列：0=PartNo, 1=extra, 2=(空), 3..18=OEM 8 档 + ODM 8 档
+  # 阶梯导入：对账模板「阶梯价格」表格式——一行一个通用型号，
+  # 列 = 通用型号 | (空) | 渠道 | 8档 | 渠道 | 8档（前段 OEM、后段 ODM），空档跳过
   def self.import(file, release)
-    sheet = Item.open_spreadsheet(file)
-    unless sheet.row(1)[0].to_s.include?("set_price_list")
-      raise "格式不符：首行需为 set_price_list released_at"
-    end
-
-    qty_tiers = [1, 1000, 2500, 5000, 10000, 20000, 50000, 100000]
+    sheet = open_tier_sheet(file)
+    tiers = TIERS
     count = 0
 
-    (3..sheet.last_row).each do |i|
-      row = sheet.row(i)
-      item = Item.find_by_any_part_no(row[0])
-      next if item.nil? || item.generic_part_no.blank?
+    (2..sheet.last_row).each do |i|
+      gen = sheet.cell(i, 1).to_s.strip
+      next if gen.blank?
 
-      gen = item.generic_part_no
-      16.times do |idx|
-        val = row[3 + idx]
-        next if val.blank? || val.to_f <= 0
+      [["OEM", 4], ["ODM", 13]].each do |channel, col0|
+        tiers.each_with_index do |qty, ti|
+          val = sheet.cell(i, col0 + ti)
+          next if val.blank? || val.to_f <= 0
 
-        create!(
-          price_list_release_id: release.id,
-          generic_part_no: gen,
-          sell_by: idx < 8 ? "OEM" : "ODM",
-          min_qty: qty_tiers[idx % 8],
-          price: val.to_f
-        )
-        count += 1
+          create!(
+            price_list_release_id: release.id,
+            generic_part_no: gen,
+            sell_by: channel,
+            min_qty: qty,
+            price: val.to_f
+          )
+          count += 1
+        end
       end
     end
     count
+  end
+
+  # 在工作簿中定位阶梯表（表头含 通用型号+渠道），缺省用第一张
+  def self.open_tier_sheet(file)
+    sheet = Roo::Excelx.new(file.path)
+    name = sheet.sheets.find do |s|
+      h = (1..sheet.last_column(s)).map { |c| sheet.cell(1, c, s).to_s.strip }
+      h.include?("通用型号") && h.include?("渠道")
+    end
+    sheet.default_sheet = name if name
+    sheet
   end
 end
