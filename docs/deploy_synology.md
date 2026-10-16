@@ -60,7 +60,32 @@ docker compose logs -f web        # 看到 Listening on 0.0.0.0:3000 即成功
 - 提醒： 已含在启动命令里（自动建表）；每次代码更新/新增迁移后
   重启容器即可（compose 启动命令会再次 db:prepare）
 
+## 3.5 首次启动初始化
+
+容器首次启动后，数据库是空库（只有表结构 + 无用户），在容器内执行：
+
+```bash
+docker compose exec -T web bin/rails db:seed     # 创建初始登录用户 admin
+```
+
+- 默认密码 `change_me_123`（可用 `ADMIN_PASSWORD=xxx` 环境变量在 seed 时覆盖）；登录后请修改
+- 业务数据二选一：从旧环境「导出当月 → 导入」带进来，或直接全新录入
+- 提醒：`db:prepare` 已含在启动命令里（自动建表）；每次代码更新/新增迁移后
+  重启容器即可（compose 启动命令会再次 db:prepare）
+
 ## 4. 远程访问（HTTPS）
+
+## 3.5 First-run initialization
+
+After the container starts for the first time, the database is an empty database (only structure + no users). Execute inside the container:
+
+
+
+- Default password  (can be overridden with  during seed); please change it after logging in
+- Choose one for business data: bring it in via 'Export current month -> Import' from the old environment, or start fresh with direct entry
+- Reminder:  is already included in the startup command (automatically creates tables); after each code update/addition of new migrations,
+  just restart the container (the compose startup command will run db:prepare again)
+
 
 **推荐：DSM 反向代理 + DDNS + Let's Encrypt**
 
