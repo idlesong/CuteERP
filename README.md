@@ -58,3 +58,10 @@ bin/rails runner tmp/check_ui2.rb  # 页面与快捷流程
   DSM 反向代理提供 HTTPS 远程访问 —— 见 [docs/deploy_synology.md](docs/deploy_synology.md)
 - 备份：`bin/rails cute_erp:backup:daily`（每日，保留 30 天）、
   `bin/rails cute_erp:backup:monthly`（关账归档：pg_dump + 当月工作簿）
+
+
+## 优化事项
+
+价格批准检查：
+当报价高于阶梯报价时，直接批准。
+当报价低于阶梯报价时（小于1元），需要PRR框输入PRR号。快捷创建也需要。

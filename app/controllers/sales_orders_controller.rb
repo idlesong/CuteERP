@@ -189,7 +189,7 @@ class SalesOrdersController < ApplicationController
   def invoice
     respond_to do |format|
       format.html
-      format.pdf { render pdf: "invoice-#{@sales_order.serial_number}", layout: "pdf" }
+      format.pdf { send_data render_invoice_pdf, filename: "invoice-#{@sales_order.serial_number}.pdf", type: "application/pdf" }
       format.json { render json: @sales_order }
     end
   end
@@ -198,7 +198,7 @@ class SalesOrdersController < ApplicationController
   def packing_list
     respond_to do |format|
       format.html
-      format.pdf { render pdf: "packing-#{@sales_order.serial_number}", layout: "pdf" }
+      format.pdf { send_data render_packing_pdf, filename: "packing-#{@sales_order.serial_number}.pdf", type: "application/pdf" }
       format.json { render json: @sales_order }
     end
   end
@@ -213,6 +213,17 @@ class SalesOrdersController < ApplicationController
   end
 
   private
+
+  # wkhtmltopdf 渲染：显式套 pdf 布局（含 charset 与中文字体声明）
+  def render_invoice_pdf
+    html = render_to_string(template: "sales_orders/invoice", layout: "pdf", formats: [:pdf])
+    WickedPdf.new.pdf_from_string(html)
+  end
+
+  def render_packing_pdf
+    html = render_to_string(template: "sales_orders/packing_list", layout: "pdf", formats: [:pdf])
+    WickedPdf.new.pdf_from_string(html)
+  end
 
   def set_sales_order
     @sales_order = SalesOrder.find(params[:id])
