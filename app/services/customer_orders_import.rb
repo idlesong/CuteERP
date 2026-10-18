@@ -47,9 +47,30 @@ class CustomerOrdersImport
       created_line = line.nil?
       line ||= order.order_lines.build(generic_part_no: generic, version: version.presence)
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
-      line.base_price = parse_number(row.call("含税单价")) || line.base_price
+      total = parse_number(row.call("含税单价"))
+      was_base = line.base_price
+      # 成分从未拆分过（v1/v2 均空，含旧版导入塞在芯片列的总额）→ 清空后重新匹配，允许自愈
+      if line.v1_price.blank? && line.v2_price.blank?
+        line.base_price = nil
+        line.price_id = nil
+      end
       line.required_delivery_date = parse_date(row.call("要求交期")) || line.required_delivery_date
       line.remark = row.call("特殊要求").to_s.presence || line.remark
+      # 有效期以接收日期为基准（补录历史订单也能命中当时有效的报价）
+      as_of = parse_date(row.call("接收日期")) || month || Date.current
+      OrderLine.apply_price_snapshot(line, total: total, date: as_of)
+
+      if line.price_id.present?
+        matched = Price.find(line.price_id)
+        if matched.customer_id != order.customer_id
+          stats[:warnings] << "第#{i}行：#{generic} 无本客户报价，暂用客户「#{matched.customer_name}」的报价 #{matched.price_number}，请人工确认"
+        elsif total && (total.to_d - matched.price.to_d).abs > 0.01
+          stats[:warnings] << "第#{i}行：订单单价 #{total} ≠ 报价 #{matched.price}（#{matched.price_number}），已按报价比例拆分，请人工复核"
+        end
+      else
+        line.base_price = total || was_base if line.base_price.nil? # 无报价：维持原口径（全额计入芯片）
+        stats[:warnings] << "第#{i}行：#{generic} 未匹配到可用报价，成分未拆分" if total
+      end
       line.save!
       created_line ? stats[:created] += 1 : stats[:updated] += 1
     rescue StandardError => e

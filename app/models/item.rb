@@ -93,7 +93,7 @@ class Item < ActiveRecord::Base
 
         row[h] = sheet.cell(i, ci + 1)
       end
-      yield row
+      yield row, i
     end
   end
 

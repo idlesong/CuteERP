@@ -25,6 +25,22 @@
 
   <div class="col-md-6">
     <div class="card mb-3">
+      <div class="card-header"><h5>导入报价</h5></div>
+      <div class="card-body">
+        <%= form_tag import_prices_imports_path, multipart: true do %>
+          <div class="mb-2">
+            <label class="form-label small mb-0">工作簿（「价格」表）</label>
+            <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
+          </div>
+          <div class="small text-muted mb-2">自然键 = Price_number；客户不存在的行跳过并进警告。</div>
+          <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card mb-3">
       <div class="card-header"><h5>导入生产订单（六联单）</h5></div>
       <div class="card-body">
         <%= form_tag import_sales_orders_imports_path, multipart: true do %>
@@ -53,7 +69,7 @@
     <% @imports.each do |imp| %>
       <tr>
         <td><%= imp.created_at.strftime("%F %H:%M") %></td>
-        <td><%= imp.kind == "customer_orders" ? "客户订单" : "六联单" %></td>
+        <td><%= { "customer_orders" => "客户订单", "sales_orders" => "六联单", "prices" => "报价" }[imp.kind] || imp.kind %></td>
         <td><%= imp.month&.strftime("%Y-%m") || "—" %></td>
         <td><%= imp.filename %></td>
         <td><%= imp.imported_by&.name %></td>

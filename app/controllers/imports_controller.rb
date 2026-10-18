@@ -15,6 +15,16 @@ class ImportsController < ApplicationController
     redirect_to imports_path, notice: report(import)
   end
 
+  # POST /imports/prices —— 报价导入（对账模板「价格」表）
+  def import_prices
+    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+
+    result = Price.import(params[:file], imported_by: current_user)
+    notice = "报价导入完成：新增 #{result[:created]} 条，更新 #{result[:updated]} 条"
+    notice += "；警告：#{result[:warnings].join('；')}" if result[:warnings].any?
+    redirect_to imports_path, notice: notice
+  end
+
   # POST /imports/sales_orders
   def import_sales_orders
     unless params[:file].present?

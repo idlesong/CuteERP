@@ -189,8 +189,10 @@ class PricesController < ApplicationController
 
   # POST /prices/import
   def import
-    Price.import(params[:file])
-    redirect_to prices_url, notice: "Prices imported."
+    result = Price.import(params[:file])
+    notice = "报价导入完成：新增 #{result[:created]} 条，更新 #{result[:updated]} 条"
+    notice += "；警告：#{result[:warnings].join('；')}" if result[:warnings].any?
+    redirect_to prices_url, notice: notice
   end
 
   # DELETE /prices/1

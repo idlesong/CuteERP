@@ -52,6 +52,12 @@ bin/rails runner tmp/check_p5.rb   # 计划/仪表盘
 bin/rails runner tmp/check_ui2.rb  # 页面与快捷流程
 ```
 
+## 生产测试
+在WSL中，进入cute_erp目录
+```
+RAILS_ENV=production bin/rails server -b 127.0.0.1 -p 3001
+```
+
 ## 部署
 
 - 群晖 NAS：Container Manager 跑 `deploy/docker-compose.yml`（web + postgres:16），

@@ -92,16 +92,26 @@ class OrderLine < ApplicationRecord
     line
   end
 
-  # 就地快照：行尚无成分价格时按客户+型号取可用报价
-  def self.apply_price_snapshot(line)
+  # 就地快照：行尚无成分价格时按 客户+型号+数量档位+有效期 匹配报价（Price.match_for）。
+  # total = 订单实际含税单价：与报价一致（容差 0.01）直接用报价成分；
+  # 不一致（砍价/调价）按报价成分比例缩放，保证三成分之和恰等于订单单价。
+  # 本客户无报价时退一步用同型号其他客户的报价（调用方可凭 price_id 比对客户给出警告）
+  def self.apply_price_snapshot(line, total: nil, date: Date.current)
     return line if line.base_price.present? || line.v1_price.present? || line.v2_price.present?
 
-    price = Price.available.find_by(customer_id: line.order.customer_id, part_number: line.generic_part_no) ||
-            Price.available.where(part_number: line.generic_part_no).order(:condition).first
+    price = Price.match_for(customer: line.order&.customer, part_number: line.generic_part_no,
+                            quantity: line.quantity, date: date, currency: line.order&.currency) ||
+            Price.match_for(part_number: line.generic_part_no, quantity: line.quantity, date: date)
     return line unless price
 
-    line.assign_attributes(base_price: price.base_price, v1_price: price.v1_price,
-                           v2_price: price.v2_price, price_id: price.id)
+    comps =
+      if total.present? && price.price.present? && (total.to_d - price.price.to_d).abs > 0.01
+        price.split_amount(total)
+      else
+        [price.base_price, price.v1_price, price.v2_price]
+      end
+    line.assign_attributes(base_price: comps[0], v1_price: comps[1],
+                           v2_price: comps[2], price_id: price.id)
     line
   end
 

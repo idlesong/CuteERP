@@ -20,6 +20,46 @@ class Price < ApplicationRecord
       .where("expired_at IS NULL OR expired_at >= ?", Date.current)
   }
 
+  # 匹配一张可用报价（订单导入/UI 快照共用）：客户+型号 → 已批准 → 币别 →
+  # 接收日期落在有效期内（as-of，支持补录历史订单）→ 数量档位取「订单量 ≤ 数量」的最高档，
+  # 低于最小档取最低档（MOQ 价）；无数量或档位不可比时取生效日期最新的一条
+  def self.match_for(customer: nil, part_number:, quantity: nil, date: Date.current, currency: nil)
+    scope = where(part_number: part_number, status: %w[approved active])
+    scope = scope.where(customer_id: customer.id) if customer
+    scope = scope.where("currency = ? OR currency IS NULL OR currency = ''", currency) if currency.present?
+    scope = scope.where("effective_from IS NULL OR effective_from <= ?", date)
+                 .where("expired_at IS NULL OR expired_at >= ?", date)
+    candidates = scope.order(effective_from: :desc, id: :desc).to_a
+    return nil if candidates.empty?
+
+    tiers = candidates.filter_map { |p| [numeric_condition(p), p] }.select { |c, _| c <= quantity.to_f }
+    return tiers.max_by(&:first).last if tiers.any?
+
+    with_tiers = candidates.filter_map { |p| [numeric_condition(p), p] }
+    return with_tiers.min_by(&:first).last if with_tiers.any? && quantity.present?
+
+    candidates.first
+  end
+
+  # 订单量档位 → 数值（纯数字可比；"1K" 等写法不参与档位比较）
+  def self.numeric_condition(price)
+    Float(price.condition.to_s.gsub(/[,\s]/, ""))
+  rescue ArgumentError, TypeError
+    nil
+  end
+
+  # 用报价的成分结构拆分一个总价：按 芯片/声码1/声码2 比例缩放，四舍五入尾差并入最大成分
+  def split_amount(total)
+    comps = [base_price, v1_price, v2_price].map { |c| c.to_s.to_d }
+    sum = comps.sum
+    return [total.to_d, 0.to_d, 0.to_d] if sum.zero?
+
+    scaled = comps.map { |c| (total.to_d * c / sum).round(2) }
+    gap = (total.to_d - scaled.sum).round(2)
+    scaled[comps.index(comps.max)] += gap unless gap.zero?
+    scaled
+  end
+
   # 在有效期内（D8：默认空=不生效的补充：无日期限制视为长期有效）
   def in_valid_window?
     (effective_from.nil? || effective_from <= Date.current) &&
@@ -67,20 +107,31 @@ class Price < ApplicationRecord
   end
 
   # 按表头名称解析（对齐导出工作簿「价格」表；容忍空列/多余列/列序变化）
-  def self.import(file)
+  # 报价导入：输出 { created:, updated:, skipped:, warnings: [] } 校验报告
+  # 客户不存在的行跳过并进警告（请先建客户档案再重新导入该行）
+  def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
-    each_data_row(sheet) do |row|
+    created = updated = 0
+    warnings = []
+
+    each_data_row(sheet) do |row, i|
       number = row["Price_number"].to_s.strip
       next if number.blank?
 
       price = find_by(price_number: number) || new(price_number: number)
       import_customer = Customer.find_by(name: row["客户"].to_s.strip) ||
                         Customer.find_by(name_zh: row["客户"].to_s.strip)
-      next if import_customer.nil?
+      if import_customer.nil?
+        warnings << "第 #{i} 行：客户「#{row['客户']}」不存在，该行跳过"
+        next
+      end
 
+      is_new = price.new_record?
       price.customer = import_customer
       price.customer_name = import_customer.name
       price.part_number = row["通用型号"].presence || price.part_number
+      price.effective_from = row["生效日期"].presence || price.effective_from
+      price.expired_at = row["失效日期"].presence || price.expired_at
       price.price = row["总单价"].presence || price.price
       price.base_price = row["芯片"].presence || price.base_price
       price.v1_price = row["声码1"].presence || price.v1_price
@@ -88,10 +139,17 @@ class Price < ApplicationRecord
       price.condition = row["订单量"].presence || price.condition
       price.remark = row["remark"].presence || price.remark
       price.currency = row["币别"].presence || price.currency
-      # 状态列（生效/失效/...）映射回系统状态：生效=approved
-      price.status = row["状态"] == "生效" ? "approved" : (row["状态"].presence || price.status)
+      price.status = row["状态"] == "生效" ? "approved" : (row["状态"].presence || "requested")
       price.save!
+      is_new ? created += 1 : updated += 1
+    rescue ActiveRecord::RecordInvalid => e
+      warnings << "第 #{i} 行：#{e.message}"
     end
+
+    Import.create!(kind: "prices", filename: file.original_filename,
+                   imported_by: imported_by,
+                   stats: { created: created, updated: updated, warnings: warnings })
+    { created: created, updated: updated, skipped: warnings.size, warnings: warnings }
   end
   # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
   def self.each_data_row(sheet, &block)
@@ -103,7 +161,7 @@ class Price < ApplicationRecord
 
         row[h] = sheet.cell(i, ci + 1)
       end
-      yield row
+      yield row, i
     end
   end
 
