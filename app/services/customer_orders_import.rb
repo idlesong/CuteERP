@@ -9,6 +9,7 @@ class CustomerOrdersImport
   def self.call(file, imported_by:, month: nil)
     sheet = open_spreadsheet(file)
     idx = header_index(sheet)
+    raise "无法识别客户订单表头：缺少「订单号」列" if idx["订单号"].nil?
 
     stats = { created: 0, updated: 0, skipped: 0, warnings: [] }
     (2..sheet.last_row).each do |i|
@@ -36,6 +37,7 @@ class CustomerOrdersImport
       order = Order.find_or_initialize_by(po_number: po)
       if order.new_record?
         order = Order.build_with_customer(customer, po_number: po)
+        order.currency = row.call("币别").to_s.strip.presence || order.currency
         order.snapshot_exchange_rate!
         order.status = "submitted"
         order.save!
@@ -84,7 +86,8 @@ class CustomerOrdersImport
 
   def self.open_spreadsheet(file)
     sheet = Roo::Excelx.new(file.path)
-    sheet.default_sheet = "客户订单"
+    # 缺「客户订单」表时退回第一张表（容忍用户改表名）
+    sheet.default_sheet = sheet.sheets.include?("客户订单") ? "客户订单" : sheet.sheets.first
     sheet
   end
 

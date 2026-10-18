@@ -43,6 +43,16 @@ class ApplicationController < ActionController::Base
     session[:current_path_action]
   end
 
+  # 导入批次 → notice 文案（导入中心/订单页共用）
+  def import_report(import)
+    st = import.stats
+    msg = "导入完成：新建 #{st['created'] || st[:created]}，更新 #{st['updated'] || st[:updated]}，跳过 #{st['skipped'] || st[:skipped]}"
+    warnings = st["warnings"] || st[:warnings] || []
+    msg += "；警告：#{warnings.join('；')}" if warnings.any?
+    msg
+  end
+  helper_method :import_report
+
   helper_method :monthly_exchange_rate
   helper_method :current_customer
   helper_method :current_user

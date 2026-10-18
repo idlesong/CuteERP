@@ -8,11 +8,12 @@ class ImportsController < ApplicationController
 
   # POST /imports/customer_orders
   def import_customer_orders
-    unless params[:file].present?
-      redirect_to imports_path, alert: "请选择文件" and return
-    end
+    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+
     import = CustomerOrdersImport.call(params[:file], imported_by: current_user, month: parse_month(params[:month]))
-    redirect_to imports_path, notice: report(import)
+    redirect_to imports_path, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to imports_path, alert: "导入失败：#{e.message}"
   end
 
   # POST /imports/prices —— 报价导入（对账模板「价格」表）
@@ -23,26 +24,21 @@ class ImportsController < ApplicationController
     notice = "报价导入完成：新增 #{result[:created]} 条，更新 #{result[:updated]} 条"
     notice += "；警告：#{result[:warnings].join('；')}" if result[:warnings].any?
     redirect_to imports_path, notice: notice
+  rescue StandardError => e
+    redirect_to imports_path, alert: "导入失败：#{e.message}"
   end
 
   # POST /imports/sales_orders
   def import_sales_orders
-    unless params[:file].present?
-      redirect_to imports_path, alert: "请选择文件" and return
-    end
+    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+
     import = SalesOrdersImport.call(params[:file], imported_by: current_user, month: parse_month(params[:month]))
-    redirect_to imports_path, notice: report(import)
+    redirect_to imports_path, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to imports_path, alert: "导入失败：#{e.message}"
   end
 
   private
-
-  def report(import)
-    st = import.stats
-    msg = "导入完成：新建 #{st['created'] || st[:created]}，更新 #{st['updated'] || st[:updated]}，跳过 #{st['skipped'] || st[:skipped]}"
-    warnings = st["warnings"] || st[:warnings] || []
-    msg += "；警告：#{warnings.join('；')}" if warnings.any?
-    msg
-  end
 
   def parse_month(raw)
     Date.strptime(raw.to_s, "%Y-%m").beginning_of_month

@@ -127,10 +127,14 @@ class OrdersController < ApplicationController
     end
   end
 
-  # POST /orders/import
+  # POST /orders/import —— 统一走 CustomerOrdersImport（表头名称解析，忽略多余列；
+  # 含税单价自动匹配报价拆分成分，导入报告在 notice 展示）
   def import
-    Order.import(params[:file])
-    redirect_to orders_url, notice: "Orders imported."
+    import = CustomerOrdersImport.call(params[:file], imported_by: current_user,
+                                       month: Date.current.beginning_of_month)
+    redirect_to orders_url, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to orders_url, alert: "导入失败：#{e.message}"
   end
 
   # DELETE /orders/1

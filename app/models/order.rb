@@ -101,52 +101,6 @@ class Order < ApplicationRecord
     Xlsx.generate(name: "客户订单", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
-  # 主键 = po_number + line_no，存在即更新
-  def self.import(file)
-    spreadsheet = open_spreadsheet(file)
-    header = ["po_number", "customer", "end_customer", "currency", "exchange_rate", "status", "kind",
-              "line_no", "generic_part_no", "base_price", "v1_price", "v2_price",
-              "quantity", "allocated_qty", "version", "required_delivery_date", "remark"]
-
-    (2..spreadsheet.last_row).each do |i|
-      row = Hash[[header, spreadsheet.row(i)].transpose].slice(*header)
-      po = row["po_number"].to_s.strip
-      next if po.blank?
-
-      customer = Customer.find_by(name: row["customer"]) || Customer.first
-      order = Order.find_by(po_number: po) ||
-              begin
-                o = build_with_customer(customer, po_number: po)
-                o.currency = row["currency"].presence || o.currency
-                o.snapshot_exchange_rate!
-                o.status = row["status"].presence || "submitted"
-                o.kind = row["kind"].presence || "normal"
-                o.save!
-                o
-              end
-      order.update(end_customer_id: Customer.find_by(name: row["end_customer"])&.id) if row["end_customer"].present?
-
-      line = order.order_lines.find_by(line_no: row["line_no"]) || order.order_lines.build(line_no: row["line_no"])
-      line.assign_attributes(
-        generic_part_no: row["generic_part_no"],
-        base_price: row["base_price"], v1_price: row["v1_price"], v2_price: row["v2_price"],
-        quantity: row["quantity"],
-        version: row["version"], remark: row["remark"],
-        required_delivery_date: row["required_delivery_date"]
-      )
-      line.save!
-    end
-  end
-
-  def self.open_spreadsheet(file)
-    case File.extname(file.original_filename)
-    when ".csv" then Roo::CSV.new(file.path)
-    when ".xls" then Roo::Excel.new(file.path, file_warning: :ignore)
-    when ".xlsx" then Roo::Excelx.new(file.path, file_warning: :ignore)
-    else raise "Unknown file type: #{file.original_filename}"
-    end
-  end
-
   private
 
   def normalize_po_number
