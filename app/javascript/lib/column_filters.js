@@ -7,7 +7,7 @@
 //   - everything else                         -> text input (contains)
 //
 // Views may override the heuristic per column with:
-//   <th data-filter="select"> / "num" / "date" / "text" / "none"
+//   <th data-filter="select"> / "num" / "date" / "month" / "text" / "none"
 
 import DataTable from "datatables.net"
 
@@ -55,6 +55,24 @@ function appendSelectFilter(th, dt, columnIndex, values) {
     } else {
       dt.column(columnIndex).search("").draw()
     }
+  })
+  th.appendChild(select)
+}
+
+// Excel 式按月筛选：从日期列（YYYY-MM-DD…）提取 YYYY-MM 去重生成下拉
+function appendMonthFilter(th, dt, columnIndex) {
+  const select = document.createElement("select")
+  select.className = "form-select form-select-sm"
+  select.add(new Option("(全部月份)", ""))
+  const months = distinctValues(
+    dt.column(columnIndex).nodes().toArray()
+      .map((el) => (el.textContent.trim().match(/^\d{4}-\d{2}/) || [])[0])
+      .filter(Boolean)
+  ).sort()
+  months.forEach((m) => select.add(new Option(m, m)))
+  select.addEventListener("change", () => {
+    // 前缀匹配：2026-10 命中 2026-10-19 等
+    dt.column(columnIndex).search(select.value ? "^" + escapeRegex(select.value) : "").draw()
   })
   th.appendChild(select)
 }
@@ -125,7 +143,9 @@ export function initColumnFilters(table, dt) {
 
     if (hasControls && mode === undefined) continue // action/button columns: skip
 
-    if (mode === "select" || (!mode && nonEmpty.length > 0 && distinctValues(nonEmpty).length <= 10)) {
+    if (mode === "month") {
+      appendMonthFilter(th, dt, i)
+    } else if (mode === "select" || (!mode && nonEmpty.length > 0 && distinctValues(nonEmpty).length <= 10)) {
       appendSelectFilter(th, dt, i, nonEmpty)
     } else if (mode === "num" || (!mode && nonEmpty.length > 0 && nonEmpty.every((t) => NUM_RE.test(t)))) {
       appendRangeFilter(th, dt, i, table, "number")
