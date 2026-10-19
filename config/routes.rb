@@ -84,6 +84,7 @@ Rails.application.routes.draw do
 
   get "statements", to: "statements#show", as: :statement
   get "statements/export", to: "statements#export", as: :export_statement
+  get "statements/export_internal", to: "statements#export_internal", as: :export_internal_statement
 
   resources :closed_periods, only: [:index, :create, :destroy]
 

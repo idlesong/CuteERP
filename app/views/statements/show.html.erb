@@ -16,6 +16,9 @@
       </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-sm btn-primary">生成对账单</button>
+        <%= link_to "导出全部客户内部对账单", export_internal_statement_path(month: @month.strftime("%Y-%m")),
+                    class: "btn btn-sm btn-outline-secondary", data: { turbo: false },
+                    title: "全部客户合成一张表：币别→客户→产品大类排序，金额按 芯片/声码1/声码2 成分拆分" %>
       </div>
     </div>
   </div>

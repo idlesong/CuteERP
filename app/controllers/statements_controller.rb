@@ -31,6 +31,26 @@ class StatementsController < ApplicationController
     send_data xlsx, filename: filename, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 
+  # GET /statements/export_internal?month= —— 全部客户内部对账单（币别→客户→产品大类，成分拆分）
+  def export_internal
+    month = parse_month(params[:month]) || Date.current.beginning_of_month
+    st = InternalMonthlyStatement.new(month)
+
+    totals_row = lambda { |t| ["合计(折RMB)", "", "", "", "", "", t[:qty], "", "", "",
+                               t[:chip_rmb], t[:v1_rmb], t[:v2_rmb], "", "", t[:amount_rmb], ""] }
+    xlsx = Xlsx.generate([
+      { name: "订单核对", headers: InternalMonthlyStatement::HEADERS,
+        rows: st.to_rows(st.order_rows) + [totals_row.call(st.order_totals)] },
+      { name: "出货核对", headers: InternalMonthlyStatement::HEADERS,
+        rows: st.to_rows(st.shipment_rows) + [totals_row.call(st.shipment_totals)] },
+      { name: "未交订单", headers: InternalMonthlyStatement::HEADERS,
+        rows: st.to_rows(st.backlog_rows) + [totals_row.call(st.backlog_totals)] }
+    ])
+    send_data xlsx,
+              filename: "内部对账单_全部客户_#{month.strftime('%Y%m')}.xlsx",
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  end
+
   private
 
   def parse_month(raw)
