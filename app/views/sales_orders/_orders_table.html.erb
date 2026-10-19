@@ -52,14 +52,18 @@
                             data: { turbo_method: :patch,
                                     turbo_confirm: "提交六联单 #{order.serial_number}（共 #{order.production_lines.size} 行）？" },
                             class: "text-primary" %></td>
-          <% elsif local_assigns[:quick_ship] %>
-            <td><button type="button" class="btn btn-link btn-sm text-primary p-0"
-                        data-bs-toggle="modal" data-bs-target="#quickShipModal"
-                        data-so-id="<%= order.id %>" data-serial="<%= order.serial_number %>"
-                        data-customer="<%= cust_name(order.customer) %>"
-                        data-lines="<%= order.production_lines.map { |l| "#{l.id}:#{l.part_number}:#{l.unshipped_qty}" }.join('|') %>">快捷出货</button></td>
+          <% elsif line.unshipped_qty.positive? %>
+            <% if local_assigns[:quick_ship] %>
+              <td><button type="button" class="btn btn-link btn-sm text-primary p-0"
+                          data-bs-toggle="modal" data-bs-target="#quickShipModal"
+                          data-so-id="<%= order.id %>" data-serial="<%= order.serial_number %>"
+                          data-customer="<%= cust_name(order.customer) %>"
+                          data-lines="<%= order.production_lines.map { |l| "#{l.id}:#{l.part_number}:#{l.unshipped_qty}" }.join('|') %>">快捷出货</button></td>
+            <% else %>
+              <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
+            <% end %>
           <% else %>
-            <td><%= link_to "出库", confirm_sales_order_path(order) %></td>
+            <td><span class="badge bg-success">已出完</span></td>
           <% end %>
         </tr>
       <% end %>

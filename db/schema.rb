@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_000010) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -362,9 +362,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_000010) do
     t.string "note"
     t.bigint "sales_order_id", null: false
     t.datetime "shipped_at", null: false
+    t.string "source_key"
     t.string "tracking_no"
     t.datetime "updated_at", null: false
     t.index ["sales_order_id"], name: "index_shipments_on_sales_order_id"
+    t.index ["source_key"], name: "index_shipments_on_source_key"
   end
 
   create_table "tasks", force: :cascade do |t|

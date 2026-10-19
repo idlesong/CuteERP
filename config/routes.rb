@@ -91,6 +91,7 @@ Rails.application.routes.draw do
   post "imports/customer_orders", to: "imports#import_customer_orders", as: :import_customer_orders_imports
   post "imports/sales_orders", to: "imports#import_sales_orders", as: :import_sales_orders_imports
   post "imports/prices", to: "imports#import_prices", as: :import_prices_imports
+  post "imports/shipments", to: "imports#import_shipments", as: :import_shipments_imports
 
   get "inventory", to: "inventory#index", as: :inventory
 

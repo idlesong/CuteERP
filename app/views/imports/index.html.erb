@@ -66,6 +66,31 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header"><h5>导入出库单</h5></div>
+      <div class="card-body">
+        <%= form_tag import_shipments_imports_path, multipart: true do %>
+          <div class="mb-2">
+            <label class="form-label small mb-0">所属月份</label>
+            <input type="month" name="month" value="<%= @month %>" class="form-control form-control-sm" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small mb-0">工作簿（「出库单」表：日期/客户/六联单号/产品/数量/快递号）</label>
+            <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
+          </div>
+          <div class="small text-muted mb-2">
+            同（六联单号+日期+快递号）的行合成一张出库单；幂等键 = 六联单号+日期+快递号，重复导入整单重建（Excel 为准）。<br>
+            金额列导入忽略（系统按报价成分自动计算）；前置：六联单须先导入。
+          </div>
+          <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
 <h4>导入批次</h4>
 <table class="table table-striped table-sm">
   <thead>
@@ -75,7 +100,7 @@
     <% @imports.each do |imp| %>
       <tr>
         <td><%= imp.created_at.strftime("%F %H:%M") %></td>
-        <td><%= { "customer_orders" => "客户订单", "sales_orders" => "六联单", "prices" => "报价" }[imp.kind] || imp.kind %></td>
+        <td><%= { "customer_orders" => "客户订单", "sales_orders" => "六联单", "prices" => "报价", "shipments" => "出库单" }[imp.kind] || imp.kind %></td>
         <td><%= imp.month&.strftime("%Y-%m") || "—" %></td>
         <td><%= imp.filename %></td>
         <td><%= imp.imported_by&.name %></td>

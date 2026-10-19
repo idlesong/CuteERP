@@ -38,6 +38,16 @@ class ImportsController < ApplicationController
     redirect_to imports_path, alert: "导入失败：#{e.message}"
   end
 
+  # POST /imports/shipments —— 出库单导入（模板 = 月度工作簿「出库单」表）
+  def import_shipments
+    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+
+    import = ShipmentsImport.call(params[:file], imported_by: current_user, month: parse_month(params[:month]))
+    redirect_to imports_path, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to imports_path, alert: "导入失败：#{e.message}"
+  end
+
   private
 
   def parse_month(raw)
