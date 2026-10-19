@@ -31,7 +31,7 @@
           <td><%= sl.production_line&.item&.group %></td>
           <td><%= sh.sales_order.customer.territory %></td>
           <td><%= sh.tracking_no %></td>
-          <td><%= link_to "✘", shipment_path(sh), data: { turbo_method: :delete, turbo_confirm: "删除整张出库单？" }, class: "btn btn-link text-danger" %></td>
+          <td><%= link_to "✘", shipment_path(sh), data: { turbo_method: :delete, turbo_confirm: "删除整张出库单？" }, class: "btn btn-link btn-sm text-danger p-0 align-baseline" %></td>
         </tr>
       <% end %>
     <% end %>

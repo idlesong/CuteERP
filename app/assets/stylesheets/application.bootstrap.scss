@@ -57,3 +57,16 @@
     margin: 0.5em 0;
   }
 }
+
+// 列表内按钮式链接不撑高表格行（与 table-sm 行距一致）
+.table td .btn-link,
+.table th .btn-link {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+// DataTables 列表：单元格不折行（列多时横向滚动，保持单行紧凑行高）
+table.datatable td,
+table.datatable th {
+  white-space: nowrap;
+}

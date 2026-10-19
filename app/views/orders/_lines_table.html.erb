@@ -3,7 +3,7 @@
             paging —— false 时 DataTables 关闭分页 %>
 <%= form_tag orders_path(inline: 1) do %>
   <%= hidden_field_tag :return_to, local_assigns[:back] %>
-<table class="table table-striped datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
+<table class="table table-striped table-sm datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
   <thead>
     <tr>
       <th><%= t(:show_date) %></th>

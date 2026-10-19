@@ -1,7 +1,7 @@
 <%# 六联单行级表格（列表页/工作台复用）
     locals: orders —— SalesOrder 集合（含 production_lines、customer）；
             show_tfoot —— 列表页快速选客户行；paging —— false 关闭分页 %>
-<table class="table table-striped datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
+<table class="table table-striped table-sm datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
   <thead>
     <tr>
       <th>六联单号</th>
