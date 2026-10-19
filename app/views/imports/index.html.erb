@@ -16,7 +16,10 @@
             <label class="form-label small mb-0">工作簿（「客户订单」表）</label>
             <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
           </div>
-          <div class="small text-muted mb-2">自然键 = 订单号 + 通用型号 + 版本；重复导入只更新，不产生重复数据。</div>
+          <div class="small text-muted mb-2">
+            自然键 = 订单号 + 通用型号 + 版本；重复导入只更新，不产生重复数据。<br>
+            冲销：同一订单号下数量填负数（或类型/特殊要求标注"冲销"），自动生成冲销单「订单号-Rn」，受可冲销余额限制。
+          </div>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>

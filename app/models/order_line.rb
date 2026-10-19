@@ -140,6 +140,8 @@ class OrderLine < ApplicationRecord
   def return_quantity_within_balance
     return if refer_line.nil?
 
-    errors.add(:quantity, "冲销数量超过可冲销余额（#{refer_line.reversible_qty}）") if quantity.abs > refer_line.reversible_qty
+    # 总冲销（不含自身旧值 + 本次值）不得超过原行数量 —— 重复导入同一冲销行幂等
+    total = refer_line.return_lines.where.not(id: id).sum(:quantity).abs + quantity.abs
+    errors.add(:quantity, "冲销数量超过可冲销余额（#{refer_line.reversible_qty}）") if total > refer_line.quantity
   end
 end
