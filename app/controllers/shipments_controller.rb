@@ -1,9 +1,11 @@
 # 出库单列表（创建/删除经由 sales_orders#create_shipment 与 shipments#destroy）
 class ShipmentsController < ApplicationController
-  # GET /shipments
+  # GET /shipments?month=2026-10 —— 月份筛选（空 = 全部）
   def index
-    @shipments = Shipment.includes(sales_order: :customer, shipment_lines: :production_line)
-                         .order(shipped_at: :desc)
+    scope = Shipment.includes(sales_order: :customer, shipment_lines: { production_line: :item })
+    scope = scope.where(shipped_at: Date.parse("#{params[:month]}-01").all_month) if params[:month].to_s.match?(/\A\d{4}-\d{2}\z/)
+    @shipments = scope.order(shipped_at: :desc)
+    @month = params[:month].presence
   end
 
   # POST /shipments?inline=1 —— 整单出库（该六联单全部未出库数量一次出完）
