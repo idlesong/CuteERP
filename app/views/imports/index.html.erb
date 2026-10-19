@@ -55,7 +55,10 @@
             <label class="form-label small mb-0">工作簿（「生产订单-六联单」表，含订单N/分配量N）</label>
             <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
           </div>
-          <div class="small text-muted mb-2">自然键 = 六联单号；分配对直接生成台账（Excel 为准，D14）；校验差异只报告不自动修。</div>
+          <div class="small text-muted mb-2">
+            自然键 = 六联单号；导入即已提交（Excel 为准，D14）；分配对直接生成台账，校验差异只报告不自动修。<br>
+            分配对「订单N」可写 订单号-行号（AB2026-003-1）或纯订单号（AB2026-003，唯一行自动对应）；前置：客户订单须先导入。
+          </div>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>

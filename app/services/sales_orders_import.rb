@@ -38,11 +38,11 @@ class SalesOrdersImport
       end
 
       so = SalesOrder.find_or_initialize_by(serial_number: serial)
-      if so.new_record?
+      created_order = so.new_record?
+      if created_order
         so.initialize_order_header(customer)
         so.snapshot_exchange_rate!
-        so.save!
-        stats[:created] += 1
+        so.status = "submitted" # D14：Excel 为准直接入台账（draft 的分配不计入订单已分配）
       end
 
       qty = val.call("数量").to_i
@@ -57,7 +57,9 @@ class SalesOrdersImport
       line.quantity = qty if qty.positive?
       line.version = val.call("版本").to_s.presence || line.version
       line.full_name ||= part
-      line.save!
+      # 头+行一次落库：新建时 production_lines 必填（on: :create），先建头会验证失败
+      so.save!
+      stats[:created] += 1 if created_order
 
       if so.required_date.blank? && val.call("约定发货日期").present?
         so.update_columns(required_date: parse_date(val.call("约定发货日期")))
@@ -87,8 +89,7 @@ class SalesOrdersImport
 
     sums = {}
     pairs.each do |display, qty|
-      po, _, line_no = display.rpartition("-")
-      target = OrderLine.joins(:order).find_by(orders: { po_number: po }, line_no: line_no.to_i)
+      target = find_allocation_target(display, line)
       if target.nil?
         stats[:warnings] << "第#{row_no}行：分配引用的订单行「#{display}」不存在"
         next
@@ -110,6 +111,23 @@ class SalesOrdersImport
     if sum_alloc != line.quantity
       stats[:warnings] << "第#{row_no}行：Σ分配量（#{sum_alloc}）≠ 六联单数量（#{line.quantity}）"
     end
+  end
+
+  # 分配引用兼容两种写法：
+  # 1) 订单号-行号（如 AB2026-003-1，系统行编号）——精确匹配优先
+  # 2) 纯订单号（如 AB2026-003）：该订单唯一行直接用；多行时按六联单型号收敛，仍歧义则报警告
+  def self.find_allocation_target(display, prod_line)
+    po, _, ln = display.rpartition("-")
+    if ln.match?(/\A\d+\z/)
+      exact = OrderLine.joins(:order).find_by(orders: { po_number: po }, line_no: ln.to_i)
+      return exact if exact
+    end
+
+    candidates = OrderLine.joins(:order).where(orders: { po_number: display })
+    return candidates.first if candidates.count == 1
+
+    narrowed = prod_line.item ? candidates.where(generic_part_no: prod_line.item.generic_part_no) : candidates.none
+    narrowed.count == 1 ? narrowed.first : nil
   end
 
   def self.allocation_pairs(idx)
