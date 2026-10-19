@@ -1,11 +1,12 @@
 # 月度对账单（第二阶段 2.3）：客户 × 月份，页面 + 导出
 class StatementsController < ApplicationController
-  # GET /statements?customer_id=&month=
+  # GET /statements?customer_id=&month= —— customer_id=all 显示全部客户（币别→客户→大类排序）
   def show
-    @customer = Customer.find(params[:customer_id]) if params[:customer_id].present?
     @month = parse_month(params[:month]) || Date.current.beginning_of_month
-
-    if @customer
+    if params[:customer_id] == "all"
+      @internal = InternalMonthlyStatement.new(@month)
+    elsif params[:customer_id].present?
+      @customer = Customer.find(params[:customer_id])
       @statement = MonthlyStatement.new(@customer, @month)
     else
       @customers = Customer.order(:name)

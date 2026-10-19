@@ -17,15 +17,16 @@ class MonthlyStatement
   end
 
   def build
-    # 订单核对段：当月创建（接收）的已提交订单行
+    # 订单核对段：当月创建（接收）的已提交订单行（含冲销单，负数金额参与对账）
     OrderLine.joins(:order)
              .includes(order: :customer)
-             .where(orders: { kind: "normal", status: "submitted", customer_id: customer.id, created_at: @range })
+             .where(orders: { kind: %w[normal return], status: "submitted", customer_id: customer.id, created_at: @range })
              .order("orders.po_number", "order_lines.line_no").find_each do |line|
       rate = rate_for(@month, line.order.currency)
+      extra = [line.version, ("冲销" if line.order.return?)].compact.join(" ")
       @order_rows << Row.new(line.order.created_at.to_date, line.display_no, line.generic_part_no,
                              line.quantity, line.unit_price, line.total_price,
-                             (line.total_price * rate).round(2), line.version)
+                             (line.total_price * rate).round(2), extra)
     end
 
     build_backlog

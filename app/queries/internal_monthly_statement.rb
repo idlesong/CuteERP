@@ -22,21 +22,23 @@ class InternalMonthlyStatement
   end
 
   def build_orders
+    # 含冲销单（kind=return，负数金额参与对账）
     OrderLine.joins(order: :customer)
              .includes(order: :customer)
-             .where(orders: { kind: "normal", status: "submitted", created_at: @range })
+             .where(orders: { kind: %w[normal return], status: "submitted", created_at: @range })
              .order("orders.po_number", "order_lines.line_no").find_each do |line|
       rate = rate_for(@month, line.order.currency)
       qty = line.quantity
       chip = (qty * (line.base_price || 0)).round(2)
       v1 = (qty * (line.v1_price || 0)).round(2)
       v2 = (qty * (line.v2_price || 0)).round(2)
+      extra = [line.version, ("冲销" if line.order.return?)].compact.join(" ")
       @order_rows << Row.new(line.order.created_at.to_date, line.display_no,
                              cust_name(line.order.customer), line.order.currency,
                              line.generic_part_no, line.order_item&.group, qty,
                              line.base_price || 0, line.v1_price || 0, line.v2_price || 0,
                              chip, v1, v2, line.total_price.round(2), rate,
-                             (line.total_price * rate).round(2), line.version)
+                             (line.total_price * rate).round(2), extra)
     end
   end
 
