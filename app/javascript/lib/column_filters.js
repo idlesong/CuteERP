@@ -71,8 +71,8 @@ function appendMonthFilter(th, dt, columnIndex) {
   ).sort()
   months.forEach((m) => select.add(new Option(m, m)))
   select.addEventListener("change", () => {
-    // 前缀匹配：2026-10 命中 2026-10-19 等
-    dt.column(columnIndex).search(select.value ? "^" + escapeRegex(select.value) : "").draw()
+    // 前缀匹配：2026-10 命中 2026-10-19 等（regex=true、smart=false，否则按字面词匹配永不命中）
+    dt.column(columnIndex).search(select.value ? "^" + escapeRegex(select.value) : "", true, false).draw()
   })
   th.appendChild(select)
 }
