@@ -6,6 +6,11 @@ class ImportsController < ApplicationController
   def index
     @imports = Import.order(created_at: :desc).limit(50)
     @month = params[:month].presence || Date.current.strftime("%Y-%m")
+    @check_token = session[:check_token]
+    if @check_token && ImportChecker.fetch_annotated(@check_token).nil?
+      session.delete(:check_token) # 标注文件已过期（30 分钟）
+      @check_token = nil
+    end
   end
 
   # GET /imports/check_file/:token —— 下载错误标注文件
@@ -71,9 +76,8 @@ class ImportsController < ApplicationController
   def check_only(importer)
     result = ImportChecker.run(importer, params[:file], month: parse_month(params[:month]))
     if ImportChecker.blocked?(result)
-      token = ImportChecker.store_annotated(importer, params[:file], result)
-      redirect_to imports_path, alert: "检查发现 #{result.errors.values.flatten.size} 处错误（警告 #{result.warnings.values.flatten.size} 条），已生成错误标注文件，修正后才能导入",
-                 check_token: token
+      session[:check_token] = ImportChecker.store_annotated(importer, params[:file], result)
+      redirect_to imports_path, alert: "检查发现 #{result.errors.values.flatten.size} 处错误（警告 #{result.warnings.values.flatten.size} 条），已生成错误标注文件，修正后才能导入"
     else
       n = result.warnings.values.flatten.size
       redirect_to imports_path, notice: "检查通过，可以导入#{n.positive? ? "（#{n} 条警告不阻断导入，导入后请复核）" : ""}"

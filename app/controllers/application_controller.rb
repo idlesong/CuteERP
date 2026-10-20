@@ -61,11 +61,10 @@ class ApplicationController < ActionController::Base
     result = ImportChecker.run(importer, params[:file], month: month)
     return true unless ImportChecker.blocked?(result)
 
-    token = ImportChecker.store_annotated(importer, params[:file], result)
+    session[:check_token] = ImportChecker.store_annotated(importer, params[:file], result)
     n = result.errors.values.flatten.size
     redirect_to imports_path,
-                alert: "导入已阻止：发现 #{n} 处错误，请下载「错误标注文件」修正后重新导入（警告 #{result.warnings.values.flatten.size} 条不阻断）",
-                check_token: token
+                alert: "导入已阻止：发现 #{n} 处错误，请下载「错误标注文件」修正后重新导入（警告 #{result.warnings.values.flatten.size} 条不阻断）"
     false
   end
 

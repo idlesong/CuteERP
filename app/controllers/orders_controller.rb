@@ -133,10 +133,9 @@ class OrdersController < ApplicationController
     # 两阶段：先预检（不落数据），有错误 → 跳导入中心下载标注文件修正
     result = ImportChecker.run(CustomerOrdersImport, params[:file], month: Date.current.beginning_of_month)
     if ImportChecker.blocked?(result)
-      token = ImportChecker.store_annotated(CustomerOrdersImport, params[:file], result)
+      session[:check_token] = ImportChecker.store_annotated(CustomerOrdersImport, params[:file], result)
       return redirect_to imports_path,
-                         alert: "导入已阻止：发现 #{result.errors.values.flatten.size} 处错误，请下载错误标注文件修正后重新导入",
-                         check_token: token
+                         alert: "导入已阻止：发现 #{result.errors.values.flatten.size} 处错误，请下载错误标注文件修正后重新导入"
     end
 
     import = CustomerOrdersImport.call(params[:file], imported_by: current_user,
