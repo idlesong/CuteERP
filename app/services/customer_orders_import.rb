@@ -13,7 +13,7 @@ class CustomerOrdersImport
     idx = header_index(sheet)
     raise "无法识别客户订单表头：缺少「订单号」列" if idx["订单号"].nil?
 
-    stats = { created: 0, updated: 0, skipped: 0, warnings: [] }
+    stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
     (2..sheet.last_row).each do |i|
       row = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
       po = row.call("订单号").to_s.strip
@@ -23,7 +23,7 @@ class CustomerOrdersImport
         next
       end
       if po.blank? || generic.blank?
-        stats[:warnings] << "第#{i}行：订单号/通用型号缺失，跳过"
+        stats[:errors] << "第#{i}行：订单号/通用型号缺失"
         stats[:skipped] += 1
         next
       end
@@ -31,7 +31,7 @@ class CustomerOrdersImport
       customer = Customer.find_by(name_zh: row.call("客户").to_s.strip) ||
                  Customer.find_by(name: row.call("客户").to_s.strip)
       unless customer
-        stats[:warnings] << "第#{i}行：找不到客户「#{row.call('客户')}」，跳过"
+        stats[:errors] << "第#{i}行：找不到客户「#{row.call('客户')}」"
         stats[:skipped] += 1
         next
       end
@@ -43,7 +43,7 @@ class CustomerOrdersImport
                row.call("类型").to_s.match?(/冲销|核销|return/i)
       if qty.negative? || marked
         if qty.zero?
-          stats[:warnings] << "第#{i}行：冲销行数量为空，跳过"
+          stats[:errors] << "第#{i}行：冲销行数量为空"
           stats[:skipped] += 1
           next
         end
@@ -93,7 +93,7 @@ class CustomerOrdersImport
       line.save!
       created_line ? stats[:created] += 1 : stats[:updated] += 1
     rescue StandardError => e
-      stats[:warnings] << "第#{i}行：#{e.message}"
+      stats[:errors] << "第#{i}行：#{e.message}"
       stats[:skipped] += 1
     end
 
@@ -106,14 +106,14 @@ class CustomerOrdersImport
   def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:)
     original = Order.find_by(po_number: po)
     if original.nil? || original.return?
-      stats[:warnings] << "第#{row_no}行：冲销原订单「#{po}」不存在，跳过"
+      stats[:errors] << "第#{row_no}行：冲销原订单「#{po}」不存在"
       stats[:skipped] += 1
       return
     end
     orig_line = original.order_lines.find_by(generic_part_no: generic, version: version) ||
                 original.order_lines.find_by(generic_part_no: generic)
     if orig_line.nil?
-      stats[:warnings] << "第#{row_no}行：原订单「#{po}」没有「#{generic}」行，无法冲销，跳过"
+      stats[:errors] << "第#{row_no}行：原订单「#{po}」没有「#{generic}」行，无法冲销"
       stats[:skipped] += 1
       return
     end
@@ -137,7 +137,7 @@ class CustomerOrdersImport
       stats[:created] += 1
     end
   rescue ActiveRecord::RecordInvalid => e
-    stats[:warnings] << "第#{row_no}行：冲销「#{generic}」失败：#{e.message}"
+    stats[:errors] << "第#{row_no}行：冲销「#{generic}」失败：#{e.message}"
     stats[:skipped] += 1
   end
 

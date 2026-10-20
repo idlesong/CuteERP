@@ -11,13 +11,13 @@ class ShipmentsImport
     idx = header_index(sheet)
     raise "无法识别出库单表头：缺少「六联单号」列" if idx["六联单号"].nil?
 
-    stats = { created: 0, updated: 0, skipped: 0, warnings: [] }
+    stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
     groups = collect_groups(sheet, idx, stats)
 
     groups.each do |(serial, date, tracking), group|
       so = SalesOrder.find_by(serial_number: serial)
       unless so
-        stats[:warnings] << "第#{group[:rows].first}行：六联单「#{serial}」不存在，跳过（请先导入六联单）"
+        stats[:errors] << "第#{group[:rows].first}行：六联单「#{serial}」不存在（请先导入六联单）"
         stats[:skipped] += 1
         next
       end
@@ -45,7 +45,7 @@ class ShipmentsImport
         shipment.save!
         is_new ? stats[:created] += 1 : stats[:updated] += 1
       rescue ActiveRecord::RecordInvalid => e
-        stats[:warnings] << "六联单「#{serial}」出库失败：#{e.message}"
+        stats[:errors] << "第#{group[:rows].first}行：六联单「#{serial}」出库失败：#{e.message}"
         stats[:skipped] += 1
       end
     end
@@ -67,7 +67,7 @@ class ShipmentsImport
         next
       end
       if serial.blank? || part.blank? || qty <= 0
-        stats[:warnings] << "第#{i}行：六联单号/产品/数量缺失，跳过"
+        stats[:errors] << "第#{i}行：六联单号/产品/数量缺失"
         stats[:skipped] += 1
         next
       end
@@ -89,7 +89,7 @@ class ShipmentsImport
       item = Item.where("generic_part_no || COALESCE(suffix, '') = :p", p: part).take
       pl = item && so.production_lines.find_by(item_id: item.id)
       unless pl
-        stats[:warnings] << "第#{group[:rows].first}行：产品「#{part}」在六联单「#{serial}」中没有对应行，跳过"
+        stats[:errors] << "第#{group[:rows].first}行：产品「#{part}」在六联单「#{serial}」中没有对应行"
         next
       end
       line_qty[pl] = line_qty.fetch(pl, 0) + qty

@@ -47,11 +47,27 @@ class ApplicationController < ActionController::Base
   def import_report(import)
     st = import.stats
     msg = "导入完成：新建 #{st['created'] || st[:created]}，更新 #{st['updated'] || st[:updated]}，跳过 #{st['skipped'] || st[:skipped]}"
+    errors = st["errors"] || st[:errors] || []
     warnings = st["warnings"] || st[:warnings] || []
+    msg += "；错误：#{errors.join('；')}" if errors.any?
     msg += "；警告：#{warnings.join('；')}" if warnings.any?
     msg
   end
   helper_method :import_report
+
+  # 两阶段导入：导入前强制预检（事务回滚干跑，不落数据）。
+  # 有错误 → 阻止导入，生成标注文件并把下载入口放到导入中心；通过 → 返回 true
+  def import_precheck!(importer, month: nil)
+    result = ImportChecker.run(importer, params[:file], month: month)
+    return true unless ImportChecker.blocked?(result)
+
+    token = ImportChecker.store_annotated(importer, params[:file], result)
+    n = result.errors.values.flatten.size
+    redirect_to imports_path,
+                alert: "导入已阻止：发现 #{n} 处错误，请下载「错误标注文件」修正后重新导入（警告 #{result.warnings.values.flatten.size} 条不阻断）",
+                check_token: token
+    false
+  end
 
   helper_method :monthly_exchange_rate
   helper_method :current_customer

@@ -11,7 +11,7 @@ class SalesOrdersImport
     sheet = open_spreadsheet(file)
     idx = header_index(sheet)
     pair_cols = allocation_pairs(idx)
-    stats = { created: 0, updated: 0, skipped: 0, warnings: [] }
+    stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
 
     (2..sheet.last_row).each do |i|
       val = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
@@ -25,14 +25,14 @@ class SalesOrdersImport
       customer = Customer.find_by(name_zh: val.call("客户").to_s.strip) ||
                  Customer.find_by(name: val.call("客户").to_s.strip)
       unless customer
-        stats[:warnings] << "第#{i}行：找不到客户「#{val.call('客户')}」，跳过"
+        stats[:errors] << "第#{i}行：找不到客户「#{val.call('客户')}」"
         stats[:skipped] += 1
         next
       end
 
       item = Item.where("generic_part_no || COALESCE(suffix, '') = :part", part: part).take
       unless item
-        stats[:warnings] << "第#{i}行：产品「#{part}」未建档，跳过"
+        stats[:errors] << "第#{i}行：产品「#{part}」未建档"
         stats[:skipped] += 1
         next
       end
@@ -50,7 +50,7 @@ class SalesOrdersImport
       created_line = line.nil?
       line ||= so.production_lines.build(item: item, source: "batch")
       if line.shipped_qty.positive? && line.quantity < line.shipped_qty
-        stats[:warnings] << "第#{i}行：#{serial} #{part} 数量低于已出库（#{line.shipped_qty}），保持原值"
+        stats[:errors] << "第#{i}行：#{serial} #{part} 数量低于已出库（#{line.shipped_qty}）"
         stats[:skipped] += 1
         next
       end
@@ -68,7 +68,7 @@ class SalesOrdersImport
       rebuild_allocations(line, pair_cols, sheet, i, val, stats)
       created_line ? stats[:created] += 1 : stats[:updated] += 1
     rescue StandardError => e
-      stats[:warnings] << "第#{i}行：#{e.message}"
+      stats[:errors] << "第#{i}行：#{e.message}"
       stats[:skipped] += 1
     end
 
@@ -91,7 +91,7 @@ class SalesOrdersImport
     pairs.each do |display, qty|
       target = find_allocation_target(display, line)
       if target.nil?
-        stats[:warnings] << "第#{row_no}行：分配引用的订单行「#{display}」不存在"
+        stats[:errors] << "第#{row_no}行：分配引用的订单行「#{display}」不存在"
         next
       end
       sums[target] = sums.fetch(target, 0) + qty
@@ -101,7 +101,7 @@ class SalesOrdersImport
     sums.each do |target, qty|
       balance = target.allocatable_qty
       if qty > balance
-        stats[:warnings] << "第#{row_no}行：分配 #{target.display_no} x#{qty} 超过未签发余额（#{balance}），按余额封顶"
+        stats[:errors] << "第#{row_no}行：分配 #{target.display_no} x#{qty} 超过未签发余额（#{balance}）"
         qty = [balance, 0].max
       end
       line.production_allocations.create!(order_line: target, quantity: qty) if qty.positive?
@@ -109,7 +109,7 @@ class SalesOrdersImport
 
     sum_alloc = line.reload.production_allocations.sum(:quantity)
     if sum_alloc != line.quantity
-      stats[:warnings] << "第#{row_no}行：Σ分配量（#{sum_alloc}）≠ 六联单数量（#{line.quantity}）"
+      stats[:errors] << "第#{row_no}行：Σ分配量（#{sum_alloc}）≠ 六联单数量（#{line.quantity}）"
     end
   end
 

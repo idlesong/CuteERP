@@ -1,6 +1,12 @@
 <div class="page-header"><h1>导入 <small>---过渡期 Excel 双轨（模板 = 月度工作簿对应表）</small></h1></div>
 
-<% if notice %><p class="d-none"></p><% end %>
+<% if flash[:check_token] %>
+  <div class="alert alert-warning d-flex justify-content-between align-items-center">
+    <span>已生成错误标注文件：在表格末列逐行给出错误/警告，全部清除「错误」后才能导入。</span>
+    <%= link_to "下载错误标注文件", import_check_file_path(token: flash[:check_token]),
+                class: "btn btn-sm btn-warning", data: { turbo: false } %>
+  </div>
+<% end %>
 
 <div class="row">
   <div class="col-md-6">
@@ -20,7 +26,8 @@
             自然键 = 订单号 + 通用型号 + 版本；重复导入只更新，不产生重复数据。<br>
             冲销：同一订单号下数量填负数（或类型/特殊要求标注"冲销"），自动生成冲销单「订单号-Rn」，受可冲销余额限制。
           </div>
-          <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
+          <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
+          <%= submit_tag "导入", class: "btn btn-sm btn-primary", data: { turbo_confirm: "导入前会先预检，发现错误将阻止并生成标注文件。确认导入？" } %>
         <% end %>
       </div>
     </div>
@@ -35,7 +42,8 @@
             <label class="form-label small mb-0">工作簿（「价格」表）</label>
             <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
           </div>
-          <div class="small text-muted mb-2">自然键 = Price_number；客户不存在的行跳过并进警告。</div>
+          <div class="small text-muted mb-2">自然键 = Price_number；客户不存在的行报错阻断。</div>
+          <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>
@@ -56,17 +64,16 @@
             <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
           </div>
           <div class="small text-muted mb-2">
-            自然键 = 六联单号；导入即已提交（Excel 为准，D14）；分配对直接生成台账，校验差异只报告不自动修。<br>
+            自然键 = 六联单号；导入即已提交（Excel 为准，D14）；分配对直接生成台账。<br>
             分配对「订单N」可写 订单号-行号（AB2026-003-1）或纯订单号（AB2026-003，唯一行自动对应）；前置：客户订单须先导入。
           </div>
+          <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>
     </div>
   </div>
-</div>
 
-<div class="row">
   <div class="col-md-6">
     <div class="card mb-3">
       <div class="card-header"><h5>导入出库单</h5></div>
@@ -84,6 +91,7 @@
             同（六联单号+日期+快递号）的行合成一张出库单；幂等键 = 六联单号+日期+快递号，重复导入整单重建（Excel 为准）。<br>
             金额列导入忽略（系统按报价成分自动计算）；前置：六联单须先导入。
           </div>
+          <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>
@@ -94,7 +102,7 @@
 <h4>导入批次</h4>
 <table class="table table-striped table-sm">
   <thead>
-    <tr><th>时间</th><th>类型</th><th>月份</th><th>文件</th><th>操作人</th><th>统计/警告</th></tr>
+    <tr><th>时间</th><th>类型</th><th>月份</th><th>文件</th><th>操作人</th><th>统计</th></tr>
   </thead>
   <tbody>
     <% @imports.each do |imp| %>
@@ -106,14 +114,14 @@
         <td><%= imp.imported_by&.name %></td>
         <td class="small">
           新建 <%= imp.stats["created"] %> / 更新 <%= imp.stats["updated"] %> / 跳过 <%= imp.stats["skipped"] %>
+          <% (imp.stats["errors"] || []).each do |w| %>
+            <div class="text-danger">✘ <%= w %></div>
+          <% end %>
           <% (imp.stats["warnings"] || []).each do |w| %>
-            <div class="text-danger">⚠ <%= w %></div>
+            <div class="text-warning-emphasis">⚠ <%= w %></div>
           <% end %>
         </td>
       </tr>
-    <% end %>
-    <% if @imports.empty? %>
-      <tr><td colspan="6" class="text-muted">暂无导入记录</td></tr>
     <% end %>
   </tbody>
 </table>

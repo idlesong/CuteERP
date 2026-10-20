@@ -107,11 +107,18 @@ class Price < ApplicationRecord
   end
 
   # 按表头名称解析（对齐导出工作簿「价格」表；容忍空列/多余列/列序变化）
-  # 报价导入：输出 { created:, updated:, skipped:, warnings: [] } 校验报告
-  # 客户不存在的行跳过并进警告（请先建客户档案再重新导入该行）
+  # 与各导入服务同构的入口（导入预检/导入中心统一调用）
+  def self.call(file, imported_by:, month: nil)
+    import(file, imported_by: imported_by)
+  end
+
+  # 按表头名称解析（对齐导出工作簿「价格」表；容忍空列/多余列/列序变化）
+  # 报价导入：输出 { created:, updated:, skipped:, errors:, warnings: } 校验报告
+  # 客户不存在的行跳过并进错误（请先建客户档案再重新导入该行）
   def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
     created = updated = 0
+    errors = []
     warnings = []
 
     each_data_row(sheet) do |row, i|
@@ -122,7 +129,7 @@ class Price < ApplicationRecord
       import_customer = Customer.find_by(name: row["客户"].to_s.strip) ||
                         Customer.find_by(name_zh: row["客户"].to_s.strip)
       if import_customer.nil?
-        warnings << "第 #{i} 行：客户「#{row['客户']}」不存在，该行跳过"
+        errors << "第 #{i} 行：客户「#{row['客户']}」不存在"
         next
       end
 
@@ -143,13 +150,12 @@ class Price < ApplicationRecord
       price.save!
       is_new ? created += 1 : updated += 1
     rescue ActiveRecord::RecordInvalid => e
-      warnings << "第 #{i} 行：#{e.message}"
+      errors << "第 #{i} 行：#{e.message}"
     end
 
     Import.create!(kind: "prices", filename: file.original_filename,
                    imported_by: imported_by,
-                   stats: { created: created, updated: updated, warnings: warnings })
-    { created: created, updated: updated, skipped: warnings.size, warnings: warnings }
+                   stats: { created: created, updated: updated, errors: errors, warnings: warnings })
   end
   # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
   def self.each_data_row(sheet, &block)

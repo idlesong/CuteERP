@@ -130,14 +130,21 @@ class OrdersController < ApplicationController
   # POST /orders/import —— 统一走 CustomerOrdersImport（表头名称解析，忽略多余列；
   # 含税单价自动匹配报价拆分成分，导入报告在 notice 展示）
   def import
+    # 两阶段：先预检（不落数据），有错误 → 跳导入中心下载标注文件修正
+    result = ImportChecker.run(CustomerOrdersImport, params[:file], month: Date.current.beginning_of_month)
+    if ImportChecker.blocked?(result)
+      token = ImportChecker.store_annotated(CustomerOrdersImport, params[:file], result)
+      return redirect_to imports_path,
+                         alert: "导入已阻止：发现 #{result.errors.values.flatten.size} 处错误，请下载错误标注文件修正后重新导入",
+                         check_token: token
+    end
+
     import = CustomerOrdersImport.call(params[:file], imported_by: current_user,
                                        month: Date.current.beginning_of_month)
     redirect_to orders_url, notice: import_report(import)
   rescue StandardError => e
     redirect_to orders_url, alert: "导入失败：#{e.message}"
-  end
-
-  # POST /orders/1/attach —— 上传客户 PO 附件（可多选 PDF/图片；attach 不走模型校验，此处把关）
+  end  # POST /orders/1/attach —— 上传客户 PO 附件（可多选 PDF/图片；attach 不走模型校验，此处把关）
   def attach
     files = Array(params[:files]).compact_blank
     return redirect_to order_url(@order), alert: "请选择文件" if files.empty?
