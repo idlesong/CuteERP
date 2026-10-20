@@ -3,11 +3,11 @@
 // For every column a filter control is generated in an injected <tfoot> row:
 //   - enum-like column (few distinct values)  -> select dropdown (exact match)
 //   - numeric column                          -> number range (从/到)
-//   - date column                             -> date range  (从/到)
+//   - date column                             -> month dropdown (YYYY-MM，Excel 风格)
 //   - everything else                         -> text input (contains)
 //
 // Views may override the heuristic per column with:
-//   <th data-filter="select"> / "num" / "date" / "month" / "text" / "none"
+//   <th data-filter="select"> / "num" / "date"(=month) / "month" / "daterange" / "text" / "none"
 
 import DataTable from "datatables.net"
 
@@ -143,14 +143,16 @@ export function initColumnFilters(table, dt) {
 
     if (hasControls && mode === undefined) continue // action/button columns: skip
 
-    if (mode === "month") {
+    if (mode === "month" || mode === "date" ||
+        (!mode && nonEmpty.length > 0 && nonEmpty.every((t) => DATE_RE.test(t)))) {
+      // 日期列统一用月份下拉（Excel 风格）；要"从/到"区间时显式 data-filter="daterange"
       appendMonthFilter(th, dt, i)
+    } else if (mode === "daterange") {
+      appendRangeFilter(th, dt, i, table, "date")
     } else if (mode === "select" || (!mode && nonEmpty.length > 0 && distinctValues(nonEmpty).length <= 10)) {
       appendSelectFilter(th, dt, i, nonEmpty)
     } else if (mode === "num" || (!mode && nonEmpty.length > 0 && nonEmpty.every((t) => NUM_RE.test(t)))) {
       appendRangeFilter(th, dt, i, table, "number")
-    } else if (mode === "date" || (!mode && nonEmpty.length > 0 && nonEmpty.every((t) => DATE_RE.test(t)))) {
-      appendRangeFilter(th, dt, i, table, "date")
     } else {
       appendTextFilter(th, dt, i)
     }
