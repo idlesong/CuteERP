@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -295,6 +295,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
     t.index ["sales_order_id"], name: "index_production_lines_on_sales_order_id"
   end
 
+  create_table "quotation_lines", force: :cascade do |t|
+    t.string "condition"
+    t.datetime "created_at", null: false
+    t.string "currency", default: "RMB"
+    t.string "part_number"
+    t.bigint "price_id"
+    t.string "product_name"
+    t.bigint "quotation_id", null: false
+    t.string "remark"
+    t.decimal "unit_price", precision: 8, scale: 2
+    t.datetime "updated_at", null: false
+    t.index ["price_id"], name: "index_quotation_lines_on_price_id"
+    t.index ["quotation_id"], name: "index_quotation_lines_on_quotation_id"
+  end
+
   create_table "quotations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "customer_id"
@@ -391,4 +406,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_000001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attachments", "posts"
   add_foreign_key "price_list_entries", "price_list_releases"
+  add_foreign_key "quotation_lines", "prices"
+  add_foreign_key "quotation_lines", "quotations"
 end

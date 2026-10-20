@@ -1,0 +1,64 @@
+<% company = current_user.settings(:company) %>
+<div class="card">
+  <div class="card-body">
+    <h2><%= image_tag("sicomm_logo.jpg") %><%= company.name_zh %></h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <td>
+            <h5><%= company.name_zh %></h5>
+            <h5><%= company.address_zh %></h5>
+            <h5>Tel: 051066682208 Fax: 051066682208</h5>
+          </td>
+          <td>
+            <h4 class="text-right">日期：<%= @quotation.created_at.strftime("%F") %></h4>
+            <h4 class="text-right">报价单号：<%= @quotation.quotation_number %></h4>
+            <h4 class="text-right">付款方式：<%= @quotation.customer.payment %></h4>
+          </td>
+        </tr>
+      </thead>
+      <tr><td colspan="2"><h3 class="text-center">报 价 单</h3></td></tr>
+      <tr>
+        <td>
+          <h4>To: <%= @quotation.customer.full_name.presence || @quotation.customer.name %></h4>
+        </td>
+        <td><h4 class="text-right">From: <%= company.name_zh %></h4></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <td>#</td>
+          <td>型号</td>
+          <td>产品名称</td>
+          <td>币别</td>
+          <td>含税单价</td>
+          <td>订单量 (pcs)</td>
+        </tr>
+      </thead>
+      <tbody>
+        <% @quotation.quotation_lines.each_with_index do |line, i| %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= line.part_number %></td>
+            <td><%= line.product_name %></td>
+            <td><%= line.currency %></td>
+            <td><%= line.currency == "USD" ? "$#{line.unit_price}" : "RMB #{line.unit_price}" %></td>
+            <td><%= line.condition %></td>
+          </tr>
+        <% end %>
+        <% if @quotation.remark.present? %>
+          <tr>
+            <td>备注</td>
+            <td colspan="5"><%= @quotation.remark %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

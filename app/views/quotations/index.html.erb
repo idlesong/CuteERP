@@ -1,37 +1,37 @@
-<%- model_class = Quotation -%>
 <div class="page-header">
-  <h1><%= t(:quotation) %></h1>
+  <h1>客户报价单
+    <%= link_to "新报价单", new_quotation_path, class: "btn btn-primary btn-sm ms-3" %>
+  </h1>
 </div>
 
-<table class="table table-striped datatable">
+<table class="table table-striped table-sm datatable">
   <thead>
     <tr>
-      <th><%= model_class.human_attribute_name(:id) %></th>
-      <th>Quotation number</th>
-      <th>Customer</th>
-      <th>overview</th>
-      <th>Remark</th>
-      <th>created_at</th>
-      <th colspan="3">action</th>
+      <th>报价单号</th>
+      <th>客户</th>
+      <th class="text-end">明细数</th>
+      <th>型号概览</th>
+      <th>备注</th>
+      <th>日期</th>
+      <th>操作</th>
     </tr>
   </thead>
   <tbody>
     <% @quotations.each do |quotation| %>
       <tr>
-        <td><%= link_to quotation.id, quotation %></td>
-        <td><%= quotation.quotation_number %></td>
-        <td><%= quotation.customer.name %></td>
-        <td><%= quotation.get_items_overview %></td>
-        <td><%= quotation.remark %></td>
+        <td><%= link_to quotation.quotation_number, quotation %></td>
+        <td><%= quotation.customer.name_zh.presence || quotation.customer.name %></td>
+        <td class="text-end"><%= quotation.quotation_lines.size %></td>
+        <td class="small"><%= quotation.quotation_lines.map(&:part_number).uniq.join("; ") %></td>
+        <td class="small"><%= truncate(quotation.remark.to_s, length: 40) %></td>
         <td><%= quotation.created_at.strftime("%F") %></td>
-        <td><%= link_to "Show", quotation %></td>
-        <td><%= link_to "Edit", edit_quotation_path(quotation) %></td>
-        <td><%= link_to "Destroy", quotation, data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %></td>
+        <td>
+          <%= link_to "查看", quotation %>
+          <%= link_to "编辑", edit_quotation_path(quotation) %>
+          <%= link_to "PDF", quotation_path(quotation, format: :pdf), data: { turbo: false }, target: "_blank" %>
+          <%= link_to "删除", quotation, data: { turbo_method: :delete, turbo_confirm: "删除报价单 #{quotation.quotation_number}？" }, class: "text-danger" %>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to t(".new", default: t("helpers.links.new")), new_quotation_path, class: "btn btn-primary" %>
