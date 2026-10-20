@@ -68,6 +68,8 @@ Rails.application.routes.draw do
       patch :submit
       get :new_return
       post :create_return
+      post :attach
+      delete :detach
     end
     resources :order_lines, only: [:create, :destroy]
   end

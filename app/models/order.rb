@@ -5,9 +5,15 @@ class Order < ApplicationRecord
   STATUSES = %w[draft submitted].freeze
   PAYMENT_TYPES = ["款到发货", "T.T in advance", "COD", "T.T 30days"].freeze
 
-  include DocumentAttachment
   include ClosedPeriodGuard
   locks_closed_periods_on :created_at
+
+  # 客户 PO 附件（PDF/图片），可多个；类型与大小校验见 documents_valid / ALLOWED_DOCUMENT_TYPES
+  has_many_attached :documents
+  validate :documents_valid
+
+  ALLOWED_DOCUMENT_TYPES = %w[application/pdf image/png image/jpeg].freeze
+  MAX_DOCUMENT_BYTES = 20.megabytes
 
   has_many :order_lines, -> { order(:line_no) }, dependent: :destroy
   belongs_to :customer
@@ -102,6 +108,17 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def documents_valid
+    documents.each do |doc|
+      unless doc.blob.content_type.in?(ALLOWED_DOCUMENT_TYPES)
+        errors.add(:documents, "#{doc.filename}：仅支持 PDF/PNG/JPG")
+      end
+      if doc.blob.byte_size > MAX_DOCUMENT_BYTES
+        errors.add(:documents, "#{doc.filename}：超过 20MB")
+      end
+    end
+  end
 
   def normalize_po_number
     self.po_number = po_number.to_s.strip

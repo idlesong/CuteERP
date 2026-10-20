@@ -8,12 +8,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between">
       <h2>
-        <%= t(:po_number) %>:
-        <% if @order.document.attached? %>
-          <%= link_to(@order.po_number, url_for(@order.document), target: "_blank") %>
-        <% else %>
-          <%= @order.po_number %>
-        <% end %>
+        <%= t(:po_number) %>: <%= @order.po_number %>
         <% if @order.return? %>
           <span class="badge bg-danger">冲销单（冲销 <%= @order.remark.to_s.sub("冲销 ", "") %>）</span>
         <% elsif @order.draft? %>
@@ -45,6 +40,37 @@
         <td><%= t(:address) %>: <%= @order.ship_address %></td>
       </tr>
     </table>
+  </div>
+</div>
+
+<%# 附件：客户 PO 等 PDF/图片，多文件；Active Storage 代理直开 %>
+<div class="card mb-3">
+  <div class="card-header py-2"><strong>订单附件</strong> <span class="small text-muted">PDF/PNG/JPG，单个 ≤ 20MB</span></div>
+  <div class="card-body py-2">
+    <% if @order.documents.attached? %>
+      <table class="table table-sm mb-2">
+        <tbody>
+          <% @order.documents.each do |doc| %>
+            <tr>
+              <td><%= link_to doc.filename.to_s, url_for(doc), target: "_blank", data: { turbo: false } %></td>
+              <td class="text-end small text-muted"><%= number_to_human_size(doc.byte_size) %> · <%= doc.created_at.strftime("%F") %></td>
+              <td class="text-end">
+                <%= link_to "删除", detach_order_path(@order, blob_id: doc.blob_id),
+                            data: { turbo_method: :delete, turbo_confirm: "删除附件 #{doc.filename}？" },
+                            class: "btn btn-link btn-sm text-danger p-0" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="small text-muted mb-2">暂无附件。</div>
+    <% end %>
+    <%= form_tag attach_order_path(@order), multipart: true, class: "d-flex gap-2 align-items-center" do %>
+      <%= file_field_tag :files, multiple: true, accept: ".pdf,.png,.jpg,.jpeg",
+                         class: "form-control form-control-sm", style: "max-width: 24rem;" %>
+      <%= submit_tag "上传附件", class: "btn btn-sm btn-outline-primary" %>
+    <% end %>
   </div>
 </div>
 

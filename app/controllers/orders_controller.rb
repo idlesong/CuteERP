@@ -4,7 +4,7 @@
 # - 草稿态（D10）：新建即 draft，show 页加行，submit 后进入签发池
 # - 冲销（D1）：kind=return 的单据，行引用原行、数量为负
 class OrdersController < ApplicationController
-  before_action :set_order, only: [:show, :edit, :update, :destroy, :submit, :new_return, :create_return]
+  before_action :set_order, only: [:show, :edit, :update, :destroy, :submit, :new_return, :create_return, :attach, :detach]
 
   # GET /orders
   def index
@@ -135,6 +135,32 @@ class OrdersController < ApplicationController
     redirect_to orders_url, notice: import_report(import)
   rescue StandardError => e
     redirect_to orders_url, alert: "导入失败：#{e.message}"
+  end
+
+  # POST /orders/1/attach —— 上传客户 PO 附件（可多选 PDF/图片；attach 不走模型校验，此处把关）
+  def attach
+    files = Array(params[:files]).compact_blank
+    return redirect_to order_url(@order), alert: "请选择文件" if files.empty?
+
+    bad = files.reject { |f| f.content_type.in?(Order::ALLOWED_DOCUMENT_TYPES) && f.size <= Order::MAX_DOCUMENT_BYTES }
+    if bad.any?
+      return redirect_to order_url(@order),
+                         alert: "附件仅支持 PDF/PNG/JPG 且单个不超过 20MB：#{bad.map(&:original_filename).join('、')}"
+    end
+
+    @order.documents.attach(files)
+    redirect_to order_url(@order), notice: "已上传 #{files.size} 个附件"
+  end
+
+  # DELETE /orders/1/detach?blob_id= —— 删除单个附件
+  def detach
+    doc = @order.documents.attachments.find_by(blob_id: params[:blob_id])
+    if doc
+      doc.purge_later
+      redirect_to order_url(@order), notice: "附件已删除"
+    else
+      redirect_to order_url(@order), alert: "附件不存在"
+    end
   end
 
   # DELETE /orders/1
