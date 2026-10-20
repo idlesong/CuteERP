@@ -2,17 +2,52 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <%# 自包含打印样式：wkhtmltopdf（Qt WebKit）无 flex 支持、生产环境代码冻结，
+        故样式直接内嵌于此，所有 PDF（invoice/packing/报价/价格）共用，勿引入资产管线依赖 %>
     <style>
+      /* 中文与基础排版 */
       body, table, p, div, span, h1, h2, h3, h4, h5, td, th {
         font-family: "Droid Sans Fallback", "Noto Sans CJK SC", "WenQuanYi Zen Hei", sans-serif !important;
       }
+      body { font-size: 12px; color: #1a1a1a; margin: 0; }
+      h1 { font-size: 20px; margin: 4px 0 10px; }
+      h2 { font-size: 17px; margin: 4px 0 8px; }
+      h3 { font-size: 15px; margin: 6px 0; }
+      h4 { font-size: 13px; margin: 2px 0; }
+      h5 { font-size: 12px; margin: 2px 0; }
+      img { max-height: 46px; vertical-align: middle; }
+      hr { border: none; border-top: 1px solid #999; margin: 8px 0; }
+
+      /* 卡片区块 */
+      .card { border: 1px solid #999; border-radius: 4px; padding: 10px 12px; margin-bottom: 12px; }
+      .card-header { border-bottom: 1px solid #999; padding-bottom: 6px; margin-bottom: 8px; font-weight: bold; }
+      .card-body { padding: 0; }
+      .card-footer { border-top: 1px solid #999; padding-top: 6px; margin-top: 8px; }
+
+      /* 两栏页头（Bootstrap row/col 的 float 模拟，Qt WebKit 无 flex） */
+      .row { clear: both; }
+      .row:after { content: ""; display: block; clear: both; }
+      .col, .col-md-6 { float: left; width: 50%; box-sizing: border-box; }
+
+      /* 表格 */
+      table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+      th, td { border: 1px solid #666; padding: 5px 7px; text-align: left; vertical-align: top; }
+      th { background: #e8e8e8; font-weight: bold; }
+      thead td { background: #e8e8e8; font-weight: bold; }
+      .table-sm th, .table-sm td { padding: 3px 6px; }
+
+      /* 模板中用到的工具类 */
+      .text-right, .text-end { text-align: right !important; }
+      .text-center { text-align: center !important; }
+      .text-muted { color: #666 !important; }
+      .fw-bold { font-weight: bold; }
+      .small { font-size: 10px; }
+
+      /* 屏幕控件不进打印 */
+      .btn, .btn-link, .modal, nav { display: none !important; }
     </style>
   </head>
   <body>
-    <div id="header">
-    </div>
-    <div id="content">
-      <%= yield %>
-    </div>
+    <%= yield %>
   </body>
 </html>
