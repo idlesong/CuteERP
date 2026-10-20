@@ -2,7 +2,7 @@
 //
 // For every column a filter control is generated in an injected <tfoot> row:
 //   - enum-like column (few distinct values)  -> select dropdown (exact match)
-//   - numeric column                          -> number range (从/到)
+//   - numeric column                          -> single input "最小~最大" (compact range syntax)
 //   - date column                             -> month dropdown (YYYY-MM，Excel 风格)
 //   - everything else                         -> text input (contains)
 //
@@ -108,6 +108,39 @@ function appendRangeFilter(th, dt, columnIndex, table, type) {
   DataTable.ext.search.push(predicate)
 }
 
+// 数值列紧凑筛选：单输入框区间语法（Excel 自定义筛选风格）
+//   100~500 → 区间；~500 → ≤；100~ → ≥；100 → 精确
+// 用 v3 函数式列搜索（column.search(fn)），不走全局 ext.search
+function appendNumberFilter(th, dt, columnIndex) {
+  const input = makeInput("form-control form-control-sm")
+  input.placeholder = "最小~最大"
+  let timer = null
+  input.addEventListener("input", () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      const raw = input.value.trim()
+      const m = raw === "" ? [null, "", "", undefined] : raw.match(/^(-?[\d.]*)~(-?[\d.]*)$|^(-?[\d.]+)$/)
+      if (!m) return // 语法不对不过滤，避免整表清空
+
+      // 始终用函数搜索（search("") 无法覆盖上一个函数式搜索）
+      dt.column(columnIndex).search((cellText) => {
+        if (raw === "") return true
+        const v = parseFloat(String(cellText).replace(/[^\d.-]/g, ""))
+        if (isNaN(v)) return false
+        if (m[3] !== undefined) return v === parseFloat(m[3]) // 精确
+        if (m[1] !== "" && v < parseFloat(m[1])) return false
+        if (m[2] !== "" && v > parseFloat(m[2])) return false
+        return true
+      }).draw()
+    }, 250)
+  })
+  // 筛选行在创建表单内：拦截回车，避免误触发创建
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") e.preventDefault()
+  })
+  th.appendChild(input)
+}
+
 // Attach the filter row to an initialised DataTable.
 // The row is inserted into <thead> (below existing header/creation rows),
 // so it always sits right under the column titles.
@@ -152,7 +185,7 @@ export function initColumnFilters(table, dt) {
     } else if (mode === "select" || (!mode && nonEmpty.length > 0 && distinctValues(nonEmpty).length <= 10)) {
       appendSelectFilter(th, dt, i, nonEmpty)
     } else if (mode === "num" || (!mode && nonEmpty.length > 0 && nonEmpty.every((t) => NUM_RE.test(t)))) {
-      appendRangeFilter(th, dt, i, table, "number")
+      appendNumberFilter(th, dt, i, table)
     } else {
       appendTextFilter(th, dt, i)
     }
