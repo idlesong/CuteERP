@@ -129,7 +129,7 @@ class Price < ApplicationRecord
       import_customer = Customer.find_by(name: row["客户"].to_s.strip) ||
                         Customer.find_by(name_zh: row["客户"].to_s.strip)
       if import_customer.nil?
-        errors << "第 #{i} 行：客户「#{row['客户']}」不存在"
+        errors << "第#{i}行：客户「#{row['客户']}」不存在"
         next
       end
 
@@ -150,7 +150,7 @@ class Price < ApplicationRecord
       price.save!
       is_new ? created += 1 : updated += 1
     rescue ActiveRecord::RecordInvalid => e
-      errors << "第 #{i} 行：#{e.message}"
+      errors << "第#{i}行：#{e.message}"
     end
 
     Import.create!(kind: "prices", filename: file.original_filename,

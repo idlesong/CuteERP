@@ -22,12 +22,12 @@ module ImportChecker
 
   def self.blocked?(result) = result.errors.any?
 
-  # { "3" => ["消息"], "全局" => [...] }（按行归并，无行号的归入"全局"）
+  # { "3" => ["消息"], "全局" => [...] }（按行归并，无行号的归入"全局"；行号容忍空格）
   def self.collect(stats, key)
     hash = {}
     Array(stats.stats[key]).each do |msg|
-      row = msg[/第(\d+)行/, 1] || "全局"
-      (hash[row] ||= []) << msg.sub(/\A第\d+行：/, "").sub(/\A第 \d+ 行：/, "")
+      row = msg[/第\s*(\d+)\s*行/, 1] || "全局"
+      (hash[row] ||= []) << msg.sub(/\A第\s*\d+\s*行：/, "")
     end
     hash
   end
