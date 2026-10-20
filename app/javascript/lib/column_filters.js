@@ -113,7 +113,7 @@ function appendRangeFilter(th, dt, columnIndex, table, type) {
 // 用 v3 函数式列搜索（column.search(fn)），不走全局 ext.search
 function appendNumberFilter(th, dt, columnIndex) {
   const input = makeInput("form-control form-control-sm")
-  input.placeholder = "最小~最大"
+  input.placeholder = "100~500"
   let timer = null
   input.addEventListener("input", () => {
     clearTimeout(timer)
