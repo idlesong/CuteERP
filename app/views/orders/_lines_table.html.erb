@@ -33,7 +33,12 @@
         </td>
         <td><%= link_to order.po_number, order_path(order) %></td>
         <td><%= line.line_no %></td>
-        <td><%= line.generic_part_no %></td>
+        <td>
+          <%= line.full_part_no.presence || line.generic_part_no %>
+          <% if line.full_part_no.present? && line.full_part_no != line.generic_part_no %>
+            <span class="small text-muted"><%= line.generic_part_no %></span>
+          <% end %>
+        </td>
         <td class="text-end"><%= line.quantity %></td>
         <td>
           <% if line.price_id %>
@@ -67,7 +72,7 @@
                       data-ol-id="<%= line.id %>" data-generic="<%= line.generic_part_no %>"
                       data-display="<%= line.display_no %>" data-qty="<%= line.quantity_left %>"
                       data-customer="<%= order.customer_id %>"
-                      data-suffixes="<%= line.item_candidates.map(&:suffix).compact.reject(&:empty?).join(',') %>">分解</button>
+                      data-suffixes="<%= ([line.ordered_suffix].compact + User.naming_suffixes).uniq.join(',') %>">分解</button>
             <% else %>
               <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
             <% end %>
@@ -95,6 +100,11 @@
           <option value="" selected disabled>型号*</option>
           <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
         </select>
+        <input name="order[suffix]" list="order_suffix_options" class="form-control form-control-sm d-inline-block"
+               style="width: 3.2rem;" placeholder="后缀" title="可选：C/M/S 等，与型号合成客户所订完整型号">
+        <datalist id="order_suffix_options">
+          <%= options_for_select(User.naming_suffixes) %>
+        </datalist>
       </th>
       <th><input name="order[quantity]" type="number" min="1" class="form-control form-control-sm" placeholder="数量*" required></th>
       <th>

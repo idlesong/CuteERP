@@ -68,7 +68,8 @@ class SalesOrdersController < ApplicationController
         order_line = OrderLine.find(ol_id)
         item = resolve_item(order_line, attrs[:suffix])
         line = @sales_order.production_lines.build(
-          item: item, quantity: attrs[:quantity].to_i,
+          item: item, suffix: attrs[:suffix].to_s.strip.presence,
+          quantity: attrs[:quantity].to_i,
           version: attrs[:version].presence,
           full_name: attrs[:full_name].presence || item.name,
           remark: attrs[:remark].presence
@@ -108,7 +109,8 @@ class SalesOrdersController < ApplicationController
 
     item = resolve_item(order_line, params[:suffix])
     line = @sales_order.production_lines.build(
-      item: item, quantity: qty, version: params[:version].presence,
+      item: item, suffix: params[:suffix].to_s.strip.presence,
+      quantity: qty, version: params[:version].presence,
       full_name: params[:full_name].presence || item.name
     )
     line.production_allocations.build(order_line: order_line, quantity: qty)
@@ -229,13 +231,11 @@ class SalesOrdersController < ApplicationController
     @sales_order = SalesOrder.find(params[:id])
   end
 
-  # 转产定型：按后缀拼正式型号（generic + suffix）；不存在就就地新建
-  def resolve_item(order_line, suffix)
-    suffix = suffix.to_s.strip
-    Item.find_or_create_by!(generic_part_no: order_line.generic_part_no, suffix: suffix.presence) do |item|
-      item.name = "#{order_line.generic_part_no}#{suffix}"
-      item.index = 1
-    end
+  # 转产定型：产品列表只维护通用型号，取对应 Item（未建档即失败）；后缀落 production_lines.suffix
+  def resolve_item(order_line, _suffix)
+    Item.find_by!(generic_part_no: order_line.generic_part_no)
+  rescue ActiveRecord::RecordNotFound
+    raise ActiveRecord::RecordInvalid, "型号「#{order_line.generic_part_no}」未在产品列表建档，请先维护产品"
   end
 
   def lines_params

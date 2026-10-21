@@ -71,3 +71,4 @@ RAILS_ENV=production bin/rails server -b 127.0.0.1 -p 3001
 价格批准检查：
 当报价高于阶梯报价时，直接批准。
 当报价低于阶梯报价时（小于1元），需要PRR框输入PRR号。快捷创建也需要。
+

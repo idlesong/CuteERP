@@ -123,8 +123,8 @@
       <tr class="inline-new-row">
         <th></th>
         <th>
-          <input name="order[generic_part_no]" class="form-control form-control-sm" list="show_generic_options"
-                 placeholder="通用型号*" required>
+          <input name="order[full_part_no]" class="form-control form-control-sm" list="show_generic_options"
+                 placeholder="型号*（可含后缀）" required>
           <datalist id="show_generic_options">
             <%= options_for_select(@generic_options) %>
           </datalist>

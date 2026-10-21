@@ -30,7 +30,7 @@ class OrderLinesController < ApplicationController
   end
 
   def line_params
-    params.require(:order).permit(:generic_part_no, :quantity, :version, :required_delivery_date,
+    params.require(:order).permit(:generic_part_no, :full_part_no, :quantity, :version, :required_delivery_date,
                                   :base_price, :v1_price, :v2_price, :remark)
   end
 end

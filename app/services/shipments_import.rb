@@ -86,7 +86,9 @@ class ShipmentsImport
   def self.match_lines(so, group, serial, stats)
     line_qty = {}
     group[:qty_by_part].each do |part, qty|
-      item = Item.where("generic_part_no || COALESCE(suffix, '') = :p", p: part).take
+      generic, = Item.parse_full_part_no(part)
+      item = Item.find_by(generic_part_no: generic) ||
+             Item.find_by_any_part_no(part) # 兼容旧数据：整串建档的完整型号
       pl = item && so.production_lines.find_by(item_id: item.id)
       unless pl
         stats[:errors] << "第#{group[:rows].first}行：产品「#{part}」在六联单「#{serial}」中没有对应行"

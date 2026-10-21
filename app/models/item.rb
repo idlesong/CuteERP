@@ -27,6 +27,21 @@ class Item < ActiveRecord::Base
     end
   end
 
+  # 命名规则严格拆分（Baseband：完整型号 = 通用型号 + 1 位后缀，或缺省）。
+  # 后缀集合来自用户设置 naming.suffixes（默认 C/M/S）；末位不在集合内 → 缺省（整串即通用型号）。
+  # 订单/六联单/出库链路一律用本方法；产品建档沿用宽拆分 split_part_no（非 Baseband 族）
+  def self.parse_full_part_no(full)
+    full = full.to_s.strip
+    last = full[-1]
+    if last && User.naming_suffixes.include?(last)
+      [full[0..-2], last]
+    else
+      [full, nil]
+    end
+  end
+
+  def self.full(generic, suffix) = "#{generic}#{suffix}"
+
   # 兼容完整/通用两种型号的查找
   def self.find_by_any_part_no(pn)
     pn = pn.to_s.strip

@@ -68,7 +68,7 @@
                   <input name="lines[<%= ol.id %>][suffix]" class="form-control" style="width: 4rem;"
                          placeholder="后缀" list="suffix_options_<%= ol.id %>">
                   <datalist id="suffix_options_<%= ol.id %>">
-                    <%= options_for_select(ol.item_candidates.map(&:suffix).compact) %>
+                    <%= options_for_select(([ol.ordered_suffix].compact + User.naming_suffixes).uniq) %>
                   </datalist>
                 </div>
               </td>

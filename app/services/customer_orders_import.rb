@@ -38,6 +38,15 @@ class CustomerOrdersImport
 
       version = row.call("版本").to_s.strip.presence
       qty = row.call("数量").to_i
+      # 型号严格校验（命名规则）：完整型号 = 通用型号 + 1 位后缀（C/M/S…）或缺省；
+      # 派生出的通用型号必须在产品列表建档，否则报错阻断（冲销/正常行共用）
+      generic, = Item.parse_full_part_no(generic)
+      unless Item.exists?(generic_part_no: generic)
+        stats[:errors] << "第#{i}行：型号「#{generic}」未建档，请先在产品列表维护"
+        stats[:skipped] += 1
+        next
+      end
+
       # 冲销行：数量为负，或 类型/特殊要求 标注 冲销/核销/return
       marked = row.call("特殊要求").to_s.match?(/冲销|核销/) ||
                row.call("类型").to_s.match?(/冲销|核销|return/i)
@@ -65,6 +74,7 @@ class CustomerOrdersImport
       line = order.order_lines.find_by(generic_part_no: generic, version: version)
       created_line = line.nil?
       line ||= order.order_lines.build(generic_part_no: generic, version: version.presence)
+      line.full_part_no = row.call("通用型号").to_s.strip.presence || line.full_part_no # 客户所订原始写法
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
       total = parse_number(row.call("含税单价"))
       was_base = line.base_price

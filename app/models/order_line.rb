@@ -15,6 +15,20 @@ class OrderLine < ApplicationRecord
   validate :return_quantity_within_balance, if: -> { order&.kind == "return" }
 
   before_validation :assign_line_no, on: :create
+  before_validation :derive_generic_from_full
+
+  # 客户所订完整型号（full_part_no）→ 按命名规则派生 generic_part_no（订单行不落后缀，
+  # 后缀在六联单转产时定型；派生出的客户所订后缀经 ordered_suffix 提供默认值）
+  def derive_generic_from_full
+    return if full_part_no.blank?
+
+    self.generic_part_no, = Item.parse_full_part_no(full_part_no)
+  end
+
+  # 客户所订后缀（由 full_part_no 派生，不落库；无后缀/不适用 → nil）
+  def ordered_suffix
+    Item.parse_full_part_no(full_part_no)[1] if full_part_no.present?
+  end
 
   def display_no
     order ? "#{order.po_number}-#{line_no}" : line_no.to_s
@@ -88,6 +102,7 @@ class OrderLine < ApplicationRecord
   # 构建行并从客户可用报价快照价格成分；无报价则留空（后续可手工补）
   def self.build_with_price_snapshot(order, attrs)
     line = order.order_lines.build(attrs)
+    line.derive_generic_from_full # 完整型号输入时先派生通用型号，价格按通用型号匹配
     apply_price_snapshot(line)
     line
   end

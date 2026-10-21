@@ -202,7 +202,12 @@ class OrdersController < ApplicationController
       found
     end
 
-    line = order.order_lines.new(line_params.except(:price_id))
+    attrs = line_params
+    if (sfx = attrs[:suffix].presence) # 列表快速创建：通用型号 + 可选后缀 → 完整型号
+      attrs[:full_part_no] = attrs[:full_part_no].presence || attrs[:generic_part_no].to_s + sfx
+    end
+    line = order.order_lines.new(attrs.except(:suffix, :price_id))
+    line.derive_generic_from_full
     if (price = Price.find_by(id: params.dig(:order, :price_id)))
       raise "所选价格与型号不符" unless price.part_number == line.generic_part_no
       line.assign_attributes(base_price: price.base_price, v1_price: price.v1_price,
@@ -225,8 +230,8 @@ class OrdersController < ApplicationController
   end
 
   def line_params
-    params.require(:order).permit(:generic_part_no, :quantity, :version, :required_delivery_date,
-                                  :base_price, :v1_price, :v2_price, :remark)
+    params.require(:order).permit(:generic_part_no, :full_part_no, :suffix, :quantity, :version,
+                                  :required_delivery_date, :base_price, :v1_price, :v2_price, :remark)
   end
 
   def lines_params

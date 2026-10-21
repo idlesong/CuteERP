@@ -16,8 +16,9 @@ class ProductionLine < ApplicationRecord
     errors.add(:quantity, "不能低于已出库数量（#{shipped_qty}）") if quantity < shipped_qty
   end
 
+  # 完整型号 = 通用型号（产品档案）+ 转产定型后缀
   def part_number
-    item&.partNo
+    item ? item.partNo.to_s + suffix.to_s : nil
   end
 
   def product_name

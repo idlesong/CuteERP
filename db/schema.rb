@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -174,6 +174,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_000001) do
   create_table "order_lines", force: :cascade do |t|
     t.decimal "base_price", precision: 8, scale: 2
     t.datetime "created_at", null: false
+    t.string "full_part_no"
     t.string "generic_part_no", null: false
     t.integer "line_no", null: false
     t.bigint "order_id", null: false
@@ -289,6 +290,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_000001) do
     t.string "remark"
     t.bigint "sales_order_id", null: false
     t.string "source", default: "manual"
+    t.string "suffix"
     t.datetime "updated_at", null: false
     t.string "version"
     t.index ["item_id"], name: "index_production_lines_on_item_id"

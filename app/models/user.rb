@@ -20,6 +20,14 @@ class User < ActiveRecord::Base
     s.key :step_names, defaults: { names: ["step1", "step2", "step3", "step4", "step5", "step6", "step7", "step8",
                                            "step9", "step10", "step11", "step12", "step13", "step14", "step15", "step16"] }
     s.key :sell_by, defaults: { sell_by: ["OEM", "ODM"] }
+    s.key :naming, defaults: { suffixes: ["C", "M", "S"] } # 完整型号末位后缀集合（Baseband）
+  end
+
+  # 命名规则后缀集（全局取首个用户的设置；后续可做设置页维护）
+  def self.naming_suffixes
+    order(:id).first&.settings(:naming)&.suffixes.presence || %w[C M S]
+  rescue StandardError
+    %w[C M S]
   end
 
   # Kept for compatibility with the old login flow (sessions controller).

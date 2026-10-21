@@ -30,7 +30,8 @@ class SalesOrdersImport
         next
       end
 
-      item = Item.where("generic_part_no || COALESCE(suffix, '') = :part", part: part).take
+      generic, part_suffix = Item.parse_full_part_no(part)
+      item = Item.find_by(generic_part_no: generic)
       unless item
         stats[:errors] << "第#{i}行：产品「#{part}」未建档"
         stats[:skipped] += 1
@@ -46,9 +47,9 @@ class SalesOrdersImport
       end
 
       qty = val.call("数量").to_i
-      line = so.production_lines.find_by(item_id: item.id)
+      line = so.production_lines.find_by(item_id: item.id, suffix: part_suffix)
       created_line = line.nil?
-      line ||= so.production_lines.build(item: item, source: "batch")
+      line ||= so.production_lines.build(item: item, suffix: part_suffix, source: "batch")
       if line.shipped_qty.positive? && line.quantity < line.shipped_qty
         stats[:errors] << "第#{i}行：#{serial} #{part} 数量低于已出库（#{line.shipped_qty}）"
         stats[:skipped] += 1
