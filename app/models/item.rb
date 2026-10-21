@@ -70,9 +70,10 @@ class Item < ActiveRecord::Base
   end
 
   # 按表头名称解析（对齐导出工作簿「产品」表；容忍空列/多余列/列序变化）
-  def self.import(file)
+  def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
-    each_data_row(sheet) do |row|
+    stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    each_data_row(sheet) do |row, i|
       part = row["型号"].to_s.strip
       next if part.blank?
 
@@ -95,8 +96,16 @@ class Item < ActiveRecord::Base
       item.package = row["包装"].presence || item.package
       item.moq = row["最小起订量"].presence || item.moq
       item.index = row["状态"] == "隐藏" ? 0 : 1
+      is_new = item.new_record?
       item.save!
+      is_new ? stats[:created] += 1 : stats[:updated] += 1
+    rescue StandardError => e
+      stats[:errors] << "第#{i}行：#{e.message}"
+      stats[:skipped] += 1
     end
+
+    Import.create!(kind: "items", filename: file.original_filename,
+                   imported_by: imported_by, stats: stats)
   end
   # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
   def self.each_data_row(sheet, &block)

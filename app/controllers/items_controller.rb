@@ -103,8 +103,8 @@ class ItemsController < ApplicationController
 
   # POST /items/import
   def import
-    Item.import(params[:file])
-    redirect_to items_url, notice: "Products imported."
+    import = Item.import(params[:file], imported_by: current_user)
+    redirect_to items_url, notice: import_report(import)
   end
 
   private

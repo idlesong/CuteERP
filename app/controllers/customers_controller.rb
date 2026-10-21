@@ -102,8 +102,8 @@ class CustomersController < ApplicationController
 
   # POST /customers/import
   def import
-    Customer.import(params[:file])
-    redirect_to customers_url, notice: "Customers imported."
+    import = Customer.import(params[:file], imported_by: current_user)
+    redirect_to customers_url, notice: import_report(import)
   end
 
   private

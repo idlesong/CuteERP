@@ -36,9 +36,10 @@ class Customer < ActiveRecord::Base
   end
 
   # 按表头名称解析（对齐导出工作簿「客户」表；容忍空列/多余列/列序变化）
-  def self.import(file)
+  def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
-    each_data_row(sheet) do |row|
+    stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    each_data_row(sheet) do |row, i|
       name = row["英文名"].to_s.strip
       next if name.blank?
 
@@ -56,8 +57,16 @@ class Customer < ActiveRecord::Base
       customer.ship_telephone = row["收货电话"].presence || customer.ship_telephone
       customer.currency = row["币别"].presence || customer.currency
       customer.payment = row["付款方式"].presence || customer.payment
+      is_new = customer.new_record?
       customer.save!
+      is_new ? stats[:created] += 1 : stats[:updated] += 1
+    rescue StandardError => e
+      stats[:errors] << "第#{i}行：#{e.message}"
+      stats[:skipped] += 1
     end
+
+    Import.create!(kind: "customers", filename: file.original_filename,
+                   imported_by: imported_by, stats: stats)
   end
   # 通用：按表头名称逐行解析（跳过空表头列），容忍列序变化/多余列
   def self.each_data_row(sheet, &block)

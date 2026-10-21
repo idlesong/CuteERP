@@ -5,7 +5,6 @@ class ImportsController < ApplicationController
   # GET /imports
   def index
     @imports = Import.order(created_at: :desc).limit(50)
-    @month = params[:month].presence || Date.current.strftime("%Y-%m")
     @check_token = session[:check_token]
     if @check_token && ImportChecker.fetch_annotated(@check_token).nil?
       session.delete(:check_token) # 标注文件已过期（30 分钟）
@@ -26,9 +25,9 @@ class ImportsController < ApplicationController
   def import_customer_orders
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
     return check_only(CustomerOrdersImport) if params[:commit] == "check"
-    return unless import_precheck!(CustomerOrdersImport, month: parse_month(params[:month]))
+    return unless import_precheck!(CustomerOrdersImport)
 
-    import = CustomerOrdersImport.call(params[:file], imported_by: current_user, month: parse_month(params[:month]))
+    import = CustomerOrdersImport.call(params[:file], imported_by: current_user)
     redirect_to imports_path, notice: import_report(import)
   rescue StandardError => e
     redirect_to imports_path, alert: "导入失败：#{e.message}"
@@ -38,7 +37,7 @@ class ImportsController < ApplicationController
   def import_prices
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
     return check_only(Price) if params[:commit] == "check"
-    return unless import_precheck!(Price, month: parse_month(params[:month]))
+    return unless import_precheck!(Price)
 
     import = Price.import(params[:file], imported_by: current_user)
     redirect_to imports_path, notice: import_report(import)
@@ -50,9 +49,9 @@ class ImportsController < ApplicationController
   def import_sales_orders
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
     return check_only(SalesOrdersImport) if params[:commit] == "check"
-    return unless import_precheck!(SalesOrdersImport, month: parse_month(params[:month]))
+    return unless import_precheck!(SalesOrdersImport)
 
-    import = SalesOrdersImport.call(params[:file], imported_by: current_user, month: parse_month(params[:month]))
+    import = SalesOrdersImport.call(params[:file], imported_by: current_user)
     redirect_to imports_path, notice: import_report(import)
   rescue StandardError => e
     redirect_to imports_path, alert: "导入失败：#{e.message}"
@@ -62,9 +61,29 @@ class ImportsController < ApplicationController
   def import_shipments
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
     return check_only(ShipmentsImport) if params[:commit] == "check"
-    return unless import_precheck!(ShipmentsImport, month: parse_month(params[:month]))
+    return unless import_precheck!(ShipmentsImport)
 
-    import = ShipmentsImport.call(params[:file], imported_by: current_user, month: parse_month(params[:month]))
+    import = ShipmentsImport.call(params[:file], imported_by: current_user)
+    redirect_to imports_path, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to imports_path, alert: "导入失败：#{e.message}"
+  end
+
+  # POST /imports/customers —— 客户导入（模板 = 工作簿「客户」表）
+  def import_customers
+    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+
+    import = Customer.import(params[:file], imported_by: current_user)
+    redirect_to imports_path, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to imports_path, alert: "导入失败：#{e.message}"
+  end
+
+  # POST /imports/items —— 产品导入（模板 = 工作簿「产品」表）
+  def import_items
+    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+
+    import = Item.import(params[:file], imported_by: current_user)
     redirect_to imports_path, notice: import_report(import)
   rescue StandardError => e
     redirect_to imports_path, alert: "导入失败：#{e.message}"
@@ -74,7 +93,7 @@ class ImportsController < ApplicationController
 
   # 「检查」按钮：仅预检不导入（与导入同端点，per-form CSRF token 才能匹配）
   def check_only(importer)
-    result = ImportChecker.run(importer, params[:file], month: parse_month(params[:month]))
+    result = ImportChecker.run(importer, params[:file])
     if ImportChecker.blocked?(result)
       session[:check_token] = ImportChecker.store_annotated(importer, params[:file], result)
       redirect_to imports_path, alert: "检查发现 #{result.errors.values.flatten.size} 处错误（警告 #{result.warnings.values.flatten.size} 条），已生成错误标注文件，修正后才能导入"
@@ -84,11 +103,5 @@ class ImportsController < ApplicationController
     end
   rescue StandardError => e
     redirect_to imports_path, alert: "检查失败：#{e.message}"
-  end
-
-  def parse_month(raw)
-    Date.strptime(raw.to_s, "%Y-%m").beginning_of_month
-  rescue ArgumentError, TypeError
-    nil
   end
 end
