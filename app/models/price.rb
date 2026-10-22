@@ -4,7 +4,8 @@ class Price < ApplicationRecord
 
   validates :customer_id, :customer_name, :part_number, :condition, :price, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
-  validates :condition, uniqueness: { scope: [:customer_name, :part_number] }
+  # 同客户+同型号+同档位允许重新报价：导入端以「新价替代旧价」处理（旧记录自动失效），
+  # 不再做 condition 唯一性校验；价格匹配（match_for）取生效日期最新的一条
   validates :currency, inclusion: { in: ["RMB", "USD"] }, allow_blank: true
 
   before_validation :parse_price_formula
@@ -155,13 +156,41 @@ class Price < ApplicationRecord
       price.effective_from = row["生效日期"].presence || price.effective_from
       price.expired_at = row["失效日期"].presence || price.expired_at
       price.price = row["总单价"].presence || price.price
-      price.base_price = row["芯片"].presence || price.base_price
-      price.v1_price = row["声码1"].presence || price.v1_price
-      price.v2_price = row["声码2"].presence || price.v2_price
       price.condition = row["订单量"].presence || price.condition
       price.remark = row["remark"].presence || price.remark
       price.currency = row["币别"].presence || price.currency
       price.status = row["状态"] == "生效" ? "approved" : (row["状态"].presence || "requested")
+
+      # 成分：合计 ≠ 总单价 → 按比例缩放到总单价（尾差并入芯片，与订单拆分同思路），警告提示
+      chip = row["芯片"].presence&.to_d
+      v1 = row["声码1"].presence&.to_d
+      v2 = row["声码2"].presence&.to_d
+      sum = [chip, v1, v2].compact.sum
+      total = price.price.to_d
+      if sum.positive? && (total - sum).abs > 0.01
+        scale = total / sum
+        chip = chip ? (chip * scale).round(2) : nil
+        v1 = v1 ? (v1 * scale).round(2) : nil
+        v2 = v2 ? (v2 * scale).round(2) : nil
+        rest = [chip, v1, v2].compact.sum
+        chip = (chip || 0.to_d) + (total - rest) # 尾差并入芯片
+        warnings << "第#{i}行：成分合计 #{sum} ≠ 总单价 #{total}，已按比例调整（#{chip}/#{v1 ? v1 : 0}/#{v2 ? v2 : 0}）"
+      end
+      price.base_price = chip.presence || price.base_price
+      price.v1_price = v1.presence || price.v1_price
+      price.v2_price = v2.presence || price.v2_price
+
+      # 同客户+同型号+同档位重新报价：未过期的旧记录自动失效（新价替代旧价）
+      if is_new
+        new_eff = price.effective_from || Date.current
+        where(customer_name: import_customer.name, part_number: price.part_number,
+              condition: price.condition).where.not(id: price.id)
+              .where("expired_at IS NULL OR expired_at >= ?", new_eff).each do |old|
+          old.update_columns(expired_at: new_eff - 1.day)
+          warnings << "第#{i}行：新价 #{number} 替代原价 #{old.price_number}（原价 #{old.price}，已过期）"
+        end
+      end
+
       price.save!
       is_new ? created += 1 : updated += 1
     rescue ActiveRecord::RecordInvalid => e
