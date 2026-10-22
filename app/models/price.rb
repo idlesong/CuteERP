@@ -155,27 +155,17 @@ class Price < ApplicationRecord
       price.part_number = row["通用型号"].presence || price.part_number
       price.effective_from = row["生效日期"].presence || price.effective_from
       price.expired_at = row["失效日期"].presence || price.expired_at
-      price.price = row["总单价"].presence || price.price
+      raw_total = row["总单价"].to_s.strip
+      price.price = raw_total.start_with?("=") ? raw_total : (raw_total.presence&.to_d&.round(2) || price.price)
       price.condition = row["订单量"].presence || price.condition
       price.remark = row["remark"].presence || price.remark
       price.currency = row["币别"].presence || price.currency
       price.status = row["状态"] == "生效" ? "approved" : (row["状态"].presence || "requested")
 
-      # 成分：合计 ≠ 总单价 → 按比例缩放到总单价（尾差并入芯片，与订单拆分同思路），警告提示
-      chip = row["芯片"].presence&.to_d
-      v1 = row["声码1"].presence&.to_d
-      v2 = row["声码2"].presence&.to_d
-      sum = [chip, v1, v2].compact.sum
-      total = price.price.to_d
-      if sum.positive? && (total - sum).abs > 0.01
-        scale = total / sum
-        chip = chip ? (chip * scale).round(2) : nil
-        v1 = v1 ? (v1 * scale).round(2) : nil
-        v2 = v2 ? (v2 * scale).round(2) : nil
-        rest = [chip, v1, v2].compact.sum
-        chip = (chip || 0.to_d) + (total - rest) # 尾差并入芯片
-        warnings << "第#{i}行：成分合计 #{sum} ≠ 总单价 #{total}，已按比例调整（#{chip}/#{v1 ? v1 : 0}/#{v2 ? v2 : 0}）"
-      end
+      # 成分取 Excel 显示值（2 位小数）：消除单元格隐藏小数位导致的看起来合计相等却报错
+      chip = row["芯片"].presence&.to_d&.round(2)
+      v1 = row["声码1"].presence&.to_d&.round(2)
+      v2 = row["声码2"].presence&.to_d&.round(2)
       price.base_price = chip.presence || price.base_price
       price.v1_price = v1.presence || price.v1_price
       price.v2_price = v2.presence || price.v2_price
@@ -272,7 +262,7 @@ class Price < ApplicationRecord
     return if [base_price, v1_price, v2_price].all?(&:blank?)
 
     total = [base_price, v1_price, v2_price].compact.sum
-    if (price.to_d - total.to_d).abs > 0.001
+    if (price.round(2) - total.round(2)).abs > 0.005 # 容差吸收显示舍入（Excel 隐藏小数位）
       errors.add(:price, "必须等于 基本款 + 附加1 + 附加2（当前合计 #{total}）")
     end
   end
