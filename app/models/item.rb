@@ -27,17 +27,34 @@ class Item < ActiveRecord::Base
     end
   end
 
-  # 命名规则严格拆分（Baseband：完整型号 = 通用型号 + 1 位后缀，或缺省）。
-  # 后缀集合来自用户设置 naming.suffixes（默认 C/M/S）；末位不在集合内 → 缺省（整串即通用型号）。
-  # 订单/六联单/出库链路一律用本方法；产品建档沿用宽拆分 split_part_no（非 Baseband 族）
+  # 命名规则按位拆分（Baseband，位置固定）：
+  #   完整型号 = SCT + 4位数字 + XY(通用型号尾字母) + Z(后缀，1 位，可省略)
+  #   长度 9  → 通用型号（后缀缺省）：SCT3089MM → generic=SCT3089MM
+  #   长度 10 → 通用型号 + 后缀：     SCT3089DVC → generic=SCT3089DV, suffix="C"
+  # 非 SCT 前缀（其他产品族）不适用本规则，整串返回。
+  # 后缀合法性（第 10 位 ∈ naming.suffixes）由导入方严格校验，此处不校验。
   def self.parse_full_part_no(full)
     full = full.to_s.strip
-    last = full[-1]
-    if last && User.naming_suffixes.include?(last)
-      [full[0..-2], last]
-    else
-      [full, nil]
+    return [full, nil] unless full.match?(/\ASCT\d{4}/i)
+    case full.length
+    when 9  then [full, nil]
+    when 10 then [full[0, 9], full[9]]
+    else [full, nil]
     end
+  end
+
+  # Baseband 命名规则校验：返回错误消息，合规返回 nil
+  def self.naming_error(full)
+    full = full.to_s.strip
+    return nil unless full.match?(/\ASCT\d{4}/i) # 仅 Baseband
+
+    unless full.length.in?([9, 10])
+      return "不符合命名规则（应为 SCT+4位数字+XY[+Z]，共 9 或 10 位）"
+    end
+    if full.length == 10 && User.naming_suffixes.exclude?(full[9])
+      return "后缀「#{full[9]}」不在合法后缀集合（#{User.naming_suffixes.join('/')}）内"
+    end
+    nil
   end
 
   def self.full(generic, suffix) = "#{generic}#{suffix}"

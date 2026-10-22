@@ -55,10 +55,16 @@ class CustomerOrdersImport
         next
       end
 
-      # 型号严格校验（命名规则）：完整型号 = 通用型号 + 1 位后缀（C/M/S…）或缺省；
+      # 型号严格校验（命名规则仅针对 Baseband）：位次不符/后缀非法 → 报错；
       # 派生出的通用型号必须在产品列表建档，否则报错阻断（冲销/正常行共用）
       raw_part = generic # 客户所订原文（完整型号或缺省）
-      generic, = Item.parse_full_part_no(generic)
+      naming_err = Item.naming_error(raw_part)
+      generic, = Item.parse_full_part_no(raw_part)
+      if naming_err
+        stats[:errors] << "第#{i}行：型号「#{raw_part}」#{naming_err}"
+        stats[:skipped] += 1
+        next
+      end
       unless Item.exists?(generic_part_no: generic)
         stats[:errors] << "第#{i}行：型号「#{raw_part}」（通用型号 #{generic}）未建档，请先在产品列表维护"
         stats[:skipped] += 1

@@ -20,7 +20,7 @@
           </div>
           <div class="small text-muted mb-2">
             自然键 = 订单号 + 型号 + 版本；重复导入只更新，不产生重复数据。<br>
-            型号 = 完整型号（通用型号 + 后缀 C/M/S）或缺省；未建档报错。<br>
+            型号 = SCT+4位数字+XY[+Z]（第 10 位为后缀 C/M/S，可缺省）；位次或后缀不符报错；未建档报错。<br>
             冲销：同一订单号下数量填负数（或类型/特殊要求标注"冲销"），自动生成冲销单「订单号-Rn」，受可冲销余额限制。
           </div>
           <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
