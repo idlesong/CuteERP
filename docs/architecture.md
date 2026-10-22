@@ -62,15 +62,17 @@ closed_periods                              # 关账月（ClosedPeriodGuard 拦�
 
 ## 导入体系（两阶段：预检 → 修正 → 导入）
 
-四个导入器统一走 `ImportsController`（导入中心）与月度工作簿同模板，均**按表头名称解析**
+六个导入器统一走 `ImportsController`（导入中心）与月度工作簿同模板，均**按表头名称解析**
 （容忍列序变化/空列/多余统计列）：
 
 | 导入器 | 模板表 | 自然键 | 特性 |
 |---|---|---|---|
-| `CustomerOrdersImport` | 客户订单 | 订单号+通用型号+版本 | 含税单价自动匹配报价拆分成分；负数量/标注"冲销"→ 生成冲销单「PO-Rn」；币别随表 |
-| `Price.import` | 价格 | Price_number | 成分公式校验（合计=总价）；客户缺失报错阻断 |
-| `SalesOrdersImport` | 生产订单-六联单 | 六联单号 | 导入即 submitted（D14）；分配对「订单N」支持纯订单号；分配直接建台账 |
+| `CustomerOrdersImport` | 客户订单 | 订单号+通用型号+版本 | 型号=完整型号（规则派生通用型号，未建档报错）；含税单价自动匹配报价拆分成分；负数量/标注"冲销"→ 生成冲销单「PO-Rn」 |
+| `Price.import` | 价格 | Price_number | 必填项与成分合计校验；客户缺失报错阻断 |
+| `SalesOrdersImport` | 生产订单-六联单 | 六联单号 | 导入即 submitted（D14）；分配对「订单N」支持纯订单号；「产品」列完整型号→suffix 落行；分配直接建台账 |
 | `ShipmentsImport` | 出库单 | source_key（六联单号\|日期\|快递号） | 同键多行合单、同产品累加；重复导入整单重建（幂等） |
+| `Customer.import` | 客户 | 英文名（中文名唯一） | 客户订单导入的前置；资料更新幂等 |
+| `Item.import` | 产品 | 通用型号（同文件唯一） | 订单导入的前置；建档后六联单可引用 |
 
 **两阶段流程**（`ImportChecker`）：
 
