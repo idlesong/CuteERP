@@ -123,7 +123,21 @@ class Price < ApplicationRecord
 
     each_data_row(sheet) do |row, i|
       number = row["Price_number"].to_s.strip
-      next if number.blank?
+      if number.blank?
+        if row.values.any? { |v| v.to_s.strip.present? }
+          errors << "第#{i}行：Price_number 必填"
+        end
+        next
+      end
+
+      # 必填：客户/通用型号/总单价/订单量；成分三列必填（总单价为 =公式 时自动拆分豁免）
+      formula = row["总单价"].to_s.strip.start_with?("=")
+      missing = %w[客户 通用型号 总单价 订单量].select { |h| row[h].to_s.strip.blank? }
+      missing += %w[芯片 声码1 声码2].select { |h| row[h].to_s.strip.blank? } unless formula
+      unless missing.empty?
+        errors << "第#{i}行：缺少必填字段：#{missing.join('、')}"
+        next
+      end
 
       price = find_by(price_number: number) || new(price_number: number)
       import_customer = Customer.find_by(name: row["客户"].to_s.strip) ||

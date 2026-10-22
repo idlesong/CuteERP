@@ -73,11 +73,6 @@ RAILS_ENV=production bin/rails server -b 127.0.0.1 -p 3001
 当报价低于阶梯报价时（小于1元），需要PRR框输入PRR号。快捷创建也需要。
 
 
-导入检查
-- 产品，产品通用名唯一，命名规则；必须有Part Number，中文名称，description，group；
-- 客户，中文名唯一，必须有公司全称，销售类型，币别
-- 价格，必须有：Price_number，Customer_name，	Part number，	总价，	base_price	v1_price	v2 price，	数量
-- 客户订单，必须有：接收订单日期，客户	客户订单号	产品	版本	订单数量	含税单价
 
 
 

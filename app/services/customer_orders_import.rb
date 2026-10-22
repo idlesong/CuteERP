@@ -38,8 +38,26 @@ class CustomerOrdersImport
 
       version = row.call("版本").to_s.strip.presence
       qty = row.call("数量").to_i
+      recv_date = parse_date(row.call("接收日期"))
+      # 冲销行：数量为负，或 类型/特殊要求 标注 冲销/核销/return
+      marked = row.call("特殊要求").to_s.match?(/冲销|核销/) ||
+               row.call("类型").to_s.match?(/冲销|核销|return/i)
+      # 必填校验：接收日期/数量/版本；正常行另需含税单价（冲销行价格自原行复制，免填）
+      missing = []
+      missing << "接收日期" if recv_date.nil?
+      missing << "数量" if qty.zero?
+      total = parse_number(row.call("含税单价"))
+      missing << "含税单价" if total.nil? && !marked
+      missing << "版本" if version.nil? && !marked
+      unless missing.empty?
+        stats[:errors] << "第#{i}行：缺少必填字段：#{missing.join('、')}"
+        stats[:skipped] += 1
+        next
+      end
+
       # 型号严格校验（命名规则）：完整型号 = 通用型号 + 1 位后缀（C/M/S…）或缺省；
       # 派生出的通用型号必须在产品列表建档，否则报错阻断（冲销/正常行共用）
+      raw_part = generic # 客户所订原文（完整型号或缺省）
       generic, = Item.parse_full_part_no(generic)
       unless Item.exists?(generic_part_no: generic)
         stats[:errors] << "第#{i}行：型号「#{generic}」未建档，请先在产品列表维护"
@@ -47,15 +65,7 @@ class CustomerOrdersImport
         next
       end
 
-      # 冲销行：数量为负，或 类型/特殊要求 标注 冲销/核销/return
-      marked = row.call("特殊要求").to_s.match?(/冲销|核销/) ||
-               row.call("类型").to_s.match?(/冲销|核销|return/i)
       if qty.negative? || marked
-        if qty.zero?
-          stats[:errors] << "第#{i}行：冲销行数量为空"
-          stats[:skipped] += 1
-          next
-        end
         import_return(stats, po: po, generic: generic, version: version,
                       abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s)
         next
@@ -74,9 +84,8 @@ class CustomerOrdersImport
       line = order.order_lines.find_by(generic_part_no: generic, version: version)
       created_line = line.nil?
       line ||= order.order_lines.build(generic_part_no: generic, version: version.presence)
-      line.full_part_no = row.call("通用型号").to_s.strip.presence || line.full_part_no # 客户所订原始写法
+      line.full_part_no = raw_part.presence || line.full_part_no # 客户所订原始写法
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
-      total = parse_number(row.call("含税单价"))
       was_base = line.base_price
       # 成分从未拆分过（v1/v2 均空，含旧版导入塞在芯片列的总额）→ 清空后重新匹配，允许自愈
       if line.v1_price.blank? && line.v2_price.blank?
@@ -86,7 +95,7 @@ class CustomerOrdersImport
       line.required_delivery_date = parse_date(row.call("要求交期")) || line.required_delivery_date
       line.remark = row.call("特殊要求").to_s.presence || line.remark
       # 有效期以接收日期为基准（补录历史订单也能命中当时有效的报价）
-      as_of = parse_date(row.call("接收日期")) || month || Date.current
+      as_of = recv_date || month || Date.current
       OrderLine.apply_price_snapshot(line, total: total, date: as_of)
 
       if line.price_id.present?

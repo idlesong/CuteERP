@@ -69,13 +69,50 @@ class Item < ActiveRecord::Base
     Xlsx.generate(name: "产品", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
+  # 与各导入服务同构的入口（导入预检/导入中心统一调用）
+  def self.call(file, imported_by:, month: nil)
+    import(file, imported_by: imported_by)
+  end
+
   # 按表头名称解析（对齐导出工作簿「产品」表；容忍空列/多余列/列序变化）
+  # 预检规则：型号必填且同文件唯一；Baseband 命名规则（通用型号不得以合法后缀字母结尾）；
+  # 产品名称/中文名/描述/类别必填
   def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    seen_generics = {}
     each_data_row(sheet) do |row, i|
       part = row["型号"].to_s.strip
-      next if part.blank?
+      if part.blank?
+        if row.values.any? { |v| v.to_s.strip.present? }
+          stats[:errors] << "第#{i}行：型号必填"
+          stats[:skipped] += 1
+        else
+          stats[:skipped] += 1
+        end
+        next
+      end
+
+      generic, = parse_full_part_no(part)
+      if seen_generics[generic]
+        stats[:errors] << "第#{i}行：通用型号「#{generic}」重复（第#{seen_generics[generic]}行已出现）"
+        stats[:skipped] += 1
+        next
+      end
+      seen_generics[generic] = i
+
+      if generic.match?(/\ASCT\d/i) && User.naming_suffixes.include?(generic[-1])
+        stats[:errors] << "第#{i}行：通用型号「#{generic}」不符合命名规则（不能以合法后缀字母结尾）"
+        stats[:skipped] += 1
+        next
+      end
+
+      missing = %w[产品名称 中文名 描述 类别].select { |h| row[h].to_s.strip.blank? }
+      unless missing.empty?
+        stats[:errors] << "第#{i}行：缺少必填字段：#{missing.join('、')}"
+        stats[:skipped] += 1
+        next
+      end
 
       # 优先按完整型号精确匹配（后缀长度任意）；仅全新型号才走兜底拆分新建
       item = Item.all.find { |i| i.partNo == part }
@@ -86,6 +123,7 @@ class Item < ActiveRecord::Base
         item.suffix = sfx
       end
       item.name = row["产品名称"].presence || item.name
+      item.name_zh = row["中文名"].presence || item.name_zh
       item.description = row["描述"].presence || item.description
       item.group = row["类别"].presence || item.group
       item.family = row["产品族"].presence || item.family

@@ -35,16 +35,54 @@ class Customer < ActiveRecord::Base
     Xlsx.generate(name: "客户", headers: EXPORT_HEADERS, rows: export_rows)
   end
 
+  # 与各导入服务同构的入口（导入预检/导入中心统一调用）
+  def self.call(file, imported_by:, month: nil)
+    import(file, imported_by: imported_by)
+  end
+
   # 按表头名称解析（对齐导出工作簿「客户」表；容忍空列/多余列/列序变化）
+  # 预检规则：英文名/公司全称/销售类型/币别必填；中文名唯一（不与其他客户冲突）
   def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    seen_name_zh = {}
     each_data_row(sheet) do |row, i|
       name = row["英文名"].to_s.strip
-      next if name.blank?
+      if name.blank?
+        if row.values.any? { |v| v.to_s.strip.present? }
+          stats[:errors] << "第#{i}行：英文名必填"
+          stats[:skipped] += 1
+        else
+          stats[:skipped] += 1
+        end
+        next
+      end
+
+      missing = %w[公司全称 销售类型 币别].select { |h| row[h].to_s.strip.blank? }
+      unless missing.empty?
+        stats[:errors] << "第#{i}行：缺少必填字段：#{missing.join('、')}"
+        stats[:skipped] += 1
+        next
+      end
+
+      name_zh = row["中文名"].to_s.strip
+      if name_zh.present?
+        if (dup = where(name_zh: name_zh).where.not(name: name).first)
+          stats[:errors] << "第#{i}行：中文名「#{name_zh}」已被客户「#{dup.name}」使用"
+          stats[:skipped] += 1
+          next
+        end
+        # 同文件内：中文名已由其他英文名占用
+        if seen_name_zh[name_zh] && seen_name_zh[name_zh][:name] != name
+          stats[:errors] << "第#{i}行：中文名「#{name_zh}」与本文件第#{seen_name_zh[name_zh][:row]}行的客户冲突"
+          stats[:skipped] += 1
+          next
+        end
+        seen_name_zh[name_zh] = { name: name, row: i }
+      end
 
       customer = find_by(name: name) || new(name: name)
-      customer.name_zh = row["中文名"].presence || customer.name_zh
+      customer.name_zh = name_zh.presence || customer.name_zh
       customer.full_name = row["公司全称"].presence || customer.full_name
       customer.territory = row["区域"].presence || customer.territory
       customer.sales_type = row["销售类型"].presence || customer.sales_type

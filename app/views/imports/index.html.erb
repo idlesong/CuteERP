@@ -96,7 +96,8 @@
             <label class="form-label small mb-0">工作簿（「客户」表：英文名/中文名/区域/币别/付款方式…）</label>
             <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
           </div>
-          <div class="small text-muted mb-2">自然键 = 英文名；已存在则更新资料。客户订单导入的前置。</div>
+          <div class="small text-muted mb-2">自然键 = 英文名；已存在则更新资料；中文名唯一；公司全称/销售类型/币别必填。客户订单导入的前置。</div>
+          <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>
@@ -112,7 +113,8 @@
             <label class="form-label small mb-0">工作簿（「产品」表：型号/产品名称/类别/…）</label>
             <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
           </div>
-          <div class="small text-muted mb-2">产品列表只维护通用型号；客户订单导入的前置。</div>
+          <div class="small text-muted mb-2">产品列表只维护通用型号；型号同文件唯一、不得以合法后缀字母结尾；产品名称/中文名/描述/类别必填。客户订单导入的前置。</div>
+          <button type="submit" name="commit" value="check" class="btn btn-sm btn-outline-secondary">检查</button>
           <%= submit_tag "导入", class: "btn btn-sm btn-primary" %>
         <% end %>
       </div>

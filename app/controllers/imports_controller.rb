@@ -72,6 +72,8 @@ class ImportsController < ApplicationController
   # POST /imports/customers —— 客户导入（模板 = 工作簿「客户」表）
   def import_customers
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+    return check_only(Customer) if params[:commit] == "check"
+    return unless import_precheck!(Customer)
 
     import = Customer.import(params[:file], imported_by: current_user)
     redirect_to imports_path, notice: import_report(import)
@@ -82,6 +84,8 @@ class ImportsController < ApplicationController
   # POST /imports/items —— 产品导入（模板 = 工作簿「产品」表）
   def import_items
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
+    return check_only(Item) if params[:commit] == "check"
+    return unless import_precheck!(Item)
 
     import = Item.import(params[:file], imported_by: current_user)
     redirect_to imports_path, notice: import_report(import)
