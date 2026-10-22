@@ -27,17 +27,18 @@ class Item < ActiveRecord::Base
     end
   end
 
-  # 命名规则按位拆分（Baseband，位置固定）：
-  #   完整型号 = SCT + 4位数字 + XY(通用型号尾字母) + Z(后缀，1 位，可省略)
-  #   长度 9  → 通用型号（后缀缺省）：SCT3089MM → generic=SCT3089MM
-  #   长度 10 → 通用型号 + 后缀：     SCT3089DVC → generic=SCT3089DV, suffix="C"
-  # 非 SCT 前缀（其他产品族）不适用本规则，整串返回。
-  # 后缀合法性（第 10 位 ∈ naming.suffixes）由导入方严格校验，此处不校验。
+  # 完整型号解析（注册表优先，命名规则按位兜底）：
+  #   1) 整串命中产品档案（partNo = 通用+后缀，含老式拆分记录）→ 用档案的通用型号与后缀
+  #      例：PA-001M（档案 generic=PA-001, suffix=M）→ ["PA-001", "M"]
+  #   2) 未命中 → Baseband 按位派生：9 位=通用（后缀缺省）、10 位=通用+第 10 位后缀；
+  #      非 SCT 前缀整串返回
   def self.parse_full_part_no(full)
     full = full.to_s.strip
+    if (item = find_by_any_part_no(full))
+      return [item.generic_part_no, item.suffix.presence]
+    end
     return [full, nil] unless full.match?(/\ASCT\d{4}/i)
     case full.length
-    when 9  then [full, nil]
     when 10 then [full[0, 9], full[9]]
     else [full, nil]
     end
