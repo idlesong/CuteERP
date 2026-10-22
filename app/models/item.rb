@@ -76,7 +76,7 @@ class Item < ActiveRecord::Base
 
   # 按表头名称解析（对齐导出工作簿「产品」表；容忍空列/多余列/列序变化）
   # 预检规则：型号必填且同文件唯一；Baseband 命名规则（通用型号不得以合法后缀字母结尾）；
-  # 产品名称/中文名/描述/类别必填
+  # 产品名称/描述/类别必填（中文名列可作为产品名称的别名）
   def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
@@ -107,7 +107,9 @@ class Item < ActiveRecord::Base
         next
       end
 
-      missing = %w[产品名称 中文名 描述 类别].select { |h| row[h].to_s.strip.blank? }
+      # 必填：产品名称（中文名列可作为其别名）/描述/类别
+      missing = %w[描述 类别].select { |h| row[h].to_s.strip.blank? }
+      missing.unshift("产品名称") if row["产品名称"].to_s.strip.blank? && row["中文名"].to_s.strip.blank?
       unless missing.empty?
         stats[:errors] << "第#{i}行：缺少必填字段：#{missing.join('、')}"
         stats[:skipped] += 1
@@ -122,8 +124,8 @@ class Item < ActiveRecord::Base
         item.generic_part_no = base
         item.suffix = sfx
       end
-      item.name = row["产品名称"].presence || item.name
-      item.name_zh = row["中文名"].presence || item.name_zh
+      item.name = row["产品名称"].presence || row["中文名"].presence || item.name
+      item.name_zh = row["产品名称"].presence || row["中文名"].presence || item.name_zh
       item.description = row["描述"].presence || item.description
       item.group = row["类别"].presence || item.group
       item.family = row["产品族"].presence || item.family
