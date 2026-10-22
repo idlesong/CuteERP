@@ -31,7 +31,7 @@ class SalesOrdersImport
       end
 
       generic, part_suffix = Item.parse_full_part_no(part)
-      item = Item.find_by(generic_part_no: generic)
+      item = Item.find_by(generic_part_no: generic) || Item.find_by_any_part_no(part)
       unless item
         stats[:errors] << "第#{i}行：产品「#{part}」未建档"
         stats[:skipped] += 1
@@ -47,6 +47,7 @@ class SalesOrdersImport
       end
 
       qty = val.call("数量").to_i
+      part_suffix = part_suffix.presence || item.suffix.presence
       line = so.production_lines.find_by(item_id: item.id, suffix: part_suffix)
       created_line = line.nil?
       line ||= so.production_lines.build(item: item, suffix: part_suffix, source: "batch")

@@ -64,11 +64,13 @@ class CustomerOrdersImport
         stats[:skipped] += 1
         next
       end
-      unless Item.exists?(generic_part_no: generic)
+      resolved = Item.find_by(generic_part_no: generic) || Item.find_by_any_part_no(raw_part)
+      unless resolved
         stats[:errors] << "第#{i}行：型号「#{raw_part}」（通用型号 #{generic}）未建档，请先在产品列表维护"
         stats[:skipped] += 1
         next
       end
+      generic = resolved.generic_part_no # 归一化（非 Baseband 类别通用型号 = 完整型号）
 
       if qty.negative? || marked
         import_return(stats, po: po, generic: generic, version: version,
