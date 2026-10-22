@@ -43,14 +43,13 @@ class Item < ActiveRecord::Base
     end
   end
 
-  # Baseband 命名规则校验：返回错误消息，合规返回 nil
+  # 命名规则校验（仅产品档案类别 = Baseband）：返回错误消息，合规返回 nil。
+  # 长度不校验：通用型号有 7 位（SCT1234）与 9 位（SCT1234XY）两种形态
   def self.naming_error(full)
     full = full.to_s.strip
-    return nil unless full.match?(/\ASCT\d{4}/i) # 仅 Baseband
+    item = find_by_any_part_no(full)
+    return nil unless item&.group == "Baseband" # 命名规则仅 Baseband 类别
 
-    unless full.length.in?([9, 10])
-      return "不符合命名规则（应为 SCT+4位数字+XY[+Z]，共 9 或 10 位）"
-    end
     if full.length == 10 && User.naming_suffixes.exclude?(full[9])
       return "后缀「#{full[9]}」不在合法后缀集合（#{User.naming_suffixes.join('/')}）内"
     end
