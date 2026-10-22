@@ -12,10 +12,14 @@ CuteERP 是面向小型制造/贸易团队的轻量 ERP：客户订单、六联�
 |---|---|
 | [docs/setup_wsl.md](docs/setup_wsl.md) | 开发环境快速搭建（WSL2 + Ubuntu 22.04） |
 | [docs/features.md](docs/features.md) | 功能总览与操作入口 |
-| [docs/architecture.md](docs/architecture.md) | 架构、数据模型、核心口径与代码结构 |
+| [docs/architecture.md](docs/architecture.md) | 架构、数据模型、导入体系/预检规则、型号命名规则、**当前状态与快速恢复** |
 | [docs/deploy_synology.md](docs/deploy_synology.md) | 群晖 NAS 部署（Docker）与远程访问、备份恢复 |
 | [docs/feature_plan.md](docs/feature_plan.md) | 功能升级计划与设计决策 D1–D14（存档） |
 | [docs/phase2_plan.md](docs/phase2_plan.md) | 第二阶段计划：对账/备份/Excel 并行（存档） |
+| [docs/phase3_plan.md](docs/phase3_plan.md) | 第三阶段计划：核对工作流（待实施） |
+
+> **快速恢复上下文**：新会话先读 [docs/architecture.md](docs/architecture.md) 的
+> 「当前状态与快速恢复」章节——含最近交付清单（提交号）、部署固定流程与待办事项。
 
 ## 快速开始（开发）
 
@@ -52,13 +56,19 @@ bin/rails runner tmp/check_p5.rb   # 计划/仪表盘
 bin/rails runner tmp/check_ui2.rb  # 页面与快捷流程
 ```
 
-## 生产测试
-在WSL中，进入cute_erp目录
+## 生产测试（3001）
 
+在 WSL 中进入 cute_erp 目录，**每次代码更新后按此固定流程**（缺一步生产端就不生效）：
+
+```bash
+bin/rails db:migrate RAILS_ENV=production                              # 有迁移时
+yarn build && yarn build:css                                           # 前端改动时
+bin/rails assets:precompile RAILS_ENV=production                       # 总是要（刷新指纹清单）
+RAILS_ENV=production bin/rails server -b 127.0.0.1 -p 3001             # 重启
 ```
-yarn build && yarn build:css && bin/rails assets:precompile RAILS_ENV=production
-RAILS_ENV=production bin/rails server -b 127.0.0.1 -p 3001
-```
+
+> 注意：生产端引用 `public/assets` 的带指纹副本，只跑 `yarn build` 不跑
+> `assets:precompile` 前端不会更新。凭据见 `config/credentials/production.yml.enc`。
 
 ## 部署
 
