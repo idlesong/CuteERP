@@ -60,7 +60,7 @@ class CustomerOrdersImport
       raw_part = generic # 客户所订原文（完整型号或缺省）
       generic, = Item.parse_full_part_no(generic)
       unless Item.exists?(generic_part_no: generic)
-        stats[:errors] << "第#{i}行：型号「#{generic}」未建档，请先在产品列表维护"
+        stats[:errors] << "第#{i}行：型号「#{raw_part}」（通用型号 #{generic}）未建档，请先在产品列表维护"
         stats[:skipped] += 1
         next
       end

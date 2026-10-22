@@ -75,8 +75,7 @@ class Item < ActiveRecord::Base
   end
 
   # 按表头名称解析（对齐导出工作簿「产品」表；容忍空列/多余列/列序变化）
-  # 预检规则：型号必填且同文件唯一；Baseband 命名规则（通用型号不得以合法后缀字母结尾）；
-  # 产品名称/描述/类别必填（中文名列可作为产品名称的别名）
+  # 预检规则：型号必填且同文件唯一；产品名称/描述/类别必填（中文名列可作为产品名称的别名）
   def self.import(file, imported_by: nil)
     sheet = open_spreadsheet(file)
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
@@ -101,12 +100,6 @@ class Item < ActiveRecord::Base
       end
       seen_generics[generic] = i
 
-      if generic.match?(/\ASCT\d/i) && User.naming_suffixes.include?(generic[-1])
-        stats[:errors] << "第#{i}行：通用型号「#{generic}」不符合命名规则（不能以合法后缀字母结尾）"
-        stats[:skipped] += 1
-        next
-      end
-
       # 必填：产品名称（中文名列可作为其别名）/描述/类别
       missing = %w[描述 类别].select { |h| row[h].to_s.strip.blank? }
       missing.unshift("产品名称") if row["产品名称"].to_s.strip.blank? && row["中文名"].to_s.strip.blank?
@@ -116,13 +109,11 @@ class Item < ActiveRecord::Base
         next
       end
 
-      # 优先按完整型号精确匹配（后缀长度任意）；仅全新型号才走兜底拆分新建
+      # 兼容：整串精确命中旧数据；新存一律按命名规则派生通用型号（产品列表只维护通用型号）
       item = Item.all.find { |i| i.partNo == part }
       if item.nil?
-        base, sfx = split_part_no(part)
-        item = new(generic_part_no: base, suffix: sfx.presence)
-        item.generic_part_no = base
-        item.suffix = sfx
+        generic, = parse_full_part_no(part)
+        item = new(generic_part_no: generic)
       end
       item.name = row["产品名称"].presence || row["中文名"].presence || item.name
       item.name_zh = row["产品名称"].presence || row["中文名"].presence || item.name_zh
