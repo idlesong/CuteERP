@@ -130,10 +130,11 @@ class Price < ApplicationRecord
         next
       end
 
-      # 必填：客户/通用型号/总单价/订单量；成分三列必填（总单价为 =公式 时自动拆分豁免）
+      # 必填：客户/通用型号/总单价/订单量/芯片；声码1/声码2 可缺省（缺省并入芯片，D3）
+      # 总单价为 =公式 时自动拆分，芯片亦豁免
       formula = row["总单价"].to_s.strip.start_with?("=")
       missing = %w[客户 通用型号 总单价 订单量].select { |h| row[h].to_s.strip.blank? }
-      missing += %w[芯片 声码1 声码2].select { |h| row[h].to_s.strip.blank? } unless formula
+      missing << "芯片" if row["芯片"].to_s.strip.blank? && !formula
       unless missing.empty?
         errors << "第#{i}行：缺少必填字段：#{missing.join('、')}"
         next
