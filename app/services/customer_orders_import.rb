@@ -42,13 +42,12 @@ class CustomerOrdersImport
       # 冲销行：数量为负，或 类型/特殊要求 标注 冲销/核销/return
       marked = row.call("特殊要求").to_s.match?(/冲销|核销/) ||
                row.call("类型").to_s.match?(/冲销|核销|return/i)
-      # 必填校验：接收日期/数量/版本；正常行另需含税单价（冲销行价格自原行复制，免填）
+      # 必填校验：接收日期/数量；正常行另需含税单价（冲销行价格自原行复制，免填）；版本可选
       missing = []
       missing << "接收日期" if recv_date.nil?
       missing << "数量" if qty.zero?
       total = parse_number(row.call("含税单价"))
       missing << "含税单价" if total.nil? && !marked
-      missing << "版本" if version.nil? && !marked
       unless missing.empty?
         stats[:errors] << "第#{i}行：缺少必填字段：#{missing.join('、')}"
         stats[:skipped] += 1
