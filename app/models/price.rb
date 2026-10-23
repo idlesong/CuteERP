@@ -160,12 +160,18 @@ class Price < ApplicationRecord
       price.condition = row["订单量"].presence || price.condition
       price.remark = row["remark"].presence || price.remark
       price.currency = row["币别"].presence || price.currency
-      price.status = row["状态"] == "生效" ? "approved" : (row["状态"].presence || "requested")
+      # 价格表 = 已确认的价格：默认 approved；无法识别的状态值也按已批准导入
+      st = row["状态"].to_s.strip
+      price.status = %w[approved active requested].include?(st) ? st : "approved"
 
       # 成分取 Excel 显示值（2 位小数）：消除单元格隐藏小数位导致的看起来合计相等却报错
       chip = row["芯片"].presence&.to_d&.round(2)
       v1 = row["声码1"].presence&.to_d&.round(2)
       v2 = row["声码2"].presence&.to_d&.round(2)
+      if chip # 尾差并入芯片，保证成分合计 = 总单价（各自四舍五入可能产生 ±0.01）
+        diff = price.price.to_d - [chip, v1 || 0.to_d, v2 || 0.to_d].sum
+        chip = (chip + diff).round(2)
+      end
       price.base_price = chip.presence || price.base_price
       price.v1_price = v1.presence || price.v1_price
       price.v2_price = v2.presence || price.v2_price
