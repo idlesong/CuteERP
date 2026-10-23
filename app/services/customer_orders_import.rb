@@ -87,6 +87,8 @@ class CustomerOrdersImport
         order.status = "submitted"
         order.save!
         stats[:created] += 1
+      elsif recv_date && order.created_at.to_date != recv_date
+        order.update!(created_at: recv_date) # 重新导入：以文件的接收日期为准
       end
 
       line = order.order_lines.find_by(generic_part_no: generic, version: version)
