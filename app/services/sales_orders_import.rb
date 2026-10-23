@@ -44,6 +44,7 @@ class SalesOrdersImport
         so.initialize_order_header(customer)
         so.snapshot_exchange_rate!
         so.status = "submitted" # D14：Excel 为准直接入台账（draft 的分配不计入订单已分配）
+        so.created_at = parse_date(val.call("下单日期")) if val.call("下单日期").present?
       end
 
       qty = val.call("数量").to_i

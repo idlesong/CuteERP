@@ -82,6 +82,7 @@ class CustomerOrdersImport
       if order.new_record?
         order = Order.build_with_customer(customer, po_number: po)
         order.currency = row.call("币别").to_s.strip.presence || order.currency
+        order.created_at = recv_date if recv_date # 接收日期落库（列表/关账按此口径）
         order.snapshot_exchange_rate!
         order.status = "submitted"
         order.save!
