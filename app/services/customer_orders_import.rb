@@ -2,7 +2,11 @@ require "roo"
 
 # 客户订单批量导入（第二阶段 2.2）：
 # - 模板 = 月度工作簿「客户订单」表（接收日期/客户/订单号/通用型号/版本/数量/含税单价/要求交期/特殊要求/币别）
-# - 按表头名称解析，忽略多余列；自然键 = 订单号 + 通用型号 + 版本，重复导入幂等（只更新不重建）
+# - 按表头名称解析，忽略多余列
+# - 订单号支持 -行号 后缀：多行订单写「PO123-1」「PO123-2」→ 归并为订单 PO123 的第 1/2 行；
+#   单行订单直接写「PO123」。防误拆：同底号（PO123）全文件仅出现一次时不剥离（客户编号
+#   本身可能以 -01 结尾）
+# - 行合并键：同订单号+行号 → 同一行更新；不同行号或无行号按 通用型号+版本 区分
 # - 含税单价自动匹配报价拆分成分（Price.match_for）
 # - 冲销行：数量为负（或类型/特殊要求标注冲销/核销）→ 生成 kind=return 冲销单「原PO-Rn」
 class CustomerOrdersImport
@@ -14,15 +18,33 @@ class CustomerOrdersImport
     raise "无法识别客户订单表头：缺少「订单号」列" if idx["订单号"].nil?
 
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+
+    # 预扫描：解析 订单号 的底号与行号；同底号出现两行及以上才认定 -数字 为行号并剥离
+    # （防误拆：客户订单号本身可能以 -01 结尾，单行出现时整串保留）
+    entries = []
     (2..sheet.last_row).each do |i|
       row = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
-      po = row.call("订单号").to_s.strip
+      raw = row.call("订单号").to_s.strip
       generic = row.call("通用型号").to_s.strip
-      if po.blank? && generic.blank?
-        stats[:skipped] += 1
-        next
-      end
-      if po.blank? || generic.blank?
+      next if raw.blank? && generic.blank?
+      m = raw.match(/\A(.+)-(\d+)\z/)
+      base = m ? m[1] : raw
+      ln = m ? m[2].to_i : nil
+      entries << { row_no: i, row: row, raw: raw, base: base, ln: ln,
+                   generic: generic, skip_blank: raw.blank? || generic.blank? }
+    end
+    base_counts = entries.group_by { |e| e[:base] }.transform_values(&:size)
+
+    entries.each do |e|
+      i = e[:row_no]
+      row = e[:row]
+      po = e[:base]
+      e_ln = e[:ln]
+      has_ln = e_ln.present?
+      multi = base_counts[e[:base]] >= 2
+      raw = e[:raw]
+      generic = e[:generic]
+      if e[:skip_blank]
         stats[:errors] << "第#{i}行：订单号/通用型号缺失"
         stats[:skipped] += 1
         next
@@ -91,10 +113,15 @@ class CustomerOrdersImport
         order.update!(created_at: recv_date) # 重新导入：以文件的接收日期为准
       end
 
-      line = order.order_lines.find_by(generic_part_no: generic, version: version)
+      line = if multi && has_ln
+               order.order_lines.find_by(line_no: e_ln)
+             else
+               order.order_lines.find_by(generic_part_no: generic, version: version)
+             end
       created_line = line.nil?
       line ||= order.order_lines.build(generic_part_no: generic, version: version.presence)
-      line.full_part_no = raw_part.presence || line.full_part_no # 客户所订原始写法
+      line.line_no = e_ln if multi && has_ln && line.line_no.nil?
+      line.full_part_no = e[:generic].presence || line.full_part_no # 客户所订型号原文（完整或通用）
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
       was_base = line.base_price
       # 成分从未拆分过（v1/v2 均空，含旧版导入塞在芯片列的总额）→ 清空后重新匹配，允许自愈
