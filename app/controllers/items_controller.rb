@@ -39,11 +39,10 @@ class ItemsController < ApplicationController
 
   # POST /items
   def create
-    # 行内创建：完整型号自动拆分为 通用型号 + 后缀
+    # 行内创建：型号原样作为通用型号（产品列表只维护通用型号）
     if params.dig(:item, :partNo).present?
-      base, sfx = Item.split_part_no(params[:item][:partNo])
-      params[:item][:generic_part_no] = base
-      params[:item][:suffix] = sfx
+      params[:item][:generic_part_no] = params.dig(:item, :partNo)
+      params[:item][:suffix] = nil
     end
 
     @item = Item.new(item_params)

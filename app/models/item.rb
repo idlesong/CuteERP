@@ -125,12 +125,12 @@ class Item < ActiveRecord::Base
         next
       end
 
-      # 兼容：整串精确命中旧数据；新存一律按命名规则派生通用型号（产品列表只维护通用型号）
+      # 产品列表只维护通用型号：型号原样入库；partNo 相同的旧数据借此归一
+      # （老代码曾把末位字母误拆为后缀，如 SCT3288TD -> generic SCT3288T + suffix D）
       item = Item.all.find { |i| i.partNo == part }
-      if item.nil?
-        generic, = parse_full_part_no(part)
-        item = new(generic_part_no: generic)
-      end
+      item ||= new(generic_part_no: part)
+      item.generic_part_no = part
+      item.suffix = nil
       item.name = row["产品名称"].presence || row["中文名"].presence || item.name
       item.name_zh = row["产品名称"].presence || row["中文名"].presence || item.name_zh
       item.description = row["描述"].presence || item.description
