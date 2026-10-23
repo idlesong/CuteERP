@@ -1,5 +1,5 @@
 <div class="page-header"><h1><%= t(:sales_orders) %></h1></div>
 
 <%= form_tag new_sales_order_path, method: :get do %>
-  <%= render "orders_table", orders: @sales_orders, show_tfoot: true %>
+  <%= render "orders_table", orders: @sales_orders, show_tfoot: true, paging: true %>
 <% end %>
