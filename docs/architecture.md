@@ -1,6 +1,6 @@
 # 架构与代码实现
 
-> 更新于 2026-10-22（完整型号命名规则 + 两阶段导入全量上线后）。设计决策背景见 `docs/feature_plan.md`（D1–D14）。
+> 更新于 2026-10-23（命名规则按产品类别限定 + 产品导入归一后）。设计决策背景见 `docs/feature_plan.md`（D1–D14）。
 
 ## 当前状态与快速恢复
 
@@ -8,21 +8,26 @@
 
 | 主题 | 要点 | 提交 |
 |---|---|---|
+| 命名规则细化 | 完整型号解析**注册表优先**（命中产品档案→用档案通用型号/后缀）；命名校验**仅产品类别 = Baseband**（RF 等其他类别通用型号 = 完整型号）；**长度不限制**（通用型号有 7 位 SCT1234 与 9 位 SCT1234XY 两种形态） | 63cd80b / 2ad9d3a / e18da14 |
+| 产品导入归一 | 产品导入/新建：**通用型号 = 型号原文**（不再拆末位字母）；重导同型号自动归一老拆分数据（SCT3288T+D → SCT3288TD） | 9626574 |
+| 接收日期/下单日期落库 | 客户订单/六联单导入把文件日期写入 created_at（列表/关账按此口径）；**重新导入以文件日期刷新**；客户订单列表标题改「接收日期」 | 11674dc / cca1273 |
+| 版本可选 | 客户订单导入版本不再必填 | c6349ca |
 | 型号命名规则（按位） | 9 位=通用/10 位=通用+后缀（第 10 位 ∈ C/M/S，见「型号命名规则」）；订单导入严格校验；`order_lines.full_part_no` 落客户所订原文、`production_lines.suffix` 落转产后缀 | 745c784 / fe7dfc2 / a4ed31a |
 | 两阶段导入 | 预检干跑（事务回滚）→ 错误标注文件 → 修正后导入；六类导入全覆盖（客户订单/价格/六联单/出库单/客户/产品），均有「检查」按钮 | c68284a / 8367ab3 / 407e85c |
-| 价格导入规则 | 芯片必填、声码可缺省；成分合计≠总价直接报错（按显示值 2 位小数取值）；同客户+型号+档位新价自动替代旧价 | 1d8f00c / fcf5840 / 4d83cb2 |
+| 价格导入规则 | 芯片必填、声码可缺省；成分合计≠总价直接报错（按显示值 2 位小数取值）；同客户+型号+档位新价自动替代旧价；**状态空白/无法识别 → approved**（requested 显式保留待审批） | 1d8f00c / fcf5840 / 4d83cb2 / c5df1d1 |
 | 报价单重构 | QT 号 + 快照明细（价格可复用不随调价漂移）；PDF 输出 | cf178fa |
 | 出库单导入 | source_key 幂等；分组合单；列表月份筛选 | c8e082b |
 | 导入中心 | 六卡片（含客户/产品导入）；月份选择已移除（日期在文件内）；批次含错误/警告明细 | 319bf5f |
-| 列表体验 | 日期列月份下拉、数值列 `最小~最大` 区间语法、表格紧凑（行高统一） | 456b8be / 018348e / e8dab9b |
+| 列表体验 | 日期列月份下拉、数值列 `最小~最大` 区间语法、表格紧凑（行高统一）；六联单列表分页/信息显示 | 456b8be / f8dd31c |
 
 **待办 / 注意**：
 
 - 生产测试环境（3001）部署固定流程：`bin/rails db:migrate RAILS_ENV=production` →
   `yarn build && yarn build:css && bin/rails assets:precompile RAILS_ENV=production` → 重启
-- 生产库（5433/cute_erp_production）与开发库数据独立：订单导入前置的产品建档需在生产侧确认
-  （曾报 SCT3288TD 未建档）
-- 开发测试库存在非严格的多后缀产品记录（PA-001Z9、SCT3089DVM 等），按新命名规则可清理
+- **生产库产品数据归一（待执行）**：生产库产品由旧代码导入，通用型号被误拆
+  （如 SCT3288TD 存成 generic SCT3288T + suffix D）。部署后在导入中心**重新导入一次产品表**
+  即自动归一（通用型号 = 型号原文、后缀清空），之后客户订单导入的型号校验才能通过
+- 生产库（5433/cute_erp_production）与开发库数据独立：客户/产品先行，订单链路随后
 - 前端改动上线三件套：`yarn build`（JS）、`yarn build:css`（CSS）、`assets:precompile`（指纹清单），
   缺一生产端不生效
 
@@ -33,7 +38,7 @@
 | 框架 | Rails 8.1（Ruby 3.3） | 传统服务端渲染单栈（无前后端分离） |
 | 数据库 | PostgreSQL 16 | 唯一持久层；无缓存队列等附加服务 |
 | 前端 | Propshaft + esbuild + Bootstrap 5 + jQuery + DataTables 3 | Turbo 轻量使用；交互多为传统表单 + 局部脚本 |
-| Excel | roo（读）/ caxlsx（写） | 月度工作簿导出与四类导入共用一套模板 |
+| Excel | roo（读）/ caxlsx（写） | 月度工作簿导出与导入共用一套模板 |
 | PDF | wicked_pdf（wkhtmltopdf） | 报价单 / 价格单 / invoice / packing list |
 | 附件 | Active Storage（本地磁盘） | 客户订单 PO 附件（PDF/图片），可多文件 |
 
@@ -66,12 +71,13 @@ items ──────┘            │                    # 产品：通用�
 orders ── order_lines ───┘                   # 客户订单：po_number 唯一；行=po+line_no 唯一
   │        │          （kind: normal/return，status: draft/submitted）
   │        ├── refer_order_line_id            # 冲销行（数量为负）引用原行（D1）；余额校验按总额口径
+  │        ├── full_part_no                   # 客户所订完整型号原文；generic_part_no 由命名规则派生
   │        ├── base/v1/v2_price + price_id    # 价格快照（下单/导入时点，可追溯报价来源）
   │        └── documents                      # Active Storage 附件（客户 PO PDF，多个）
   │
   └── production_allocations ──► production_lines ──► sales_orders
        分配台账（D2）              六联单行              # serial_number 唯一；status: draft/submitted
-       （跨订单拆量）              （item=转产定型）
+       （跨订单拆量）              （item=通用型号产品；suffix=转产定型后缀）
                                         │
                                         └── shipment_lines ──► shipments
                                              出库明细           # source_key = 六联单号|日期|快递号
