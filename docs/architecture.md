@@ -1,6 +1,6 @@
 # 架构与代码实现
 
-> 更新于 2026-10-23（命名规则按产品类别限定 + 产品导入归一后）。设计决策背景见 `docs/feature_plan.md`（D1–D14）。
+> 更新于 2026-10-23（币别链路修复 + 对账单优化 + 列表筛选记忆后）。设计决策背景见 `docs/feature_plan.md`（D1–D14）。
 
 ## 当前状态与快速恢复
 
@@ -8,6 +8,8 @@
 
 | 主题 | 要点 | 提交 |
 |---|---|---|
+| 边界日期统计修复 | datetime 列（shipped_at/created_at）与 Date 区间（`all_month`/`fy_range`）比较时端点按 UTC 午夜 cast（北京时区即当日 08:00），漏掉 1 日 0~8 点与末日 8 点之后的单据——「普星 2026-04 四笔只统计两笔」即此因。修复 8 处：双对账单与月度工作簿 `@range`、`SalesPlanEntry.fy_range`、`RevenueQuery.monthly_rmb`、`SalesOverviewQuery` 月度区间、出库单列表月份筛选，统一改用 `beginning_of_day..end_of_day`。**新增查询一律勿用 Date 区间过滤 datetime 列** | （待提交） |
+| 币别修复 + 体验优化 | USD 客户显示 RMB 修复：出货段币别兜底改客户现币别（internal/revenue/workbook/statement 四处 `|| "RMB"` 移除）、销售总览按**客户条目**判币别拆段（不再按大类整组）+ money 币别符号 + 分段合计行；核销单导入接收日期落库（`create_return_order` 补 created_at，重导刷新）；对账单按币别拆「人民币/美元客户」分节小计（页面+导出）、去币别/附加列、日期首列并按日期排序（CSS 覆盖 dt-type-date 右对齐）、客户下拉中文名、三段表接 datatable 筛选；列表筛选状态记忆（DataTables `stateSave` + 筛选框回填 + 价格编辑/批准/快速创建 redirect 带回 scope）——价格列表「筛选下编辑行消失」即此根因；销售总览 ③ 产品视图改为**客户订单视图**（`SalesOverviewQuery.order_matrix`：与实际出货同版式 数量/芯片额/软件额/总额，订单行直接计价含冲销负数，按客户币别分段）；**生产数据回填待执行**：`RAILS_ENV=production CONFIRM=1 bin/rails cute_erp:fix:order_currency`（先 dry-run 预览），历史订单币别按客户现值修正并按订单月重快照汇率 | （待提交） |
 | 命名规则细化 | 完整型号解析**注册表优先**（命中产品档案→用档案通用型号/后缀）；命名校验**仅产品类别 = Baseband**（RF 等其他类别通用型号 = 完整型号）；**长度不限制**（通用型号有 7 位 SCT1234 与 9 位 SCT1234XY 两种形态） | 63cd80b / 2ad9d3a / e18da14 |
 | 产品导入归一 | 产品导入/新建：**通用型号 = 型号原文**（不再拆末位字母）；重导同型号自动归一老拆分数据（SCT3288T+D → SCT3288TD） | 9626574 |
 | 接收日期/下单日期落库 | 客户订单/六联单导入把文件日期写入 created_at（列表/关账按此口径）；**重新导入以文件日期刷新**；客户订单列表标题改「接收日期」 | 11674dc / cca1273 |
@@ -22,6 +24,10 @@
 
 **待办 / 注意**：
 
+- **生产库订单币别回填（待执行）**：历史订单币别是建单时快照，客户改币别后旧单不跟随。
+  先 dry-run 预览：`bin/rails cute_erp:fix:order_currency RAILS_ENV=production`，
+  确认后 `RAILS_ENV=production CONFIRM=1 bin/rails cute_erp:fix:order_currency`
+  （update_columns 绕过关账守卫；汇率按订单月重快照，缺失月份先在汇率页补录）
 - 生产测试环境（3001）部署固定流程：`bin/rails db:migrate RAILS_ENV=production` →
   `yarn build && yarn build:css && bin/rails assets:precompile RAILS_ENV=production` → 重启
 - **生产库产品数据归一（待执行）**：生产库产品由旧代码导入，通用型号被误拆
@@ -171,8 +177,10 @@ errors（阻断导入）均带行号写回标注文件；各导入器的具体�
 - **客户对账单**（`MonthlyStatement`，`/statements`）：客户 × 月份三段式
   （订单核对/出货核对/未交订单），含冲销行（负金额），页面 + 单客户 xlsx 导出
 - **全客户内部对账单**（`InternalMonthlyStatement`）：
-  三段式跨全部客户合成，排序 币别 → 客户名称 → 产品大类 → 日期 → 单据号；
-  金额按 芯片/声码1/声码2 成分拆分列示（出货段用分配加权价，与月度工作簿同公式）；
+  三段式跨全部客户合成，排序 币别 → 客户名称 → 日期 → 单据号（去 币别/附加 列，日期首列）；
+  页面按客户币别拆「人民币客户 / 美元客户(USD)」分节显示（`datatable` 筛选 + 分节小计），
+  导出按币别小计 + 段合计折 RMB；金额按 芯片/声码1/声码2 成分拆分列示
+  （出货段用分配加权价，与月度工作簿同公式；**出货币别 = 分配订单快照币别优先、客户现币别兜底**）；
   汇率随行，段合计折 RMB
 - 统一出口 `Xlsx.generate`（caxlsx）；金额未税一律 含税 ÷ 1.13
 
@@ -217,6 +225,10 @@ errors（阻断导入）均带行号写回标注文件；各导入器的具体�
   - 筛选行在创建表单内：回车被拦截，避免误触发创建
 - 表格紧凑约定：`table-sm` + DataTables 单元格 `white-space: nowrap`（宽表横向滚动）+
   表内 `.btn-link` 无垂直内边距 —— 各列表行高统一 ~33px
+- **筛选状态记忆**：DataTables `stateSave`（localStorage，8 小时）持久化排序/分页/字符串类列筛选，
+  整页跳转（如价格行内编辑）回到列表后自动恢复原筛选/页码——被编辑行不再「消失」；
+  筛选输入框显示值由 `column_filters.js` 从列搜索状态回填（数值/日期区间筛选无法序列化，不恢复）；
+  价格列表的服务端 scope（status/is_prr）经表单隐藏字段 `list_*` 随 redirect 带回
 - 报价号/单号联动：订单页 `next_line_no` 接口返回 PO 是否存在与下一行号
 - flash 用右下角 toast（通知自动消失，错误常驻）；下载链接一律 `data: { turbo: false }`
 
