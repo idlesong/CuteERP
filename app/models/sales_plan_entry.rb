@@ -31,7 +31,9 @@ class SalesPlanEntry < ApplicationRecord
   end
 
   def self.fy_range(fy)
-    Date.new(fy - 1, 4, 1)..(Date.new(fy, 3, 1).end_of_month)
+    # 日界时间而非 Date 区间：datetime 列（shipped_at/created_at）对 Date 端点按 UTC 午夜 cast
+    # （北京时区即当日 08:00），会漏掉 FY 首日 0~8 点与末日 8 点之后的单据
+    Date.new(fy - 1, 4, 1).beginning_of_day..Date.new(fy, 3, 1).end_of_month.end_of_day
   end
 
   # upsert：同 (fy, customer, group, month) 直接更新

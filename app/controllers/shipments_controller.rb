@@ -3,7 +3,11 @@ class ShipmentsController < ApplicationController
   # GET /shipments?month=2026-10 —— 月份筛选（空 = 全部）
   def index
     scope = Shipment.includes(sales_order: :customer, shipment_lines: { production_line: :item })
-    scope = scope.where(shipped_at: Date.parse("#{params[:month]}-01").all_month) if params[:month].to_s.match?(/\A\d{4}-\d{2}\z/)
+    # 日界时间而非 all_month（Date 区间）：datetime 列对 Date 端点按 UTC 午夜 cast，会漏边界单据
+    if params[:month].to_s.match?(/\A\d{4}-\d{2}\z/)
+      m = Date.parse("#{params[:month]}-01")
+      scope = scope.where(shipped_at: m.beginning_of_month.beginning_of_day..m.end_of_month.end_of_day)
+    end
     @shipments = scope.order(shipped_at: :desc)
     @month = params[:month].presence
   end

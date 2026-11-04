@@ -3,7 +3,8 @@
 class RevenueQuery
   # 当月营业额（折 RMB）
   def self.monthly_rmb(date = Date.current)
-    range = date.beginning_of_month..date.end_of_month
+    # 日界时间：datetime 列对 Date 端点按 UTC 午夜 cast（北京时区即当日 08:00），会漏边界单据
+    range = date.beginning_of_month.beginning_of_day..date.end_of_month.end_of_day
     ShipmentLine.joins(:shipment).where(shipments: { shipped_at: range }).sum { |sl| line_amount_rmb(sl) }
   end
 

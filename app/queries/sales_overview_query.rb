@@ -8,7 +8,7 @@ class SalesOverviewQuery
   def self.shipped_by_group(fy: nil, month: nil)
     scope = ShipmentLine.joins(:shipment)
     scope = scope.where(shipments: { shipped_at: SalesPlanEntry.fy_range(fy) }) if fy
-    scope = scope.where(shipments: { shipped_at: month.beginning_of_month..month.end_of_month }) if month
+    scope = scope.where(shipments: { shipped_at: month.beginning_of_month.beginning_of_day..month.end_of_month.end_of_day }) if month
 
     scope.includes(shipment: { sales_order: :customer },
                    production_line: [:item, { production_allocations: { order_line: :order } }])

@@ -11,7 +11,9 @@ class InternalMonthlyStatement
 
   def initialize(month)
     @month = month.beginning_of_month
-    @range = @month.all_month
+    # 当月区间须用「日界时间」而非 Date 区间：datetime 列对 Date 端点按 UTC 午夜 cast
+    # （北京时区即当日 08:00），会漏掉 1 日 0~8 点与末日 8 点之后的单据
+    @range = @month.beginning_of_month.beginning_of_day..@month.end_of_month.end_of_day
     @order_rows = []
     @shipment_rows = []
     @backlog_rows = []
