@@ -30,7 +30,11 @@ document.addEventListener("turbo:load", () => {
         lengthChange: !noPaging, // v3 中 paging:false 仍会显示每页条数下拉，须一并关掉
         info: !noPaging,
         orderCellsTop: true, // 排序绑定第一行标题；第二行=快速创建，第三行=筛选
-        order: [[0, "asc"]] // 默认首列升序
+        order: [[0, "asc"]], // 默认首列升序
+        // 持久化排序/分页/列筛选（字符串类）到 localStorage：
+        // 快捷编辑整页跳转回来后仍回到原筛选/原页码，行不「消失」（数值区间/日期区间筛选无法序列化，不恢复）
+        stateSave: true,
+        stateDuration: 8 * 3600 // 工作时段内有效（默认 2 小时太短）
       })
       initColumnFilters(table, dt)
     }

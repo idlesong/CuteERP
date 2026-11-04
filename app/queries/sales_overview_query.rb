@@ -71,31 +71,31 @@ class SalesOverviewQuery
     matrix
   end
 
-  # ③ 产品视图：product_family 实际出货（折 RMB）
-  # 返回 {family => Row}
-  def self.shipped_by_family(fy: nil)
-    scope = ShipmentLine.joins(:shipment)
-    scope = scope.where(shipments: { shipped_at: SalesPlanEntry.fy_range(fy) }) if fy
+  # ③ 客户订单月度矩阵（与实际出货同版式，原币口径，含冲销负数）：{group => {customer => {月首日 => 值}}}
+  # 口径：当月接收的已提交订单行，按订单行价格直接计价（芯片额=base_price，软件额=v1+v2），不依赖分配台账
+  def self.order_matrix(fy, metric: :quantity)
+    items_by_generic = Item.where.not(generic_part_no: nil).index_by(&:generic_part_no)
+    scope = OrderLine.joins(:order)
+                     .includes(order: :customer)
+                     .where(orders: { kind: %w[normal return], status: "submitted",
+                                      created_at: SalesPlanEntry.fy_range(fy) })
 
-    scope.includes(shipment: :sales_order,
-                   production_line: [:item, { production_allocations: { order_line: :order } }])
-         .each_with_object({}) do |sl, h|
-      pl = sl.production_line
-      next unless pl
-
-      family = pl.item&.family.presence || "未分类"
-      row = (h[family] ||= Row.new(0, 0.0, 0.0, 0.0))
-
-      allocs = pl.production_allocations
-      total_alloc = allocs.sum(&:quantity).to_f
-      next if total_alloc.zero?
-
-      unit = allocs.sum { |a| a.quantity * ((a.order_line&.unit_price || 0)) } / total_alloc
-      rate = RevenueQuery.exchange_rate_for(pl, sl.shipment.shipped_at)
-
-      row.qty   += sl.quantity
-      row.total += sl.quantity * unit * rate
+    matrix = Hash.new { |h, k| h[k] = Hash.new { |h2, k2| h2[k2] = Hash.new(0.0) } }
+    scope.find_each do |line|
+      group = items_by_generic[line.generic_part_no]&.group.presence || "未分类"
+      customer = line.order.customer
+      display = customer.name_zh.presence || customer.name
+      qty = line.quantity
+      value = case metric
+              when :chip then qty * (line.base_price || 0).to_f
+              when :software then qty * ((line.v1_price || 0) + (line.v2_price || 0)).to_f
+              when :total then qty * line.unit_price.to_f
+              else qty
+              end
+      # 键统一为 Date（视图按 Date 查）；冲销行为负数量/负金额，自然做减法
+      matrix[group][display][line.order.created_at.to_date.beginning_of_month] += value
     end
+    matrix
   end
 
   # 全年/当月 Plan（数量）对照：{group => {customer => {all_year:, this_month:}}}

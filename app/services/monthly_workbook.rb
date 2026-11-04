@@ -112,7 +112,9 @@ class MonthlyWorkbook
                   .where(shipments: { shipped_at: @range })
                   .order("shipments.shipped_at").find_each do |sl|
         pl = sl.production_line
-        currency = pl&.production_allocations&.first&.order_line&.order&.currency || "RMB"
+        # 币别：分配订单快照优先，无分配回退客户现币别（旧数据快照失真时仍按客户口径）
+        currency = pl&.production_allocations&.first&.order_line&.order&.currency ||
+                   sl.shipment.sales_order.customer.currency.presence || "RMB"
         rate = currency == "RMB" ? 1 : (ExchangeRate.rate_for(sl.shipment.shipped_at.beginning_of_month, currency) || 1)
 
         unit_rmb = ((pl&.unit_price || 0) * rate).round(2)

@@ -1,7 +1,7 @@
 # 月度所有客户内部对账单（销售内部核对用）：
 # 三段式同 MonthlyStatement（订单核对/出货核对/未交订单），但跨全部客户合成，
-# 排序 = 币别 → 客户名称 → 产品大类 → 日期 → 单据号；金额按 芯片/声码1/声码2 成分拆分分别显示。
-# 单价与金额一律本币（币别列区分），折 RMB 仅在合计列；段合计跨币别只给 RMB 口径
+# 排序 = 币别 → 客户名称 → 日期 → 单据号；金额按 芯片/声码1/声码2 成分拆分分别显示。
+# 单价与金额一律本币（视图按币别拆「人民币/美元」两段分节显示，各自小计）；折 RMB 仅在合计列
 class InternalMonthlyStatement
   Row = Struct.new(:date, :doc_no, :customer, :currency, :part, :group, :quantity,
                    :chip_price, :v1_price, :v2_price,
@@ -74,7 +74,9 @@ class InternalMonthlyStatement
                 .where(shipments: { shipped_at: @range })
                 .order("shipments.shipped_at").find_each do |sl|
       pl = sl.production_line
-      currency = pl&.production_allocations&.first&.order_line&.order&.currency || "RMB"
+      # 币别：分配订单快照优先（单价口径来源），无分配回退客户现币别（旧数据快照失真时仍按客户口径）
+      currency = pl&.production_allocations&.first&.order_line&.order&.currency ||
+                 sl.shipment.sales_order.customer.currency.presence || "RMB"
       rate = rate_for(sl.shipment.shipped_at.beginning_of_month, currency)
       allocs = pl&.production_allocations || []
       total_alloc = allocs.sum(&:quantity).to_f
@@ -108,24 +110,37 @@ class InternalMonthlyStatement
     }
   end
 
+  # 按币别分组合计：{ "RMB" => 合计, "USD" => 合计 }，本币口径 + 折 RMB 双列（视图/导出分节小计用）
+  def totals_by_currency(rows)
+    rows.group_by(&:currency).transform_values do |group|
+      totals_for(group).merge(
+        chip: group.sum(&:chip_amt).round(2),
+        v1: group.sum(&:v1_amt).round(2),
+        v2: group.sum(&:v2_amt).round(2),
+        amount: group.sum(&:amount).round(2)
+      )
+    end
+  end
+
   def order_totals = totals_for(order_rows)
   def shipment_totals = totals_for(shipment_rows)
   def backlog_totals = totals_for(backlog_rows)
 
-  HEADERS = %w[币别 客户 单据号 日期 产品 产品大类 数量
+  # 币别列/附加列已去除（视图按币别拆段显示），日期移首列
+  HEADERS = %w[日期 客户 单据号 产品 产品大类 数量
                芯片单价 声码1单价 声码2单价
-               芯片金额 声码1金额 声码2金额 金额合计 汇率 折RMB合计 附加].freeze
+               芯片金额 声码1金额 声码2金额 金额合计 汇率 折RMB合计].freeze
 
   def to_rows(rows)
-    rows.map { |r| [r.currency, r.customer, r.doc_no, r.date, r.part, r.group, r.quantity,
+    rows.map { |r| [r.date, r.customer, r.doc_no, r.part, r.group, r.quantity,
                     r.chip_price, r.v1_price, r.v2_price,
-                    r.chip_amt, r.v1_amt, r.v2_amt, r.amount, r.rate, r.amount_rmb, r.extra] }
+                    r.chip_amt, r.v1_amt, r.v2_amt, r.amount, r.rate, r.amount_rmb] }
   end
 
   private
 
   def sort_rows!
-    key = ->(r) { [r.currency, r.customer, r.group.to_s, r.date, r.doc_no] }
+    key = ->(r) { [r.currency, r.customer, r.date, r.doc_no] }
     @order_rows.sort_by!(&key)
     @shipment_rows.sort_by!(&key)
     @backlog_rows.sort_by!(&key)

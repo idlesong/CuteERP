@@ -4,7 +4,11 @@
 </div>
 
 
-<%= form_tag prices_path(inline: 1), id: "price-new-form" do end %>
+<%# 行内快速创建：list_* 隐藏字段把服务端筛选 scope 带回 redirect（避免提交后丢失筛选视图） %>
+<%= form_tag prices_path(inline: 1), id: "price-new-form" do %>
+  <input type="hidden" name="list_status" value="<%= params[:status] %>">
+  <input type="hidden" name="list_is_prr" value="<%= params[:is_prr] %>">
+<% end %>
 <table class="table table-striped table-sm datatable">
   <thead>
     <tr>
@@ -32,6 +36,8 @@
         <tr class="table-warning">
           <%= form_tag price_path(price), method: :patch do %>
             <input type="hidden" name="inline_edit" value="1">
+            <input type="hidden" name="list_status" value="<%= params[:status] %>">
+            <input type="hidden" name="list_is_prr" value="<%= params[:is_prr] %>">
             <td data-order="<%= price.price_number %>"><%= link_to(price.price_number || "—", price_path(price)) %></td>
             <td><input name="price[effective_from]" type="date" value="<%= price.effective_from %>" class="form-control form-control-sm"></td>
             <td><input name="price[expired_at]" type="date" value="<%= price.expired_at %>" class="form-control form-control-sm"></td>
@@ -82,12 +88,15 @@
           <% if price.effective? %>
             <span class="badge bg-success">生效</span>
           <% elsif price.in_valid_window? %>
-            <%= link_to "批准", price_path(price, status: "approved"), data: { turbo_method: :patch }, class: "text-primary" %>
+            <%= link_to "批准", price_path(price, request.query_parameters.merge(status: "approved",
+                              list_status: params[:status], list_is_prr: params[:is_prr])),
+                        data: { turbo_method: :patch }, class: "text-primary" %>
           <% else %>
             <span class="badge bg-secondary">失效</span>
           <% end %>
         </td>
-        <td><%= link_to "编辑", prices_path(edit_id: price.id), class: "btn btn-link btn-sm" %></td>
+        <td><%# 编辑链接带当前筛选参数：回到编辑视图时服务端 scope 不丢（客户端筛选由 stateSave 恢复） %>
+            <%= link_to "编辑", prices_path(request.query_parameters.merge(edit_id: price.id)), class: "btn btn-link btn-sm" %></td>
       </tr>
     <% end %>
   </tbody>

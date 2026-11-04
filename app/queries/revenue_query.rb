@@ -26,7 +26,9 @@ class RevenueQuery
 
   def self.exchange_rate_for(production_line, shipped_at)
     order_line = production_line.production_allocations.first&.order_line
-    currency = order_line&.order&.currency || "RMB"
+    # 币别：分配订单快照优先，无分配回退六联单客户现币别（旧数据快照失真时仍按客户折算）
+    currency = order_line&.order&.currency ||
+               production_line.sales_order&.customer&.currency.presence || "RMB"
     return 1 if currency == "RMB"
 
     ExchangeRate.rate_for(shipped_at.beginning_of_month, currency) || 1

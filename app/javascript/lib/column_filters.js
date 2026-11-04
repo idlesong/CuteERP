@@ -17,6 +17,12 @@ const DATE_RE = /^\d{4}[-/]\d{1,2}[-/]\d{1,2}/
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 const distinctValues = (arr) => [...new Set(arr)]
 
+// stateSave 恢复的列搜索值 → 筛选控件回填显示（去掉 select/month 用正则锚点 ^...$）
+function restoredSearch(dt, columnIndex) {
+  const s = dt.column(columnIndex).search()
+  return typeof s === "string" ? s.replace(/^\^/, "").replace(/\$$/, "") : ""
+}
+
 function pruneStaleRangePredicates() {
   DataTable.ext.search = DataTable.ext.search.filter((p) => !p.__table || p.__table.isConnected)
 }
@@ -41,6 +47,8 @@ function appendTextFilter(th, dt, columnIndex) {
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") e.preventDefault()
   })
+  const restored = restoredSearch(dt, columnIndex)
+  if (restored) input.value = restored // stateSave 恢复
   th.appendChild(input)
 }
 
@@ -49,6 +57,10 @@ function appendSelectFilter(th, dt, columnIndex, values) {
   select.className = "form-select form-select-sm"
   select.add(new Option("(全部)", ""))
   distinctValues(values).sort().forEach((v) => select.add(new Option(v, v)))
+  const restored = restoredSearch(dt, columnIndex)
+  if (restored && select.querySelector(`option[value="${CSS.escape(restored)}"]`)) {
+    select.value = restored // stateSave 恢复
+  }
   select.addEventListener("change", () => {
     if (select.value) {
       dt.column(columnIndex).search("^" + escapeRegex(select.value) + "$", true, false).draw()
@@ -70,6 +82,10 @@ function appendMonthFilter(th, dt, columnIndex) {
       .filter(Boolean)
   ).sort()
   months.forEach((m) => select.add(new Option(m, m)))
+  const restored = restoredSearch(dt, columnIndex)
+  if (restored && select.querySelector(`option[value="${CSS.escape(restored)}"]`)) {
+    select.value = restored // stateSave 恢复
+  }
   select.addEventListener("change", () => {
     // 前缀匹配：2026-10 命中 2026-10-19 等（regex=true、smart=false，否则按字面词匹配永不命中）
     dt.column(columnIndex).search(select.value ? "^" + escapeRegex(select.value) : "", true, false).draw()

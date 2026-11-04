@@ -104,11 +104,11 @@ class PricesController < ApplicationController
 
     respond_to do |format|
       if @price.save
-        format.html { redirect_to(params[:inline] ? prices_url : @price, notice: "Price was successfully created.") }
+        format.html { redirect_to(params[:inline] ? prices_url(index_scope) : @price, notice: "Price was successfully created.") }
         format.json { render json: @price, status: :created, location: @price }
       else
         if params[:inline]
-          redirect_to prices_url, alert: "价格创建失败（#{@price.errors.full_messages.to_sentence}；也可能与现有报价重复）"
+          redirect_to prices_url(index_scope), alert: "价格创建失败（#{@price.errors.full_messages.to_sentence}；也可能与现有报价重复）"
         else
           format.html { redirect_to proc { new_price_url(@price) }, notice: "Price was not valid: maybe duplicated." }
           format.json { render json: @price.errors, status: :unprocessable_entity }
@@ -122,9 +122,9 @@ class PricesController < ApplicationController
     # 纯状态变更（批准）：不带 price 字段，直接更新状态
     if params[:status].present?
       if @price.update(status: params[:status])
-        redirect_to prices_url, notice: "价格已批准（#{@price.price_number}）"
+        redirect_to prices_url(index_scope), notice: "价格已批准（#{@price.price_number}）"
       else
-        redirect_to prices_url, alert: @price.errors.full_messages.to_sentence
+        redirect_to prices_url(index_scope), alert: @price.errors.full_messages.to_sentence
       end
       return
     end
@@ -132,7 +132,7 @@ class PricesController < ApplicationController
     respond_to do |format|
       if @price.update(price_params)
         if params[:inline_edit]
-          format.html { redirect_to prices_url, notice: "价格已更新（#{@price.price_number}）" }
+          format.html { redirect_to prices_url(index_scope), notice: "价格已更新（#{@price.price_number}）" }
           format.json { head :no_content }
         elsif params[:status]
           format.html { redirect_to prices_url }
@@ -209,6 +209,12 @@ class PricesController < ApplicationController
 
   def set_price
     @price = Price.find(params[:id])
+  end
+
+  # 列表页快捷编辑/快速创建后回到原筛选视图：
+  # 服务端 scope 参数经表单隐藏字段 list_* 带回（客户端筛选/页码由 DataTables stateSave 恢复）
+  def index_scope
+    { status: params[:list_status].presence, is_prr: params[:list_is_prr].presence }.compact
   end
 
   def price_params

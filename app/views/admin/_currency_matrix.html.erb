@@ -1,0 +1,46 @@
+<%# 销售总览币别段矩阵（①实际出货 / ②Plan 共用）
+    locals: section "人民币"/"美元"；entries [[group, 客户显示名, cells], ...]；
+            months 月首日数组；money_fmt true=金额 money 格式带币别符号 / false=数量紧凑数字 %>
+<% fmt_amount = if money_fmt
+                  ->(v) { money(v, section == "美元" ? "USD" : "RMB") }
+                else
+                  ->(v) { number_with_precision(v, precision: (v % 1).zero? ? 0 : 1) }
+                end %>
+<h5 class="mt-2"><%= section %>客户<%= money_fmt ? "（#{section == '美元' ? '$' : '¥'}）" : "" %></h5>
+<table class="table table-striped table-sm">
+  <thead>
+    <tr>
+      <th>大类</th><th>客户</th>
+      <% months.each { |m| %><th class="text-end"><%= m.strftime("%y-%m") %></th><% } %>
+      <th class="text-end">全年</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% entries.each do |group, cname, cells| %>
+      <tr>
+        <td class="text-muted"><%= group %></td>
+        <td><%= cname %></td>
+        <% year_total = 0 %>
+        <% months.each do |m| %>
+          <% v = cells[m.beginning_of_month].to_f; year_total += v %>
+          <%# 负数（冲销净额）也要显示，仅 0 显示空白 %>
+          <td class="text-end"><%= v.zero? ? "" : fmt_amount.call(v) %></td>
+        <% end %>
+        <td class="text-end fw-bold"><%= fmt_amount.call(year_total) %></td>
+      </tr>
+    <% end %>
+    <% if entries.empty? %><tr><td colspan="15" class="text-muted">无数据</td></tr><% end %>
+  </tbody>
+  <tfoot>
+    <%# 分段合计：人民币/美元客户各一行（口径与该段金额一致，数量段为 pcs 合计） %>
+    <% section_total = 0 %>
+    <tr class="table-secondary fw-bold">
+      <td colspan="2"><%= section %>客户合计</td>
+      <% months.each do |m| %>
+        <% v = entries.sum { |_g, _c, cells| cells[m.beginning_of_month].to_f }; section_total += v %>
+        <td class="text-end"><%= v.zero? ? "" : fmt_amount.call(v) %></td>
+      <% end %>
+      <td class="text-end"><%= fmt_amount.call(section_total) %></td>
+    </tr>
+  </tfoot>
+</table>

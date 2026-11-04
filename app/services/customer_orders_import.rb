@@ -96,7 +96,8 @@ class CustomerOrdersImport
 
       if qty.negative? || marked
         import_return(stats, po: po, generic: generic, version: version,
-                      abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s)
+                      abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
+                      recv_date: recv_date)
         next
       end
 
@@ -158,8 +159,9 @@ class CustomerOrdersImport
   end
 
   # 冲销行：原订单 + 原行（通用型号+版本）→ kind=return 的冲销单「原PO-Rn」，
-  # 行数量为负、引用原行、复制原行价格成分；重复导入幂等（更新同一冲销行）
-  def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:)
+  # 行数量为负、引用原行、复制原行价格成分；冲销单头 created_at = 文件接收日期（列表/关账同口径）；
+  # 重复导入幂等（更新同一冲销行，接收日期以文件为准刷新）
+  def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:, recv_date:)
     original = Order.find_by(po_number: po)
     if original.nil? || original.return?
       stats[:errors] << "第#{row_no}行：冲销原订单「#{po}」不存在"
@@ -179,10 +181,14 @@ class CustomerOrdersImport
     if ret_line
       ret_line.quantity = -abs_qty
       ret_line.save!
+      ret_order = ret_line.order
+      if recv_date && ret_order.created_at.to_date != recv_date
+        ret_order.update!(created_at: recv_date) # 重导：以文件的接收日期为准
+      end
       stats[:updated] += 1
     else
       ret_order = Order.where(kind: "return").where("po_number LIKE ?", "#{po}-%")
-                       .order(:po_number).first || create_return_order(original)
+                       .order(:po_number).first || create_return_order(original, recv_date)
       ret_order.order_lines.create!(
         generic_part_no: generic, version: version, quantity: -abs_qty,
         refer_order_line_id: orig_line.id,
@@ -197,8 +203,8 @@ class CustomerOrdersImport
     stats[:skipped] += 1
   end
 
-  # 冲销单头：PO = 原单号-Rn（取空闲 n）；头信息快照自原单
-  def self.create_return_order(original)
+  # 冲销单头：PO = 原单号-Rn（取空闲 n）；头信息快照自原单；created_at = 文件接收日期
+  def self.create_return_order(original, recv_date = nil)
     taken = Order.where("po_number LIKE ?", "#{original.po_number}-%").pluck(:po_number)
     n = 1
     n += 1 while taken.include?("#{original.po_number}-R#{n}")
@@ -210,6 +216,7 @@ class CustomerOrdersImport
     order.kind = "return"
     order.end_customer_id = original.end_customer_id
     order.status = "submitted"
+    order.created_at = recv_date if recv_date # 接收日期落库（与正常单同口径）
     order.save!
     order
   end

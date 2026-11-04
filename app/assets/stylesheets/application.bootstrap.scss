@@ -70,3 +70,10 @@ table.datatable td,
 table.datatable th {
   white-space: nowrap;
 }
+
+// 月度对账单（表格 id 以 stmt- 开头）：日期列保持左对齐
+// （DataTables 类型探测给日期列加 dt-type-date 默认右对齐，与报表习惯不符）
+table.datatable[id^="stmt-"] td.dt-type-date,
+table.datatable[id^="stmt-"] th.dt-type-date {
+  text-align: left;
+}

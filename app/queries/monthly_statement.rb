@@ -19,11 +19,11 @@ class MonthlyStatement
   end
 
   def build
-    # 订单核对段：当月创建（接收）的已提交订单行（含冲销单，负数金额参与对账）
+    # 订单核对段：当月创建（接收）的已提交订单行（含冲销单，负数金额参与对账），按接收日期排序
     OrderLine.joins(:order)
              .includes(order: :customer)
              .where(orders: { kind: %w[normal return], status: "submitted", customer_id: customer.id, created_at: @range })
-             .order("orders.po_number", "order_lines.line_no").find_each do |line|
+             .order("orders.created_at", "orders.po_number", "order_lines.line_no").find_each do |line|
       rate = rate_for(@month, line.order.currency)
       extra = [line.version, ("冲销" if line.order.return?)].compact.join(" ")
       @order_rows << Row.new(line.order.created_at.to_date, line.display_no, line.generic_part_no,
@@ -34,11 +34,14 @@ class MonthlyStatement
     build_backlog
     # 出货核对段：当月出库明细
     ShipmentLine.joins(shipment: { sales_order: :customer })
-                .includes(shipment: { sales_order: :customer }, production_line: :item)
+                .includes(shipment: { sales_order: :customer },
+                          production_line: { item: [], production_allocations: { order_line: :order } })
                 .where(sales_orders: { customer_id: customer.id }, shipments: { shipped_at: @range })
                 .order("shipments.shipped_at").find_each do |sl|
       pl = sl.production_line
-      rate = rate_for(sl.shipment.shipped_at.beginning_of_month, @currency)
+      # 出货段本币金额来自分配订单快照单价：币别快照优先，客户现币别兜底
+      currency = pl&.production_allocations&.first&.order_line&.order&.currency || @currency
+      rate = rate_for(sl.shipment.shipped_at.beginning_of_month, currency)
       amount = sl.quantity * (pl&.unit_price || 0)
       @shipment_rows << Row.new(sl.shipment.shipped_at.to_date, sl.shipment.sales_order.serial_number,
                                 pl&.part_number, sl.quantity, pl&.unit_price || 0, amount,

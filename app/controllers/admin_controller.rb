@@ -39,8 +39,9 @@ class AdminController < ApplicationController
     @plan_matrix = SalesPlanEntry.matrix(@fy, metric: @metric)
     @fy_months = SalesPlanEntry.fy_months(@fy)
 
-    # ③ 产品视图
-    @family = SalesOverviewQuery.shipped_by_family(fy: @fy)
+    # ③ 客户订单视图（与实际出货同版式：数量/芯片额/软件额/总额）
+    @order_metric = SHIPPED_METRICS.fetch(params[:order_metric].to_s.to_sym, :quantity)
+    @order_matrix = SalesOverviewQuery.order_matrix(@fy, metric: @order_metric)
 
     # 快捷区：未签发行（复用客户订单行表格，不分页）+ 未发货六联单
     @unissued_lines = DemandQuery.actionable_lines
