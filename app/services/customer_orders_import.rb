@@ -307,7 +307,10 @@ class CustomerOrdersImport
     return text.to_date if text.is_a?(Date)
     return text.to_datetime.to_date if text.is_a?(Time)
 
-    Date.strptime(text, "%Y-%m-%d")
+    s = text.to_s.strip
+    return Date.new(1899, 12, 30) + s.to_i if s.match?(/\A\d{5}\z/) # Excel 日期序数（单元格无日期格式时）
+
+    Date.strptime(s, "%Y-%m-%d")
   rescue ArgumentError, TypeError
     nil
   end

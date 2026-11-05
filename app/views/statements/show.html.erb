@@ -21,9 +21,25 @@
                     class: "btn btn-sm btn-outline-secondary", data: { turbo: false },
                     title: "全部客户合成一张表：币别→客户→日期排序，金额按 芯片/声码1/声码2 成分拆分，按币别小计" %>
       </div>
+      <div class="col-auto">
+        <label class="form-label small mb-0">汇总起始月（YYYY-MM）</label>
+        <input type="text" name="from" value="<%= params[:from].presence %>" class="form-control form-control-sm" placeholder="2026-01" form="summary-form">
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-0">截止月（可缺省，限 24 个月）</label>
+        <input type="text" name="to" value="<%= params[:to].presence %>" class="form-control form-control-sm" placeholder="2026-12" form="summary-form">
+      </div>
+      <div class="col-auto">
+        <%= submit_tag "导出区间汇总", form: "summary-form", class: "btn btn-sm btn-outline-secondary",
+                       data: { turbo: false },
+                       title: "每月一个 sheet（订单核对/出货核对/未交订单/排产核对 四段纵向），合成一个工作簿" %>
+      </div>
     </div>
   </div>
 <% end %>
+
+<%# 区间汇总独立表单（位于顶部筛选条内，任何视图状态均可用；字段以 form 属性跨表单关联） %>
+<%= form_tag export_summary_statement_path, method: :get, id: "summary-form", class: "d-none" do %><% end %>
 
 <% if @internal %>
   <%# 全部客户：按客户币别拆「人民币/美元」两段分节显示（去币别/附加列，日期首列），各节小计 + 段合计折 RMB %>
@@ -168,21 +184,8 @@
   <div class="mt-2">
     <%= link_to "导出 Excel（全部客户，含成分拆分与币别小计）", export_internal_statement_path(month: @month.strftime("%Y-%m")),
                 data: { turbo: false }, class: "btn btn-outline-primary btn-sm" %>
+    <span class="small text-muted ms-2">区间汇总导出入口在顶部筛选条（选起止月）。</span>
   </div>
-  <%# 区间汇总：每月一个 sheet（纵向四段：订单核对/出货核对/未交订单/排产核对），合成一个工作簿 %>
-  <%= form_tag export_summary_statement_path, method: :get, class: "row g-2 align-items-end mt-1" do %>
-    <div class="col-auto">
-      <label class="form-label small mb-0">汇总起始月（YYYY-MM）</label>
-      <input type="text" name="from" class="form-control form-control-sm" placeholder="2026-01" required>
-    </div>
-    <div class="col-auto">
-      <label class="form-label small mb-0">截止月（可缺省 = 起始月，限 24 个月）</label>
-      <input type="text" name="to" class="form-control form-control-sm" placeholder="2026-12">
-    </div>
-    <div class="col-auto">
-      <%= submit_tag "导出区间汇总（每月一个 sheet）", class: "btn btn-outline-secondary btn-sm", data: { turbo: false } %>
-    </div>
-  <% end %>
 <% end %>
 
 <% if @statement %>
