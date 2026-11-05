@@ -21,29 +21,48 @@ class CustomerOrdersImport
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
 
     # 预扫描：解析 订单号 的底号与行号。行号识别收紧（防误拆）：
-    # 仅「- 或 _ + 一位数字」尾缀视为 行号 写法（如 PO123-1、PO123_2）；其余尾缀
-    # （-061、-11、DYA421-20260113301 等客户编号）一律整串保留为订单号，不得剥离
+    # 仅「- 或 _ + 一位数字 / 补零 01~09」尾缀视为 行号 写法（如 PO123-1、PO123_2、PO123-01）；
+    # 其余尾缀（-061、-11、DYA421-20260113301 等客户编号）一律整串保留为订单号，不得剥离
     entries = []
     (2..sheet.last_row).each do |i|
       row = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
       raw = row.call("订单号").to_s.strip
       generic = row.call("通用型号").to_s.strip
       next if raw.blank? && generic.blank?
-      m = raw.match(/\A(.+)[-_](\d)\z/)
+      m = raw.match(/\A(.+)[-_](\d|0\d)\z/)
       base = m ? m[1] : raw
       ln = m ? m[2].to_i : nil
+      ln = nil if ln && ln.zero? # -00 无意义
       entries << { row_no: i, row: row, raw: raw, base: base, ln: ln,
                    generic: generic, skip_blank: raw.blank? || generic.blank? }
     end
     base_counts = entries.group_by { |e| e[:base] }.transform_values(&:size)
+
+    # 组内行号计划：显式 -/_行号 占位；未写行号的行按 Excel 序补最小空号。
+    # 场景：第一行写 SFE-20260304（无行号）、第二行写 SFE-20260304-01 → 两行归同一订单，
+    # 行号 2/1（显式声明优先），重导幂等；否则第二行会按 line_no=1 覆盖第一行（数据丢失）
+    line_plan = {}
+    entries.reject { |e| e[:skip_blank] }.group_by { |e| e[:base] }.each do |_, group|
+      next unless group.size >= 2
+
+      used = group.filter_map { |e| e[:ln] }
+      group.each do |e|
+        next if e[:ln]
+
+        n = (1..).find { |k| !used.include?(k) }
+        line_plan[e[:row_no]] = n
+        used << n
+      end
+    end
 
     entries.each do |e|
       i = e[:row_no]
       row = e[:row]
       po = e[:base]
       e_ln = e[:ln]
-      has_ln = e_ln.present?
       multi = base_counts[e[:base]] >= 2
+      planned_ln = line_plan[i] # 组内补位行号（未写行号的行）
+      target_ln = e_ln || planned_ln
       raw = e[:raw]
       generic = e[:generic]
       if e[:skip_blank]
@@ -120,14 +139,14 @@ class CustomerOrdersImport
         order.update!(created_at: recv_date) # 重新导入：以文件的接收日期为准
       end
 
-      line = if multi && has_ln
-               order.order_lines.find_by(line_no: e_ln)
+      line = if multi && target_ln
+               order.order_lines.find_by(line_no: target_ln)
              else
                order.order_lines.find_by(generic_part_no: generic, version: version)
              end
       created_line = line.nil?
       line ||= order.order_lines.build(generic_part_no: generic, version: version.presence)
-      line.line_no = e_ln if multi && has_ln && line.line_no.nil?
+      line.line_no = target_ln if multi && target_ln && line.line_no.nil?
       line.full_part_no = e[:generic].presence || line.full_part_no # 客户所订型号原文（完整或通用）
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
       line.required_delivery_date = parse_date(row.call("要求交期")) || line.required_delivery_date

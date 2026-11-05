@@ -142,14 +142,17 @@ class SalesOrdersImport
     end
   end
 
-  # 分配引用兼容两种写法（行号口径与客户订单导入一致：仅「-/_ + 一位数字」视为行号）：
-  # 1) 订单号-行号（如 AB2026-003-1、AB2026_003_2）——精确匹配优先
+  # 分配引用兼容两种写法（行号口径与客户订单导入一致：仅「-/_ + 一位数字 / 补零 01~09」）：
+  # 1) 订单号-行号（如 AB2026-003-1、AB2026_003_2、AB2026-003-01）——精确匹配优先
   # 2) 纯订单号（如 AB2026-003）：该订单唯一行直接用；多行时按六联单型号收敛，仍歧义则报错
   # 长尾号/多数字尾缀客户编号（如 DYA421-20260113301、PO-260703-061）整串视为订单号，不再误拆
   def self.find_allocation_target(display, prod_line)
-    if (m = display.match(/\A(.+)[-_](\d)\z/))
-      exact = OrderLine.joins(:order).find_by(orders: { po_number: m[1] }, line_no: m[2].to_i)
-      return exact if exact
+    if (m = display.match(/\A(.+)[-_](\d|0\d)\z/))
+      ln = m[2].to_i
+      if ln.positive?
+        exact = OrderLine.joins(:order).find_by(orders: { po_number: m[1] }, line_no: ln)
+        return exact if exact
+      end
     end
 
     candidates = OrderLine.joins(:order).where(orders: { po_number: display })
