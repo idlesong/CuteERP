@@ -43,14 +43,22 @@ class ApplicationController < ActionController::Base
     session[:current_path_action]
   end
 
-  # 导入批次 → notice 文案（导入中心/订单页共用）
-  def import_report(import)
+  # 导入批次 → notice 文案（导入中心/订单页/价格页共用）。
+  # 错误/警告超 3 条截断（flash 走 cookie，全量拼接会超 4KB 上限 → CookieOverflow 500），
+  # 完整明细在导入中心底部批次记录可查
+  def import_report(import, limit: 3)
     st = import.stats
     msg = "导入完成：新建 #{st['created'] || st[:created]}，更新 #{st['updated'] || st[:updated]}，跳过 #{st['skipped'] || st[:skipped]}"
     errors = st["errors"] || st[:errors] || []
     warnings = st["warnings"] || st[:warnings] || []
-    msg += "；错误：#{errors.join('；')}" if errors.any?
-    msg += "；警告：#{warnings.join('；')}" if warnings.any?
+    if errors.any?
+      head = errors.first(limit).join("；")
+      msg += "；错误 #{errors.size} 条：#{head}#{' …（完整明细见导入中心批次记录）' if errors.size > limit}"
+    end
+    if warnings.any?
+      head = warnings.first(limit).join("；")
+      msg += "；警告 #{warnings.size} 条：#{head}#{' …（完整明细见导入中心批次记录）' if warnings.size > limit}"
+    end
     msg
   end
   helper_method :import_report

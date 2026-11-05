@@ -104,6 +104,8 @@ class CustomersController < ApplicationController
   def import
     import = Customer.import(params[:file], imported_by: current_user)
     redirect_to customers_url, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to customers_url, alert: "客户导入失败：#{e.message}"
   end
 
   private

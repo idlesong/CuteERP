@@ -104,6 +104,8 @@ class ItemsController < ApplicationController
   def import
     import = Item.import(params[:file], imported_by: current_user)
     redirect_to items_url, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to items_url, alert: "产品导入失败：#{e.message}"
   end
 
   private

@@ -187,12 +187,12 @@ class PricesController < ApplicationController
     render json: data
   end
 
-  # POST /prices/import
+  # POST /prices/import —— 价格列表页导入入口（与导入中心同口径：批次记录 + 统一报告）
   def import
-    result = Price.import(params[:file])
-    notice = "报价导入完成：新增 #{result[:created]} 条，更新 #{result[:updated]} 条"
-    notice += "；警告：#{result[:warnings].join('；')}" if result[:warnings].any?
-    redirect_to prices_url, notice: notice
+    import = Price.import(params[:file], imported_by: current_user)
+    redirect_to prices_url, notice: import_report(import)
+  rescue StandardError => e
+    redirect_to prices_url, alert: "报价导入失败：#{e.message}"
   end
 
   # DELETE /prices/1
