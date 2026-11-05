@@ -27,13 +27,13 @@ class Item < ActiveRecord::Base
     end
   end
 
-  # 完整型号解析（仅 Baseband 适用命名规则，其他类别通用型号 = 完整型号）：
-  #   1) 命中 Baseband 产品档案（含老式拆分记录 generic+suffix）→ 用档案的通用型号与后缀
-  #      例：SCT3089DVM（Baseband, generic=SCT3089DV, suffix=M）→ ["SCT3089DV", "M"]
-  #   2) 其余（RF 等其他类别、未建档）→ 通用型号 = 完整型号整串，无后缀
+  # 完整型号解析（注册表优先，不分类别）：命中产品档案即以档案为准——
+  # 非.Baseband 类别通用型号 = 完整型号（如 RF 类 SCT9389HDK 不得拆成 SCT9389HD+K），
+  # Baseband 档案的 generic 本就是按规则拆好的；未命中档案的 SCT 形态 10 位
+  # 按命名规则派生（导入器随后要求建档），其余整串
   def self.parse_full_part_no(full)
     full = full.to_s.strip
-    if (item = find_by_any_part_no(full)) && item.group == "Baseband"
+    if (item = find_by_any_part_no(full))
       return [item.generic_part_no, item.suffix.presence]
     end
     return [full, nil] unless full.match?(/\ASCT\d{4}/i)
