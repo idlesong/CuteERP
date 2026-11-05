@@ -4,7 +4,7 @@ class Price < ApplicationRecord
 
   validates :customer_id, :customer_name, :part_number, :condition, :price, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
-  # 同客户+同型号+同档位允许重新报价：导入端以「新价替代旧价」处理（旧记录自动失效），
+  # 同客户+同型号+同档位允许重新报价：导入端不自动替代旧价（仅警告，人工处理旧价失效），
   # 不再做 condition 唯一性校验；价格匹配（match_for）取生效日期最新的一条
   validates :currency, inclusion: { in: ["RMB", "USD"] }, allow_blank: true
 
@@ -176,14 +176,17 @@ class Price < ApplicationRecord
       price.v1_price = v1.presence || price.v1_price
       price.v2_price = v2.presence || price.v2_price
 
-      # 同客户+同型号+同档位重新报价：未过期的旧记录自动失效（新价替代旧价）
+      # 同客户+同型号+同档位已有未过期价格：**不自动替代**（人工在价格列表处理旧价失效），
+      # 仅提示警告供复核。新价生效优先由 match_for 的「生效日期最新」规则自然保证
       if is_new
         new_eff = price.effective_from || Date.current
-        where(customer_name: import_customer.name, part_number: price.part_number,
-              condition: price.condition).where.not(id: price.id)
-              .where("expired_at IS NULL OR expired_at >= ?", new_eff).each do |old|
-          old.update_columns(expired_at: new_eff - 1.day)
-          warnings << "第#{i}行：新价 #{number} 替代原价 #{old.price_number}（原价 #{old.price}，已过期）"
+        dup = where(customer_name: import_customer.name, part_number: price.part_number,
+                    condition: price.condition).where.not(id: price.id)
+                  .where("expired_at IS NULL OR expired_at >= ?", new_eff)
+                  .order(:id).first
+        if dup
+          warnings << "第#{i}行：同客户+型号+档位已有未过期价格 #{dup.price_number}" \
+                      "（原价 #{dup.price}，失效日 #{dup.expired_at || '长期有效'}），未自动替代，请人工复核"
         end
       end
 

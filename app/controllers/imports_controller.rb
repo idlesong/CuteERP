@@ -17,7 +17,7 @@ class ImportsController < ApplicationController
     path = ImportChecker.fetch_annotated(params[:token])
     return redirect_to imports_path, alert: "标注文件不存在或已过期（30 分钟），请重新检查" unless path
 
-    send_file path, filename: "导入检查_错误标注.xlsx",
+    send_file path, filename: "导入检查_标注.xlsx",
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 
@@ -95,15 +95,19 @@ class ImportsController < ApplicationController
 
   private
 
-  # 「检查」按钮：仅预检不导入（与导入同端点，per-form CSRF token 才能匹配）
+  # 「检查」按钮：仅预检不导入（与导入同端点，per-form CSRF token 才能匹配）；
+  # 有错误 → 生成标注文件（阻断）；仅有警告 → 同样生成标注文件供复核（不阻断）
   def check_only(importer)
     result = ImportChecker.run(importer, params[:file])
     if ImportChecker.blocked?(result)
       session[:check_token] = ImportChecker.store_annotated(importer, params[:file], result)
-      redirect_to imports_path, alert: "检查发现 #{result.errors.values.flatten.size} 处错误（警告 #{result.warnings.values.flatten.size} 条），已生成错误标注文件，修正后才能导入"
-    else
+      redirect_to imports_path, alert: "检查发现 #{result.errors.values.flatten.size} 处错误（警告 #{result.warnings.values.flatten.size} 条），已生成标注文件，修正后才能导入"
+    elsif result.warnings.any?
+      session[:check_token] = ImportChecker.store_annotated(importer, params[:file], result)
       n = result.warnings.values.flatten.size
-      redirect_to imports_path, notice: "检查通过，可以导入#{n.positive? ? "（#{n} 条警告不阻断导入，导入后请复核）" : ""}"
+      redirect_to imports_path, alert: "检查通过（#{n} 条警告，见标注文件标注），可导入，导入后请复核"
+    else
+      redirect_to imports_path, notice: "检查通过，可以导入"
     end
   rescue StandardError => e
     redirect_to imports_path, alert: "检查失败：#{e.message}"
