@@ -3,7 +3,8 @@ require "roo"
 # 生产订单（六联单）批量导入（第二阶段 2.2，D14：FIFO 分配结果以 Excel 为准，直接入台账）
 # - 模板 = 月度工作簿「生产订单-六联单」表，含 订单N/分配量N 分配对列
 # - 自然键 = 六联单号（serial_number）；行按正式型号匹配；分配按行重建（未出库部分）
-# - 校验报告：Σ分配量 vs 数量、引用订单行存在、分配量 ≤ 未签发余额（只报告不自动修）
+# - 校验报告：Σ分配量 vs 数量、引用订单行存在、分配量 ≤ 未签发余额（只报告不自动修）；
+#   D19：分配目标与六联单行严格一致（相同客户/相同通用型号/相同价格）
 class SalesOrdersImport
   BASE_HEADERS = %w[六联单号 下单日期 客户 产品 数量 含税单价 版本 约定发货日期 发货数量].freeze
 
@@ -48,6 +49,7 @@ class SalesOrdersImport
       end
 
       qty = val.call("数量").to_i
+      total = parse_number(val.call("含税单价"))
       part_suffix = part_suffix.presence || item.suffix.presence
       line = so.production_lines.find_by(item_id: item.id, suffix: part_suffix)
       created_line = line.nil?
@@ -68,7 +70,7 @@ class SalesOrdersImport
         so.update_columns(required_date: parse_date(val.call("约定发货日期")))
       end
 
-      rebuild_allocations(line, pair_cols, sheet, i, val, stats)
+      rebuild_allocations(line, pair_cols, sheet, i, val, stats, total)
       created_line ? stats[:created] += 1 : stats[:updated] += 1
     rescue StandardError => e
       stats[:errors] << "第#{i}行：#{e.message}"
@@ -80,7 +82,8 @@ class SalesOrdersImport
   end
 
   # 分配对列（订单N/分配量N）：整行分配按文件重建（D14 Excel 为准）；已出库行不动
-  def self.rebuild_allocations(line, pair_cols, sheet, row_no, val, stats)
+  # D19：分配目标须与六联单行严格一致（相同客户、相同通用型号、相同价格）
+  def self.rebuild_allocations(line, pair_cols, sheet, row_no, val, stats, total = nil)
     return if line.shipped_qty.positive?
 
     pairs = []
@@ -90,11 +93,27 @@ class SalesOrdersImport
       pairs << [display, qty] if display.present? && qty.positive?
     end
 
+    prod_customer = line.sales_order&.customer
+    prod_generic = line.item&.generic_part_no
     sums = {}
     pairs.each do |display, qty|
       target = find_allocation_target(display, line)
       if target.nil?
         stats[:errors] << "第#{row_no}行：分配引用的订单行「#{display}」不存在"
+        next
+      end
+      mism = []
+      if target.order.customer_id != prod_customer&.id
+        mism << "客户（订单行 #{target.order.customer&.name} ≠ 六联单 #{prod_customer&.name}）"
+      end
+      if target.generic_part_no != prod_generic
+        mism << "型号（订单行 #{target.generic_part_no} ≠ 六联单 #{prod_generic}）"
+      end
+      if total.present? && (target.unit_price.to_d - total.to_d).abs > 0.01
+        mism << "价格（订单行 #{target.unit_price} ≠ 六联单 #{total}）"
+      end
+      if mism.any?
+        stats[:errors] << "第#{row_no}行：#{line.sales_order&.serial_number} 分配 #{display} 与六联单不一致：#{mism.join('、')}"
         next
       end
       sums[target] = sums.fetch(target, 0) + qty
@@ -168,5 +187,10 @@ class SalesOrdersImport
     Date.strptime(text, "%Y-%m-%d")
   rescue ArgumentError, TypeError
     nil
+  end
+
+  def self.parse_number(text)
+    t = text.to_s.gsub(/[,%，¥$ ]/, "")
+    t.match?(/\A\d+(\.\d+)?\z/) ? t.to_f : nil
   end
 end

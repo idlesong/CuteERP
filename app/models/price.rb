@@ -122,12 +122,24 @@ class Price < ApplicationRecord
     errors = []
     warnings = []
 
+    # 同文件报价号唯一（3.5）：重复 Price_number 报错阻断
+    dup_counts = Hash.new(0)
+    each_data_row(sheet) do |row, _|
+      n = row["Price_number"].to_s.strip
+      dup_counts[n] += 1 if n.present?
+    end
+
     each_data_row(sheet) do |row, i|
       number = row["Price_number"].to_s.strip
       if number.blank?
         if row.values.any? { |v| v.to_s.strip.present? }
           errors << "第#{i}行：Price_number 必填"
         end
+        next
+      end
+
+      if dup_counts[number] > 1
+        errors << "第#{i}行：Price_number「#{number}」在文件内重复（同文件报价号须唯一）"
         next
       end
 

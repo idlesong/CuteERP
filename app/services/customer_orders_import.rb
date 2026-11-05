@@ -7,8 +7,9 @@ require "roo"
 #   单行订单直接写「PO123」。防误拆：同底号（PO123）全文件仅出现一次时不剥离（客户编号
 #   本身可能以 -01 结尾）
 # - 行合并键：同订单号+行号 → 同一行更新；不同行号或无行号按 通用型号+版本 区分
-# - 含税单价自动匹配报价拆分成分（Price.match_for）
-# - 冲销行：数量为负（或类型/特殊要求标注冲销/核销）→ 生成 kind=return 冲销单「原PO-Rn」
+# - 价格匹配（D18 严格）：接收日期+客户+通用型号+含税单价 匹配报价（日期须在有效期内），
+#   匹配不到 → 阻断报错（无跨客户兜底、无比例缩放）；多候选 → 警告取生效最新
+# - 冲销行识别只认数量为负；价格继承原订单行快照（不重新匹配报价）
 class CustomerOrdersImport
   HEADERS = %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别].freeze
 
@@ -61,15 +62,13 @@ class CustomerOrdersImport
       version = row.call("版本").to_s.strip.presence
       qty = row.call("数量").to_i
       recv_date = parse_date(row.call("接收日期"))
-      # 冲销行：数量为负，或 类型/特殊要求 标注 冲销/核销/return
-      marked = row.call("特殊要求").to_s.match?(/冲销|核销/) ||
-               row.call("类型").to_s.match?(/冲销|核销|return/i)
-      # 必填校验：接收日期/数量；正常行另需含税单价（冲销行价格自原行复制，免填）；版本可选
+      total = parse_number(row.call("含税单价"))
+      # 冲销行识别（D18）：只认数量为负（标注列不再参与识别）；冲销行价格自原行复制，免填含税单价
+      return_line = qty.negative?
       missing = []
       missing << "接收日期" if recv_date.nil?
       missing << "数量" if qty.zero?
-      total = parse_number(row.call("含税单价"))
-      missing << "含税单价" if total.nil? && !marked
+      missing << "含税单价" if total.nil? && !return_line
       unless missing.empty?
         stats[:errors] << "第#{i}行：缺少必填字段：#{missing.join('、')}"
         stats[:skipped] += 1
@@ -94,12 +93,18 @@ class CustomerOrdersImport
       end
       generic = resolved.generic_part_no # 归一化（非 Baseband 类别通用型号 = 完整型号）
 
-      if qty.negative? || marked
+      if return_line
         import_return(stats, po: po, generic: generic, version: version,
                       abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
                       recv_date: recv_date)
         next
       end
+
+      # D18 严格价格匹配（单头落库前）：客户+通用型号+接收日期在有效期内+含税单价一致；
+      # 匹配不到 → 阻断该行（无跨客户兜底、无比例缩放）
+      as_of = recv_date || month || Date.current
+      price = match_strict_price(customer, generic, as_of, total, qty, i, stats)
+      next if price.nil?
 
       order = Order.find_or_initialize_by(po_number: po)
       if order.new_record?
@@ -124,29 +129,11 @@ class CustomerOrdersImport
       line.line_no = e_ln if multi && has_ln && line.line_no.nil?
       line.full_part_no = e[:generic].presence || line.full_part_no # 客户所订型号原文（完整或通用）
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
-      was_base = line.base_price
-      # 成分从未拆分过（v1/v2 均空，含旧版导入塞在芯片列的总额）→ 清空后重新匹配，允许自愈
-      if line.v1_price.blank? && line.v2_price.blank?
-        line.base_price = nil
-        line.price_id = nil
-      end
       line.required_delivery_date = parse_date(row.call("要求交期")) || line.required_delivery_date
       line.remark = row.call("特殊要求").to_s.presence || line.remark
-      # 有效期以接收日期为基准（补录历史订单也能命中当时有效的报价）
-      as_of = recv_date || month || Date.current
-      OrderLine.apply_price_snapshot(line, total: total, date: as_of)
-
-      if line.price_id.present?
-        matched = Price.find(line.price_id)
-        if matched.customer_id != order.customer_id
-          stats[:warnings] << "第#{i}行：#{generic} 无本客户报价，暂用客户「#{matched.customer_name}」的报价 #{matched.price_number}，请人工确认"
-        elsif total && (total.to_d - matched.price.to_d).abs > 0.01
-          stats[:warnings] << "第#{i}行：订单单价 #{total} ≠ 报价 #{matched.price}（#{matched.price_number}），已按报价比例拆分，请人工复核"
-        end
-      else
-        line.base_price = total || was_base if line.base_price.nil? # 无报价：维持原口径（全额计入芯片）
-        stats[:warnings] << "第#{i}行：#{generic} 未匹配到可用报价，成分未拆分" if total
-      end
+      # D14/D18：每次导入按 Excel 重新严格匹配并快照（匹配保证单价一致，直接复制报价成分，无缩放）
+      line.assign_attributes(base_price: price.base_price, v1_price: price.v1_price,
+                             v2_price: price.v2_price, price_id: price.id)
       line.save!
       created_line ? stats[:created] += 1 : stats[:updated] += 1
     rescue StandardError => e
@@ -156,6 +143,43 @@ class CustomerOrdersImport
 
     Import.create!(kind: "customer_orders", month: month, filename: file.original_filename,
                     imported_by: imported_by, stats: stats)
+  end
+
+  # D18 严格价格匹配：客户 + 通用型号 + 接收日期落在有效期内 + 含税单价一致（容差 0.01）。
+  # - 无候选 → 记 error（阻断，调用方 skip 该行）：无跨客户兜底、无比例缩放
+  # - 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）；
+  #   并列取生效日期最新
+  # - 歧义（同档位还有其他同价候选，如换批重报）→ 警告人工复核
+  def self.match_strict_price(customer, generic, as_of, total, qty, row_no, stats)
+    scope = Price.where(part_number: generic, status: %w[approved active], customer_id: customer.id)
+                 .where("effective_from IS NULL OR effective_from <= ?", as_of)
+                 .where("expired_at IS NULL OR expired_at >= ?", as_of)
+    cands = scope.select { |p| (p.price.to_d - total.to_d).abs <= 0.01 }
+    if cands.empty?
+      stats[:errors] << "第#{row_no}行：#{generic} 单价 #{total}（接收日期 #{as_of}）无匹配报价" \
+                        "（客户+型号+有效期+单价须一致），未导入"
+      stats[:skipped] += 1
+      return nil
+    end
+
+    tiers = cands.filter_map { |p| [Price.numeric_condition(p), p] }
+    if tiers.empty?
+      # 档位不可比（"1K" 等写法）：取生效日期最新
+      chosen = cands.max_by { |p| [p.effective_from || Date.new(0), p.id] }
+    else
+      # 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）；
+      # 同档并列（如换批重报）取生效日期最新
+      eligible = tiers.select { |c, _| c <= qty.to_f }
+      c_pick = eligible.any? ? eligible.transpose.first.max : tiers.transpose.first.min
+      chosen = tiers.select { |c, _| c == c_pick }
+                    .max_by { |_, p| [p.effective_from || Date.new(0), p.id] }.last
+    end
+
+    if cands.any? { |p| p.id != chosen.id && p.condition == chosen.condition }
+      stats[:warnings] << "第#{row_no}行：#{generic} 单价 #{total} 匹配到多条同价报价" \
+                          "（#{cands.map(&:price_number).join('、')}），已取生效最新 #{chosen.price_number}，请人工复核"
+    end
+    chosen
   end
 
   # 冲销行：原订单 + 原行（通用型号+版本）→ kind=return 的冲销单「原PO-Rn」，
