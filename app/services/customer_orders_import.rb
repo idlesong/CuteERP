@@ -38,6 +38,19 @@ class CustomerOrdersImport
     end
     base_counts = entries.group_by { |e| e[:base] }.transform_values(&:size)
 
+    # 单行底号不剥离（防误拆本意）：该底号全文件仅出现一次时，-xx 尾缀是客户编号
+    # 本身（如 ACKPO-260325-02 的 -02 是 Allied 订单序号），整串保留为订单号。
+    # 形式上无法与行号区分，唯一可靠信号是「行号写法必然多行同底号」。
+    # multi 判定基于还原前的 base_counts，先固化再还原（还原后查表将键不符）
+    entries.each do |e|
+      multi = base_counts[e[:base]] >= 2
+      e[:multi] = multi
+      next if multi
+
+      e[:base] = e[:raw]
+      e[:ln] = nil
+    end
+
     # 组内行号计划：显式 -/_行号 占位；未写行号的行按 Excel 序补最小空号。
     # 场景：第一行写 SFE-20260304（无行号）、第二行写 SFE-20260304-01 → 两行归同一订单，
     # 行号 2/1（显式声明优先），重导幂等；否则第二行会按 line_no=1 覆盖第一行（数据丢失）
@@ -60,7 +73,7 @@ class CustomerOrdersImport
       row = e[:row]
       po = e[:base]
       e_ln = e[:ln]
-      multi = base_counts[e[:base]] >= 2
+      multi = e[:multi]
       planned_ln = line_plan[i] # 组内补位行号（未写行号的行）
       target_ln = e_ln || planned_ln
       raw = e[:raw]
