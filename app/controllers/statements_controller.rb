@@ -1,4 +1,6 @@
-# 月度对账单（第二阶段 2.3）：客户 × 月份，页面 + 导出
+# 月度对账单（第二阶段 2.3）：客户 × 月份，页面 + 导出；区间汇总（每月一个 sheet 纵向四段）
+require "caxlsx"
+
 class StatementsController < ApplicationController
   # GET /statements?customer_id=&month= —— customer_id=all 显示全部客户（币别→客户→大类排序）
   def show
@@ -56,11 +58,27 @@ class StatementsController < ApplicationController
       { name: "出货核对", headers: InternalMonthlyStatement::HEADERS,
         rows: rows_with_totals.call(st.shipment_rows) },
       { name: "未交订单", headers: InternalMonthlyStatement::HEADERS,
-        rows: rows_with_totals.call(st.backlog_rows) }
+        rows: rows_with_totals.call(st.backlog_rows) },
+      { name: "排产核对", headers: InternalMonthlyStatement::ALLOC_HEADERS,
+        rows: st.to_allocation_rows }
     ])
     send_data xlsx,
               filename: "内部对账单_全部客户_#{month.strftime('%Y%m')}.xlsx",
               type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  end
+
+  # GET /statements/export_summary?from=&to= —— 区间汇总：每月一个 sheet（四段纵向），合成一个工作簿
+  def export_summary
+    from = parse_month(params[:from]) || Date.current.beginning_of_month
+    to = parse_month(params[:to]) || from
+    to = from if to < from
+
+    xlsx = InternalMonthlyStatement.summary_xlsx(from, to)
+    send_data xlsx,
+              filename: "内部对账单_汇总_#{from.strftime('%Y%m')}-#{to.strftime('%Y%m')}.xlsx",
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  rescue StandardError => e
+    redirect_to statement_path, alert: "汇总导出失败：#{e.message}"
   end
 
   private

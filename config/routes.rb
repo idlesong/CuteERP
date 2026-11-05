@@ -87,6 +87,7 @@ Rails.application.routes.draw do
   get "statements", to: "statements#show", as: :statement
   get "statements/export", to: "statements#export", as: :export_statement
   get "statements/export_internal", to: "statements#export_internal", as: :export_internal_statement
+  get "statements/export_summary", to: "statements#export_summary", as: :export_summary_statement
 
   resources :closed_periods, only: [:index, :create, :destroy]
 
@@ -96,10 +97,6 @@ Rails.application.routes.draw do
   post "imports/prices", to: "imports#import_prices", as: :import_prices_imports
   post "imports/shipments", to: "imports#import_shipments", as: :import_shipments_imports
   get "imports/check_file/:token", to: "imports#check_file", as: :import_check_file
-  get "imports/check_export", to: "imports#check_export", as: :check_export_imports
-  post "imports/check_import", to: "imports#upload_check", as: :upload_check_imports
-  get "imports/check_import/:id", to: "imports#show_check", as: :import_check
-  post "imports/check_import/:id/apply", to: "imports#apply_check", as: :apply_import_check
   post "imports/customers", to: "imports#import_customers", as: :import_customers_imports
   post "imports/items", to: "imports#import_items", as: :import_items_imports
 

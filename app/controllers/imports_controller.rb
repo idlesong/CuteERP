@@ -21,45 +21,6 @@ class ImportsController < ApplicationController
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 
-  # GET /imports/check_export —— 核对导出（3.1）：指纹四表工作簿，MONTH= 或 FROM=/TO=
-  def check_export
-    result = ReconciliationWorkbook.generate(params)
-    send_data result[:data], filename: result[:filename],
-                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  rescue StandardError => e
-    redirect_to imports_path, alert: "核对导出失败：#{e.message}"
-  end
-
-  # POST /imports/check_import —— 上传核对工作簿 → 差异预览批次（不落业务数据）
-  def upload_check
-    return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?
-
-    imp = ReconciliationImport.check(params[:file], imported_by: current_user)
-    s = imp.stats
-    redirect_to import_check_path(imp),
-                notice: "预览生成（#{s['range']['from']} ~ #{s['range']['to']}）：新增 #{s['orders']['create'] + s['sales_orders']['create'] + s['shipments']['create']}，" \
-                        "修改 #{s['orders']['update'] + s['sales_orders']['update']}，作废 #{s['orders']['void'] + s['sales_orders']['void']}，" \
-                        "冲突 #{s['orders']['conflict'] + s['sales_orders']['conflict'] + s['shipments']['conflict']}——请确认后应用"
-  rescue StandardError => e
-    redirect_to imports_path, alert: "核对导入失败：#{e.message}"
-  end
-
-  # GET /imports/check_import/:id —— 差异预览页
-  def show_check
-    @import = Import.find(params[:id])
-  end
-
-  # POST /imports/check_import/:id/apply —— 确认应用（事务内）
-  def apply_check
-    imp = ReconciliationImport.apply!(Import.find(params[:id]))
-    report = imp.stats["apply"] || {}
-    n = report.values.sum { |c| c["create"].to_i + c["update"].to_i + c["void"].to_i }
-    redirect_to import_check_path(imp), notice: "已应用 #{n} 处差异（新增/修改/作废），批次 #{imp.id} 完成"
-  rescue StandardError => e
-    imp = Import.find_by(id: params[:id])
-    redirect_to imp ? import_check_path(imp) : imports_path, alert: "应用失败：#{e.message}"
-  end
-
   # POST /imports/customer_orders
   def import_customer_orders
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?

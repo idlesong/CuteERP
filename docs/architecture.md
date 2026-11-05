@@ -9,8 +9,7 @@
 | 主题 | 要点 | 提交 |
 |---|---|---|
 | 订单号防误拆修复 | **根因**（生产六联单分配大量「订单行不存在」）：客户订单 PO 尾数字被 `\A(.+)-(\d+)\z` 无条件剥离——德亿真实 PO `DYA421-20260113301` 落库成 `DYA421`+行1（长尾号丢失），六联单引用完整尾号即查不到（同案：PO-260703-061/YS-2026051001/MYT-2026-032801/ST-RP/CLPO-2608）；`A72329` 则是两行同型号未写行号 → 歧义误报「不存在」。**修复**（多轮收紧）：行号识别最终为 **「- 或 _ + 一位数字 / 补零 01~09」**（PO123-1、PO123_2、PO123-01 归并；-11/-061/长尾客户编号一律不拆整串落号），客户订单导入与六联单分配引用同口径；**混合行号写法归并**（首行无行号+次行 -01 → 同单两行，显式占位+未写行号补最小空号，避免覆盖丢失）；**单行底号不剥离**（底号全文件仅出现一次 → -xx 尾缀视为订单序号整串落库，如 Allied `ACKPO-260325-02`——行号与订单序号形式不可分，唯一可靠信号是行号写法必然多行同底号）；错误消息细化区分「订单不存在」vs「多行歧义请用 订单号-行号 引用」。**附带修复**：`Item.parse_full_part_no` 注册表优先改为**不分类别**（此前仅 Baseband 档案生效，非 Baseband 命中档案后仍落入 SCT 10 位位置拆分——生产 order 473 的 RF 类 SCT9389HDK 被拆成 SCT9389HD+K；现命中档案即以档案通用型号为准）。**生产善后**：残留前缀单（DYA421/PO-260703/YS/ST-RP/MYT-2026/CLPO-2608/ACKPO-260325/SFE 等拆坏单）与误拆通用型号的订单行（SCT9389HDK→HD 类）须重导纠正；产品档案若为旧代码导入的拆分数据（generic+suffix 误拆）需重导产品表归一 | （待提交） |
-| 核对导入（phase3 3.2，闭环完成） | `ReconciliationImport`（导入中心「核对工作流」卡片）：上传核对工作簿 → **差异预览（不落库，Import status=preview）** → 确认应用（事务内，status=applied）；区间按文件内单据日期自动检测（D22）；指纹双层匹配（行ID 优先/键列兜底，updated_at 漂移警告，D16）；差异 = 新增/字段级修改/**作废（D15：已提交 `[作废]`+数量置 0，未出库才可自动）**/冲突（关账月、已出库缩减、无匹配报价 D18、产品未建档）→ 阻断行跳过；发货表仅补录新增（source_key 幂等），系统多录提示人工；**sha256 防重**（imports 表加 sha256/status 列，同文件仅可应用一次）；订单核对新增行走严格价格匹配（match_strict_price 同口径）；验证脚本 `tmp/verify_check_import.rb`（预览/应用/sha256/页面渲染 4 项） | 1300b7e |
-| 核对导出（phase3 3.1） | `ReconciliationWorkbook`（`GET /imports/check_export`，导入中心顶部入口）：指纹四表工作簿——订单核对（含冲销负行）/销售订单核对（**仅已提交，D21 草稿不核对**）/发货核对/未交订单核对（截至 TO 月末快照）；`MONTH=` 单月切片或 `FROM=/TO=` 跨月区间（整月对齐，D22）；每表首行 TEMPLATE_VERSION 隐藏 + 指纹列（行ID/更新时间）隐藏（3.2 核对导入的匹配依据）；`OrderLine#delivered_qty/open_qty` 支持 `as_of`（未来出库不污染历史快照）；验证脚本 `tmp/verify_check_export.rb` | e92abf6 |
+| 对账归档路线（核对工作流移除） | **方向调整**：专用核对工作流（指纹四表导出→编辑→上传预览→应用，3.1/3.2 交付后移除——主工作簿含公式/提示列，往返复制不实用）替换为**每月对账归档**：① 内部对账单加第四段「排产核对」（当月下发六联单 + 分配台账明细串接「订单行×数量」，可与 Excel FIFO 公式结果逐行对照；Σ分配≠数量 黄色高亮）；② 关账归档三件（pg_dump + 月度工作簿 + **当月对账单** cute_erp_statement_*.xlsx）；③ **区间汇总导出**（月度对账页 FROM/TO 选月，每月一个 sheet 纵向四段，限 24 个月）——每月关账留存一份核对过的 Excel 快照，即「系统之外核对过的数据」。imports 表 sha256/status 列保留（无害）。脚本 `tmp/verify_statement_archive.rb` | （待提交） |
 | 导入预检强化（phase3 3.5） | **D18 客户订单严格价格匹配**：接收日期+客户+通用型号+含税单价须命中本客户报价（日期在有效期内），匹配不到→阻断（删跨客户兜底、删比例缩放），多候选→警告取生效最新；**核销只认数量为负**（标注不参与识别），价格继承原行快照；**D19 六联单分配严格一致**（相同客户/通用型号/价格，不一致阻断点名）；价格导入 **Price_number 同文件唯一**；验证脚本 `tmp/verify_import_strict.rb` | 0166156 |
 | 导入检查标注增强 | 「检查」仅有警告（无错误）时也生成标注文件（横幅/下载名改中性「标注文件」）；价格导入：同客户+型号+档位已有未过期价**不再自动替代旧价**，仅警告人工复核（新价生效由 match_for 生效日期最新规则自然保证） | dea63d9 |
 | 边界日期统计修复 | datetime 列（shipped_at/created_at）与 Date 区间（`all_month`/`fy_range`）比较时端点按 UTC 午夜 cast（北京时区即当日 08:00），漏掉 1 日 0~8 点与末日 8 点之后的单据——「普星 2026-04 四笔只统计两笔」即此因。修复 8 处：双对账单与月度工作簿 `@range`、`SalesPlanEntry.fy_range`、`RevenueQuery.monthly_rmb`、`SalesOverviewQuery` 月度区间、出库单列表月份筛选，统一改用 `beginning_of_day..end_of_day`。**新增查询一律勿用 Date 区间过滤 datetime 列** | 8d13d37 |
@@ -64,8 +63,7 @@ app/
 │                      #   MonthlyStatement（客户对账）、InternalMonthlyStatement（全客户内部对账）
 ├── services/          # MonthlyWorkbook（月度工作簿导出）、Xlsx（极简 xlsx 生成器）、
 │                      #   CustomerOrdersImport / SalesOrdersImport / ShipmentsImport（+ Price.import）、
-│                      #   ImportChecker（两阶段导入预检）、BackupService、
-│                      #   ReconciliationWorkbook / ReconciliationImport（核对导出/导入闭环，phase3）
+│                      #   ImportChecker（两阶段导入预检）、BackupService（归档三件含对账单）
 ├── controllers/       # 按业务域划分；imports 为导入中心（含预检与标注文件下载）
 ├── javascript/lib/    # column_filters.js —— DataTables Excel 式列筛选框架
 └── views/
@@ -183,24 +181,23 @@ errors（阻断导入）均带行号写回标注文件；各导入器的具体�
 
 ## 报表与导出
 
-- **核对导出**（`ReconciliationWorkbook`，`GET /imports/check_export`）：系统 ↔ Excel
-  核对工作簿四表（订单核对/销售订单核对/发货核对/未交订单核对），
-  隐藏指纹列（行ID/更新时间）+ 模板版本行；`MONTH=`/`FROM=`/`TO=` 区间（整月对齐）；
-  未交订单按 as_of 快照（截至 TO 月末，未来出库不计入）
-- **核对导入**（`ReconciliationImport`，`POST /imports/check_import` → 预览页 → 确认应用）：
-  与核对导出闭环——Excel 编辑后上传，差异预览（新增/字段级修改/作废/冲突，不落库），
-  确认后事务内应用；作废 = `[作废]` 标记 + 数量置 0（D15）；sha256 防重复应用；
-  发货表只补录新增（系统多录人工处理）；未交订单表只读对照
 - **月度工作簿**（`MonthlyWorkbook`，`GET /exports/monthly`）：7 张表
   （汇总/计划/出库单/价格/客户/产品/未交订单），出库单成分列与导入模板同口径
 - **客户对账单**（`MonthlyStatement`，`/statements`）：客户 × 月份三段式
   （订单核对/出货核对/未交订单），含冲销行（负金额），页面 + 单客户 xlsx 导出
 - **全客户内部对账单**（`InternalMonthlyStatement`）：
-  三段式跨全部客户合成，排序 币别 → 客户名称 → 日期 → 单据号（去 币别/附加 列，日期首列）；
+  **四段式**：订单核对 / 出货核对 / 未交订单 + **排产核对**（当月下发六联单 + 分配台账明细
+  「订单行×数量」串接、Σ分配/已发货，Σ分配≠数量 黄色高亮——可与 Excel 六联单表
+  FIFO 分配公式结果逐行对照），跨全部客户合成，排序 币别 → 客户名称 → 日期 → 单据号；
   页面按客户币别拆「人民币客户 / 美元客户(USD)」分节显示（`datatable` 筛选 + 分节小计），
   导出按币别小计 + 段合计折 RMB；金额按 芯片/声码1/声码2 成分拆分列示
   （出货段用分配加权价，与月度工作簿同公式；**出货币别 = 分配订单快照币别优先、客户现币别兜底**）；
   汇率随行，段合计折 RMB
+- **区间汇总导出**（`GET /statements/export_summary?from=&to=`）：每月一个 sheet（纵向四段：
+  订单核对/出货核对/未交订单/排产核对，各段含标题/表头/合计），合成一个工作簿；限 24 个月
+- **关账归档**：`BackupService.archive_month` 归档三件——pg_dump + 当月工作簿 +
+  **当月内部对账单**（`cute_erp_statement_*.xlsx`，`statement_xlsx` 生成，与导出同口径）——
+  关账即留存一份核对过的月度数据快照（系统之外核对过的 Excel 数据）
 - 统一出口 `Xlsx.generate`（caxlsx）；金额未税一律 含税 ÷ 1.13
 
 ## 核心口径（全系统统一）

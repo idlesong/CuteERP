@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>features.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> or <div class="page"></div> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="功能总览与操作入口">功能总览与操作入口</h1>
+<blockquote>
+<p>更新于 2026-11-05。操作向文档；设计决策背景见 <code>docs/feature_plan.md</code>（D1–D14），
+架构与统一口径见 <code>docs/architecture.md</code>。</p>
+<p>顶部导航：客户订单 · 六联单 · 出货 · 客户 · 产品 · 价格 · 更多▾
+（文档 / 阶梯价目 / 业务机会 / 工作动态 / 联系人 / 导出当月 / 导入 / 月度对账 /
+关账与归档 / 年度计划 / 库存 / 汇率设置 / 系统设置）。
+<strong>首页 = 销售总览</strong>；右上角 <code>@用户名</code> 进入工作台。</p>
+</blockquote>
+<h2 id="销售总览首页-">销售总览（首页 <code>/</code>）</h2>
+<p>顶部 FY 切换（上年 / 当前 / 下年财年）；三个视图按 tab 切换（tab 记忆：切换度量/FY
+整页刷新后仍停留在原视图），均按客户条目判币别拆「人民币客户 / 美元客户(USD)」
+分节显示，各自小计；金额带币别符号（¥/$），数量为纯数字：</p>
+<ol>
+<li><strong>① 实际出货</strong>：大类 → 客户矩阵，行尾并入 全年 Plan / 当月 Plan 对比
+（取数：实际出货按分配台账加权价 × 当月汇率折 RMB）</li>
+<li><strong>② Plan (Budget)</strong>：货币段 → 大类 → 客户；数量 / 芯片 / 软件 / 总额 按钮组切换</li>
+<li><strong>③ 客户订单视图</strong>：与实际出货同版式（数量 / 芯片额 / 软件额 / 总额 按钮组），
+取当月接收的已提交订单行<strong>直接计价</strong>（含冲销负数，不依赖分配台账），
+按订单行价格快照拆 芯片额=base_price、软件额=v1+v2</li>
+</ol>
+<h2 id="客户订单orders">客户订单（/orders）</h2>
+<ul>
+<li><strong>列表</strong>：按行显示（行编号 = 客户订单号-行号，如 <code>PO123-2</code>）；列筛选行 + 底部快速创建行；
+日期列月份下拉、数值列 <code>最小~最大</code> 区间筛选；筛选/排序/页码记忆（stateSave，8 小时）</li>
+<li><strong>快速创建</strong>：选客户 → 选型号（只显示该客户有报价的型号）→ 选价格（已批准价格按客户+型号过滤，
+唯一价格自动选中）→ 数量（订单量档位与阶梯价目一致，选后自动显示 ODM/OEM 与参考阶梯价）；
+后缀下拉（分解/签发用）取自系统设置 <code>naming.suffixes</code></li>
+<li><strong>订单号失焦预显</strong>：输入已有 PO 显示 <code>PO123-3（追加到草稿单）</code> 并自动带出客户</li>
+<li><strong>状态</strong>：草稿（黄行，操作列可&quot;提交&quot;）/ 已提交（绿）/ 冲销（红）；
+<strong>未签发</strong>的已提交单可随意修改；<strong>已被签发</strong>的单走冲销</li>
+<li><strong>详情页</strong>：草稿与未签发的已提交单均可加行/删行/改单头；<strong>附件</strong>：客户 PO 原件
+（PDF/图片，可多文件上传/删除）</li>
+<li><strong>冲销</strong>（D1）：详情页&quot;创建冲销单&quot; → 按行录冲销数量（≤ 可冲销余额；
+余额按「全部冲销行合计 ≤ 原行数量」口径，支持幂等重导）→ 生成 <code>PO-R1</code> 冲销单（数量为负）</li>
+<li><strong>接收日期口径</strong>：列表按 <code>created_at</code>；<strong>导入时把文件接收日期写进 created_at</strong>，
+重复导入以文件日期刷新；价格匹配以接收日期为基准（as-of，支持补录历史订单）</li>
+<li><strong>币别</strong>（D9）：从客户快照，汇率按订单月快照；USD 客户订单行按美元价匹配</li>
+</ul>
+<h2 id="报价单quotations">报价单（/quotations）</h2>
+<ul>
+<li><strong>报价号</strong>：<code>QT+日期+3位流水</code>（如 QT20260310-011），删除后流水不重用（安全删）</li>
+<li><strong>快照明细</strong>：生成时<strong>复制</strong>价格成分到报价行（price_id 仅追溯），后续调价不影响已出的报价单；
+同一价格可进多张报价单</li>
+<li><strong>入口</strong>：价格详情页生成/关联；支持新建与编辑</li>
+<li><strong>PDF 输出</strong>：详情页打印/下载（自包含打印样式，中文系统字体栈）</li>
+</ul>
+<h2 id="六联单--生产订单sales_orders">六联单 / 生产订单（/sales_orders）</h2>
+<ul>
+<li><strong>签发</strong>：从客户订单行池（净需求 = 数量 − 冲销 − 已分配，<code>DemandQuery</code> 统一口径）选行，
+输入后缀拼正式型号（组合不存在自动建档）+ 数量 + 版本 → 生成六联单；
+工作台&quot;分解&quot;弹窗可对单行快捷签发；后缀集合 = 系统设置 <code>naming.suffixes</code>（默认 C/M/S）</li>
+<li><strong>分配台账</strong>（D2）：六联单行 ↔ 客户订单行多对多（跨订单拆量、部分/全量、事后可调）；
+分配引用支持 <code>订单号-行号</code> 或纯订单号（PO 内唯一行自动对应）</li>
+<li><strong>状态</strong>：草稿（不占签发池）→ 提交（占池、可出库）→ 已出完（列表隐藏出库入口）；
+未出库行可随意修改（型号/数量/版本/统一编号/备注），删行需求自动释放回待签发池；
+已出库行数量只能增不能减</li>
+<li><strong>单号</strong>：<code>XS{yyyy}-{流水}</code>，流水按年重置、固定 3 位（XS2026-005）</li>
+<li><strong>PDF</strong>：详情页可输出 invoice / packing list（与报价单同一套打印样式）</li>
+<li><strong>出库</strong>：出库页按行拆量，可多次出库；发货时间 = 末次出库（派生）</li>
+</ul>
+<h2 id="出货shipments">出货（/shipments）</h2>
+<ul>
+<li>出库单列表（月份筛选）+ 快速出库行：选六联单（显示核对信息）→ 可填总数量
+（留空整单出完，按行顺序填充）</li>
+<li>工作台&quot;快捷出货&quot;弹窗：按行修改本次出库数量</li>
+<li>快递号在<strong>出库明细页</strong>可查（对账单为紧凑版式已省略附加列）</li>
+</ul>
+<h2 id="价格prices">价格（/prices）</h2>
+<ul>
+<li>报价行：客户 × 通用型号 × 订单量档位；成分拆分 芯片(base) + 声码1(v1) + 声码2(v2)，
+三成分之和必须等于总单价（容差 0.01，吸收显示舍入）；快速创建支持公式（<code>=50+50</code> 自动拆分）</li>
+<li><strong>状态机</strong>：requested（显式待审批，导入时状态列填 requested 保留）→ approved（生效）；
+active 为历史已批准状态，视同 approved；<strong>有效期内 + 已批准 = 生效</strong>，
+有效期内未批准显示&quot;批准&quot;按钮；否则&quot;失效&quot;</li>
+<li>行内编辑：点&quot;编辑&quot;当行变输入行（同款交互见客户/产品列表）；编辑/批准后回到原筛选原页码</li>
+<li>顶部筛选：状态（全部/requested/approved）、PRR 标记——随 redirect 一并带回</li>
+<li><strong>USD 客户建价</strong>：换算助手 <code>USD = RMB基准价 ÷ 1.13 ÷ 当月汇率</code>，自动填充可改（只发生在建价一次）</li>
+</ul>
+<h2 id="阶梯价目更多--阶梯价目">阶梯价目（更多 → 阶梯价目）</h2>
+<ul>
+<li>发布批次制：Excel 整表导入 = 新批次；最新批次可增补行（一次写 16 档，OEM/ODM × 8 数量档）</li>
+<li>签发与下单的参考阶梯价均取<strong>最新批次</strong>；历史批次只读可切换</li>
+</ul>
+<h2 id="工作台右上角-用户名">工作台（右上角 <code>@用户名</code>）</h2>
+<ul>
+<li><strong>客户订单(待签发)</strong>：草稿行（可提交）+ 已提交未分配完的行（可分解/快捷签发），
+与客户订单列表同款交互（筛选 + 快速创建），不分页</li>
+<li><strong>六联单(待发货)</strong>：草稿（可提交）+ 未全部发货的六联单（快捷出货弹窗可按行改数量）</li>
+</ul>
+<h2 id="月度对账更多--月度对账">月度对账（更多 → 月度对账）</h2>
+<p>页面 = 单客户对账 + 全客户内部对账（同一月份，客户下拉为中文名）：</p>
+<ul>
+<li><strong>客户对账单</strong>（单客户视角）三段式：
+<ol>
+<li><strong>订单核对段</strong>（当月接收的已提交订单行，含冲销负金额，按接收日期排序）</li>
+<li><strong>出货核对段</strong>（当月出库明细，单价来自分配台账加权价）</li>
+<li><strong>未交订单</strong>（截至月末：订单量 − 冲销 − 已出货）
+金额双口径：本币 + 折 RMB（汇率取 exchange_rates 表当月值）；xlsx 导出</li>
+</ol>
+</li>
+<li><strong>全客户内部对账单</strong>（销售内部核对）：三段式跨全部客户合成，
+排序 = 币别 → 客户名称 → 日期 → 单据号；<strong>按客户币别拆「人民币客户 / 美元客户(USD)」
+分节显示、各自小计 + 段合计折 RMB</strong>（页面与导出同口径）；
+金额按 芯片/声码1/声码2 成分拆分列示（出货段用分配加权价，与月度工作簿同公式；
+<strong>出货币别 = 分配订单快照币别优先、客户现币别兜底</strong>）；汇率随行；三段表接列筛选
+（客户列打字过滤、日期列月份下拉）；xlsx 导出</li>
+<li>对客户的正式对账单不拆成分（成分拆分为内部口径）</li>
+</ul>
+<h2 id="导出当月更多--导出当月">导出当月（更多 → 导出当月）</h2>
+<ul>
+<li>月度工作簿（xlsx）7 张表：<strong>汇总 / 计划 / 出库单 / 价格 / 客户 / 产品 / 未交订单</strong></li>
+<li>出库单表含 RMB 金额/成分销售额/声码器名称，成分列与导入模板同口径（可回导）</li>
+<li>统一口径：金额未税 = 含税 ÷ 1.13；当月统计按日界时间（不会漏边界小时单据）</li>
+</ul>
+<h2 id="导入更多--导入导入中心">导入（更多 → 导入，导入中心）</h2>
+<p>六类导入卡片：<strong>客户订单 / 价格 / 六联单 / 出库单 / 客户 / 产品</strong>。
+均按表头名称解析（容忍列序变化、空列、多余统计列），与月度工作簿同模板：</p>
+<table>
+<thead>
+<tr>
+<th>导入器</th>
+<th>自然键（幂等）</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>客户订单</td>
+<td>订单号+通用型号+版本</td>
+<td>型号命名校验仅 Baseband 类别（9 位=通用 / 10 位=通用+后缀∈设置；RF 等类别通用型号=完整型号不校验）；含税单价自动匹配报价拆分成分（跨客户兜底报价/无报价未拆分给警告）；负数量或标注&quot;冲销&quot;→ 生成冲销单 <code>PO-Rn</code>（受可冲销余额限制）；<strong>接收日期落库 created_at，重导以文件日期刷新</strong>；版本可选</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>Price_number</td>
+<td>芯片必填、声码可缺省（缺省并入芯片；总单价为 =公式 时芯片豁免）；成分合计≠总价直接报错；<strong>状态空白/无法识别 → approved</strong>（requested 显式保留待审批）；同客户+型号+档位已有未过期价 → <strong>仅警告，不自动替代</strong>（旧价失效人工处理；新价生效由匹配规则&quot;生效日期最新&quot;自然保证）</td>
+</tr>
+<tr>
+<td>六联单</td>
+<td>六联单号</td>
+<td><strong>导入即提交</strong>（D14，过渡期 Excel 为准）；分配对「订单N」支持纯订单号；「产品」列完整型号 → suffix 落行；分配直接建台账（Σ分配=数量校验）</td>
+</tr>
+<tr>
+<td>出库单</td>
+<td>六联单号|日期|快递号</td>
+<td>同键多行合单、同产品累加；<strong>重复导入整单重建</strong>（幂等）；客户与六联单不符按六联单客户处理（警告）</td>
+</tr>
+<tr>
+<td>客户</td>
+<td>英文名（中文名唯一）</td>
+<td>客户订单导入的前置；资料更新幂等</td>
+</tr>
+<tr>
+<td>产品</td>
+<td>通用型号（同文件唯一）</td>
+<td>订单导入的前置；<strong>通用型号 = 型号原文</strong>（不再拆末位字母），后缀清空</td>
+</tr>
+</tbody>
+</table>
+<p><strong>两阶段导入</strong>（预检 → 修正 → 导入，导入永不带错落库）：</p>
+<ol>
+<li><strong>「检查」按钮</strong>：只跑预检——在回滚事务中完整执行导入器，<strong>不落任何数据</strong>；
+结果分 <code>errors</code>（阻断：必填缺失/客户或型号未建档/命名规则不符/引用不存在/分配超余额等）
+与 <code>warnings</code>（不阻断：跨客户兜底报价/同档位已有未过期价等），均带行号</li>
+<li><strong>标注文件</strong>：预检发现错误<strong>或警告</strong>时自动生成 xlsx
+（原表 + 末列「检查结果」逐行标注错误/警告，另有「全局问题」表），
+顶部横幅提供下载（30 分钟有效，token 跨刷新持续显示）；按标注修正后重新上传</li>
+<li><strong>「导入」按钮</strong>：先预检，<strong>有错误即阻止导入</strong>；导入完成后批次报告列出
+新建/更新/跳过/错误/警告明细，底部批次历史可查</li>
+</ol>
+<blockquote>
+<p>客户/产品是订单链路的前置，建议先「检查」通过再导订单。</p>
+</blockquote>
+<h2 id="关账与归档更多--关账与归档">关账与归档（更多 → 关账与归档）</h2>
+<ul>
+<li>关账月单据锁定（不可改删）；重开留痕（重开人/时间）；关账自动归档
+pg_dump 压缩包 + 当月工作簿到 <code>storage/backups/</code></li>
+<li>恢复语义（D13）：灾难 = 整库恢复归档点；纠错 = 重开月份修单或冲销</li>
+<li>日常备份：每日自动（保留 30 天）</li>
+</ul>
+<h2 id="年度计划更多--年度计划">年度计划（更多 → 年度计划）</h2>
+<ul>
+<li>财年止年标记（<strong>FY2027 = 2026-04 ~ 2027-03</strong>）；大类 × 客户 × 财年 12 月矩阵</li>
+<li>度量：数量 / 芯片额（base 口径）/ 软件额（v1+v2 口径）；币别按客户派生，汇总折 RMB</li>
+<li>Plan.xlsx 导入：货币段（人民币/美元）→ 大类 → 客户行；各级合计行不导入（系统自动聚合）；
+客户名匹配 英文名/全称/中文名，失败进校验报告</li>
+</ul>
+<h2 id="基础数据与设置">基础数据与设置</h2>
+<ul>
+<li><strong>客户</strong>（/customers）：英文名/中文名/全称/区域/销售类型(OEM/ODM)/代理商/币种(RMB|USD)/
+付款（默认款到发货）/发票三件套；行内编辑；支持导入（幂等更新）</li>
+<li><strong>产品</strong>（/items）：<strong>通用型号 = 型号原文</strong>（不再拆末位字母），完整型号 = 通用型号 + 后缀
+（后缀在六联单转产时定型）；base_item/extra_item/extra_item2 对应 芯片/声码1/声码2 组件；
+类别（Baseband/RF 等，对齐 Plan 大类）——<strong>仅 Baseband 参与命名规则校验</strong>；
+行内编辑；「谁买过」透视入口；支持导入（重导同型号自动归一）</li>
+<li><strong>汇率设置</strong>（更多 → 汇率设置）：按月手工录入各币种汇率；
+订单/六联单创建时快照当月值，报表按出货月取值折 RMB；缺失月份需先补录再导出报表</li>
+<li><strong>系统设置</strong>（更多 → 系统设置）：账号管理；用户设置中维护 <code>naming.suffixes</code>
+（Baseband 第 10 位合法后缀集合，默认 C/M/S——签发后缀下拉与客户订单导入校验共用）</li>
+</ul>
+<h2 id="型号命名规则baseband导入签发共用">型号命名规则（Baseband，导入/签发共用）</h2>
+<pre class="hljs"><code><div>完整型号 = SCT + 4位数字 + XY + [Z]
+           └─ 前 9 位 = 通用型号 ─┘  └ 第 10 位 = 后缀（可缺省）
+</div></code></pre>
+<ul>
+<li>按长度派生：9 位 = 通用型号（如 SCT3089MM 就是通用型号）；10 位 = 通用 + 1 位后缀
+（如 SCT3089DVC → 通用 SCT3089DV + 后缀 C，后缀 ∈ 系统设置 <code>naming.suffixes</code>）</li>
+<li>长度不限制（通用型号有 7 位 SCT1234 与 9 位 SCT1234XY 两种形态）；
+Baseband 之外的类别（RF 等）通用型号 = 完整型号，不参与命名校验</li>
+<li>产品档案命中的型号优先用档案登记值（注册表优先）</li>
+</ul>
+<h2 id="遗留功能迁移自旧系统维持现状">遗留功能（迁移自旧系统，维持现状）</h2>
+<ul>
+<li><strong>文档</strong>（posts）、<strong>业务机会</strong>（opportunities + 状态）、<strong>工作动态</strong>（tasks）、
+<strong>联系人</strong>（contacts）、<strong>库存</strong>（inventory 产品目录页）</li>
+</ul>
+
+</body>
+</html>

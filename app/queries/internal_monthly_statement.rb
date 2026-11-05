@@ -1,13 +1,18 @@
 # 月度所有客户内部对账单（销售内部核对用）：
-# 三段式同 MonthlyStatement（订单核对/出货核对/未交订单），但跨全部客户合成，
-# 排序 = 币别 → 客户名称 → 日期 → 单据号；金额按 芯片/声码1/声码2 成分拆分分别显示。
-# 单价与金额一律本币（视图按币别拆「人民币/美元」两段分节显示，各自小计）；折 RMB 仅在合计列
+# 四段式：订单核对/出货核对/未交订单 + 排产核对（当月下发六联单 + 分配台账明细），
+# 跨全部客户合成，排序 = 币别 → 客户名称 → 日期 → 单据号；
+# 单价与金额一律本币（视图按币别拆「人民币/美元」两段分节显示，各自小计）；折 RMB 仅在合计列。
+# 排产核对段：分配明细串接（订单行×数量）来自台账，可与 Excel 六联单表 FIFO 公式结果逐行对照
 class InternalMonthlyStatement
   Row = Struct.new(:date, :doc_no, :customer, :currency, :part, :group, :quantity,
                    :chip_price, :v1_price, :v2_price,
                    :chip_amt, :v1_amt, :v2_amt, :amount, :rate, :amount_rmb, :extra)
 
-  attr_reader :month, :order_rows, :shipment_rows, :backlog_rows
+  # 排产核对段行（生产单无币别语境，独立结构）
+  AllocRow = Struct.new(:date, :serial, :customer, :part, :quantity, :version,
+                        :alloc_detail, :alloc_total, :shipped_qty, :status)
+
+  attr_reader :month, :order_rows, :shipment_rows, :backlog_rows, :allocation_rows
 
   def initialize(month)
     @month = month.beginning_of_month
@@ -17,9 +22,11 @@ class InternalMonthlyStatement
     @order_rows = []
     @shipment_rows = []
     @backlog_rows = []
+    @allocation_rows = []
     build_orders
     build_backlog
     build_shipments
+    build_allocations
     sort_rows!
   end
 
@@ -99,6 +106,25 @@ class InternalMonthlyStatement
     end
   end
 
+  # 排产核对段：当月下发的已提交六联单行 + 分配台账明细（订单行×数量 串接）。
+  # 用途：与 Excel 六联单表的 FIFO 分配公式结果（订单1~5/分配量1~5）逐行对照
+  def build_allocations
+    SalesOrder.includes(:customer, production_lines: { item: [], production_allocations: { order_line: :order } })
+              .where(status: "submitted", created_at: @range)
+              .order("sales_orders.created_at", "sales_orders.serial_number", "production_lines.id")
+              .find_each do |so|
+      so.production_lines.each do |pl|
+        allocs = pl.production_allocations.sort_by { |a| a.order_line&.display_no.to_s }
+        detail = allocs.map { |a| "#{a.order_line&.display_no}×#{a.quantity}" }.join("；")
+        @allocation_rows << AllocRow.new(so.created_at.to_date, so.serial_number,
+                                         cust_name(so.customer),
+                                         pl.item&.partNo || pl.part_number,
+                                         pl.quantity, pl.version, detail,
+                                         allocs.sum(&:quantity), pl.shipped_qty, so.status)
+      end
+    end
+  end
+
   # 段合计（本币金额跨币别无意义，合计一律折 RMB）
   def totals_for(rows)
     {
@@ -126,10 +152,63 @@ class InternalMonthlyStatement
   def shipment_totals = totals_for(shipment_rows)
   def backlog_totals = totals_for(backlog_rows)
 
+  # 排产核对段合计：Σ数量 / Σ分配 / Σ发货（三者可一眼校验 Σ分配=数量）
+  def allocation_totals
+    {
+      qty: allocation_rows.sum(&:quantity),
+      alloc: allocation_rows.sum(&:alloc_total),
+      shipped: allocation_rows.sum(&:shipped_qty)
+    }
+  end
+
   # 币别列/附加列已去除（视图按币别拆段显示），日期移首列
   HEADERS = %w[日期 客户 单据号 产品 产品大类 数量
                芯片单价 声码1单价 声码2单价
                芯片金额 声码1金额 声码2金额 金额合计 汇率 折RMB合计].freeze
+
+  # 排产核对段表头与行
+  ALLOC_HEADERS = %w[下单日期 六联单号 客户 产品 数量 版本 分配明细 Σ分配 已发货 状态].freeze
+
+  def to_allocation_rows
+    allocation_rows.map { |r| [r.date, r.serial, r.customer, r.part, r.quantity,
+                               r.version, r.alloc_detail, r.alloc_total, r.shipped_qty, r.status] }
+  end
+
+  # 区间汇总工作簿：每月一个 sheet，纵向四段（订单核对/出货核对/未交订单/排产核对），
+  # 段标题 + 表头 + 数据 + 合计；跨度上限 24 个月（防误操作）
+  def self.summary_xlsx(from, to)
+    raise "区间跨度过大（限 24 个月）" if (to.year * 12 + to.month) - (from.year * 12 + from.month) >= 24
+
+    require "caxlsx"
+    package = Axlsx::Package.new
+    wb = package.workbook
+    sec_style = wb.styles.add_style(b: true, font_color: "1F4E79")
+    head_style = wb.styles.add_style(b: true, bg_color: "D9E1F2")
+    bold_style = wb.styles.add_style(b: true)
+
+    (from..to).map(&:beginning_of_month).uniq.each do |m|
+      st = new(m)
+      wb.add_worksheet(name: m.strftime("%Y-%m")) do |ws|
+        ws.add_row(["#{m.strftime('%Y-%m')} 内部对账单"], style: sec_style)
+        { "订单核对" => st.order_rows, "出货核对" => st.shipment_rows,
+          "未交订单（截至月末）" => st.backlog_rows }.each do |title, rows|
+          ws.add_row([])
+          ws.add_row(["【#{title}】"], style: sec_style)
+          ws.add_row(HEADERS, style: head_style)
+          st.to_rows(rows).each { |r| ws.add_row(r) }
+          t = st.totals_for(rows)
+          ws.add_row(["合计", "", "", "", t[:qty], "", "", "", "", "", "", "", "", "", t[:amount_rmb]], style: bold_style)
+        end
+        ws.add_row([])
+        ws.add_row(["【排产核对】"], style: sec_style)
+        ws.add_row(ALLOC_HEADERS, style: head_style)
+        st.to_allocation_rows.each { |r| ws.add_row(r) }
+        at = st.allocation_totals
+        ws.add_row(["合计", "", "", "", at[:qty], "", "", at[:alloc], at[:shipped], ""], style: bold_style)
+      end
+    end
+    package.to_stream.read
+  end
 
   def to_rows(rows)
     rows.map { |r| [r.date, r.customer, r.doc_no, r.part, r.group, r.quantity,
