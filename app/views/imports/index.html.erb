@@ -10,7 +10,7 @@
 
 <%# 核对导出（phase3 3.1）：系统 ↔ Excel 核对工作簿（指纹四表），单月或跨月区间 %>
 <div class="card mb-3">
-  <div class="card-header"><h5>核对导出</h5></div>
+  <div class="card-header"><h5>核对工作流（导出 → Excel 编辑 → 核对导入）</h5></div>
   <div class="card-body">
     <%= form_tag check_export_imports_path, method: :get, class: "row g-2 align-items-end" do %>
       <div class="col-auto">
@@ -22,11 +22,24 @@
         <input type="text" name="to" class="form-control form-control-sm" placeholder="2026-05">
       </div>
       <div class="col-auto">
-        <%= submit_tag "下载核对工作簿（订单/销售订单/发货/未交订单）", class: "btn btn-sm btn-primary", data: { turbo: false } %>
+        <%= submit_tag "① 下载核对工作簿", class: "btn btn-sm btn-primary", data: { turbo: false } %>
       </div>
       <div class="col-12 small text-muted">
         四张核对表带隐藏指纹列（行ID/更新时间）与模板版本；销售订单核对仅含已提交（草稿不核对）；
         未交订单为截至截止月末的快照（未来出库不计入）。
+      </div>
+    <% end %>
+    <hr class="my-2">
+    <%= form_tag upload_check_imports_path, multipart: true, class: "row g-2 align-items-end" do %>
+      <div class="col-auto">
+        <label class="form-label small mb-0">② 上传核对工作簿（差异预览，不落库）</label>
+        <input type="file" name="file" class="form-control form-control-sm" accept=".xlsx" required>
+      </div>
+      <div class="col-auto">
+        <%= submit_tag "生成差异预览", class: "btn btn-sm btn-outline-primary" %>
+      </div>
+      <div class="col-12 small text-muted">
+        预览列出 新增/修改/作废/冲突 清单，确认后才应用；同一文件只能应用一次（sha256 防重）。
       </div>
     <% end %>
   </div>

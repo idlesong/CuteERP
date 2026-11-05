@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_21_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_05_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -118,9 +118,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_000001) do
     t.bigint "imported_by_id", null: false
     t.string "kind", null: false
     t.date "month"
+    t.string "sha256"
     t.jsonb "stats", default: {}
+    t.string "status", default: "applied"
     t.datetime "updated_at", null: false
     t.index ["imported_by_id"], name: "index_imports_on_imported_by_id"
+    t.index ["sha256"], name: "index_imports_on_sha256"
   end
 
   create_table "items", force: :cascade do |t|
