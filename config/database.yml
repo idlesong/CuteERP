@@ -95,15 +95,5 @@ production:
     password: <%= Rails.application.credentials.dig(:db_password) %>
     host: 127.0.0.1
     port: 5433
-  cache:
-    <<: *primary_production
-    database: cute_erp_production_cache
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *primary_production
-    database: cute_erp_production_queue
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *primary_production
-    database: cute_erp_production_cable
-    migrations_paths: db/cable_migrate
+  # 与 development 对齐：仅 primary 单库（solid_cache/queue/cable 未启用，勿加附加库条目，
+  # 否则 db:reset/db:prepare 会要求加载不存在的 db/cache_schema.rb）
