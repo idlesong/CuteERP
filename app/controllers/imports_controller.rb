@@ -21,6 +21,15 @@ class ImportsController < ApplicationController
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 
+  # GET /imports/check_export —— 核对导出（3.1）：指纹四表工作簿，MONTH= 或 FROM=/TO=
+  def check_export
+    result = ReconciliationWorkbook.generate(params)
+    send_data result[:data], filename: result[:filename],
+                             type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  rescue StandardError => e
+    redirect_to imports_path, alert: "核对导出失败：#{e.message}"
+  end
+
   # POST /imports/customer_orders
   def import_customer_orders
     return redirect_to imports_path, alert: "请选择文件" if params[:file].blank?

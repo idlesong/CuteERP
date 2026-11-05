@@ -96,6 +96,7 @@ Rails.application.routes.draw do
   post "imports/prices", to: "imports#import_prices", as: :import_prices_imports
   post "imports/shipments", to: "imports#import_shipments", as: :import_shipments_imports
   get "imports/check_file/:token", to: "imports#check_file", as: :import_check_file
+  get "imports/check_export", to: "imports#check_export", as: :check_export_imports
   post "imports/customers", to: "imports#import_customers", as: :import_customers_imports
   post "imports/items", to: "imports#import_items", as: :import_items_imports
 

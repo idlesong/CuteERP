@@ -8,7 +8,8 @@
 
 | 主题 | 要点 | 提交 |
 |---|---|---|
-| 导入预检强化（phase3 3.5） | **D18 客户订单严格价格匹配**：接收日期+客户+通用型号+含税单价须命中本客户报价（日期在有效期内），匹配不到→阻断（删跨客户兜底、删比例缩放），多候选→警告取生效最新；**核销只认数量为负**（标注不参与识别），价格继承原行快照；**D19 六联单分配严格一致**（相同客户/通用型号/价格，不一致阻断点名）；价格导入 **Price_number 同文件唯一**；验证脚本 `tmp/verify_import_strict.rb` | （待提交） |
+| 核对导出（phase3 3.1） | `ReconciliationWorkbook`（`GET /imports/check_export`，导入中心顶部入口）：指纹四表工作簿——订单核对（含冲销负行）/销售订单核对（**仅已提交，D21 草稿不核对**）/发货核对/未交订单核对（截至 TO 月末快照）；`MONTH=` 单月切片或 `FROM=/TO=` 跨月区间（整月对齐，D22）；每表首行 TEMPLATE_VERSION 隐藏 + 指纹列（行ID/更新时间）隐藏（3.2 核对导入的匹配依据）；`OrderLine#delivered_qty/open_qty` 支持 `as_of`（未来出库不污染历史快照）；验证脚本 `tmp/verify_check_export.rb` | （待提交） |
+| 导入预检强化（phase3 3.5） | **D18 客户订单严格价格匹配**：接收日期+客户+通用型号+含税单价须命中本客户报价（日期在有效期内），匹配不到→阻断（删跨客户兜底、删比例缩放），多候选→警告取生效最新；**核销只认数量为负**（标注不参与识别），价格继承原行快照；**D19 六联单分配严格一致**（相同客户/通用型号/价格，不一致阻断点名）；价格导入 **Price_number 同文件唯一**；验证脚本 `tmp/verify_import_strict.rb` | 0166156 |
 | 导入检查标注增强 | 「检查」仅有警告（无错误）时也生成标注文件（横幅/下载名改中性「标注文件」）；价格导入：同客户+型号+档位已有未过期价**不再自动替代旧价**，仅警告人工复核（新价生效由 match_for 生效日期最新规则自然保证） | dea63d9 |
 | 边界日期统计修复 | datetime 列（shipped_at/created_at）与 Date 区间（`all_month`/`fy_range`）比较时端点按 UTC 午夜 cast（北京时区即当日 08:00），漏掉 1 日 0~8 点与末日 8 点之后的单据——「普星 2026-04 四笔只统计两笔」即此因。修复 8 处：双对账单与月度工作簿 `@range`、`SalesPlanEntry.fy_range`、`RevenueQuery.monthly_rmb`、`SalesOverviewQuery` 月度区间、出库单列表月份筛选，统一改用 `beginning_of_day..end_of_day`。**新增查询一律勿用 Date 区间过滤 datetime 列** | 8d13d37 |
 | 币别修复 + 体验优化 | USD 客户显示 RMB 修复：出货段币别兜底改客户现币别（internal/revenue/workbook/statement 四处 `|| "RMB"` 移除）、销售总览按**客户条目**判币别拆段（不再按大类整组）+ money 币别符号 + 分段合计行；核销单导入接收日期落库（`create_return_order` 补 created_at，重导刷新）；对账单按币别拆「人民币/美元客户」分节小计（页面+导出）、去币别/附加列、日期首列并按日期排序（CSS 覆盖 dt-type-date 右对齐）、客户下拉中文名、三段表接 datatable 筛选；列表筛选状态记忆（DataTables `stateSave` + 筛选框回填 + 价格编辑/批准/快速创建 redirect 带回 scope）——价格列表「筛选下编辑行消失」即此根因；销售总览 ③ 产品视图改为**客户订单视图**（`SalesOverviewQuery.order_matrix`：与实际出货同版式 数量/芯片额/软件额/总额，订单行直接计价含冲销负数，按客户币别分段）；**生产数据回填待执行**：`RAILS_ENV=production CONFIRM=1 bin/rails cute_erp:fix:order_currency`（先 dry-run 预览），历史订单币别按客户现值修正并按订单月重快照汇率 | （待提交） |
@@ -179,6 +180,10 @@ errors（阻断导入）均带行号写回标注文件；各导入器的具体�
 
 ## 报表与导出
 
+- **核对导出**（`ReconciliationWorkbook`，`GET /imports/check_export`）：系统 ↔ Excel
+  核对工作簿四表（订单核对/销售订单核对/发货核对/未交订单核对），
+  隐藏指纹列（行ID/更新时间）+ 模板版本行；`MONTH=`/`FROM=`/`TO=` 区间（整月对齐）；
+  未交订单按 as_of 快照（截至 TO 月末，未来出库不计入）——phase3 3.2 核对导入的数据基线
 - **月度工作簿**（`MonthlyWorkbook`，`GET /exports/monthly`）：7 张表
   （汇总/计划/出库单/价格/客户/产品/未交订单），出库单成分列与导入模板同口径
 - **客户对账单**（`MonthlyStatement`，`/statements`）：客户 × 月份三段式

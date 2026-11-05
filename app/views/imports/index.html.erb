@@ -8,6 +8,30 @@
   </div>
 <% end %>
 
+<%# 核对导出（phase3 3.1）：系统 ↔ Excel 核对工作簿（指纹四表），单月或跨月区间 %>
+<div class="card mb-3">
+  <div class="card-header"><h5>核对导出</h5></div>
+  <div class="card-body">
+    <%= form_tag check_export_imports_path, method: :get, class: "row g-2 align-items-end" do %>
+      <div class="col-auto">
+        <label class="form-label small mb-0">起始月（YYYY-MM）</label>
+        <input type="text" name="from" class="form-control form-control-sm" placeholder="2025-12" required>
+      </div>
+      <div class="col-auto">
+        <label class="form-label small mb-0">截止月（可缺省 = 起始月，整月对齐）</label>
+        <input type="text" name="to" class="form-control form-control-sm" placeholder="2026-05">
+      </div>
+      <div class="col-auto">
+        <%= submit_tag "下载核对工作簿（订单/销售订单/发货/未交订单）", class: "btn btn-sm btn-primary", data: { turbo: false } %>
+      </div>
+      <div class="col-12 small text-muted">
+        四张核对表带隐藏指纹列（行ID/更新时间）与模板版本；销售订单核对仅含已提交（草稿不核对）；
+        未交订单为截至截止月末的快照（未来出库不计入）。
+      </div>
+    <% end %>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-md-6">
     <div class="card mb-3">

@@ -76,27 +76,34 @@ class OrderLine < ApplicationRecord
     quantity - returned_qty
   end
 
-  # 已出货数量（对账口径）：按分配比例分摊各生产行的出库
-  def delivered_qty
+  # 已出货数量（对账口径）：按分配比例分摊各生产行的出库。
+  # as_of 给定时只计该时点前的出库（核对快照口径：由远及近封存，未来出库不得污染历史）
+  def delivered_qty(as_of: nil)
     total = production_allocations.sum(:quantity)
     return 0 if total.zero?
 
     production_allocations.includes(production_line: :shipment_lines)
-                          .sum { |a| shipped_share(a) }.round(2)
+                          .sum { |a| shipped_share(a, as_of) }.round(2)
   end
 
   # 未交数量 = 数量 - 冲销 - 已出货
-  def open_qty
-    quantity - returned_qty - delivered_qty
+  def open_qty(as_of: nil)
+    quantity - returned_qty - delivered_qty(as_of: as_of)
   end
 
   private
 
-  def shipped_share(allocation)
+  def shipped_share(allocation, as_of = nil)
     pl = allocation.production_line
     return 0 if pl.nil? || pl.quantity.to_i.zero?
 
-    (pl.shipped_qty * allocation.quantity.to_f / pl.quantity).round(2)
+    shipped = if as_of
+                pl.shipment_lines.joins(:shipment)
+                  .where(shipments: { shipped_at: ..as_of }).sum(:quantity)
+              else
+                pl.shipped_qty
+              end
+    (shipped * allocation.quantity.to_f / pl.quantity).round(2)
   end
 
   # 构建行并从客户可用报价快照价格成分；无报价则留空（后续可手工补）
