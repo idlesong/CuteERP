@@ -20,16 +20,16 @@ class CustomerOrdersImport
 
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
 
-    # 预扫描：解析 订单号 的底号与行号。行号识别收紧（3.5 后续修复）：
-    # 仅 1~2 位尾数字视为 行号 后缀（如 PO123-1/-2）；≥3 位尾数字是客户编号本身
-    # （如 DYA421-20260113301、PO-260703-061），整串保留为订单号，不得剥离
+    # 预扫描：解析 订单号 的底号与行号。行号识别收紧（防误拆）：
+    # 仅「- 或 _ + 一位数字」尾缀视为 行号 写法（如 PO123-1、PO123_2）；其余尾缀
+    # （-061、-11、DYA421-20260113301 等客户编号）一律整串保留为订单号，不得剥离
     entries = []
     (2..sheet.last_row).each do |i|
       row = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
       raw = row.call("订单号").to_s.strip
       generic = row.call("通用型号").to_s.strip
       next if raw.blank? && generic.blank?
-      m = raw.match(/\A(.+)-(\d{1,2})\z/)
+      m = raw.match(/\A(.+)[-_](\d)\z/)
       base = m ? m[1] : raw
       ln = m ? m[2].to_i : nil
       entries << { row_no: i, row: row, raw: raw, base: base, ln: ln,
