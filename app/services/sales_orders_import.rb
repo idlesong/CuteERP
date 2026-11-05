@@ -99,7 +99,14 @@ class SalesOrdersImport
     pairs.each do |display, qty|
       target = find_allocation_target(display, line)
       if target.nil?
-        stats[:errors] << "第#{row_no}行：分配引用的订单行「#{display}」不存在"
+        # 消息细化：区分「订单不存在」与「存在但多行歧义」（此前一律报「不存在」，误导排障）
+        serial = line.sales_order&.serial_number
+        msg = if OrderLine.joins(:order).exists?(orders: { po_number: display })
+                "分配引用的订单行「#{display}」存在多行且型号无法唯一确定，请用 订单号-行号 引用指定行（如 #{display}-1）"
+              else
+                "分配引用的订单行「#{display}」不存在（请确认客户订单已导入，单号写法与订单列表一致）"
+              end
+        stats[:errors] << "第#{row_no}行：#{serial} #{msg}"
         next
       end
       mism = []
@@ -135,12 +142,13 @@ class SalesOrdersImport
     end
   end
 
-  # 分配引用兼容两种写法：
+  # 分配引用兼容两种写法（行号口径与客户订单导入一致：仅 1~2 位尾数字视为行号）：
   # 1) 订单号-行号（如 AB2026-003-1，系统行编号）——精确匹配优先
-  # 2) 纯订单号（如 AB2026-003）：该订单唯一行直接用；多行时按六联单型号收敛，仍歧义则报警告
+  # 2) 纯订单号（如 AB2026-003）：该订单唯一行直接用；多行时按六联单型号收敛，仍歧义则报错
+  # 长尾号客户编号（如 DYA421-20260113301）整串视为订单号，不再误拆
   def self.find_allocation_target(display, prod_line)
     po, _, ln = display.rpartition("-")
-    if ln.match?(/\A\d+\z/)
+    if ln.match?(/\A\d{1,2}\z/)
       exact = OrderLine.joins(:order).find_by(orders: { po_number: po }, line_no: ln.to_i)
       return exact if exact
     end
