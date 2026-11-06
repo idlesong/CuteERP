@@ -203,7 +203,6 @@ class CustomerOrdersImport
   # - 同档多条候选：选「与 Excel 参考单价最接近」的报价（参考价辅助定位），并列取生效日期最新
   # - 订单行正式价格 = 匹配报价的总价/成分（价格表权威；Excel 单价差异仅提示不阻断）
   def self.match_formal_price(customer, generic, as_of, total, qty, row_no, stats, po: nil)
-    puts "DBG-MFP: customer=#{customer&.name.inspect} generic=#{generic.inspect} total=#{total.inspect} cands_after=?(see)"
     scope = Price.where(part_number: generic, status: %w[approved active], customer_id: customer.id)
                  .where("effective_from IS NULL OR effective_from <= ?", as_of)
                  .where("expired_at IS NULL OR expired_at >= ?", as_of)
