@@ -20,28 +20,26 @@ class CustomerOrdersImport
 
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
 
-    # 预扫描：解析 订单号 的底号与行号。行号识别收紧（防误拆）：
-    # 仅「- 或 _ + 一位数字 / 补零 01~09」尾缀视为 行号 写法（如 PO123-1、PO123_2、PO123-01）；
-    # 其余尾缀（-061、-11、DYA421-20260113301 等客户编号）一律整串保留为订单号，不得剥离
+    # 预扫描：解析 订单号 的底号与行号。行号识别（最终规则）：
+    # 仅「# + 一位数字」尾缀视为 行号 写法（如 PO123#1、PO123#2 → 归并订单 PO123 行 1/2）；
+    # 其余一律不合并（-01/-02/-1、_2、长尾客户编号 DYA421-20260113301、ACKPO-260325-02 等
+    # 整串为订单号）
     entries = []
     (2..sheet.last_row).each do |i|
       row = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
       raw = row.call("订单号").to_s.strip
       generic = row.call("通用型号").to_s.strip
       next if raw.blank? && generic.blank?
-      m = raw.match(/\A(.+)[-_](\d|0\d)\z/)
+      m = raw.match(/\A(.+)#(\d)\z/)
       base = m ? m[1] : raw
       ln = m ? m[2].to_i : nil
-      ln = nil if ln && ln.zero? # -00 无意义
       entries << { row_no: i, row: row, raw: raw, base: base, ln: ln,
                    generic: generic, skip_blank: raw.blank? || generic.blank? }
     end
     base_counts = entries.group_by { |e| e[:base] }.transform_values(&:size)
 
-    # 单行底号不剥离（防误拆本意）：该底号全文件仅出现一次时，-xx 尾缀是客户编号
-    # 本身（如 ACKPO-260325-02 的 -02 是 Allied 订单序号），整串保留为订单号。
-    # 形式上无法与行号区分，唯一可靠信号是「行号写法必然多行同底号」。
-    # multi 判定基于还原前的 base_counts，先固化再还原（还原后查表将键不符）
+    # 单行底号不剥离：该底号全文件仅出现一次时整串保留为订单号
+    # （现规则仅 #行号 归并，非 # 尾缀天然不拆；显式还原以保持防御性）
     entries.each do |e|
       multi = base_counts[e[:base]] >= 2
       e[:multi] = multi

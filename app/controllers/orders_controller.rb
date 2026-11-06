@@ -30,11 +30,11 @@ class OrdersController < ApplicationController
     po = params[:po_number].to_s.strip
     order = Order.find_by(po_number: po)
     if order
-      render json: { exists: true, line_no: order.next_line_no, display_no: "#{po}-#{order.next_line_no}",
+      render json: { exists: true, line_no: order.next_line_no, display_no: "#{po}##{order.next_line_no}",
                      customer_id: order.customer_id, end_customer_id: order.end_customer_id,
                      currency: order.currency, status: order.status, kind: order.kind }
     else
-      render json: { exists: false, display_no: "#{po}-1" }
+      render json: { exists: false, display_no: "#{po}#1" }
     end
   end
 
