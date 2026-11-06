@@ -91,12 +91,15 @@ module ImportChecker
   end
 
   # 标注文件落盘并返回 token（30 分钟有效；写入时顺带清理过期文件）。
-  # 文件名带导入类型（如 CustomerOrders-<token>.xlsx），下载时 likewise 带类型，避免多类型标注混淆
+  # 标注文件落盘并返回 token（30 分钟有效；写入时顺带清理过期文件）。
+  # 文件名带导入类型（如 CustomerOrders-<hex>.xlsx），**返回的 token 同样含类型前缀**
+  # （session/fetch/下载全链一致；旧格式纯 hex token 部署后自然过期，无需迁移）
   def self.store_annotated(importer, file, result)
     FileUtils.mkdir_p(CHECK_DIR)
-    token = SecureRandom.hex(10)
+    hex = SecureRandom.hex(10)
     kind = importer.name.sub(/Import\z/, "")
-    File.binwrite(CHECK_DIR.join("#{kind}-#{token}.xlsx"), annotated_xlsx(importer, file, result))
+    token = "#{kind}-#{hex}"
+    File.binwrite(CHECK_DIR.join("#{token}.xlsx"), annotated_xlsx(importer, file, result))
     Dir.children(CHECK_DIR).each do |name|
       path = CHECK_DIR.join(name)
       File.delete(path) if File.mtime(path) < TOKEN_TTL.ago
