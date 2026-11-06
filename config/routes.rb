@@ -83,6 +83,7 @@ Rails.application.routes.draw do
 
   get "exports", to: "exports#index", as: :exports
   get "exports/monthly", to: "exports#monthly", as: :monthly_export
+  get "exports/all", to: "exports#export_all", as: :export_all
 
   get "statements", to: "statements#show", as: :statement
   get "statements/export", to: "statements#export", as: :export_statement

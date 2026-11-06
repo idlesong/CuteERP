@@ -3,18 +3,22 @@ require "caxlsx"
 # 按月导出工作簿（对账模板）：列序与列名严格对齐财务对账用 Excel（cute_erp_202610_new）
 # 未税 = 含税 ÷ 1.13；声码名称 = 产品档案 extra_item/extra_item2 对应 Item 名称
 # 空列 = 对账表保留列（供 Excel 侧手工填写，导出为空以保证可直接复制粘贴）
+# month_date 传 nil = 全量模式（导出所有时间段数据）：三处单据过滤（客户订单/六联单/出库单）
+# 的区间放开为全时间；价格/阶梯/客户/产品本就是全量
 class MonthlyWorkbook
   TAX_FACTOR = 1.13 # 增值税 13%，含税 → 未税
+  ALL_RANGE = Date.new(1970, 1, 1).beginning_of_day..Date.new(9999, 12, 31).end_of_day
 
-  def self.generate(month_date)
+  def self.generate(month_date = nil)
     new(month_date).call
   end
 
   def initialize(month_date)
-    @month = month_date.beginning_of_month
+    @all_periods = month_date.nil?
+    @month = month_date&.beginning_of_month
     # 区间用日界时间而非 Date 区间：datetime 列对 Date 端点按 UTC 午夜 cast（北京时区即当日 08:00），
     # 会漏掉 1 日 0~8 点与末日 8 点之后的单据
-    @range = @month.beginning_of_month.beginning_of_day..@month.end_of_month.end_of_day
+    @range = @all_periods ? ALL_RANGE : @month.beginning_of_month.beginning_of_day..@month.end_of_month.end_of_day
     @item_name_cache = {}
   end
 

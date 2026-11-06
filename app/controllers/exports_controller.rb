@@ -13,6 +13,14 @@ class ExportsController < ApplicationController
     send_data workbook, filename: filename, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 
+  # GET /exports/all —— 全量导出（所有时间段数据，不限月份）
+  def export_all
+    workbook = MonthlyWorkbook.generate(nil)
+    send_data workbook,
+              filename: "cute_erp_all_#{Date.current.strftime('%Y%m%d')}.xlsx",
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  end
+
   private
 
   def parse_month(raw)

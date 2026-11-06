@@ -16,3 +16,11 @@
     </div>
   </div>
 <% end %>
+
+<div class="card">
+  <div class="card-body py-2">
+    <%= link_to "导出所有（全部时间段数据，不限月份）", export_all_path,
+                class: "btn btn-outline-primary btn-sm", data: { turbo: false },
+                title: "客户订单 / 六联单 / 出库单 按全时间导出；价格、阶梯、客户、产品照常全量" %>
+  </div>
+</div>
