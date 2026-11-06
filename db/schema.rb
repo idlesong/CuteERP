@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -175,7 +175,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_000001) do
   end
 
   create_table "order_lines", force: :cascade do |t|
-    t.decimal "base_price", precision: 8, scale: 2
+    t.decimal "base_price", precision: 12, scale: 5
     t.datetime "created_at", null: false
     t.string "full_part_no"
     t.string "generic_part_no", null: false
@@ -187,8 +187,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_000001) do
     t.string "remark"
     t.date "required_delivery_date"
     t.datetime "updated_at", null: false
-    t.decimal "v1_price", precision: 8, scale: 2
-    t.decimal "v2_price", precision: 8, scale: 2
+    t.decimal "v1_price", precision: 12, scale: 5
+    t.decimal "v2_price", precision: 12, scale: 5
     t.string "version"
     t.index ["generic_part_no"], name: "index_order_lines_on_generic_part_no"
     t.index ["order_id", "line_no"], name: "index_order_lines_on_order_id_and_line_no", unique: true
