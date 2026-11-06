@@ -244,9 +244,10 @@ class CustomerOrdersImport
   end
 
   # 冲销行：原订单 + 原行（通用型号+版本）→ kind=return 的冲销单「原PO-Rn」，
-  # 行数量为负、引用原行、复制原行价格成分；冲销单头 created_at = 文件接收日期（列表/关账同口径）；
-  # 多笔核销并存：核销行订单号支持 #序号 写法（原PO#1、原PO#2 → 同一冲销单两行，各自独立核销），
-  # 同 # 重导幂等更新；不写 # 视为单笔核销（定位第一条核销行，重导覆盖更新，兼容存量）。
+  # 行数量为负、引用原行、复制原行价格成分；冲销单头 created_at = 文件接收日期（列表/关账同口径）。
+  # 核销单序（#序号）：核销行订单号写 原PO#N → 目标冲销单 = 原PO-RN（各自独立的核销单/接收日期，
+  # 同 # 重导幂等更新；不同 # 各自独立，日期互不覆盖）；不写 # 视为单笔核销（归并到该 PO 的
+  # 第一张核销单，重导覆盖更新，兼容存量）。
   # 返回 { status: :created/:updated/nil, unit_price: }（status 供汇总校验判定成功；nil = 失败/跳过）
   def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:, recv_date:, ln: nil)
     original = Order.find_by(po_number: po)
@@ -263,28 +264,27 @@ class CustomerOrdersImport
       return { status: nil }
     end
 
-    # 核销行定位：#序号 给定时按核销单行号精确匹配（支持多笔并存）；否则按原行+型号取第一条
-    ret_line = if ln
-                 OrderLine.joins(:order).where(orders: { kind: "return" })
-                          .find_by(refer_order_line_id: orig_line.id, generic_part_no: generic,
-                                   line_no: ln)
-               else
-                 OrderLine.joins(:order).where(orders: { kind: "return" })
-                          .find_by(refer_order_line_id: orig_line.id, generic_part_no: generic)
-               end
+    # 目标核销单：#序号 给定 → 原PO-RN（各自独立的核销单/接收日期；不存在则建）；
+    # 不写 # → 该 PO 的第一张核销单（单笔兼容，重导覆盖更新）
+    ret_order = if ln
+                  Order.find_by(po_number: "#{po}-R#{ln}", kind: "return") ||
+                    create_return_order(original, recv_date, rn: ln)
+                else
+                  Order.where(kind: "return").where("po_number LIKE ?", "#{po}-%")
+                       .order(:po_number).first || create_return_order(original, recv_date)
+                end
+
+    ret_line = ret_order.order_lines.find_by(refer_order_line_id: orig_line.id, generic_part_no: generic)
     if ret_line
       old_qty = ret_line.quantity
       ret_line.quantity = -abs_qty
       ret_line.save!
-      ret_order = ret_line.order
       if recv_date && ret_order.created_at.to_date != recv_date
         ret_order.update!(created_at: recv_date) # 重导：以文件的接收日期为准
       end
       stats[:updated] += 1
       { status: :updated, unit_price: orig_line.unit_price, qty_delta: -abs_qty - old_qty }
     else
-      ret_order = Order.where(kind: "return").where("po_number LIKE ?", "#{po}-%")
-                       .order(:po_number).first || create_return_order(original, recv_date)
       line = ret_order.order_lines.build(
         generic_part_no: generic, version: version, quantity: -abs_qty,
         refer_order_line_id: orig_line.id,
@@ -292,7 +292,6 @@ class CustomerOrdersImport
         v2_price: orig_line.v2_price, price_id: orig_line.price_id,
         remark: remark.presence || "冲销 #{orig_line.display_no}"
       )
-      line.line_no = ln if ln && line.line_no.nil?
       line.save!
       stats[:created] += 1
       { status: :created, unit_price: orig_line.unit_price, qty_delta: -abs_qty }
@@ -303,13 +302,16 @@ class CustomerOrdersImport
     { status: nil }
   end
 
-  # 冲销单头：PO = 原单号-Rn（取空闲 n）；头信息快照自原单；created_at = 文件接收日期
-  def self.create_return_order(original, recv_date = nil)
-    taken = Order.where("po_number LIKE ?", "#{original.po_number}-%").pluck(:po_number)
-    n = 1
-    n += 1 while taken.include?("#{original.po_number}-R#{n}")
+  # 冲销单头：PO = 原单号-Rn（rn 给定用之；缺省取空闲 n）；头信息快照自原单；created_at = 文件接收日期
+  def self.create_return_order(original, recv_date = nil, rn: nil)
+    po_number = rn ? "#{original.po_number}-R#{rn}" : begin
+      taken = Order.where("po_number LIKE ?", "#{original.po_number}-%").pluck(:po_number)
+      n = 1
+      n += 1 while taken.include?("#{original.po_number}-R#{n}")
+      "#{original.po_number}-R#{n}"
+    end
 
-    order = Order.build_with_customer(original.customer, po_number: "#{original.po_number}-R#{n}")
+    order = Order.build_with_customer(original.customer, po_number: po_number)
     order.assign_attributes(original.slice(:name, :address, :telephone, :ship_contact,
                                            :ship_address, :ship_telephone, :pay_type,
                                            :currency, :exchange_rate))
