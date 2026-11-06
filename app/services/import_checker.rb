@@ -1,7 +1,10 @@
 require "roo"
 
 # 导入预检（两阶段导入的第一阶段）：
-# - run:      在回滚事务中干跑导入器，收集 stats[:errors]/[:warnings]（不落任何数据）
+# - run:      在回滚事务中干跑导入器，收集 stats[:errors]/[:warnings]（不落任何数据）；
+#             干跑末尾做**汇总校验**（control totals）：Excel 有效行数/数量合计/金额合计
+#             vs 实际导入行数/系统数量/系统金额——不一致追加 errors 阻断导入
+#             （抓行级校验抓不到的「静默不一致」：如核销覆盖丢行、行静默丢失）
 # - blocked?: errors 非空则禁止导入；warnings 不阻断
 # - annotated_xlsx: 原表末尾追加「检查结果」列，逐行写入错误/警告，供修正后重新导入
 module ImportChecker
@@ -15,12 +18,41 @@ module ImportChecker
     ActiveRecord::Base.transaction do
       # 干跑不产生批次记录，但 Import.imported_by 非空约束需占位用户（事务结束即回滚）
       stats = importer.call(file, imported_by: User.order(:id).first, month: month)
+      control_totals(stats) # 汇总校验（仅 errors 为空时有意义；不一致追加 errors → 阻断）
       raise ActiveRecord::Rollback
     end
     Result.new(errors: collect(stats, "errors"), warnings: collect(stats, "warnings"))
   end
 
   def self.blocked?(result) = result.errors.any?
+
+  # 汇总校验（control totals）：导入器在 stats[:control] 汇报
+  # { excel_rows:, rows:, excel_qty:, qty:, excel_amount:, amount: }（数量/金额可缺省）。
+  # 全部行级 errors 为空时才校验（有错误行未导入时差异必然存在，无信息量）；
+  # 不一致 → 追加全局 errors → 阻断导入。
+  # stats 可为 Import 对象（真实批次）或 Hash（干跑返回），两种形态兼容读取
+  def self.control_totals(stats)
+    st = stats.respond_to?(:stats) ? (stats.stats || {}) : stats
+    return if st["errors"].present? || st[:errors].present?
+
+    c = (st["control"] || st[:control])&.symbolize_keys # jsonb 序列化后键为字符串，归一为符号
+    return unless c
+
+    e = st["errors"] || st[:errors]
+    if c[:rows] && c[:excel_rows] != c[:rows]
+      e << "汇总不一致：Excel 有效数据行 #{c[:excel_rows]} 行 vs 实际导入 #{c[:rows]} 行" \
+           "（可能存在静默覆盖或丢失，请逐行核对）"
+    end
+    if c[:qty] && c[:excel_qty] != c[:qty]
+      e << "汇总不一致：数量合计 Excel #{c[:excel_qty]} vs 导入后 #{c[:qty]}" \
+           "（差 #{c[:qty] - c[:excel_qty]}，请逐行核对）"
+    end
+    if c[:amount] && (c[:amount].to_d - c[:excel_amount].to_d).abs > 0.01
+      e << "汇总不一致：金额合计 Excel #{c[:excel_amount]} vs 导入后 #{c[:amount]}" \
+           "（差 #{(c[:amount].to_d - c[:excel_amount].to_d).round(2)}，请逐行核对）"
+    end
+    nil
+  end
 
   # { "3" => ["消息"], "全局" => [...] }（按行归并，无行号的归入"全局"；行号容忍空格）
   def self.collect(stats, key)

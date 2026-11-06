@@ -12,6 +12,7 @@ class ShipmentsImport
     raise "无法识别出库单表头：缺少「六联单号」列" if idx["六联单号"].nil?
 
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    ex_qty = sys_qty = 0 # 汇总校验：Excel 数量合计 vs 系统出库明细数量合计（合单语义下行数天然不等，只校验数量）
     groups = collect_groups(sheet, idx, stats)
 
     groups.each do |(serial, date, tracking), group|
@@ -44,6 +45,8 @@ class ShipmentsImport
         line_qty.each { |pl, qty| shipment.shipment_lines.build(production_line: pl, quantity: qty) }
         shipment.save!
         is_new ? stats[:created] += 1 : stats[:updated] += 1
+        group[:qty_by_part].each_value { |q| ex_qty += q }
+        sys_qty += shipment.shipment_lines.sum(:quantity)
       rescue ActiveRecord::RecordInvalid => e
         stats[:errors] << "第#{group[:rows].first}行：六联单「#{serial}」出库失败：#{e.message}"
         stats[:skipped] += 1
@@ -51,7 +54,8 @@ class ShipmentsImport
     end
 
     Import.create!(kind: "shipments", month: month, filename: file.original_filename,
-                   imported_by: imported_by, stats: stats)
+                   imported_by: imported_by,
+                   stats: stats.merge(control: { excel_qty: ex_qty, qty: sys_qty }))
   end
 
   # 按行收集分组：[serial, date, tracking] => { qty_by_part, customers, rows }

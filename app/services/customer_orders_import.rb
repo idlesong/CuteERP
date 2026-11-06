@@ -19,6 +19,11 @@ class CustomerOrdersImport
     raise "无法识别客户订单表头：缺少「订单号」列" if idx["订单号"].nil?
 
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    # 汇总校验（control totals）累计器：Excel 有效行 vs 实际导入行 / 数量合计 / 金额合计
+    # ——行级校验抓显式错误，汇总校验抓「导入成功但结果与原始数据不符」的静默不一致
+    ok_rows = 0
+    ex_qty = sys_qty = 0
+    ex_amt = sys_amt = 0.to_d
 
     # 预扫描：解析 订单号 的底号与行号。行号识别（最终规则）：
     # 仅「# + 一位数字」尾缀视为 行号 写法（如 PO123#1、PO123#2 → 归并订单 PO123 行 1/2）；
@@ -127,9 +132,18 @@ class CustomerOrdersImport
       generic = resolved.generic_part_no # 归一化（非 Baseband 类别通用型号 = 完整型号）
 
       if return_line
-        import_return(stats, po: po, generic: generic, version: version,
-                      abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
-                      recv_date: recv_date, ln: e_ln)
+        ret = import_return(stats, po: po, generic: generic, version: version,
+                            abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
+                            recv_date: recv_date, ln: e_ln)
+        if ret[:status] # 核销成功：计入汇总（Excel 侧数量为负数，系统侧按 最终-原值 的增量）
+          ok_rows += 1
+          ex_qty += qty
+          sys_qty += ret[:qty_delta]
+          if total
+            ex_amt += qty * total
+            sys_amt += ret[:qty_delta] * ret[:unit_price]
+          end
+        end
         next
       end
 
@@ -169,11 +183,22 @@ class CustomerOrdersImport
                              v2_price: price.v2_price, price_id: price.id)
       line.save!
       created_line ? stats[:created] += 1 : stats[:updated] += 1
+      # 汇总累计（行成功后）：Excel 数量/金额 vs 系统数量/金额（更新行按 最终-原值 增量）
+      ok_rows += 1
+      ex_qty += qty
+      sys_qty += created_line ? line.quantity : line.quantity - line.quantity_was
+      if total
+        ex_amt += qty * total
+        sys_amt += created_line ? line.total_price : line.total_price - (line.total_price_was || 0)
+      end
     rescue StandardError => e
       stats[:errors] << "第#{i}行：#{e.message}"
       stats[:skipped] += 1
     end
 
+    stats[:control] = { excel_rows: entries.count { |e| !e[:skip_blank] }, rows: ok_rows,
+                        excel_qty: ex_qty, qty: sys_qty,
+                        excel_amount: ex_amt.round(2), amount: sys_amt.round(2) }
     Import.create!(kind: "customer_orders", month: month, filename: file.original_filename,
                     imported_by: imported_by, stats: stats)
   end
@@ -218,20 +243,21 @@ class CustomerOrdersImport
   # 冲销行：原订单 + 原行（通用型号+版本）→ kind=return 的冲销单「原PO-Rn」，
   # 行数量为负、引用原行、复制原行价格成分；冲销单头 created_at = 文件接收日期（列表/关账同口径）；
   # 多笔核销并存：核销行订单号支持 #序号 写法（原PO#1、原PO#2 → 同一冲销单两行，各自独立核销），
-  # 同 # 重导幂等更新；不写 # 视为单笔核销（定位第一条核销行，重导覆盖更新，兼容存量）
+  # 同 # 重导幂等更新；不写 # 视为单笔核销（定位第一条核销行，重导覆盖更新，兼容存量）。
+  # 返回 { status: :created/:updated/nil, unit_price: }（status 供汇总校验判定成功；nil = 失败/跳过）
   def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:, recv_date:, ln: nil)
     original = Order.find_by(po_number: po)
     if original.nil? || original.return?
       stats[:errors] << "第#{row_no}行：冲销原订单「#{po}」不存在"
       stats[:skipped] += 1
-      return
+      return { status: nil }
     end
     orig_line = original.order_lines.find_by(generic_part_no: generic, version: version) ||
                 original.order_lines.find_by(generic_part_no: generic)
     if orig_line.nil?
       stats[:errors] << "第#{row_no}行：原订单「#{po}」没有「#{generic}」行，无法冲销"
       stats[:skipped] += 1
-      return
+      return { status: nil }
     end
 
     # 核销行定位：#序号 给定时按核销单行号精确匹配（支持多笔并存）；否则按原行+型号取第一条
@@ -244,6 +270,7 @@ class CustomerOrdersImport
                           .find_by(refer_order_line_id: orig_line.id, generic_part_no: generic)
                end
     if ret_line
+      old_qty = ret_line.quantity
       ret_line.quantity = -abs_qty
       ret_line.save!
       ret_order = ret_line.order
@@ -251,6 +278,7 @@ class CustomerOrdersImport
         ret_order.update!(created_at: recv_date) # 重导：以文件的接收日期为准
       end
       stats[:updated] += 1
+      { status: :updated, unit_price: orig_line.unit_price, qty_delta: -abs_qty - old_qty }
     else
       ret_order = Order.where(kind: "return").where("po_number LIKE ?", "#{po}-%")
                        .order(:po_number).first || create_return_order(original, recv_date)
@@ -264,10 +292,12 @@ class CustomerOrdersImport
       line.line_no = ln if ln && line.line_no.nil?
       line.save!
       stats[:created] += 1
+      { status: :created, unit_price: orig_line.unit_price, qty_delta: -abs_qty }
     end
   rescue ActiveRecord::RecordInvalid => e
     stats[:errors] << "第#{row_no}行：冲销「#{generic}」失败：#{e.message}"
     stats[:skipped] += 1
+    { status: nil, qty_delta: 0 }
   end
 
   # 冲销单头：PO = 原单号-Rn（取空闲 n）；头信息快照自原单；created_at = 文件接收日期

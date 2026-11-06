@@ -13,6 +13,9 @@ class SalesOrdersImport
     idx = header_index(sheet)
     pair_cols = allocation_pairs(idx)
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
+    ok_rows = 0       # 汇总校验：实际处理行数
+    ex_qty = sys_qty = 0 # 汇总校验：Excel 数量合计 vs 导入后数量合计
+    data_rows = 0     # 汇总校验：Excel 非空数据行数（尾部空行不计）
 
     (2..sheet.last_row).each do |i|
       val = ->(name) { idx[name] ? formatted(sheet.cell(i, idx[name])) : "" }
@@ -22,6 +25,7 @@ class SalesOrdersImport
         stats[:skipped] += 1
         next
       end
+      data_rows += 1
 
       customer = Customer.find_by(name_zh: val.call("客户").to_s.strip) ||
                  Customer.find_by(name: val.call("客户").to_s.strip)
@@ -74,13 +78,18 @@ class SalesOrdersImport
 
       rebuild_allocations(line, pair_cols, sheet, i, val, stats, total)
       created_line ? stats[:created] += 1 : stats[:updated] += 1
+      ok_rows += 1
+      ex_qty += qty if qty.positive?
+      sys_qty += line.reload.quantity
     rescue StandardError => e
       stats[:errors] << "第#{i}行：#{e.message}"
       stats[:skipped] += 1
     end
 
     Import.create!(kind: "sales_orders", month: month, filename: file.original_filename,
-                    imported_by: imported_by, stats: stats)
+                   imported_by: imported_by,
+                   stats: stats.merge(control: { excel_rows: data_rows, rows: ok_rows,
+                                                 excel_qty: ex_qty, qty: sys_qty }))
   end
 
   # 分配对列（订单N/分配量N）：整行分配按文件重建（D14 Excel 为准）；已出库行不动
