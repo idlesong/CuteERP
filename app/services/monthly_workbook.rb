@@ -66,7 +66,7 @@ class MonthlyWorkbook
                     line.version, line.quantity, line.unit_price,
                     line.required_delivery_date&.to_date, line.remark,
                     nil, nil, nil,
-                    ex_tax(line.unit_price), (ex_tax(line.unit_price) * line.quantity).round(2),
+                    ex_tax(line.unit_price), ex_tax(line.total_price), # 金额 = 先乘数量后除 1.13（单价舍入不得放大进金额）
                     component_name(item, :extra_item), component_name(item, :extra_item2),
                     ex_tax(line.quantity * (line.base_price || 0)).round(2),
                     ex_tax(line.quantity * (line.v1_price || 0)).round(2),
@@ -136,7 +136,7 @@ class MonthlyWorkbook
         ws.add_row [sl.shipment.shipped_at.to_date, cust_name(sl.shipment.sales_order.customer),
                     sl.shipment.sales_order.serial_number, pl&.part_number, qty,
                     nil, nil, nil,
-                    unit_rmb, ex_tax(qty * unit_rmb),
+                    unit_rmb, ex_tax(qty * (pl&.unit_price || 0) * rate),
                     component_name(item, :extra_item), component_name(item, :extra_item2),
                     ex_tax(qty * chip * rate), ex_tax(qty * soft1 * rate), ex_tax(qty * soft2 * rate),
                     sl.shipment.tracking_no]
