@@ -135,7 +135,7 @@ class CustomerOrdersImport
         ret = import_return(stats, po: po, generic: generic, version: version,
                             abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
                             recv_date: recv_date, ln: e_ln)
-        if ret[:status] # 核销成功：计入汇总（Excel 侧数量为负数，系统侧按 最终-原值 的增量）
+        if ret[:status] # 核销成功：计入汇总（口径 = 处理后核销行最终值）
           ok_rows += 1
           ex_qty += qty
           sys_qty += ret[:qty_delta]
@@ -183,14 +183,13 @@ class CustomerOrdersImport
                              v2_price: price.v2_price, price_id: price.id)
       line.save!
       created_line ? stats[:created] += 1 : stats[:updated] += 1
-      # 汇总累计（行成功后）：Excel 数量/金额 vs 系统数量/金额（更新行按 最终-原值 增量）
+      # 汇总累计（行成功后）：口径 = 处理后这些行的最终值合计（正行 line.quantity / 核销 -abs）
+      # ——与 Excel 侧 Σ 相等则一致；覆盖丢行/静默丢失时两侧必不等
       ok_rows += 1
       ex_qty += qty
-      sys_qty += created_line ? line.quantity : line.quantity - line.quantity_was
-      if total
-        ex_amt += qty * total
-        sys_amt += created_line ? line.total_price : line.total_price - (line.total_price_was || 0)
-      end
+      sys_qty += line.quantity
+      ex_amt += qty * total if total
+      sys_amt += line.total_price if total
     rescue StandardError => e
       stats[:errors] << "第#{i}行：#{e.message}"
       stats[:skipped] += 1
@@ -297,7 +296,7 @@ class CustomerOrdersImport
   rescue ActiveRecord::RecordInvalid => e
     stats[:errors] << "第#{row_no}行：冲销「#{generic}」失败：#{e.message}"
     stats[:skipped] += 1
-    { status: nil, qty_delta: 0 }
+    { status: nil }
   end
 
   # 冲销单头：PO = 原单号-Rn（取空闲 n）；头信息快照自原单；created_at = 文件接收日期
