@@ -62,19 +62,22 @@ class MonthlyWorkbook
         o = line.order
         item = line.order_item
         open = o.return? ? 0 : line.open_qty
+        # 金额列统一 5 位小数（与价格精度对齐；未交订单数为 pcs 数量，保持 2 位）。
+        # 不走 ex_tax（其内部 round(2)）——单价舍入不得放大进金额
         ws.add_row [o.created_at.to_date, cust_name(o.customer), o.po_number, line.generic_part_no,
                     line.version, line.quantity, line.unit_price,
                     line.required_delivery_date&.to_date, line.remark,
                     nil, nil, nil,
-                    ex_tax(line.unit_price), ex_tax(line.total_price), # 金额 = 先乘数量后除 1.13（单价舍入不得放大进金额）
+                    (line.unit_price / TAX_FACTOR).round(5),
+                    (line.total_price / TAX_FACTOR).round(5),
                     component_name(item, :extra_item), component_name(item, :extra_item2),
-                    ex_tax(line.quantity * (line.base_price || 0)).round(2),
-                    ex_tax(line.quantity * (line.v1_price || 0)).round(2),
-                    ex_tax(line.quantity * (line.v2_price || 0)).round(2),
+                    (line.quantity * (line.base_price || 0) / TAX_FACTOR).round(5),
+                    (line.quantity * (line.v1_price || 0) / TAX_FACTOR).round(5),
+                    (line.quantity * (line.v2_price || 0) / TAX_FACTOR).round(5),
                     open.to_f.round(2),
-                    ex_tax(open * (line.base_price || 0)).round(2),
-                    ex_tax(open * (line.v1_price || 0)).round(2),
-                    ex_tax(open * (line.v2_price || 0)).round(2),
+                    (open * (line.base_price || 0) / TAX_FACTOR).round(5),
+                    (open * (line.v1_price || 0) / TAX_FACTOR).round(5),
+                    (open * (line.v2_price || 0) / TAX_FACTOR).round(5),
                     o.currency, o.return? ? "冲销" : "订单"]
       end
     end
@@ -96,7 +99,7 @@ class MonthlyWorkbook
           pairs = allocs.flat_map { |a| [a.order_line&.display_no, a.quantity] }
           pairs += [nil] * (ALLOC_PAIRS * 2 - pairs.size)
           ws.add_row [so.serial_number, so.created_at.to_date, cust_name(so.customer), line.part_number,
-                      line.quantity, line.unit_price, line.version,
+                      line.quantity, line.unit_price&.round(5), line.version,
                       so.required_date&.to_date, line.shipped_qty, nil] + pairs
         end
       end
