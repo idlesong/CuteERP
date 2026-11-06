@@ -4,6 +4,7 @@
 # 签发关系：production_allocations 台账（D2），已签发/可分配均由台账聚合派生
 class OrderLine < ApplicationRecord
   belongs_to :order
+  belongs_to :price, optional: true # 价格快照来源（对账/追溯用；price_id 列）
   has_many :return_lines, class_name: "OrderLine", foreign_key: :refer_order_line_id
   has_many :production_allocations, dependent: :destroy
   has_many :production_lines, through: :production_allocations

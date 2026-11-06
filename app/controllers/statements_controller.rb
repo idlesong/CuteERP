@@ -44,11 +44,11 @@ class StatementsController < ApplicationController
       st.totals_by_currency(rows).each do |cur, t|
         result += st.to_rows(rows.select { |r| r.currency == cur })
         result << ["", "小计 #{cur} 客户", "", "", "", t[:qty], "", "", "",
-                   t[:chip], t[:v1], t[:v2], t[:amount], "", t[:amount_rmb]]
+                   t[:chip], t[:v1], t[:v2], t[:amount], "", t[:amount_rmb], ""]
       end
       t = st.totals_for(rows)
       result << ["", "合计(折RMB)", "", "", "", t[:qty], "", "", "",
-                 t[:chip_rmb], t[:v1_rmb], t[:v2_rmb], "", "", t[:amount_rmb]]
+                 t[:chip_rmb], t[:v1_rmb], t[:v2_rmb], "", "", t[:amount_rmb], ""]
       result
     }
 
@@ -60,7 +60,9 @@ class StatementsController < ApplicationController
       { name: "未交订单", headers: InternalMonthlyStatement::HEADERS,
         rows: rows_with_totals.call(st.backlog_rows) },
       { name: "排产核对", headers: InternalMonthlyStatement::ALLOC_HEADERS,
-        rows: st.to_allocation_rows }
+        rows: st.to_allocation_rows },
+      { name: "价格依据", headers: InternalMonthlyStatement::PRICE_HEADERS,
+        rows: st.to_price_rows }
     ])
     send_data xlsx,
               filename: "内部对账单_全部客户_#{month.strftime('%Y%m')}.xlsx",

@@ -30,7 +30,7 @@ class BackupService
     raise
   end
 
-  # 当月内部对账单工作簿（四段：订单核对/出货核对/未交订单/排产核对；与导出同口径）
+  # 当月内部对账单工作簿（五段：订单核对/出货核对/未交订单/排产核对/价格依据；与导出同口径）
   def self.statement_xlsx(month_begin)
     statement = InternalMonthlyStatement.new(month_begin)
     rows_with_totals = lambda { |rows|
@@ -38,18 +38,19 @@ class BackupService
       statement.totals_by_currency(rows).each do |cur, t|
         result += statement.to_rows(rows.select { |r| r.currency == cur })
         result << ["", "小计 #{cur} 客户", "", "", "", t[:qty], "", "", "",
-                   t[:chip], t[:v1], t[:v2], t[:amount], "", t[:amount_rmb]]
+                   t[:chip], t[:v1], t[:v2], t[:amount], "", t[:amount_rmb], ""]
       end
       t = statement.totals_for(rows)
       result << ["", "合计(折RMB)", "", "", "", t[:qty], "", "", "",
-                 t[:chip_rmb], t[:v1_rmb], t[:v2_rmb], "", "", t[:amount_rmb]]
+                 t[:chip_rmb], t[:v1_rmb], t[:v2_rmb], "", "", t[:amount_rmb], ""]
       result
     }
     Xlsx.generate([
       { name: "订单核对", headers: InternalMonthlyStatement::HEADERS, rows: rows_with_totals.call(statement.order_rows) },
       { name: "出货核对", headers: InternalMonthlyStatement::HEADERS, rows: rows_with_totals.call(statement.shipment_rows) },
       { name: "未交订单", headers: InternalMonthlyStatement::HEADERS, rows: rows_with_totals.call(statement.backlog_rows) },
-      { name: "排产核对", headers: InternalMonthlyStatement::ALLOC_HEADERS, rows: statement.to_allocation_rows }
+      { name: "排产核对", headers: InternalMonthlyStatement::ALLOC_HEADERS, rows: statement.to_allocation_rows },
+      { name: "价格依据", headers: InternalMonthlyStatement::PRICE_HEADERS, rows: statement.to_price_rows }
     ])
   end
 
