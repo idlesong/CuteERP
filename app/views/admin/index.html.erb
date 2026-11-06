@@ -29,7 +29,7 @@
       <%= render "admin/currency_matrix", section: section, entries: entries,
                   months: @fy_months, money_fmt: @shipped_metric != :quantity %>
     <% end %>
-    <div class="small text-muted">实际口径：按出库单记账；金额为原币（人民币客户=¥，美元客户=$），数量=出库 pcs；定价按分配台账加权（芯片额=base_price 口径，软件额=v1+v2 口径）。</div>
+    <div class="small text-muted">实际口径：按出库单记账；金额为原币不含税、整数显示（人民币客户=¥，美元客户=$），数量=出库 pcs；定价按分配台账加权（芯片额=base_price 口径，软件额=v1+v2 口径）。</div>
   </div>
 
   <!-- ② Plan 视图：货币段 → 大类 → 客户 -->
@@ -43,7 +43,7 @@
     <% split_matrix_by_currency(@plan_matrix).each do |section, entries| %>
       <%= render "admin/currency_matrix", section: section, entries: entries,
                   months: @fy_months, money_fmt: @metric != :quantity %>
-    <% end %>    <div class="small text-muted">度量口径：数量 = 计划 pcs；芯片额 = base_price 口径；软件额 = v1+v2 口径；美元段按客户币别自动分节（金额单位为原币）。</div>
+    <% end %>    <div class="small text-muted">度量口径：数量 = 计划 pcs；金额 = 不含税整数（芯片额 = base_price 口径；软件额 = v1+v2 口径）；美元段按客户币别自动分节（金额单位为原币）。</div>
   </div>
 
   <!-- ③ 客户订单：与实际出货同版式（订单行直接计价，含冲销负数） -->
@@ -58,6 +58,6 @@
       <%= render "admin/currency_matrix", section: section, entries: entries,
                   months: @fy_months, money_fmt: @order_metric != :quantity %>
     <% end %>
-    <div class="small text-muted">客户订单口径：FY 内接收的已提交订单行（含冲销负数），按订单行价格直接计价（芯片额=base_price，软件额=v1+v2），金额为原币（人民币客户=¥，美元客户=$）；不依赖分配台账。</div>
+    <div class="small text-muted">客户订单口径：FY 内接收的已提交订单行（含冲销负数），按订单行价格直接计价（芯片额=base_price，软件额=v1+v2），金额为原币不含税、整数显示（人民币客户=¥，美元客户=$）；不依赖分配台账。</div>
   </div>
 </div>

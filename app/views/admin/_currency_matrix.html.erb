@@ -1,8 +1,9 @@
-<%# 销售总览币别段矩阵（①实际出货 / ②Plan 共用）
+<%# 销售总览币别段矩阵（①实际出货 / ②Plan / ③客户订单 共用）
     locals: section "人民币"/"美元"；entries [[group, 客户显示名, cells], ...]；
-            months 月首日数组；money_fmt true=金额 money 格式带币别符号 / false=数量紧凑数字 %>
+            months 月首日数组；money_fmt true=金额（不含税、整数显示）带币别符号 / false=数量紧凑数字 %>
 <% fmt_amount = if money_fmt
-                  ->(v) { money(v, section == "美元" ? "USD" : "RMB") }
+                  unit = section == "美元" ? "$" : "¥"
+                  ->(v) { "#{unit}#{number_with_delimiter(v.round)}" } # 销售总览口径：不含税、整数
                 else
                   ->(v) { number_with_precision(v, precision: (v % 1).zero? ? 0 : 1) }
                 end %>
