@@ -34,6 +34,7 @@ class CustomerOrdersImport
       base = m ? m[1] : raw
       ln = m ? m[2].to_i : nil
       entries << { row_no: i, row: row, raw: raw, base: base, ln: ln,
+                   qty: row.call("数量").to_i,
                    generic: generic, skip_blank: raw.blank? || generic.blank? }
     end
     base_counts = entries.group_by { |e| e[:base] }.transform_values(&:size)
@@ -49,15 +50,16 @@ class CustomerOrdersImport
       e[:ln] = nil
     end
 
-    # 组内行号计划：显式 -/_行号 占位；未写行号的行按 Excel 序补最小空号。
-    # 场景：第一行写 SFE-20260304（无行号）、第二行写 SFE-20260304-01 → 两行归同一订单，
-    # 行号 2/1（显式声明优先），重导幂等；否则第二行会按 line_no=1 覆盖第一行（数据丢失）
+    # 组内行号计划（仅作用于正行）：显式 #行号 占位；未写行号的正行按 Excel 序补最小空号。
+    # 核销行（数量<0）不参与计划——其 #序号 是核销单内的核销序，与正订单行号空间独立
+    # （场景：正行 PO1 + 核销 PO1#1/#2 → 正行仍为行1，核销单 R1 两行 1/-20、2/-30）
     line_plan = {}
     entries.reject { |e| e[:skip_blank] }.group_by { |e| e[:base] }.each do |_, group|
-      next unless group.size >= 2
+      pos = group.select { |e| e[:qty] >= 0 }
+      next unless pos.size >= 2
 
-      used = group.filter_map { |e| e[:ln] }
-      group.each do |e|
+      used = pos.filter_map { |e| e[:ln] }
+      pos.each do |e|
         next if e[:ln]
 
         n = (1..).find { |k| !used.include?(k) }
@@ -127,7 +129,7 @@ class CustomerOrdersImport
       if return_line
         import_return(stats, po: po, generic: generic, version: version,
                       abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
-                      recv_date: recv_date)
+                      recv_date: recv_date, ln: e_ln)
         next
       end
 
@@ -215,8 +217,9 @@ class CustomerOrdersImport
 
   # 冲销行：原订单 + 原行（通用型号+版本）→ kind=return 的冲销单「原PO-Rn」，
   # 行数量为负、引用原行、复制原行价格成分；冲销单头 created_at = 文件接收日期（列表/关账同口径）；
-  # 重复导入幂等（更新同一冲销行，接收日期以文件为准刷新）
-  def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:, recv_date:)
+  # 多笔核销并存：核销行订单号支持 #序号 写法（原PO#1、原PO#2 → 同一冲销单两行，各自独立核销），
+  # 同 # 重导幂等更新；不写 # 视为单笔核销（定位第一条核销行，重导覆盖更新，兼容存量）
+  def self.import_return(stats, po:, generic:, version:, abs_qty:, row_no:, remark:, recv_date:, ln: nil)
     original = Order.find_by(po_number: po)
     if original.nil? || original.return?
       stats[:errors] << "第#{row_no}行：冲销原订单「#{po}」不存在"
@@ -231,8 +234,15 @@ class CustomerOrdersImport
       return
     end
 
-    ret_line = OrderLine.joins(:order).where(orders: { kind: "return" })
-                        .find_by(refer_order_line_id: orig_line.id, generic_part_no: generic)
+    # 核销行定位：#序号 给定时按核销单行号精确匹配（支持多笔并存）；否则按原行+型号取第一条
+    ret_line = if ln
+                 OrderLine.joins(:order).where(orders: { kind: "return" })
+                          .find_by(refer_order_line_id: orig_line.id, generic_part_no: generic,
+                                   line_no: ln)
+               else
+                 OrderLine.joins(:order).where(orders: { kind: "return" })
+                          .find_by(refer_order_line_id: orig_line.id, generic_part_no: generic)
+               end
     if ret_line
       ret_line.quantity = -abs_qty
       ret_line.save!
@@ -244,13 +254,15 @@ class CustomerOrdersImport
     else
       ret_order = Order.where(kind: "return").where("po_number LIKE ?", "#{po}-%")
                        .order(:po_number).first || create_return_order(original, recv_date)
-      ret_order.order_lines.create!(
+      line = ret_order.order_lines.build(
         generic_part_no: generic, version: version, quantity: -abs_qty,
         refer_order_line_id: orig_line.id,
         base_price: orig_line.base_price, v1_price: orig_line.v1_price,
         v2_price: orig_line.v2_price, price_id: orig_line.price_id,
         remark: remark.presence || "冲销 #{orig_line.display_no}"
       )
+      line.line_no = ln if ln && line.line_no.nil?
+      line.save!
       stats[:created] += 1
     end
   rescue ActiveRecord::RecordInvalid => e
