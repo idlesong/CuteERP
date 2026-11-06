@@ -7,8 +7,9 @@ require "roo"
 #   单行订单直接写「PO123」。防误拆：同底号（PO123）全文件仅出现一次时不剥离（客户编号
 #   本身可能以 -01 结尾）
 # - 行合并键：同订单号+行号 → 同一行更新；不同行号或无行号按 通用型号+版本 区分
-# - 价格匹配（D18 严格）：接收日期+客户+通用型号+含税单价 匹配报价（日期须在有效期内），
-#   匹配不到 → 阻断报错（无跨客户兜底、无比例缩放）；多候选 → 警告取生效最新
+# - 价格匹配（参考价语义）：客户+通用型号+接收日期（在报价有效期内）匹配正式报价；
+#   Excel 单价仅辅助收敛（同档选最接近者），不作为一致性与否的判据；
+#   匹配不到 → 阻断报错（无跨客户兜底）；多候选 → 警告
 # - 冲销行识别只认数量为负；价格继承原订单行快照（不重新匹配报价）
 class CustomerOrdersImport
   HEADERS = %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别].freeze
@@ -19,11 +20,10 @@ class CustomerOrdersImport
     raise "无法识别客户订单表头：缺少「订单号」列" if idx["订单号"].nil?
 
     stats = { created: 0, updated: 0, skipped: 0, errors: [], warnings: [] }
-    # 汇总校验（control totals）累计器：Excel 有效行 vs 实际导入行 / 数量合计 / 金额合计
-    # ——行级校验抓显式错误，汇总校验抓「导入成功但结果与原始数据不符」的静默不一致
+    # 汇总校验（control totals）累计器：Excel 有效行 vs 实际导入行 / 数量合计
+    # ——行级校验抓显式错误，行数+数量合计抓「静默覆盖/丢失」（金额不校验：参考价语义）
     ok_rows = 0
     ex_qty = sys_qty = 0
-    ex_amt = sys_amt = 0.to_d
 
     # 预扫描：解析 订单号 的底号与行号。行号识别（最终规则）：
     # 仅「# + 一位数字」尾缀视为 行号 写法（如 PO123#1、PO123#2 → 归并订单 PO123 行 1/2）；
@@ -135,22 +135,18 @@ class CustomerOrdersImport
         ret = import_return(stats, po: po, generic: generic, version: version,
                             abs_qty: qty.abs, row_no: i, remark: row.call("特殊要求").to_s,
                             recv_date: recv_date, ln: e_ln)
-        if ret[:status] # 核销成功：计入汇总（口径 = 处理后核销行最终值）
+        if ret[:status] # 核销成功：计入汇总（数量口径；金额不校验）
           ok_rows += 1
           ex_qty += qty
           sys_qty += ret[:qty_delta]
-          if total
-            ex_amt += qty * total
-            sys_amt += ret[:qty_delta] * ret[:unit_price]
-          end
         end
         next
       end
 
-      # D18 严格价格匹配（单头落库前）：客户+通用型号+接收日期在有效期内+含税单价一致；
-      # 匹配不到 → 阻断该行（无跨客户兜底、无比例缩放）
+      # 正式价格匹配（参考价语义）：客户+通用型号+接收日期在有效期内，Excel 单价仅辅助收敛；
+      # 匹配不到 → 阻断该行（无跨客户兜底）
       as_of = recv_date || month || Date.current
-      price = match_strict_price(customer, generic, as_of, total, qty, i, stats, po: po)
+      price = match_formal_price(customer, generic, as_of, total, qty, i, stats, po: po)
       next if price.nil?
 
       order = Order.find_or_initialize_by(po_number: po)
@@ -178,7 +174,7 @@ class CustomerOrdersImport
       line.quantity = row.call("数量").to_i.nonzero? || line.quantity
       line.required_delivery_date = parse_date(row.call("要求交期")) || line.required_delivery_date
       line.remark = row.call("特殊要求").to_s.presence || line.remark
-      # D14/D18：每次导入按 Excel 重新严格匹配并快照（匹配保证单价一致，直接复制报价成分，无缩放）
+      # 参考价语义：订单正式价格 = 匹配到的报价总价/成分（价格表权威，覆盖 Excel 参考单价）
       line.assign_attributes(base_price: price.base_price, v1_price: price.v1_price,
                              v2_price: price.v2_price, price_id: price.id)
       line.save!
@@ -188,35 +184,33 @@ class CustomerOrdersImport
       ok_rows += 1
       ex_qty += qty
       sys_qty += line.quantity
-      ex_amt += qty * total if total
-      sys_amt += line.total_price if total
+
     rescue StandardError => e
       stats[:errors] << "第#{i}行：#{e.message}"
       stats[:skipped] += 1
     end
 
     stats[:control] = { excel_rows: entries.count { |e| !e[:skip_blank] }, rows: ok_rows,
-                        excel_qty: ex_qty, qty: sys_qty,
-                        excel_amount: ex_amt.round(2), amount: sys_amt.round(2) }
+                        excel_qty: ex_qty, qty: sys_qty } # 金额合计不校验（参考价语义：Excel 金额为粗略参考）
     Import.create!(kind: "customer_orders", month: month, filename: file.original_filename,
                     imported_by: imported_by, stats: stats)
   end
 
-  # D18 严格价格匹配：客户 + 通用型号 + 接收日期落在有效期内 + 含税单价一致（容差 0.01）。
-  # - 无候选 → 记 error（阻断，调用方 skip 该行）：无跨客户兜底、无比例缩放。
-  #   单价一致性收紧为精确（差 ≤ 0.00001，5 位内）：容差 0.01 会让「Excel 单价与报价差分位」
-  #   的行通过，行快照取报价值 → 金额合计与 Excel 出现几十元累积差（汇总校验被迫兜底）
-  # - 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）；
-  #   并列取生效日期最新
-  # - 歧义（同档位还有其他同价候选，如换批重报）→ 警告人工复核
-  def self.match_strict_price(customer, generic, as_of, total, qty, row_no, stats, po: nil)
+  # 正式价格匹配（参考价语义，替代 D18 严格匹配）：
+  # 匹配键 = 客户 + 通用型号 + 接收日期落在有效期内；**Excel 单价仅辅助收敛，不作为一致性与否的判据**。
+  # - 无候选 → 记 error（阻断，调用方 skip 该行）：无跨客户兜底
+  # - 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）
+  # - 同档多条候选：选「与 Excel 参考单价最接近」的报价（参考价辅助定位），并列取生效日期最新
+  # - 订单行正式价格 = 匹配报价的总价/成分（价格表权威；Excel 单价差异仅提示不阻断）
+  def self.match_formal_price(customer, generic, as_of, total, qty, row_no, stats, po: nil)
+    puts "DBG-MFP: customer=#{customer&.name.inspect} generic=#{generic.inspect} total=#{total.inspect} cands_after=?(see)"
     scope = Price.where(part_number: generic, status: %w[approved active], customer_id: customer.id)
                  .where("effective_from IS NULL OR effective_from <= ?", as_of)
                  .where("expired_at IS NULL OR expired_at >= ?", as_of)
-    cands = scope.select { |p| (p.price.to_d - total.to_d).abs <= 0.00001 }
+    cands = scope.to_a
     if cands.empty?
-      stats[:errors] << "第#{row_no}行：#{po} #{generic} 单价 #{total}（接收日期 #{as_of}）无匹配报价" \
-                        "（客户+型号+有效期+单价须一致），未导入"
+      stats[:errors] << "第#{row_no}行：#{po} #{generic}（接收日期 #{as_of}）无可用报价" \
+                        "（客户+型号+有效期须命中），未导入"
       stats[:skipped] += 1
       return nil
     end
@@ -225,18 +219,27 @@ class CustomerOrdersImport
     if tiers.empty?
       # 档位不可比（"1K" 等写法）：取生效日期最新
       chosen = cands.max_by { |p| [p.effective_from || Date.new(0), p.id] }
+    elsif total
+      # 参考价语义：Excel 参考单价定位正式报价档——选「档位报价与参考单价最接近」的档位，
+      # 同档并列取生效日期最新
+      c_pick = tiers.min_by { |_, p| (p.price.to_d - total.to_d).abs }.first
+      pool = tiers.select { |c, _| c == c_pick }
+      chosen = pool.max_by { |_, p| [p.effective_from || Date.new(0), p.id] }.last
     else
-      # 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）；
-      # 同档并列（如换批重报）取生效日期最新
+      # 无参考单价（核销等）：数量档位（≤ 最高档 / MOQ 最低档）+ 同档并列取生效日期最新（match_for 口径）
       eligible = tiers.select { |c, _| c <= qty.to_f }
       c_pick = eligible.any? ? eligible.transpose.first.max : tiers.transpose.first.min
-      chosen = tiers.select { |c, _| c == c_pick }
-                    .max_by { |_, p| [p.effective_from || Date.new(0), p.id] }.last
+      tiers.select { |c, _| c == c_pick }
+           .max_by { |_, p| [p.effective_from || Date.new(0), p.id] }.last
     end
 
+    if total && (chosen.price.to_d - total.to_d).abs > 0.01
+      stats[:warnings] << "第#{row_no}行：#{generic} 订单按报价 #{chosen.price}（#{chosen.price_number}）计价，" \
+                          "Excel 参考单价 #{total} 未采用，请人工复核"
+    end
     if cands.any? { |p| p.id != chosen.id && p.condition == chosen.condition }
-      stats[:warnings] << "第#{row_no}行：#{generic} 单价 #{total} 匹配到多条同价报价" \
-                          "（#{cands.map(&:price_number).join('、')}），已取生效最新 #{chosen.price_number}，请人工复核"
+      stats[:warnings] << "第#{row_no}行：#{generic} 同档位匹配到多条报价" \
+                          "（#{cands.map(&:price_number).join('、')}），已取与参考单价最接近的 #{chosen.price_number}，请人工复核"
     end
     chosen
   end

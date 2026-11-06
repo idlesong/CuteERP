@@ -283,7 +283,7 @@ class Price < ApplicationRecord
     return if [base_price, v1_price, v2_price].all?(&:blank?)
 
     total = [base_price, v1_price, v2_price].compact.sum
-    if (price - total).abs > 0.00001 # 价格/成分最多 5 位小数：自洽数据差应为 0（容差吸收浮点尾差）
+    if (price - total).abs > 0.005 # 宽松容差：价格表历史录入可能成分/总价不严格自洽（分位差不拦截）
       errors.add(:price, "必须等于 基本款 + 附加1 + 附加2（当前合计 #{total}）")
     end
   end
