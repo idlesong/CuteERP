@@ -168,7 +168,7 @@ class Price < ApplicationRecord
       price.effective_from = row["生效日期"].presence || price.effective_from
       price.expired_at = row["失效日期"].presence || price.expired_at
       raw_total = row["总单价"].to_s.strip
-      price.price = raw_total.start_with?("=") ? raw_total : (raw_total.presence&.to_d&.round(2) || price.price)
+      price.price = raw_total.start_with?("=") ? raw_total : raw_total.presence&.to_d # 价格最多 5 位小数，原值入库（PG scale 5 兜底）
       price.condition = row["订单量"].presence || price.condition
       price.remark = row["remark"].presence || price.remark
       price.currency = row["币别"].presence || price.currency
@@ -176,13 +176,13 @@ class Price < ApplicationRecord
       st = row["状态"].to_s.strip
       price.status = %w[approved active requested].include?(st) ? st : "approved"
 
-      # 成分取 Excel 显示值（2 位小数）：消除单元格隐藏小数位导致的看起来合计相等却报错
-      chip = row["芯片"].presence&.to_d&.round(2)
-      v1 = row["声码1"].presence&.to_d&.round(2)
-      v2 = row["声码2"].presence&.to_d&.round(2)
-      if chip # 尾差并入芯片，保证成分合计 = 总单价（各自四舍五入可能产生 ±0.01）
+      # 成分取 Excel 原值（最多 5 位小数，PG scale 5 兜底舍入）
+      chip = row["芯片"].presence&.to_d
+      v1 = row["声码1"].presence&.to_d
+      v2 = row["声码2"].presence&.to_d
+      if chip # 尾差并入芯片，保证成分合计 = 总单价（浮点尾差量级 ≤ 1e-5，容差见校验）
         diff = price.price.to_d - [chip, v1 || 0.to_d, v2 || 0.to_d].sum
-        chip = (chip + diff).round(2)
+        chip += diff
       end
       price.base_price = chip.presence || price.base_price
       price.v1_price = v1.presence || price.v1_price
@@ -260,10 +260,10 @@ class Price < ApplicationRecord
       return
     end
 
-    self.price = terms.sum.round(2)
-    self.base_price = terms[0] || 0
-    self.v1_price = terms[1] || 0
-    self.v2_price = terms[2] || 0
+    self.price = terms.sum.round(5)
+    self.base_price = (terms[0] || 0).round(5)
+    self.v1_price = (terms[1] || 0).round(5)
+    self.v2_price = (terms[2] || 0).round(5)
   end
 
   def normalize
@@ -283,7 +283,7 @@ class Price < ApplicationRecord
     return if [base_price, v1_price, v2_price].all?(&:blank?)
 
     total = [base_price, v1_price, v2_price].compact.sum
-    if (price.round(2) - total.round(2)).abs > 0.005 # 容差吸收显示舍入（Excel 隐藏小数位）
+    if (price - total).abs > 0.00001 # 价格/成分最多 5 位小数：自洽数据差应为 0（容差吸收浮点尾差）
       errors.add(:price, "必须等于 基本款 + 附加1 + 附加2（当前合计 #{total}）")
     end
   end

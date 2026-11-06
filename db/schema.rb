@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_05_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -249,7 +249,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_000001) do
   end
 
   create_table "prices", force: :cascade do |t|
-    t.decimal "base_price", precision: 8, scale: 2
+    t.decimal "base_price", precision: 12, scale: 5
     t.string "boss_suggestion"
     t.string "condition"
     t.datetime "created_at", null: false
@@ -263,15 +263,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_05_000001) do
     t.integer "is_prr"
     t.string "part_number"
     t.string "payment_terms"
-    t.decimal "price"
+    t.decimal "price", precision: 12, scale: 5
     t.string "price_number"
     t.integer "quotation_id"
     t.string "remark"
     t.string "sales_suggestion"
     t.string "status"
     t.datetime "updated_at", null: false
-    t.decimal "v1_price", precision: 8, scale: 2
-    t.decimal "v2_price", precision: 8, scale: 2
+    t.decimal "v1_price", precision: 12, scale: 5
+    t.decimal "v2_price", precision: 12, scale: 5
   end
 
   create_table "production_allocations", force: :cascade do |t|
