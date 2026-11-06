@@ -17,7 +17,7 @@ class ImportsController < ApplicationController
     path = ImportChecker.fetch_annotated(params[:token])
     return redirect_to imports_path, alert: "标注文件不存在或已过期（30 分钟），请重新检查" unless path
 
-    send_file path, filename: "导入检查_标注.xlsx",
+    send_file path, filename: "导入检查_#{File.basename(path, '.xlsx')}.xlsx",
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   end
 

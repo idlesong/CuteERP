@@ -65,6 +65,7 @@ module ImportChecker
   end
 
   # 生成标注文件：末列「检查结果」= 错误/警告；另加「全局问题」表（如适用）
+  # 文件名含导入类型（客户订单/六联单…），避免多类型标注混淆
   def self.annotated_xlsx(importer, file, result)
     sheet = importer.open_spreadsheet(file)
     headers = (1..sheet.last_column).map { |c| sheet.cell(1, c).to_s.strip } + ["检查结果"]
@@ -89,11 +90,13 @@ module ImportChecker
     package.to_stream.read
   end
 
-  # 标注文件落盘并返回 token（30 分钟有效；写入时顺带清理过期文件）
+  # 标注文件落盘并返回 token（30 分钟有效；写入时顺带清理过期文件）。
+  # 文件名带导入类型（如 CustomerOrders-<token>.xlsx），下载时 likewise 带类型，避免多类型标注混淆
   def self.store_annotated(importer, file, result)
     FileUtils.mkdir_p(CHECK_DIR)
     token = SecureRandom.hex(10)
-    File.binwrite(CHECK_DIR.join("#{token}.xlsx"), annotated_xlsx(importer, file, result))
+    kind = importer.name.sub(/Import\z/, "")
+    File.binwrite(CHECK_DIR.join("#{kind}-#{token}.xlsx"), annotated_xlsx(importer, file, result))
     Dir.children(CHECK_DIR).each do |name|
       path = CHECK_DIR.join(name)
       File.delete(path) if File.mtime(path) < TOKEN_TTL.ago
@@ -102,10 +105,10 @@ module ImportChecker
   end
 
   def self.fetch_annotated(token)
-    return nil unless token.to_s.match?(/\A[0-9a-f]{20}\z/)
+    return nil unless token.to_s.match?(/\A[A-Za-z]+-[0-9a-f]{20}\z/)
 
-    path = CHECK_DIR.join("#{token}.xlsx")
-    path.exist? ? path : nil
+    path = CHECK_DIR.glob("*#{token}.xlsx").first
+    path&.exist? ? path : nil
   end
 
   def self.messages_for(result, row)
