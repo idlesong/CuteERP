@@ -198,7 +198,11 @@ class SalesOrdersImport
 
     Date.strptime(s, "%Y-%m-%d")
   rescue ArgumentError, TypeError
-    nil
+    begin
+      Date.parse(s) # 宽松兜底：2026/8/1、2026-8-1 等斜杠/简写格式
+    rescue StandardError
+      nil
+    end
   end
 
   def self.parse_number(text)
