@@ -150,7 +150,7 @@ class CustomerOrdersImport
       # D18 严格价格匹配（单头落库前）：客户+通用型号+接收日期在有效期内+含税单价一致；
       # 匹配不到 → 阻断该行（无跨客户兜底、无比例缩放）
       as_of = recv_date || month || Date.current
-      price = match_strict_price(customer, generic, as_of, total, qty, i, stats)
+      price = match_strict_price(customer, generic, as_of, total, qty, i, stats, po: po)
       next if price.nil?
 
       order = Order.find_or_initialize_by(po_number: po)
@@ -203,17 +203,19 @@ class CustomerOrdersImport
   end
 
   # D18 严格价格匹配：客户 + 通用型号 + 接收日期落在有效期内 + 含税单价一致（容差 0.01）。
-  # - 无候选 → 记 error（阻断，调用方 skip 该行）：无跨客户兜底、无比例缩放
+  # - 无候选 → 记 error（阻断，调用方 skip 该行）：无跨客户兜底、无比例缩放。
+  #   单价一致性收紧为精确（差 ≤ 0.00001，5 位内）：容差 0.01 会让「Excel 单价与报价差分位」
+  #   的行通过，行快照取报价值 → 金额合计与 Excel 出现几十元累积差（汇总校验被迫兜底）
   # - 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）；
   #   并列取生效日期最新
   # - 歧义（同档位还有其他同价候选，如换批重报）→ 警告人工复核
-  def self.match_strict_price(customer, generic, as_of, total, qty, row_no, stats)
+  def self.match_strict_price(customer, generic, as_of, total, qty, row_no, stats, po: nil)
     scope = Price.where(part_number: generic, status: %w[approved active], customer_id: customer.id)
                  .where("effective_from IS NULL OR effective_from <= ?", as_of)
                  .where("expired_at IS NULL OR expired_at >= ?", as_of)
-    cands = scope.select { |p| (p.price.to_d - total.to_d).abs <= 0.01 }
+    cands = scope.select { |p| (p.price.to_d - total.to_d).abs <= 0.00001 }
     if cands.empty?
-      stats[:errors] << "第#{row_no}行：#{generic} 单价 #{total}（接收日期 #{as_of}）无匹配报价" \
+      stats[:errors] << "第#{row_no}行：#{po} #{generic} 单价 #{total}（接收日期 #{as_of}）无匹配报价" \
                         "（客户+型号+有效期+单价须一致），未导入"
       stats[:skipped] += 1
       return nil
