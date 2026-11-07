@@ -11,7 +11,15 @@
                 end %>
 <% unit = (section == "美元" && !usd_rmb) ? "$" : "¥" %>
 <h5 class="mt-2"><%= section %>客户<%= money_fmt ? "（#{unit}）" : "" %><%= " · 按当月汇率折算（缺汇率按 7）" if section == "美元" && usd_rmb %></h5>
-<table class="table table-striped table-sm">
+<%# table-layout:fixed + 统一 colgroup：人民币/美元/全部客户合计三张表的列宽完全一致，月份列对齐
+    （auto 布局下各表按内容独立算宽，同列错位）；月份列不设宽由 fixed 均分剩余空间 %>
+<table class="table table-striped table-sm" style="table-layout: fixed;">
+  <colgroup>
+    <col style="width: 9%">
+    <col style="width: 13%">
+    <% months.each { |m| %><col><% } %>
+    <col style="width: 8%">
+  </colgroup>
   <thead>
     <tr>
       <th>大类</th><th>客户</th>

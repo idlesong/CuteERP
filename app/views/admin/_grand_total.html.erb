@@ -6,7 +6,15 @@
          else
            ->(v) { number_with_precision(v, precision: (v % 1).zero? ? 0 : 1) }
          end %>
-<table class="table table-sm">
+<%# colgroup 与 _currency_matrix 完全一致（fixed 布局）：三张表月份列对齐 %>
+<table class="table table-sm" style="table-layout: fixed;">
+  <colgroup>
+    <col style="width: 9%">
+    <col style="width: 13%">
+    <% months.each { |m| %><col><% } %>
+    <col style="width: 8%">
+  </colgroup>
+  <tfoot>
   <tfoot>
     <%# 先按大类再按全年值排序后，人民币 + 美元两段统一汇总一行 %>
     <% grand_total = 0.0 %>
