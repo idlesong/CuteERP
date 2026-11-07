@@ -45,10 +45,13 @@ class SalesOrder < ApplicationRecord
   end
 
   # XS{yyyy}-{年内流水}（XS2026-192，流水按年重置；唯一索引 + rescue 兜底并发）
+  # 流水 = 本年前缀下已有最大号 +1。不能按 count+1：六联单导入把 created_at 回溯到下单日期、
+  # 且文件自带流水号，count 远小于最大流水 → 新单撞号（「Serial number已经被使用」根因）
   def generate_serial_number
-    year = Date.current.year
-    seq = self.class.where(created_at: Time.zone.local(year)..).count + 1
-    self.serial_number = "XS#{year}-#{seq.to_s.rjust(3, "0")}" # XS2026-005
+    prefix = "XS#{Date.current.year}-"
+    last = self.class.where("serial_number LIKE ?", "#{prefix}%").maximum(:serial_number)
+    seq = last.to_s[/(\d+)\z/].to_i + 1
+    self.serial_number = "#{prefix}#{seq.to_s.rjust(3, "0")}" # XS2026-005
   end
 
   def draft? = status == "draft"

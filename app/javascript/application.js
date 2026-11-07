@@ -40,6 +40,13 @@ document.addEventListener("turbo:load", () => {
   // 可搜索下拉（客户/型号等长列表 select）
   initSearchableSelects()
 
+  // flash toast 显示：布局里 inline script 只负责整页加载；这里 turbo:render 覆盖
+  // 表单校验失败（422）重渲染场景——turbo:load 在该路径不触发
+  document.querySelectorAll(".toast-container .toast").forEach((el) => Bootstrap.Toast.getOrCreateInstance(el).show())
+  document.addEventListener("turbo:render", () => {
+    document.querySelectorAll(".toast-container .toast").forEach((el) => Bootstrap.Toast.getOrCreateInstance(el).show())
+  })
+
   // DataTables (legacy markup uses .datatable) + Excel-style column filter row
   document.querySelectorAll(".datatable").forEach((table, ti) => {
     if (!DataTable.isDataTable(table)) {

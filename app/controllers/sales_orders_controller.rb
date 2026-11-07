@@ -62,6 +62,19 @@ class SalesOrdersController < ApplicationController
     @sales_order.snapshot_exchange_rate!
 
     entries = lines_params.to_h.select { |_, attrs| attrs[:quantity].to_i.positive? }
+    raise "没有数量大于 0 的行，未签发任何行" if entries.empty?
+
+    pool_lines = entries.keys.map { |id| OrderLine.find(id) }
+    # 一张六联单 = 一个型号一个价：型号或单价不一致直接报错（避免混签）
+    # （注意：不能用 raise ActiveRecord::RecordInvalid, "msg" —— 其构造器把 msg 当 record 调 .errors）
+    generics = pool_lines.map(&:generic_part_no).uniq
+    if generics.many?
+      raise "所选行通用型号不一致（#{generics.join('、')}），一张六联单只能签发同一型号"
+    end
+    prices = pool_lines.map(&:unit_price).uniq
+    if prices.many?
+      raise "所选行单价不一致（#{prices.map(&:to_s).join('、')}），请核对订单行价格后分开签发"
+    end
 
     SalesOrder.transaction do
       entries.each do |ol_id, attrs|
@@ -80,7 +93,7 @@ class SalesOrdersController < ApplicationController
     end
     target = params[:return_to] == "workbench" ? workbench_path : @sales_order
     redirect_to target, notice: "六联单 #{@sales_order.serial_number} 已创建（草稿，请在列表或详情页提交）"
-  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, RuntimeError => e
     @customer = (Customer.find_by(id: sales_order_params[:customer_id]) if params[:sales_order].present?) || current_customer
     @sales_order ||= SalesOrder.new
     @pool = DemandQuery.allocatable_lines(customer_id: @customer.id)
@@ -106,6 +119,16 @@ class SalesOrdersController < ApplicationController
     order_line = OrderLine.find(params.require(:order_line_id))
     qty = params.require(:quantity).to_i
     raise "数量必须大于 0" if qty <= 0
+
+    # 与本单已有行保持同型号同价（一张六联单 = 一个型号一个价）
+    other_generics = @sales_order.production_lines.includes(:item)
+                                  .map { |pl| pl.item&.generic_part_no }.uniq - [order_line.generic_part_no]
+    if other_generics.present?
+      raise "本六联单已有型号 #{other_generics.join('、')} 的行，不能混签 #{order_line.generic_part_no}"
+    end
+    other_prices = @sales_order.production_lines.flat_map { |pl| pl.order_lines.map(&:unit_price) }
+                                                .uniq - [order_line.unit_price]
+    raise "本六联单已有行的单价与其不一致（#{other_prices.map(&:to_s).join('、')}），请核对" if other_prices.present?
 
     item = resolve_item(order_line, params[:suffix])
     line = @sales_order.production_lines.build(
@@ -235,7 +258,7 @@ class SalesOrdersController < ApplicationController
   def resolve_item(order_line, _suffix)
     Item.find_by!(generic_part_no: order_line.generic_part_no)
   rescue ActiveRecord::RecordNotFound
-    raise ActiveRecord::RecordInvalid, "型号「#{order_line.generic_part_no}」未在产品列表建档，请先维护产品"
+    raise "型号「#{order_line.generic_part_no}」未在产品列表建档，请先维护产品"
   end
 
   def lines_params

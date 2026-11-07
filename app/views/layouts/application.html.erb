@@ -71,9 +71,13 @@
         <% end %>
       </div>
       <script>
-        document.addEventListener("turbo:load", () => {
+        <%# 立即执行 + turbo:load 双保险：Turbo 整页渲染后 body 内脚本会重新执行，立即执行的那次
+            负责 422 重渲染等 turbo:load 时序覆盖不到的场景（如签发校验失败 flash 不显示） %>
+        const showFlashToasts = () => {
           document.querySelectorAll(".toast-container .toast").forEach((el) => Bootstrap.Toast.getOrCreateInstance(el).show())
-        })
+        }
+        showFlashToasts()
+        document.addEventListener("turbo:load", showFlashToasts)
       </script>
       <%= yield %>
     </div>
