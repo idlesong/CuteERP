@@ -31,17 +31,21 @@ class SalesOrdersController < ApplicationController
     end
   end
 
-  # PATCH /sales_orders/1/update_production
+  # PATCH /sales_orders/1/update_production —— 行保存（生产编排页/工作台行快捷编辑共用）：
+  # 可附带 sales_order[required_date]（约定发货日期，单头字段）与 return_to（回工作台）
   def update_production
+    if params.dig(:sales_order, :required_date).present?
+      @sales_order.update!(required_date: params[:sales_order][:required_date])
+    end
     lines_params.to_h.each do |id, attrs|
       line = @sales_order.production_lines.find(id)
       line.update!(item_id: attrs[:item_id].presence, quantity: attrs[:quantity],
                    version: attrs[:version].presence, full_name: attrs[:full_name].presence,
                    remark: attrs[:remark].presence)
     end
-    redirect_to @sales_order, notice: "行已保存"
+    redirect_to production_target, notice: "行已保存"
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to @sales_order, alert: e.message
+    redirect_to production_target, alert: e.message
   end
 
   # GET /sales_orders/new?customer_id= —— 签发：客户维度未分配 PO 行池
@@ -252,6 +256,11 @@ class SalesOrdersController < ApplicationController
 
   def set_sales_order
     @sales_order = SalesOrder.find(params[:id])
+  end
+
+  # update_production 保存后回原页：工作台（return_to=workbench）或六联单详情
+  def production_target
+    params[:return_to] == "workbench" ? workbench_path : @sales_order
   end
 
   # 转产定型：产品列表只维护通用型号，取对应 Item（未建档即失败）；后缀落 production_lines.suffix

@@ -1,8 +1,20 @@
-<%# 客户订单行级表格（orders/index 与仪表盘复用）
+<%# 客户订单行级表格（orders/index 与工作台复用）
     locals: lines —— OrderLine 集合（需含 order => customer/end_customer）；
-            paging —— false 时 DataTables 关闭分页 %>
-<%= form_tag orders_path(inline: 1) do %>
+            paging —— false 时 DataTables 关闭分页；
+            quick_edit —— true 时显示行「编辑」与编辑行（数量/版本/交期，工作台用）；
+            back —— workbench 时分解弹窗、保存后回工作台 %>
+<%# 快速创建/行编辑表单置于表格外（form 包表格属非法嵌套，控件会被移出表格），行内控件以 form= 关联 %>
+<%= form_tag orders_path(inline: 1), id: "ol-new-form" do %>
   <%= hidden_field_tag :return_to, local_assigns[:back] %>
+<% end %>
+<% if local_assigns[:quick_edit] && params[:line_edit_id].present? %>
+  <% edit_line = OrderLine.find_by(id: params[:line_edit_id].to_i) %>
+  <% if edit_line %>
+    <%= form_tag order_order_line_path(edit_line.order_id, edit_line.id), method: :patch, id: "line-edit-form" do %>
+      <%= hidden_field_tag :return_to, local_assigns[:back] %>
+    <% end %>
+  <% end %>
+<% end %>
 <table class="table table-striped table-sm datatable" <%= 'data-paging="off"'.html_safe unless local_assigns[:paging] %>>
   <thead>
     <tr>
@@ -25,6 +37,47 @@
     <% lines.each do |line| %>
       <% order = line.order %>
       <% currency_unit = order.currency == "USD" ? "$" : "¥" %>
+      <% if local_assigns[:quick_edit] && params[:line_edit_id].to_i == line.id %>
+        <%# 行编辑行：数量/版本/交期可改（数量不得小于已冲销+已分配，服务端校验）；
+            可编辑单元格放 visually-hidden 文本锚点，保证恢复的列筛选仍能匹配编辑行 %>
+        <tr class="table-warning">
+          <td><%= order.created_at.strftime("%F") %></td>
+          <td>
+            <%= link_to cust_name(order.customer), order.customer %>
+            <% if order.end_customer %>/ <%= cust_name(order.end_customer) %><% end %>
+          </td>
+          <td><%= link_to order.po_number, order_path(order) %></td>
+          <td><%= line.line_no %></td>
+          <td>
+            <%= line.full_part_no.presence || line.generic_part_no %>
+            <% if line.full_part_no.present? && line.full_part_no != line.generic_part_no %>
+              <span class="small text-muted"><%= line.generic_part_no %></span>
+            <% end %>
+          </td>
+          <td><span class="visually-hidden"><%= line.quantity %></span>
+              <input form="line-edit-form" name="order[quantity]" type="number" min="1" value="<%= line.quantity %>" class="form-control form-control-sm" style="width: 6rem;"></td>
+          <td><%= money(line.unit_price, order.currency) %></td>
+          <td><%= money(line.total_price, order.currency) %></td>
+          <td><span class="visually-hidden"><%= line.version %></span>
+              <input form="line-edit-form" name="order[version]" value="<%= line.version %>" class="form-control form-control-sm" style="width: 6rem;"></td>
+          <td><%= line.quantity_left %></td>
+          <td><span class="visually-hidden"><%= line.required_delivery_date %></span>
+              <input form="line-edit-form" name="order[required_delivery_date]" type="date" value="<%= line.required_delivery_date %>" class="form-control form-control-sm"></td>
+          <td>
+            <% if order.return? %>
+              <span class="badge bg-danger">冲销</span>
+            <% elsif order.draft? %>
+              <span class="badge bg-secondary">草稿</span>
+            <% else %>
+              <span class="badge bg-success">已提交</span>
+            <% end %>
+          </td>
+          <td class="text-nowrap">
+            <button type="submit" form="line-edit-form" class="btn btn-sm btn-primary">保存</button>
+            <%= link_to "取消", request.query_parameters.except("line_edit_id"), class: "btn btn-sm btn-outline-secondary" %>
+          </td>
+        </tr>
+      <% else %>
       <tr class="<%= 'table-warning' if order.draft? %> <%= 'table-danger' if order.return? %>">
         <td><%= order.created_at.strftime("%F") %></td>
         <td>
@@ -77,52 +130,55 @@
               <%= link_to t(:issue), new_sales_order_path(customer_id: order.customer.id) %>
             <% end %>
           <% end %>
+          <% if local_assigns[:quick_edit] && params[:line_edit_id].to_i != line.id %>
+            <%= link_to "编辑", request.query_parameters.merge(line_edit_id: line.id), class: "btn btn-link btn-sm" %>
+          <% end %>
         </td>
       </tr>
+      <% end %>
     <% end %>
   </tbody>
   <tfoot>
     <tr class="inline-new-row">
       <th></th>
       <th>
-        <select name="order[customer_id]" id="order_customer_id" class="form-select form-select-sm" data-searchable>
+        <select name="order[customer_id]" id="order_customer_id" form="ol-new-form" class="form-select form-select-sm" data-searchable>
           <option value="" selected>客户(新PO必选)</option>
           <%= options_from_collection_for_select(Customer.order(:name_zh, :name), :id, ->(c) { cust_name(c) }) %>
         </select>
       </th>
       <th>
-        <input name="order[po_number]" id="order_po_number" class="form-control form-control-sm"
+        <input name="order[po_number]" id="order_po_number" form="ol-new-form" class="form-control form-control-sm"
                placeholder="客户订单号*" required>
       </th>
       <th></th>
       <th>
-        <select name="order[generic_part_no]" id="order_generic_part_no" class="form-select form-select-sm" required>
+        <select name="order[generic_part_no]" id="order_generic_part_no" form="ol-new-form" class="form-select form-select-sm" required>
           <option value="" selected disabled>型号*</option>
           <%= options_for_select(Item.where.not(generic_part_no: nil).distinct.order(:generic_part_no).pluck(:generic_part_no)) %>
         </select>
-        <input name="order[suffix]" list="order_suffix_options" class="form-control form-control-sm d-inline-block"
+        <input name="order[suffix]" form="ol-new-form" list="order_suffix_options" class="form-control form-control-sm d-inline-block"
                style="width: 3.2rem;" placeholder="后缀" title="可选：C/M/S 等，与型号合成客户所订完整型号">
         <datalist id="order_suffix_options">
           <%= options_for_select(User.naming_suffixes) %>
         </datalist>
       </th>
-      <th><input name="order[quantity]" type="number" min="1" class="form-control form-control-sm" placeholder="数量*" required></th>
+      <th><input name="order[quantity]" type="number" min="1" form="ol-new-form" class="form-control form-control-sm" placeholder="数量*" required></th>
       <th>
-        <select name="order[price_id]" id="order_price_id" class="form-select form-select-sm">
+        <select name="order[price_id]" id="order_price_id" form="ol-new-form" class="form-select form-select-sm">
           <option value="" selected disabled>价格*</option>
         </select>
       </th>
       <th></th>
       <th></th>
       <th></th>
-      <th><input name="order[required_delivery_date]" type="date" class="form-control form-control-sm"></th>
+      <th><input name="order[required_delivery_date]" type="date" form="ol-new-form" class="form-control form-control-sm"></th>
       <th></th>
-      <th><button type="submit" class="btn btn-sm btn-primary">快速创建</button>
+      <th><button type="submit" form="ol-new-form" class="btn btn-sm btn-primary">快速创建</button>
           <div id="po-preview" class="small text-muted"></div></th>
     </tr>
   </tfoot>
 </table>
-<% end %>
 
 <script>
   document.addEventListener("turbo:load", () => {

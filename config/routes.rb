@@ -71,7 +71,7 @@ Rails.application.routes.draw do
       post :attach
       delete :detach
     end
-    resources :order_lines, only: [:create, :destroy]
+    resources :order_lines, only: [:create, :update, :destroy]
   end
 
   resources :items do

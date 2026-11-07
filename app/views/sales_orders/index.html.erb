@@ -1,5 +1,4 @@
 <div class="page-header"><h1><%= t(:sales_orders) %></h1></div>
 
-<%= form_tag new_sales_order_path, method: :get do %>
-  <%= render "orders_table", orders: @sales_orders, show_tfoot: true, paging: true %>
-<% end %>
+<%# 选客户行表单已内置在 orders_table partial（so-new-form，form= 关联），无需外包裹表单 %>
+<%= render "orders_table", orders: @sales_orders, show_tfoot: true, paging: true %>
