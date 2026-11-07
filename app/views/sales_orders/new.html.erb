@@ -51,9 +51,9 @@
             <th>通用型号</th>
             <th>正式型号（=通用型号+后缀，可手输新后缀）</th>
             <th>可分配</th>
+            <th>含税单价</th>
             <th>本次数量</th>
             <th>版本</th>
-            <th>统一编号</th>
             <th><%= t(:remark) %></th>
           </tr>
         </thead>
@@ -73,11 +73,12 @@
                 </div>
               </td>
               <td><strong><%= ol.allocatable_qty %></strong></td>
+              <%# 含税单价（订单行快照总价）：签发前人工核对所选行单价是否一致 %>
+              <td><%= money(ol.unit_price, ol.order.currency) %></td>
               <td><input name="lines[<%= ol.id %>][quantity]" type="number" min="0" max="<%= ol.allocatable_qty %>"
                          value="0" class="form-control form-control-sm" style="width: 6rem;"
                          title="本次签发数量（可分配 <%= ol.allocatable_qty %>）"></td>
               <td><input name="lines[<%= ol.id %>][version]" class="form-control form-control-sm" style="width: 6rem;"></td>
-              <td><input name="lines[<%= ol.id %>][full_name]" class="form-control form-control-sm" style="width: 10rem;"></td>
               <td><input name="lines[<%= ol.id %>][remark]" class="form-control form-control-sm" style="width: 10rem;"></td>
             </tr>
           <% end %>
