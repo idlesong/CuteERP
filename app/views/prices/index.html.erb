@@ -42,23 +42,39 @@
   <tbody>
     <% @prices.each do |price| %>
       <% if params[:edit_id].to_i == price.id %>
+        <%# 输入单元格内放 visually-hidden 文本锚点：DataTables 筛选/排序读 textContent，
+            锚点保证编辑行与普通行同口径——否则恢复的列筛选（状态/日期月份/单价等）
+            匹配不到编辑行 → 整行被过滤「消失」 %>
+        <% set_price = PriceListEntry.tier_price(price.part_number, price.customer&.sales_type, price.condition) %>
         <tr class="table-warning">
           <td data-order="<%= price.price_number %>"><%= link_to(price.price_number || "—", price_path(price)) %></td>
-          <td><input form="price-edit-form" name="price[effective_from]" type="date" value="<%= price.effective_from %>" class="form-control form-control-sm"></td>
-          <td><input form="price-edit-form" name="price[expired_at]" type="date" value="<%= price.expired_at %>" class="form-control form-control-sm"></td>
-          <%# 客户列与普通行同口径（cust_name 中文名），否则恢复的列筛选匹配不到编辑行 → 整页 0 行 %>
+          <td><span class="visually-hidden"><%= price.effective_from %></span>
+              <input form="price-edit-form" name="price[effective_from]" type="date" value="<%= price.effective_from %>" class="form-control form-control-sm"></td>
+          <td><span class="visually-hidden"><%= price.expired_at %></span>
+              <input form="price-edit-form" name="price[expired_at]" type="date" value="<%= price.expired_at %>" class="form-control form-control-sm"></td>
           <td><%= price.customer ? cust_name(price.customer) : price.customer_name %></td>
           <td><%= price.part_number %></td>
-          <td><input form="price-edit-form" name="price[price]" value="<%= price.price %>" class="form-control form-control-sm" placeholder="=50+50 或 单价" required></td>
+          <td><span class="visually-hidden"><%= money(price.price, price.currency) %></span>
+              <input form="price-edit-form" name="price[price]" value="<%= price.price %>" class="form-control form-control-sm" placeholder="=50+50 或 单价" required></td>
           <td><%= price.base_price %></td>
           <td><%= price.v1_price %></td>
           <td><%= price.v2_price %></td>
-          <td><input form="price-edit-form" name="price[condition]" value="<%= price.condition %>" class="form-control form-control-sm" style="width: 6rem;"></td>
+          <td><span class="visually-hidden"><%= price.condition %></span>
+              <input form="price-edit-form" name="price[condition]" value="<%= price.condition %>" class="form-control form-control-sm" style="width: 6rem;"></td>
           <td><%= price.customer&.sales_type %></td>
-          <td></td>
-          <td></td>
-          <td><input form="price-edit-form" name="price[remark]" value="<%= price.remark %>" class="form-control form-control-sm"></td>
-          <td><%= price.status %></td>
+          <td><%= set_price ? money(set_price, price.currency) : "" %></td>
+          <td><%= "✂" if price.is_prr == 1 %></td>
+          <td><span class="visually-hidden"><%= price.remark %></span>
+              <input form="price-edit-form" name="price[remark]" value="<%= price.remark %>" class="form-control form-control-sm"></td>
+          <td>
+            <% if price.effective? %>
+              <span class="badge bg-success">生效</span>
+            <% elsif price.in_valid_window? %>
+              <span class="badge bg-warning text-dark">批准</span>
+            <% else %>
+              <span class="badge bg-secondary">失效</span>
+            <% end %>
+          </td>
           <td class="text-nowrap">
             <button type="submit" form="price-edit-form" class="btn btn-sm btn-primary">保存</button>
             <%= link_to "取消", prices_path(request.query_parameters.except("edit_id")), class: "btn btn-sm btn-outline-secondary" %>
