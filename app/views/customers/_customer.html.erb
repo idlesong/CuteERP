@@ -1,5 +1,4 @@
-<!-- < if notice >
-< end > -->
+<%# 客户详情页（精简版）：基本信息 + 当月对账三段 + 已签发待发货 + 价格列表 + 联系人 %>
 <h4><%= @customer.full_name %></h4>
 <ul class="list-inline">
   <li><%= t(:since) %>:<%= @customer.since %></li>
@@ -23,7 +22,71 @@
               data: { turbo_method: :delete, turbo_confirm: t(".confirm", default: t("helpers.links.confirm", default: "Are you sure?")) },
               class: "btn btn-danger btn-sm" %></h5>
 
-<h3><%= t(:contact) %>
+<h3 class="mt-4">当月对账 <small class="text-muted">订单核对 / 出货核对 / 未交订单核对（与月度对账页同口径）</small></h3>
+<%= form_tag customer_path(@customer), method: :get, class: "d-flex gap-1 align-items-center mb-2" do %>
+  <input type="month" name="month" value="<%= @statement_month.strftime('%Y-%m') %>" class="form-control form-control-sm" required>
+  <%= submit_tag "切换月份", class: "btn btn-sm btn-outline-secondary" %>
+<% end %>
+<%= render "statements/statement_sections", statement: @statement, customer: @customer, month: @statement_month %>
+
+<h3 class="mt-4">已签发待发货 <small class="text-muted">还有未出完生产行的六联单</small></h3>
+<% if @unshipped_sales_orders.any? %>
+  <%= render "sales_orders/orders_table", orders: @unshipped_sales_orders, paging: false, remaining: true %>
+<% else %>
+  <p class="text-muted">无待发货六联单。</p>
+<% end %>
+
+<h3 class="mt-4">价格列表
+  <span class="badge <%= params[:all_prices] ? "bg-secondary" : "bg-success" %> align-middle">
+    <%= params[:all_prices] ? "全部（非归档）" : "仅生效" %>
+  </span>
+  <%# 生效/全部切换：month 参数一并带回，避免切价格视图时丢对账月份 %>
+  <%= link_to params[:all_prices].present? ? "只看生效价格" : "显示全部价格",
+              customer_path(@customer, params[:all_prices].present? ? request.query_parameters.except("all_prices") : request.query_parameters.merge(all_prices: 1)),
+              class: "btn btn-outline-secondary btn-sm" %>
+  <%= link_to "新建报价", new_price_path, class: "btn btn-outline-primary btn-sm" %>
+</h3>
+<%# 与价格列表页同款列格式（去客户列与快速创建行）；默认价 = 阶梯价参考，仅提示不快照 %>
+<table class="table table-striped table-sm datatable">
+  <thead>
+    <tr>
+      <th>报价号</th><th>生效日期</th><th>失效日期</th><th>通用型号</th>
+      <th class="text-end">总单价</th><th class="text-end">芯片</th><th class="text-end">声码1</th><th class="text-end">声码2</th>
+      <th>数量</th><th>ODM/OEM</th><th class="text-end">默认价</th><th>PRR</th><th>备注</th><th>状态</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @prices.each do |price| %>
+      <% set_price = PriceListEntry.tier_price(price.part_number, price.customer&.sales_type, price.condition) %>
+      <tr>
+        <td><%= link_to(price.price_number || "—", price_path(price)) %></td>
+        <td><%= price.effective_from %></td>
+        <td><%= price.expired_at %></td>
+        <td><%= price.part_number %></td>
+        <td class="text-end"><strong><%= money(price.price, price.currency) %></strong></td>
+        <td class="text-end"><%= price.base_price %></td>
+        <td class="text-end"><%= price.v1_price %></td>
+        <td class="text-end"><%= price.v2_price %></td>
+        <td><%= price.condition %></td>
+        <td><%= price.customer&.sales_type %></td>
+        <td class="text-end"><%= set_price ? money(set_price, price.currency) : "" %></td>
+        <td><%= "✂" if price.is_prr == 1 %></td>
+        <td title="<%= price.remark %>"><%= truncate(price.remark.to_s, length: 2, omission: "…") %><span class="visually-hidden"><%= price.remark %></span></td>
+        <td>
+          <% if price.effective? %>
+            <span class="badge bg-success">生效</span>
+          <% elsif price.in_valid_window? %>
+            <span class="badge bg-warning text-dark">批准</span>
+          <% else %>
+            <span class="badge bg-secondary">失效</span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h3 class="mt-4"><%= t(:contact) %>
   <button type="button" class="btn btn-sm btn-primary ajax-new"
     data="<%= @customer.id %>" id="/contacts"><%= t(:new_contact) %></button>
 </h3>
@@ -52,95 +115,3 @@
     <% end %>
   </tbody>
 </table>
-
-<h3><%= t(:price) %> <small>(<%= t(:ongoing) %>)</small>
-
-  <%= link_to t(".new", default: t("helpers.links.new")), new_price_path, class: "btn btn-primary" %>
-</h3>
-
-<table class="table table-striped table-bordered">
-  <thead>
-    <tr>
-      <th>id</th>
-      <th>customer</th>
-      <th>part_number</th>
-      <th>price</th>
-      <th>condition</th>
-      <th>set_price</th>
-      <th>payment_term</th>
-      <th>created_at</th>
-      <th>status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @prices.each do |price| %>
-      <tr>
-        <td><%= link_to price.id, price_path(price) %></td>
-        <td><%= price.customer.name %></td>
-        <td><%= price.part_number %></td>
-        <td><strong>¥<%= price.price %></strong></td>
-        <td><%= price.condition %></td>
-        <td>¥<%= PriceListEntry.tier_price(price.part_number, @customer.sales_type, price.condition) %></td>
-        <td><%= price.payment_terms %></td>
-        <td><%= price.created_at.strftime("%F") %></td>
-        <td><%= price.status %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<%= render "shared/sales_orders_list" %>
-
-<h3><%= t(:opportunities) %>
-  <button type="button" class="btn btn-sm btn-primary ajax-new" data="<%= @customer.id %>" id="/opportunities">new opportunity</button>
-</h3>
-
-<% @opportunities.each do |opportunity| %>
-  <h4>
-    <p class="text-bg-success p-1 d-inline-block w-100">
-      Priority:<%= opportunity.priority %> Project type: <strong><%= opportunity.project_type %></strong>
-      solution:<strong><%= opportunity.solution %></strong>
-      <%= link_to "edit", edit_opportunity_path(opportunity) %>
-      <br />
-      Note:<%= opportunity.note %>
-    </p>
-  </h4>
-  <table class="table table-striped table-bordered">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>-</th>
-        <th>Status</th>
-        <th>Issue</th>
-        <th>Todo des</th>
-        <th>Todo Status</th>
-        <th>Assign</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @oppostatuses.each do |oppostatus| %>
-        <% if oppostatus.opportunity_id == opportunity.id %>
-          <% keyman = @users.map { |user| [user.id, user.name] } %>
-          <tr>
-            <td><%= oppostatus.created_at.strftime("%Y/%m/%d") %></td>
-            <td><%= inline_edit oppostatus, :status_mark, type: :select, collection: Oppostatus::STATUS_LABEL %></td>
-            <td><%= inline_edit oppostatus, :status %></td>
-            <td><%= inline_edit oppostatus, :issue %></td>
-            <td><%= inline_edit oppostatus, :todo_description %></td>
-            <td><%= inline_edit oppostatus, :todo_status, type: :select, collection: Oppostatus::STATUS_FLAG %></td>
-            <td><%= inline_edit oppostatus, :user_id, type: :select, collection: keyman %></td>
-          </tr>
-        <% end %>
-      <% end %>
-      <tr>
-        <td colspan="7">
-          <button type="button" class="btn btn-sm btn-primary ajax-new"
-            data="<%= opportunity.id %>" data-2="<%= session[:user_id] %>"
-            id="/oppostatuses">new oppostatus</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-<% end %>
-
-<br />

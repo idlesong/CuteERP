@@ -16,12 +16,23 @@ class CustomersController < ApplicationController
   # GET /customers/1
   def show
     @contacts = Contact.where("customer_id = ?", @customer.id)
-    @orders = Order.where("customer_id = ?", @customer.id)
-    @sales_orders = SalesOrder.where("customer_id = ?", @customer.id)
-    @opportunities = Opportunity.where("customer_id = ?", @customer.id).order("created_at")
-    @oppostatuses = Oppostatus.all
-    @users = User.all
-    @prices = Price.where("customer_id = ?", @customer.id).where.not(status: "archived")
+
+    # 当月对账（订单核对/出货核对/未交订单），月份可切换，默认当月（与月度对账页同口径）
+    @statement_month = parse_month(params[:month]) || Date.current.beginning_of_month
+    @statement = MonthlyStatement.new(@customer, @statement_month)
+
+    # 已签发待发货：还有未出完生产行的六联单（与工作台同判定）
+    orders = @customer.sales_orders.includes(:production_lines).order(created_at: :desc)
+    @unshipped_sales_orders = orders.reject do |so|
+      so.production_lines.all? { |pl| pl.unshipped_qty <= 0 }
+    end
+
+    # 价格列表：默认只显示生效价格；params[:all_prices]=1 显示全部非归档
+    @prices = if params[:all_prices]
+                @customer.prices.where.not(status: "archived")
+              else
+                @customer.prices.available
+              end
 
     # add session id to customer id when show a customer
     session[:customer_id] = @customer.id
@@ -112,6 +123,12 @@ class CustomersController < ApplicationController
 
   def set_customer
     @customer = Customer.find(params[:id])
+  end
+
+  def parse_month(raw)
+    Date.strptime(raw.to_s, "%Y-%m").beginning_of_month
+  rescue ArgumentError, TypeError
+    nil
   end
 
   def customer_params
