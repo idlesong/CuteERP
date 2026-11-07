@@ -1,7 +1,22 @@
-<div class="page-header"><h1>导出当月 <small>---月度工作簿（客户订单 / 六联单 / 出库单 / 价格）</small></h1></div>
+<div class="page-header"><h1>导出中心 <small>---月度工作簿 / 列表数据（客户订单 / 六联单 / 出库单 / 价格）</small></h1></div>
+
+<%# 各业务列表页的「导出 Excel」已集中到本页（列表页不再重复放按钮） %>
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <h6 class="mb-2">列表数据导出（全量）</h6>
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+      <%= link_to "客户订单", orders_path(format: :xlsx), data: { turbo: false }, class: "btn btn-outline-secondary btn-sm" %>
+      <%= link_to "客户", customers_path(format: :xlsx), data: { turbo: false }, class: "btn btn-outline-secondary btn-sm" %>
+      <%= link_to "产品", items_path(format: :xlsx), data: { turbo: false }, class: "btn btn-outline-secondary btn-sm" %>
+      <%= link_to "价格", prices_path(format: :xlsx), data: { turbo: false }, class: "btn btn-outline-secondary btn-sm" %>
+      <span class="small text-muted">与各列表页数据同口径的全量导出</span>
+    </div>
+  </div>
+</div>
 
 <%= form_tag monthly_export_path, method: :get, class: "card", data: { turbo: false } do %>
   <div class="card-body">
+    <h6 class="mb-2">月度工作簿（按月）</h6>
     <div class="row g-2 align-items-end">
       <div class="col-auto">
         <label class="form-label small mb-0">月份</label>
