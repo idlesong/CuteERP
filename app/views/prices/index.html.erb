@@ -104,7 +104,9 @@
         <td><%= price.customer&.sales_type %></td>
         <td><%= set_price ? money(set_price, price.currency) : "" %></td>
         <td><%= "✂" if price.is_prr == 1 %></td>
-        <td><%= price.remark %></td>
+        <%# 备注默认只显示前两字（超长省略号），完整内容悬浮 title 显示；
+            visually-hidden 锚点保证列筛选仍按全文匹配 %>
+        <td title="<%= price.remark %>"><%= truncate(price.remark.to_s, length: 2, omission: "…") %><span class="visually-hidden"><%= price.remark %></span></td>
         <td>
           <% if price.effective? %>
             <span class="badge bg-success">生效</span>
@@ -127,9 +129,9 @@
       <th></th>
       <th></th>
       <th>
-        <select name="price[customer_id]" form="price-new-form" class="form-select form-select-sm" required>
+        <select name="price[customer_id]" form="price-new-form" class="form-select form-select-sm" required data-searchable>
           <option value="" selected disabled>客户*</option>
-          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
+          <%= options_from_collection_for_select(Customer.order(:name_zh, :name), :id, ->(c) { cust_name(c) }) %>
         </select>
       </th>
       <th>
