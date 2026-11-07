@@ -3,13 +3,12 @@ require "roo"
 # 客户订单批量导入（第二阶段 2.2）：
 # - 模板 = 月度工作簿「客户订单」表（接收日期/客户/订单号/通用型号/版本/数量/含税单价/要求交期/特殊要求/币别）
 # - 按表头名称解析，忽略多余列
-# - 订单号支持 -行号 后缀：多行订单写「PO123-1」「PO123-2」→ 归并为订单 PO123 的第 1/2 行；
-#   单行订单直接写「PO123」。防误拆：同底号（PO123）全文件仅出现一次时不剥离（客户编号
-#   本身可能以 -01 结尾）
+# - 订单号行号写法仅认「# + 一位数字」尾缀：多行订单写「PO123#1」「PO123#2」→ 归并为订单 PO123
+#   的第 1/2 行；其余尾缀（-01、_2、长尾客户编号等）一律整串为订单号不拆。核销行的 #N 为核销单序
 # - 行合并键：同订单号+行号 → 同一行更新；不同行号或无行号按 通用型号+版本 区分
 # - 价格匹配（参考价语义）：客户+通用型号+接收日期（在报价有效期内）匹配正式报价；
-#   Excel 单价仅辅助收敛（同档选最接近者），不作为一致性与否的判据；
-#   匹配不到 → 阻断报错（无跨客户兜底）；多候选 → 警告
+#   Excel 单价为参考价，只辅助收敛（同档选最接近者）；差异守卫：匹配到的报价与参考单价差 > 0.01
+#   → 阻断报错（Excel 与价格表脱节的信号）；匹配不到 → 阻断报错（无跨客户兜底）；多候选 → 警告
 # - 冲销行识别只认数量为负；价格继承原订单行快照（不重新匹配报价）
 class CustomerOrdersImport
   HEADERS = %w[接收日期 客户 订单号 通用型号 版本 数量 含税单价 要求交期 特殊要求 币别].freeze
@@ -197,11 +196,12 @@ class CustomerOrdersImport
   end
 
   # 正式价格匹配（参考价语义，替代 D18 严格匹配）：
-  # 匹配键 = 客户 + 通用型号 + 接收日期落在有效期内；**Excel 单价仅辅助收敛，不作为一致性与否的判据**。
+  # 匹配键 = 客户 + 通用型号 + 接收日期落在有效期内；**Excel 单价为参考价，只辅助收敛不参与匹配键**。
   # - 无候选 → 记 error（阻断，调用方 skip 该行）：无跨客户兜底
-  # - 档位选取与 match_for 同口径：订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）
-  # - 同档多条候选：选「与 Excel 参考单价最接近」的报价（参考价辅助定位），并列取生效日期最新
-  # - 订单行正式价格 = 匹配报价的总价/成分（价格表权威；Excel 单价差异仅提示不阻断）
+  # - 有参考单价：选「档位报价与参考单价最接近」的档位，并列取生效日期最新；
+  #   无参考单价（核销等）：与 match_for 同口径——订单量 ≤ 档位的最高档；低于最小档取最低档（MOQ）
+  # - 差异守卫：选中报价与参考单价差 > 0.01 → 记 error 阻断（参考价不吸收差异，差异即脱节信号）
+  # - 订单行正式价格 = 匹配报价的总价/成分（价格表权威）；同档多候选 → 警告供复核
   def self.match_formal_price(customer, generic, as_of, total, qty, row_no, stats, po: nil)
     scope = Price.where(part_number: generic, status: %w[approved active], customer_id: customer.id)
                  .where("effective_from IS NULL OR effective_from <= ?", as_of)
@@ -232,9 +232,13 @@ class CustomerOrdersImport
            .max_by { |_, p| [p.effective_from || Date.new(0), p.id] }.last
     end
 
+    # 差异守卫（参考价语义）：匹配到的报价与 Excel 参考单价差 > 0.01 → 阻断该行
+    # （参考价只辅助「选哪条报价」，不吸收价格差异——差异本身就是 Excel 与价格表脱节的信号）
     if total && (chosen.price.to_d - total.to_d).abs > 0.01
-      stats[:warnings] << "第#{row_no}行：#{generic} 订单按报价 #{chosen.price}（#{chosen.price_number}）计价，" \
-                          "Excel 参考单价 #{total} 未采用，请人工复核"
+      stats[:errors] << "第#{row_no}行：#{po} #{generic} 报价 #{chosen.price}（#{chosen.price_number}）" \
+                        "与 Excel 参考单价 #{total} 差异超容差（0.01），未导入——请核对 Excel 单价或价格表"
+      stats[:skipped] += 1
+      return nil
     end
     if cands.any? { |p| p.id != chosen.id && p.condition == chosen.condition }
       stats[:warnings] << "第#{row_no}行：#{generic} 同档位匹配到多条报价" \
