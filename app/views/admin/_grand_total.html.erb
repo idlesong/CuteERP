@@ -1,0 +1,23 @@
+<%# 销售总览「全部客户合计」单行表：人民币段 + 美元段相加（金额度量时美元段已在
+    split_matrix_by_currency(convert_usd: true) 中折成 ¥，缺汇率按 7；数量段为 pcs 直接相加）
+    locals: sections split_matrix_by_currency 的返回值；months 月首日数组；money_fmt 金额？ %>
+<% fmt = if money_fmt
+           ->(v) { "¥#{number_with_delimiter(v.round)}" }
+         else
+           ->(v) { number_with_precision(v, precision: (v % 1).zero? ? 0 : 1) }
+         end %>
+<table class="table table-sm">
+  <tfoot>
+    <%# 先按大类再按全年值排序后，人民币 + 美元两段统一汇总一行 %>
+    <% grand_total = 0.0 %>
+    <tr class="table-primary fw-bold">
+      <td colspan="2">全部客户合计（人民币<%= money_fmt ? " + 美元折¥" : " + 美元" %>）</td>
+      <% months.each do |m| %>
+        <% v = sections.values.flatten(1).sum { |_g, _c, cells| cells[m.beginning_of_month].to_f } %>
+        <% grand_total += v %>
+        <td class="text-end"><%= v.zero? ? "" : fmt.call(v) %></td>
+      <% end %>
+      <td class="text-end"><%= fmt.call(grand_total) %></td>
+    </tr>
+  </tfoot>
+</table>

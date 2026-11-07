@@ -44,6 +44,8 @@ class SalesOverviewQuery
 
     matrix = Hash.new { |h, k| h[k] = Hash.new { |h2, k2| h2[k2] = Hash.new(0.0) } }
     scope.find_each do |sl|
+      sales_order = sl.shipment.sales_order
+      next unless sales_order # 防御：孤儿出库行（六联单已删）不参与统计
       pl = sl.production_line
       next unless pl
 

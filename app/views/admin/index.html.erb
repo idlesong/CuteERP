@@ -15,6 +15,9 @@
   <li class="nav-item"><a class="nav-link <%= "active" if active_tab == "order" %>" data-bs-toggle="tab" href="#tabOrder">③ 客户订单</a></li>
 </ul>
 
+<%# 段内排序：先按产品大类，再按当前度量的全年值降序（金额/数量自动适配），同值按客户名 %>
+<% sort_entries = ->(entries) { entries.sort_by { |(group, cname, cells)| [group, -cells.values.sum, cname] } } %>
+
 <div class="tab-content">
   <!-- ① 实际出货：大类 → 客户，对比全年/当月 Plan -->
   <div class="tab-pane fade <%= "show active" if active_tab == "shipped" %>" id="tabShipped">
@@ -24,12 +27,16 @@
                     class: "btn btn-sm #{@shipped_metric == AdminController::SHIPPED_METRICS[key] ? 'btn-primary' : 'btn-outline-secondary'}" %>
       <% end %>
     </div>
-    <%# 按客户逐个判币别拆段（USD 客户单列，不再按大类整组落入人民币段） %>
-    <% split_matrix_by_currency(@shipped_matrix).each do |section, entries| %>
-      <%= render "admin/currency_matrix", section: section, entries: entries,
-                  months: @fy_months, money_fmt: @shipped_metric != :quantity %>
+    <%# 按客户逐个判币别拆段；金额度量时美元客户按当月汇率折¥（缺汇率按 7 兜底） %>
+    <% shipped_sections = split_matrix_by_currency(@shipped_matrix, convert_usd: @shipped_metric != :quantity) %>
+    <% shipped_sections.each do |section, entries| %>
+      <%= render "admin/currency_matrix", section: section, entries: sort_entries.call(entries),
+                  months: @fy_months, money_fmt: @shipped_metric != :quantity,
+                  usd_rmb: @shipped_metric != :quantity %>
     <% end %>
-    <div class="small text-muted">实际口径：按出库单记账；金额为原币不含税、整数显示（人民币客户=¥，美元客户=$），数量=出库 pcs；定价按分配台账加权（芯片额=base_price 口径，软件额=v1+v2 口径）。</div>
+    <%= render "admin/grand_total", sections: shipped_sections, months: @fy_months,
+                money_fmt: @shipped_metric != :quantity %>
+    <div class="small text-muted">实际口径：按出库单记账；金额不含税、整数显示，统一人民币口径（人民币客户=¥，美元客户按当月汇率折¥，缺汇率按 7 兜底）；数量=出库 pcs；定价按分配台账加权（芯片额=base_price 口径，软件额=v1+v2 口径）。</div>
   </div>
 
   <!-- ② Plan 视图：货币段 → 大类 → 客户 -->
@@ -39,11 +46,16 @@
         <%= link_to label, admin_path(fy: @fy, tab: "plan", metric: key), class: "btn btn-sm #{@metric == AdminController::METRICS[key] ? 'btn-primary' : 'btn-outline-secondary'}" %>
       <% end %>
     </div>
-    <%# 按客户逐个判币别拆段（与①同口径） %>
-    <% split_matrix_by_currency(@plan_matrix).each do |section, entries| %>
-      <%= render "admin/currency_matrix", section: section, entries: entries,
-                  months: @fy_months, money_fmt: @metric != :quantity %>
-    <% end %>    <div class="small text-muted">度量口径：数量 = 计划 pcs；金额 = 不含税整数（芯片额 = base_price 口径；软件额 = v1+v2 口径）；美元段按客户币别自动分节（金额单位为原币）。</div>
+    <%# 按客户逐个判币别拆段（与①同口径，金额度量美元折¥） %>
+    <% plan_sections = split_matrix_by_currency(@plan_matrix, convert_usd: @metric != :quantity) %>
+    <% plan_sections.each do |section, entries| %>
+      <%= render "admin/currency_matrix", section: section, entries: sort_entries.call(entries),
+                  months: @fy_months, money_fmt: @metric != :quantity,
+                  usd_rmb: @metric != :quantity %>
+    <% end %>
+    <%= render "admin/grand_total", sections: plan_sections, months: @fy_months,
+                money_fmt: @metric != :quantity %>
+    <div class="small text-muted">度量口径：数量 = 计划 pcs；金额 = 不含税整数、统一人民币口径（美元客户按当月汇率折¥，缺汇率按 7 兜底；芯片额 = base_price 口径；软件额 = v1+v2 口径）。</div>
   </div>
 
   <!-- ③ 客户订单：与实际出货同版式（订单行直接计价，含冲销负数） -->
@@ -54,10 +66,14 @@
                     class: "btn btn-sm #{@order_metric == AdminController::SHIPPED_METRICS[key] ? 'btn-primary' : 'btn-outline-secondary'}" %>
       <% end %>
     </div>
-    <% split_matrix_by_currency(@order_matrix).each do |section, entries| %>
-      <%= render "admin/currency_matrix", section: section, entries: entries,
-                  months: @fy_months, money_fmt: @order_metric != :quantity %>
+    <% order_sections = split_matrix_by_currency(@order_matrix, convert_usd: @order_metric != :quantity) %>
+    <% order_sections.each do |section, entries| %>
+      <%= render "admin/currency_matrix", section: section, entries: sort_entries.call(entries),
+                  months: @fy_months, money_fmt: @order_metric != :quantity,
+                  usd_rmb: @order_metric != :quantity %>
     <% end %>
-    <div class="small text-muted">客户订单口径：FY 内接收的已提交订单行（含冲销负数），按订单行价格直接计价（芯片额=base_price，软件额=v1+v2），金额为原币不含税、整数显示（人民币客户=¥，美元客户=$）；不依赖分配台账。</div>
+    <%= render "admin/grand_total", sections: order_sections, months: @fy_months,
+                money_fmt: @order_metric != :quantity %>
+    <div class="small text-muted">客户订单口径：FY 内接收的已提交订单行（含冲销负数），按订单行价格直接计价（芯片额=base_price，软件额=v1+v2）；金额不含税、整数显示，统一人民币口径（人民币客户=¥，美元客户按当月汇率折¥，缺汇率按 7 兜底）；不依赖分配台账。</div>
   </div>
 </div>

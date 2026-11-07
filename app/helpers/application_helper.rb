@@ -26,7 +26,8 @@ module ApplicationHelper
 
   # 矩阵 {group => {customer显示名 => cells}} 按客户币别拆为条目级两段（而非按大类整组）：
   # 返回 { "人民币" => [[group, 客户显示名, cells], ...], "美元" => [...] }（人民币段在前）
-  def split_matrix_by_currency(matrix)
+  # convert_usd（金额度量时传 true）：美元段每月金额按当月汇率折成人民币，缺汇率按 7 兜底
+  def split_matrix_by_currency(matrix, convert_usd: false)
     currencies = Customer.pluck(:name, :name_zh, :currency)
                          .each_with_object({}) do |(name, name_zh, cur), h|
       h[name] = cur if name.present?
@@ -35,7 +36,13 @@ module ApplicationHelper
     sections = { "人民币" => [], "美元" => [] }
     matrix.each do |group, customers|
       customers.each do |cname, cells|
-        sections[currencies[cname] == "USD" ? "美元" : "人民币"] << [group, cname, cells]
+        section = currencies[cname] == "USD" ? "美元" : "人民币"
+        if section == "美元" && convert_usd
+          cells = cells.each_with_object(Hash.new(0.0)) do |(month, v), h|
+            h[month] = v * (ExchangeRate.rate_for(month, "USD") || 7.0)
+          end
+        end
+        sections[section] << [group, cname, cells]
       end
     end
     sections

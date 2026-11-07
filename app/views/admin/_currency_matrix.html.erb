@@ -1,13 +1,16 @@
 <%# 销售总览币别段矩阵（①实际出货 / ②Plan / ③客户订单 共用）
     locals: section "人民币"/"美元"；entries [[group, 客户显示名, cells], ...]；
-            months 月首日数组；money_fmt true=金额（不含税、整数显示）带币别符号 / false=数量紧凑数字 %>
+            months 月首日数组；money_fmt true=金额（不含税、整数显示）带币别符号 / false=数量紧凑数字；
+            usd_rmb 美元段已按当月汇率折成人民币（true 时符号用 ¥） %>
+<% usd_rmb ||= false %>
 <% fmt_amount = if money_fmt
-                  unit = section == "美元" ? "$" : "¥"
+                  unit = (section == "美元" && !usd_rmb) ? "$" : "¥"
                   ->(v) { "#{unit}#{number_with_delimiter(v.round)}" } # 销售总览口径：不含税、整数
                 else
                   ->(v) { number_with_precision(v, precision: (v % 1).zero? ? 0 : 1) }
                 end %>
-<h5 class="mt-2"><%= section %>客户<%= money_fmt ? "（#{section == '美元' ? '$' : '¥'}）" : "" %></h5>
+<% unit = (section == "美元" && !usd_rmb) ? "$" : "¥" %>
+<h5 class="mt-2"><%= section %>客户<%= money_fmt ? "（#{unit}）" : "" %><%= " · 按当月汇率折算（缺汇率按 7）" if section == "美元" && usd_rmb %></h5>
 <table class="table table-striped table-sm">
   <thead>
     <tr>
