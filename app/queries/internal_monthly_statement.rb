@@ -7,7 +7,8 @@
 class InternalMonthlyStatement
   Row = Struct.new(:date, :doc_no, :customer, :currency, :part, :group, :quantity,
                    :chip_price, :v1_price, :v2_price,
-                   :chip_amt, :v1_amt, :v2_amt, :amount, :rate, :amount_rmb, :extra, :price_no)
+                   :chip_amt, :v1_amt, :v2_amt, :amount, :rate, :amount_rmb, :extra, :price_no,
+                   :price_id)
 
   # 排产核对段行（生产单无币别语境，独立结构）
   AllocRow = Struct.new(:date, :serial, :customer, :part, :quantity, :version,
@@ -54,7 +55,8 @@ class InternalMonthlyStatement
                              line.generic_part_no, line.order_item&.group, qty,
                              line.base_price || 0, line.v1_price || 0, line.v2_price || 0,
                              chip, v1, v2, line.total_price.round(2), rate,
-                             (line.total_price * rate).round(2), extra, line.price&.price_number)
+                             (line.total_price * rate).round(2), extra, line.price&.price_number,
+                             line.price_id)
     end
   end
 
@@ -77,7 +79,7 @@ class InternalMonthlyStatement
                                line.base_price || 0, line.v1_price || 0, line.v2_price || 0,
                                chip, v1, v2, line.unit_price * open, rate,
                                (line.unit_price * open * rate).round(2), line.version,
-                               line.price&.price_number)
+                               line.price&.price_number, line.price_id)
     end
   end
 
@@ -110,7 +112,7 @@ class InternalMonthlyStatement
                                 chip_p.round(2), v1_p.round(2), v2_p.round(2),
                                 (qty * chip_p).round(2), (qty * v1_p).round(2), (qty * v2_p).round(2),
                                 (qty * unit).round(2), rate,
-                                (qty * unit * rate).round(2), sl.shipment.tracking_no, nil)
+                                (qty * unit * rate).round(2), sl.shipment.tracking_no, nil, nil)
     end
   end
 
