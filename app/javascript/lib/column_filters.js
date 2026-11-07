@@ -27,6 +27,45 @@ function pruneStaleRangePredicates() {
   DataTable.ext.search = DataTable.ext.search.filter((p) => !p.__table || p.__table.isConnected)
 }
 
+// ---- 筛选状态补恢复 ----
+// 数值区间（函数式列搜索）与日期区间（ext.search 谓词）DataTables stateSave 无法序列化，
+// 整页跳转（快捷编辑等）后会丢。按列登记 get/set：stateSave 时捕获输入值（application.js
+// 的 stateSaveCallback 调 captureColumnFilters），重新进页后 init 完成时重放（replayColumnFilters）。
+function registerReplay(table, columnIndex, get, set) {
+  table.__filterReplay = table.__filterReplay || {}
+  table.__filterReplay[columnIndex] = { get, set }
+}
+
+export function captureColumnFilters(table) {
+  const reg = table.__filterReplay
+  if (!reg) return undefined
+  const out = []
+  Object.keys(reg).forEach((k) => {
+    const v = reg[k].get()
+    const empty = v == null || v === "" || (Array.isArray(v) && v.every((x) => x == null || x === ""))
+    if (!empty) out.push({ i: Number(k), v })
+  })
+  return out.length ? out : undefined
+}
+
+export function replayColumnFilters(table, dt, saved) {
+  if (!saved || !saved.length) return
+  const reg = table.__filterReplay
+  if (!reg) return
+  let touched = false
+  saved.forEach(({ i, v }) => {
+    const entry = reg[i]
+    if (!entry) return
+    try {
+      entry.set(v)
+      touched = true
+    } catch (e) {
+      // 控件不存在（列结构变化），跳过该列
+    }
+  })
+  if (touched) dt.draw() // 统一收尾：区间谓词/函数式搜索在此一并生效
+}
+
 function makeInput(className) {
   const input = document.createElement("input")
   input.className = className
@@ -122,38 +161,57 @@ function appendRangeFilter(th, dt, columnIndex, table, type) {
   predicate.__table = table
   pruneStaleRangePredicates()
   DataTable.ext.search.push(predicate)
+  registerReplay(table, columnIndex,
+    () => (from.value || to.value ? [from.value, to.value] : null),
+    (v) => {
+      const [a, b] = Array.isArray(v) ? v : [v, ""]
+      from.value = a == null ? "" : String(a)
+      to.value = b == null ? "" : String(b)
+    }
+  )
 }
 
 // 数值列紧凑筛选：单输入框区间语法（Excel 自定义筛选风格）
 //   100~500 → 区间；~500 → ≤；100~ → ≥；100 → 精确
 // 用 v3 函数式列搜索（column.search(fn)），不走全局 ext.search
-function appendNumberFilter(th, dt, columnIndex) {
+function appendNumberFilter(th, dt, columnIndex, table) {
   const input = makeInput("form-control form-control-sm")
   input.placeholder = "100~500"
+  const parse = (raw) =>
+    raw === "" ? [null, "", "", undefined] : raw.match(/^(-?[\d.]*)~(-?[\d.]*)$|^(-?[\d.]+)$/)
+  // 函数式列搜索（search("") 无法覆盖上一个函数式搜索，始终用函数）
+  const applySearch = (raw) => {
+    const m = parse(raw)
+    if (!m) return false // 语法不对不过滤，避免整表清空
+    dt.column(columnIndex).search((cellText) => {
+      if (raw === "") return true
+      const v = parseFloat(String(cellText).replace(/[^\d.-]/g, ""))
+      if (isNaN(v)) return false
+      if (m[3] !== undefined) return v === parseFloat(m[3]) // 精确
+      if (m[1] !== "" && v < parseFloat(m[1])) return false
+      if (m[2] !== "" && v > parseFloat(m[2])) return false
+      return true
+    })
+    return true
+  }
   let timer = null
   input.addEventListener("input", () => {
     clearTimeout(timer)
     timer = setTimeout(() => {
-      const raw = input.value.trim()
-      const m = raw === "" ? [null, "", "", undefined] : raw.match(/^(-?[\d.]*)~(-?[\d.]*)$|^(-?[\d.]+)$/)
-      if (!m) return // 语法不对不过滤，避免整表清空
-
-      // 始终用函数搜索（search("") 无法覆盖上一个函数式搜索）
-      dt.column(columnIndex).search((cellText) => {
-        if (raw === "") return true
-        const v = parseFloat(String(cellText).replace(/[^\d.-]/g, ""))
-        if (isNaN(v)) return false
-        if (m[3] !== undefined) return v === parseFloat(m[3]) // 精确
-        if (m[1] !== "" && v < parseFloat(m[1])) return false
-        if (m[2] !== "" && v > parseFloat(m[2])) return false
-        return true
-      }).draw()
+      if (applySearch(input.value.trim())) dt.draw()
     }, 250)
   })
   // 筛选行在创建表单内：拦截回车，避免误触发创建
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") e.preventDefault()
   })
+  registerReplay(table, columnIndex,
+    () => input.value,
+    (v) => {
+      input.value = String(v)
+      applySearch(String(v).trim()) // draw 由 replayColumnFilters 收尾统一触发
+    }
+  )
   th.appendChild(input)
 }
 
