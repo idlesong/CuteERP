@@ -17,7 +17,9 @@ export function initSearchableSelects(root = document) {
     input.addEventListener("input", () => {
       const q = input.value.trim().toLowerCase()
       options.forEach((opt) => {
-        opt.hidden = Boolean(q) && !opt.disabled && !opt.textContent.toLowerCase().includes(q)
+        // 占位项（value 为空或 disabled）始终保留，避免过滤后提示消失
+        const placeholder = opt.disabled || opt.value === ""
+        opt.hidden = Boolean(q) && !placeholder && !opt.textContent.toLowerCase().includes(q)
       })
     })
     // 过滤框内回车不应触发所在表单提交（如对账单查询/快捷创建）
