@@ -75,8 +75,8 @@
         <th></th>
         <th></th>
         <th>
-          <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name), :id, :name),
-                         prompt: "客户*", class: "form-select form-select-sm", style: "width: 12rem;", required: true %>
+          <%= select_tag :customer_id, options_from_collection_for_select(Customer.order(:name_zh, :name), :id, ->(c) { cust_name(c) }),
+                         prompt: "客户*", class: "form-select form-select-sm", style: "width: 12rem;", required: true, data: { searchable: true } %>
         </th>
         <th></th>
         <th></th>

@@ -14,6 +14,7 @@ window.DataTable = DataTable
 
 import "./controllers"
 import { initColumnFilters, captureColumnFilters, replayColumnFilters } from "./lib/column_filters"
+import { initSearchableSelects } from "./lib/searchable_select"
 
 // 快捷编辑行（tr.table-warning）保证可见：筛选/页码恢复后，若该行在别的页码则跳页，
 // 并滚动定位。行被筛选过滤掉时（数据变化等）不强行清筛选，只跳过。
@@ -35,6 +36,9 @@ function ensureEditRowVisible(table, dt) {
 document.addEventListener("turbo:load", () => {
   // Bootstrap tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((el) => new Bootstrap.Tooltip(el))
+
+  // 可搜索下拉（客户/型号等长列表 select）
+  initSearchableSelects()
 
   // DataTables (legacy markup uses .datatable) + Excel-style column filter row
   document.querySelectorAll(".datatable").forEach((table, ti) => {

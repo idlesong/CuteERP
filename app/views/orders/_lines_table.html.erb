@@ -85,9 +85,9 @@
     <tr class="inline-new-row">
       <th></th>
       <th>
-        <select name="order[customer_id]" id="order_customer_id" class="form-select form-select-sm">
+        <select name="order[customer_id]" id="order_customer_id" class="form-select form-select-sm" data-searchable>
           <option value="" selected>客户(新PO必选)</option>
-          <%= options_from_collection_for_select(Customer.order(:name), :id, :name) %>
+          <%= options_from_collection_for_select(Customer.order(:name_zh, :name), :id, ->(c) { cust_name(c) }) %>
         </select>
       </th>
       <th>
