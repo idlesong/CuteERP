@@ -7,9 +7,5 @@
 <%= render "lines_table", lines: @lines, paging: true %>
 <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
   <%= link_to "高级创建（完整表头）", new_order_path, class: "btn btn-outline-secondary btn-sm" %>
-  <%= form_tag import_orders_path, multipart: true, class: "d-flex gap-1 align-items-center", title: "模板=月度工作簿「客户订单」表，按列名解析；数量为负自动生成冲销单（订单号-Rn）" do %>
-    <%= file_field_tag :file, class: "form-control form-control-sm", style: "width: 18rem;" %>
-    <%= submit_tag "导入", class: "btn btn-sm btn-outline-secondary" %>
-  <% end %>
 </div>
 
