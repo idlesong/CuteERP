@@ -53,10 +53,11 @@ class StatementsController < ApplicationController
     }
 
     xlsx = Xlsx.generate([
-      { name: "订单核对", headers: InternalMonthlyStatement::HEADERS,
-        rows: rows_with_totals.call(st.order_rows) },
-      { name: "出货核对", headers: InternalMonthlyStatement::HEADERS,
-        rows: rows_with_totals.call(st.shipment_rows) },
+      # 前两段按财务对账 Excel 列序（含空列占位），末尾合计行；页面口径见 InternalMonthlyStatement
+      { name: "客户订单", headers: InternalMonthlyStatement::ORDER_EXPORT_HEADERS,
+        rows: st.to_order_export_rows + [st.order_export_total_row] },
+      { name: "销售发货", headers: InternalMonthlyStatement::SHIPMENT_EXPORT_HEADERS,
+        rows: st.to_shipment_export_rows + [st.shipment_export_total_row] },
       { name: "未交订单", headers: InternalMonthlyStatement::HEADERS,
         rows: rows_with_totals.call(st.backlog_rows) },
       { name: "排产核对", headers: InternalMonthlyStatement::ALLOC_HEADERS,

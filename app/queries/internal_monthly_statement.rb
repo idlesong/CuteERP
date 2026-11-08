@@ -8,7 +8,10 @@ class InternalMonthlyStatement
   Row = Struct.new(:date, :doc_no, :customer, :currency, :part, :group, :quantity,
                    :chip_price, :v1_price, :v2_price,
                    :chip_amt, :v1_amt, :v2_amt, :amount, :rate, :amount_rmb, :extra, :price_no,
-                   :price_id)
+                   :price_id,
+                   # 对账工作簿格式导出所需（客户订单段/销售发货段）
+                   :po_number, :version, :required_delivery_date, :remark,
+                   :v1_name, :v2_name, :unit_price, :territory)
 
   # 排产核对段行（生产单无币别语境，独立结构）
   AllocRow = Struct.new(:date, :serial, :customer, :part, :quantity, :version,
@@ -30,6 +33,7 @@ class InternalMonthlyStatement
     @backlog_rows = []
     @allocation_rows = []
     @price_rows = []
+    @item_name_cache = {}
     build_orders
     build_backlog
     build_shipments
@@ -50,13 +54,18 @@ class InternalMonthlyStatement
       v1 = (qty * (line.v1_price || 0)).round(2)
       v2 = (qty * (line.v2_price || 0)).round(2)
       extra = [line.version, ("冲销" if line.order.return?)].compact.join(" ")
+      item = line.order_item
       @order_rows << Row.new(line.order.created_at.to_date, line.display_no,
                              cust_name(line.order.customer), line.order.currency,
-                             line.generic_part_no, line.order_item&.group, qty,
+                             line.generic_part_no, item&.group, qty,
                              line.base_price || 0, line.v1_price || 0, line.v2_price || 0,
                              chip, v1, v2, line.total_price.round(2), rate,
                              (line.total_price * rate).round(2), extra, line.price&.price_number,
-                             line.price_id)
+                             line.price_id,
+                             # 工作簿格式导出列
+                             line.order.po_number, line.version,
+                             line.required_delivery_date&.to_date, line.remark,
+                             component_name(item, :extra_item), component_name(item, :extra_item2))
     end
   end
 
@@ -106,13 +115,18 @@ class InternalMonthlyStatement
       end
       qty = sl.quantity
       unit = (pl&.unit_price || 0).round(2)
+      item = pl&.item
       @shipment_rows << Row.new(sl.shipment.shipped_at.to_date, sl.shipment.sales_order.serial_number,
                                 cust_name(sl.shipment.sales_order.customer), currency,
-                                pl&.part_number, pl&.item&.group, qty,
+                                pl&.part_number, item&.group, qty,
                                 chip_p.round(2), v1_p.round(2), v2_p.round(2),
                                 (qty * chip_p).round(2), (qty * v1_p).round(2), (qty * v2_p).round(2),
                                 (qty * unit).round(2), rate,
-                                (qty * unit * rate).round(2), sl.shipment.tracking_no, nil, nil)
+                                (qty * unit * rate).round(2), sl.shipment.tracking_no, nil, nil,
+                                # 工作簿格式导出列
+                                nil, nil, nil, nil,
+                                component_name(item, :extra_item), component_name(item, :extra_item2),
+                                unit, sl.shipment.sales_order.customer.territory)
     end
   end
 
@@ -223,6 +237,62 @@ class InternalMonthlyStatement
                     r.chip_amt, r.v1_amt, r.v2_amt, r.amount, r.rate, r.amount_rmb] }
   end
 
+  # ---- 对账工作簿格式导出（客户订单段/销售发货段）----
+  # 列序与列名严格对齐财务对账 Excel；空列为占位保留列（Excel 侧手工填写，导出为空）
+  # 口径同 MonthlyWorkbook：未税 = 含税 ÷ 1.13；发货段单价含税 = 原币 × 当月汇率；
+  # 芯片/声码单价 = 订单行报价成分含税原值；声码名称 = 产品档案 extra_item(2) → Item 名称
+  TAX = MonthlyWorkbook::TAX_FACTOR
+
+  ORDER_EXPORT_HEADERS = ["接收日期", "客户", "订单号", "通用型号", "版本", "数量", "含税单价",
+                          "要求交期", "特殊要求", "", "", "未税金额", "", "",
+                          "声码1名称", "声码名称2", "芯片未税金额", "声码1未税金额", "声码2未税金额",
+                          "", "芯片单价", "声码1单价", "声码2单价", "汇率", "产品大类"].freeze
+
+  SHIPMENT_EXPORT_HEADERS = ["日期", "客户", "六联单号", "产品", "数量", "快递单号", "", "",
+                             "单价含税", "销售额（不含税）", "声码器1名称", "声码器2名称",
+                             "芯片销售额(不含税)", "声码1销售额(不含税)", "声码2销售额(不含税)",
+                             "", "", "产品大类", "汇率", "区域"].freeze
+
+  def to_order_export_rows
+    order_rows.map do |r|
+      [r.date, r.customer, r.po_number, r.part, r.version, r.quantity,
+       (r.chip_price + r.v1_price + r.v2_price).round(5), r.required_delivery_date, r.remark,
+       nil, nil, (r.amount / TAX).round(5), nil, nil,
+       r.v1_name, r.v2_name,
+       (r.chip_amt / TAX).round(5), (r.v1_amt / TAX).round(5), (r.v2_amt / TAX).round(5),
+       nil, r.chip_price, r.v1_price, r.v2_price, r.rate, r.group]
+    end
+  end
+
+  # 合计行：数量 + 未税金额（列位与明细一致，其余空）
+  def order_export_total_row
+    row = [nil] * ORDER_EXPORT_HEADERS.size
+    row[0] = "合计"
+    row[5] = order_rows.sum(&:quantity)
+    row[11] = order_rows.sum { |r| ((r.amount / TAX).round(5)) }.round(2)
+    row
+  end
+
+  def to_shipment_export_rows
+    shipment_rows.map do |r|
+      [r.date, r.customer, r.doc_no, r.part, r.quantity, r.extra,
+       nil, nil, (r.unit_price * r.rate).round(2), (r.amount * r.rate / TAX).round(2),
+       r.v1_name, r.v2_name,
+       (r.chip_amt * r.rate / TAX).round(2), (r.v1_amt * r.rate / TAX).round(2),
+       (r.v2_amt * r.rate / TAX).round(2),
+       nil, nil, r.group, r.rate, r.territory]
+    end
+  end
+
+  # 合计行：数量 + 销售额（不含税）
+  def shipment_export_total_row
+    row = [nil] * SHIPMENT_EXPORT_HEADERS.size
+    row[0] = "合计"
+    row[4] = shipment_rows.sum(&:quantity)
+    row[9] = shipment_rows.sum { |r| ((r.amount * r.rate / TAX).round(2)) }.round(2)
+    row
+  end
+
   # 排产核对段表头与行
   ALLOC_HEADERS = %w[下单日期 六联单号 客户 产品 数量 版本 分配明细 Σ分配 已发货 状态].freeze
 
@@ -281,6 +351,16 @@ class InternalMonthlyStatement
 
   def cust_name(customer)
     customer.name_zh.presence || customer.name
+  end
+
+  # 声码名称：产品档案 extra_item(2) 存 part_no，解析为对应 Item 名称（查不到回退原文）
+  def component_name(item, field)
+    return nil if item.nil?
+
+    part_no = item.public_send(field).to_s.strip
+    return nil if part_no.empty?
+
+    @item_name_cache[part_no] ||= Item.find_by(generic_part_no: part_no)&.name || part_no
   end
 
   def rate_for(month_date, currency)
